@@ -15,6 +15,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { TypingTips } from './components/TypingTips'
 import { Onboarding } from './components/Onboarding'
 import { AchievementsPanel } from './components/AchievementsPanel'
+import { StreakRewardsPanel } from './components/StreakRewardsPanel'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
 import { SessionSummary } from './components/SessionSummary'
@@ -24,7 +25,9 @@ import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useTheme } from './hooks/useTheme'
 import { calculateSessionXp } from './utils/stats'
+import { calculateStreakXpBonus } from './components/StreakRewardsPanel'
 import { Exercise } from './types'
+import { SoundTheme } from './utils/soundThemes'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly'
@@ -35,6 +38,7 @@ function App() {
     layout: 'jcuken',
     soundEnabled: true,
     soundVolume: 0.5,
+    soundTheme: 'default',
     fontSize: 'medium',
     theme: 'dark',
     showKeyboard: true,
@@ -49,6 +53,7 @@ function App() {
   const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
+  const [showStreakRewards, setShowStreakRewards] = useState(false)
   const [lastSessionXp, setLastSessionXp] = useState(0)
 
   const [progress, setProgress] = useState<UserProgress>({
@@ -82,7 +87,11 @@ function App() {
   }
 
   // Хуки
-  const sound = useTypingSound({ enabled: settings.soundEnabled, volume: settings.soundVolume })
+  const sound = useTypingSound({ 
+    enabled: settings.soundEnabled, 
+    volume: settings.soundVolume,
+    theme: settings.soundTheme
+  })
   const { addSession } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, resolvedTheme, setTheme } = useTheme()
@@ -104,9 +113,11 @@ function App() {
     sound.playComplete()
 
     const xp = calculateSessionXp(stats)
-    setLastSessionXp(xp)
+    const streakBonus = calculateStreakXpBonus(streak.current)
+    const totalXp = xp + streakBonus
+    setLastSessionXp(totalXp)
 
-    addSession(stats, xp)
+    addSession(stats, totalXp)
 
     // Завершение челленджа если активен
     if (activeChallenge && todayChallenge) {
@@ -116,7 +127,7 @@ function App() {
 
     // Обновление прогресса
     setProgress(prev => {
-      const newXp = prev.xp + xp
+      const newXp = prev.xp + totalXp
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
       
       // Показываем сводку сессии
@@ -398,6 +409,23 @@ function App() {
                   </select>
                 </div>
 
+                <div>
+                  <label className="block text-sm text-dark-400 mb-2">
+                    Звуковая тема
+                  </label>
+                  <select
+                    value={settings.soundTheme}
+                    onChange={(e) => setSettings({ ...settings, soundTheme: e.target.value as SoundTheme })}
+                    className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="default">🔊 По умолчанию</option>
+                    <option value="piano">🎹 Пианино</option>
+                    <option value="mechanical">⌨️ Механическая</option>
+                    <option value="soft">🌸 Мягкий</option>
+                    <option value="retro">👾 Ретро</option>
+                  </select>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-dark-400">Звук</span>
                   <button
@@ -417,6 +445,14 @@ function App() {
                     <div className={`w-5 h-5 bg-white rounded-full transition-transform ${settings.showKeyboard ? 'translate-x-6' : 'translate-x-0.5'}`} />
                   </button>
                 </div>
+
+                <button
+                  onClick={() => setShowStreakRewards(true)}
+                  className="w-full py-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 border border-orange-500/50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🔥</span>
+                  Награды за серию ({streak.current} дн.)
+                </button>
               </div>
             </div>
 
@@ -454,6 +490,14 @@ function App() {
             setShowSessionSummary(false)
             setGameMode('practice')
           }}
+        />
+      )}
+
+      {/* Награды за серию */}
+      {showStreakRewards && (
+        <StreakRewardsPanel
+          currentStreak={streak.current}
+          onClose={() => setShowStreakRewards(false)}
         />
       )}
     </div>

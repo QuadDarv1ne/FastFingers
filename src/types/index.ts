@@ -43,6 +43,7 @@ export interface UserSettings {
   layout: KeyboardLayout;
   soundEnabled: boolean;
   soundVolume: number;
+  soundTheme: 'default' | 'piano' | 'mechanical' | 'soft' | 'retro';
   fontSize: 'small' | 'medium' | 'large';
   theme: 'dark' | 'light' | 'system';
   showKeyboard: boolean;

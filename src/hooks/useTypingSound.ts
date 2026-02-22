@@ -1,29 +1,18 @@
 import { useRef, useCallback } from 'react'
+import { SoundTheme, soundThemes, pianoNotes } from '../utils/soundThemes'
 
 interface SoundOptions {
   enabled: boolean
   volume: number
-}
-
-// Частоты для разных звуков
-const SOUNDS = {
-  // Правильное нажатие - высокий приятный тон
-  correct: { freq: 800, duration: 0.05, type: 'sine' as const },
-  // Ошибка - низкий неприятный тон
-  error: { freq: 200, duration: 0.1, type: 'sawtooth' as const },
-  // Завершение упражнения - победный аккорд
-  complete: { freq: 1200, duration: 0.3, type: 'triangle' as const },
-  // Клик клавиши - тихий щелчок
-  click: { freq: 600, duration: 0.02, type: 'sine' as const },
+  theme: SoundTheme
 }
 
 export function useTypingSound(options: SoundOptions) {
   const audioContextRef = useRef<AudioContext | null>(null)
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
-  const throttleMs = 30 // Минимальный интервал между звуками
+  const throttleMs = 30
 
-  // Инициализация аудио контекста
   const initAudio = useCallback(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -33,8 +22,7 @@ export function useTypingSound(options: SoundOptions) {
     }
   }, [options.volume])
 
-  // Воспроизведение звука
-  const playSound = useCallback((soundName: keyof typeof SOUNDS) => {
+  const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click', key?: string) => {
     if (!options.enabled) return
     
     const now = Date.now()
@@ -50,12 +38,15 @@ export function useTypingSound(options: SoundOptions) {
       const ctx = audioContextRef.current
       if (!ctx || !gainNodeRef.current) return
       
-      // Возобновление контекста если приостановлен
       if (ctx.state === 'suspended') {
         ctx.resume()
       }
       
-      const sound = SOUNDS[soundName]
+      const theme = soundThemes[options.theme]
+      const sound = soundName === 'click' && options.theme === 'piano' && key
+        ? { freq: pianoNotes[key as keyof typeof pianoNotes] || 440, duration: 0.15, type: 'sine' as const }
+        : theme[soundName]
+      
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
       
@@ -65,7 +56,6 @@ export function useTypingSound(options: SoundOptions) {
       oscillator.frequency.value = sound.freq
       oscillator.type = sound.type
       
-      // Плавное затухание
       const now = ctx.currentTime
       gainNode.gain.setValueAtTime(options.volume, now)
       gainNode.gain.exponentialRampToValueAtTime(0.01, now + sound.duration)
@@ -73,19 +63,16 @@ export function useTypingSound(options: SoundOptions) {
       oscillator.start(now)
       oscillator.stop(now + sound.duration)
     } catch (e) {
-      // Игнорируем ошибки аудио (например, в Safari без жеста пользователя)
       console.warn('Audio play failed:', e)
     }
-  }, [options.enabled, options.volume, initAudio])
+  }, [options.enabled, options.volume, options.theme, initAudio])
 
-  // Обновление громкости
   const setVolume = useCallback((volume: number) => {
     if (gainNodeRef.current) {
       gainNodeRef.current.gain.value = volume
     }
   }, [])
 
-  // Очистка
   const cleanup = useCallback(() => {
     if (audioContextRef.current) {
       audioContextRef.current.close()
@@ -95,10 +82,10 @@ export function useTypingSound(options: SoundOptions) {
   }, [])
 
   return {
-    playCorrect: () => playSound('correct'),
+    playCorrect: (key?: string) => playSound('correct', key),
     playError: () => playSound('error'),
     playComplete: () => playSound('complete'),
-    playClick: () => playSound('click'),
+    playClick: (key?: string) => playSound('click', key),
     setVolume,
     cleanup,
     initAudio,

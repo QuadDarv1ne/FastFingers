@@ -87,7 +87,7 @@ export function TypingTrainer({
       
       // Звуковой эффект
       if (sound) {
-        isCorrect ? sound.playCorrect() : sound.playError()
+        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
       }
       
       // Callback для тепловой карты
