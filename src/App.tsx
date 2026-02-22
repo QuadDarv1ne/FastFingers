@@ -12,6 +12,7 @@ import { ExportImport } from './components/ExportImport'
 import { ThemeToggle } from './components/ThemeToggle'
 import { TypingTips } from './components/TypingTips'
 import { Onboarding } from './components/Onboarding'
+import { AchievementsPanel } from './components/AchievementsPanel'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -41,6 +42,7 @@ function App() {
   const [view, setView] = useState<View>('main')
   const [customExercises, setCustomExercises] = useState<Exercise[]>([])
   const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
+  const [showAchievements, setShowAchievements] = useState(false)
 
   const [progress, setProgress] = useState<UserProgress>({
     level: 1,
@@ -310,6 +312,7 @@ function App() {
                 progress={progress}
                 currentStats={currentStats}
                 onViewHistory={() => setView('history')}
+                onViewAchievements={() => setShowAchievements(true)}
                 challengeStats={challengeStats}
               />
             )}
@@ -371,6 +374,14 @@ function App() {
 
       {/* Онбординг для новых пользователей */}
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+
+      {/* Панель достижений */}
+      {showAchievements && (
+        <AchievementsPanel
+          progress={progress}
+          onClose={() => setShowAchievements(false)}
+        />
+      )}
     </div>
   )
 }

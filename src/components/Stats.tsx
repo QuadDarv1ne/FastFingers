@@ -5,6 +5,7 @@ interface StatsProps {
   progress: UserProgress
   currentStats: TypingStatsType | null
   onViewHistory?: () => void
+  onViewAchievements?: () => void
   challengeStats?: {
     total: number
     completed: number
@@ -12,7 +13,7 @@ interface StatsProps {
   }
 }
 
-export function Stats({ progress, currentStats, onViewHistory, challengeStats }: StatsProps) {
+export function Stats({ progress, currentStats, onViewHistory, onViewAchievements, challengeStats }: StatsProps) {
   return (
     <div className="space-y-4">
       {/* Текущая сессия */}
@@ -142,6 +143,17 @@ export function Stats({ progress, currentStats, onViewHistory, challengeStats }:
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           История тренировок
+        </button>
+      )}
+
+      {/* Кнопка достижений */}
+      {onViewAchievements && (
+        <button
+          onClick={onViewAchievements}
+          className="w-full py-3 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 border border-yellow-600/50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <span className="text-xl">🏆</span>
+          Достижения
         </button>
       )}
     </div>
