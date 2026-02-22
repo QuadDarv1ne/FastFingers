@@ -5,7 +5,9 @@ import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
 import { SprintMode } from './components/SprintMode'
 import { SpeedTest } from './components/SpeedTest'
+import { ReactionGame } from './components/ReactionGame'
 import { TrainingHistory } from './components/TrainingHistory'
+import { WeeklyProgress } from './components/WeeklyProgress'
 import { DailyChallengeCard } from './components/DailyChallengeCard'
 import { CustomExerciseEditor } from './components/CustomExerciseEditor'
 import { ExportImport } from './components/ExportImport'
@@ -24,8 +26,8 @@ import { useTheme } from './hooks/useTheme'
 import { calculateSessionXp } from './utils/stats'
 import { Exercise } from './types'
 
-type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest'
-type View = 'main' | 'history' | 'custom-exercise' | 'tips'
+type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
+type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly'
 type SpeedTestDuration = 15 | 30 | 60
 
 function App() {
@@ -128,6 +130,23 @@ function App() {
         totalWordsTyped: prev.totalWordsTyped + Math.floor(stats.correctChars / 5),
         bestWpm: Math.max(prev.bestWpm, stats.wpm),
         bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
+      }
+    })
+  }
+
+  const handleReactionGameComplete = (score: number, accuracy: number) => {
+    const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
+    setLastSessionXp(xp)
+    
+    setProgress(prev => {
+      const newXp = prev.xp + xp
+      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
+      
+      return {
+        ...prev,
+        xp: newXp,
+        level: newLevel,
+        xpToNextLevel: Math.pow(newLevel + 1, 2) * 100,
       }
     })
   }
@@ -248,6 +267,26 @@ function App() {
             >
               💡 Советы
             </button>
+            <button
+              onClick={() => setView('weekly')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                view === 'weekly'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-dark-400 hover:text-white'
+              }`}
+            >
+              📈 Неделя
+            </button>
+            <button
+              onClick={() => setGameMode('reaction')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                gameMode === 'reaction'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-dark-400 hover:text-white'
+              }`}
+            >
+              🎮 Игра
+            </button>
           </div>
 
           {/* Тема */}
@@ -266,6 +305,13 @@ function App() {
               />
             ) : view === 'tips' ? (
               <TypingTips />
+            ) : view === 'weekly' ? (
+              <WeeklyProgress />
+            ) : gameMode === 'reaction' ? (
+              <ReactionGame
+                onExit={() => setGameMode('practice')}
+                onComplete={handleReactionGameComplete}
+              />
             ) : gameMode === 'sprint' ? (
               <SprintMode
                 onExit={() => setGameMode('practice')}
