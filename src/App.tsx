@@ -19,23 +19,28 @@ import { StreakRewardsPanel } from './components/StreakRewardsPanel'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
 import { SessionSummary } from './components/SessionSummary'
+import { StatisticsPage } from './components/StatisticsPage'
+import { LearningMode } from './components/LearningMode'
+import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { AuthWrapper } from './components/auth/AuthWrapper'
 import { UserProfile } from './components/auth/UserProfile'
 import { NotificationBell, NotificationPanel } from './components/NotificationBell'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { NotificationProvider, useNotifications, createLevelUpNotification } from './contexts/NotificationContext'
+import { triggerConfetti } from './utils/confetti'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useTheme } from './hooks/useTheme'
+import { useHotkeys } from './hooks/useHotkeys'
 import { calculateSessionXp } from './utils/stats'
 import { calculateStreakXpBonus } from './components/StreakRewardsPanel'
 import { Exercise } from './types'
 import { SoundTheme } from './utils/soundThemes'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
-type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly'
+type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
 type SpeedTestDuration = 15 | 30 | 60
 
 function AppContent() {
@@ -117,7 +122,19 @@ function AppContent() {
     setShowOnboarding(false)
   }
 
-  // Хуки
+  // Горячие клавиши
+  useHotkeys({
+    'ctrl+1': () => { setGameMode('practice'); setView('main') },
+    'ctrl+2': () => { setGameMode('sprint'); setView('main') },
+    'ctrl+3': () => setView('statistics'),
+    'ctrl+4': () => setView('learning'),
+    'ctrl+5': () => setView('tips'),
+    'ctrl+p': () => setShowProfile(true),
+    'ctrl+n': () => {
+      const button = document.querySelector('[data-action="new-exercise"]') as HTMLElement
+      button?.click()
+    },
+  }, { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile })
   const sound = useTypingSound({ 
     enabled: settings.soundEnabled, 
     volume: settings.soundVolume,
@@ -165,6 +182,7 @@ function AppContent() {
       // Уведомление о повышении уровня
       if (newLevel > prevLevel) {
         addNotification(createLevelUpNotification(newLevel))
+        triggerConfetti({ type: 'levelup', duration: 4000 })
       }
       
       // Показываем сводку сессии
@@ -337,6 +355,26 @@ function AppContent() {
               📈 Неделя
             </button>
             <button
+              onClick={() => setView('statistics')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                view === 'statistics'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-dark-400 hover:text-white'
+              }`}
+            >
+              📊 Статистика
+            </button>
+            <button
+              onClick={() => setView('learning')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                view === 'learning'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-dark-400 hover:text-white'
+              }`}
+            >
+              📚 Обучение
+            </button>
+            <button
               onClick={() => setGameMode('reaction')}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 gameMode === 'reaction'
@@ -348,8 +386,11 @@ function AppContent() {
             </button>
           </div>
 
-          {/* Тема */}
-          <ThemeToggle theme={theme} resolvedTheme={resolvedTheme} onThemeChange={setTheme} />
+          {/* Переключатель языка и тема */}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <ThemeToggle theme={theme} resolvedTheme={resolvedTheme} onThemeChange={setTheme} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -371,6 +412,10 @@ function AppContent() {
                 onExit={() => setGameMode('practice')}
                 onComplete={handleReactionGameComplete}
               />
+            ) : view === 'statistics' ? (
+              <StatisticsPage onBack={() => setView('main')} />
+            ) : view === 'learning' ? (
+              <LearningMode onBack={() => setView('main')} />
             ) : gameMode === 'sprint' ? (
               <SprintMode
                 onExit={() => setGameMode('practice')}
