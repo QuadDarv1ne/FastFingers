@@ -13,6 +13,9 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { TypingTips } from './components/TypingTips'
 import { Onboarding } from './components/Onboarding'
 import { AchievementsPanel } from './components/AchievementsPanel'
+import { ClockWidget } from './components/ClockWidget'
+import { MotivationalQuote } from './components/MotivationalQuote'
+import { SessionSummary } from './components/SessionSummary'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -43,6 +46,8 @@ function App() {
   const [customExercises, setCustomExercises] = useState<Exercise[]>([])
   const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
   const [showAchievements, setShowAchievements] = useState(false)
+  const [showSessionSummary, setShowSessionSummary] = useState(false)
+  const [lastSessionXp, setLastSessionXp] = useState(0)
 
   const [progress, setProgress] = useState<UserProgress>({
     level: 1,
@@ -95,21 +100,25 @@ function App() {
   const handleSessionComplete = (stats: TypingStatsType) => {
     setCurrentStats(stats)
     sound.playComplete()
-    
+
     const xp = calculateSessionXp(stats)
-    
+    setLastSessionXp(xp)
+
     addSession(stats, xp)
-    
+
     // Завершение челленджа если активен
     if (activeChallenge && todayChallenge) {
       completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
       setActiveChallenge(null)
     }
-    
+
     // Обновление прогресса
     setProgress(prev => {
       const newXp = prev.xp + xp
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
+      
+      // Показываем сводку сессии
+      setShowSessionSummary(true)
       
       return {
         ...prev,
@@ -307,6 +316,12 @@ function App() {
 
           {/* Боковая панель */}
           <div className="space-y-6">
+            {/* Виджет часов */}
+            <ClockWidget />
+
+            {/* Мотивационная цитата */}
+            <MotivationalQuote />
+
             {settings.showStats && (
               <Stats
                 progress={progress}
@@ -380,6 +395,19 @@ function App() {
         <AchievementsPanel
           progress={progress}
           onClose={() => setShowAchievements(false)}
+        />
+      )}
+
+      {/* Сводка сессии */}
+      {showSessionSummary && currentStats && (
+        <SessionSummary
+          stats={currentStats}
+          xpEarned={lastSessionXp}
+          onClose={() => setShowSessionSummary(false)}
+          onRetry={() => {
+            setShowSessionSummary(false)
+            setGameMode('practice')
+          }}
         />
       )}
     </div>

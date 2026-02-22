@@ -1,0 +1,116 @@
+import { useState, useEffect } from 'react'
+
+interface Quote {
+  text: string
+  author: string
+  category: 'motivation' | 'typing' | 'success'
+}
+
+const quotes: Quote[] = [
+  { text: 'Скорость — это ничто без точности.', author: 'Айртон Сенна', category: 'typing' },
+  { text: 'Практика приводит к совершенству.', author: 'Народная мудрость', category: 'typing' },
+  { text: 'Успех — это сумма небольших усилий, повторяющихся изо дня в день.', author: 'Роберт Кольер', category: 'success' },
+  { text: 'Не бойтесь медленного прогресса, бойтесь бездействия.', author: 'Конфуций', category: 'motivation' },
+  { text: 'Мастерство приходит к тем, кто практикуется.', author: 'Древняя пословица', category: 'typing' },
+  { text: 'Каждый эксперт когда-то был новичком.', author: 'Хелен Хейс', category: 'motivation' },
+  { text: 'Печатайте быстро, думайте быстрее.', author: 'Неизвестный', category: 'typing' },
+  { text: 'Препятствия — это то, что вы видите, когда отводите взгляд от цели.', author: 'Генри Форд', category: 'success' },
+  { text: 'Лучший способ предсказать будущее — создать его.', author: 'Питер Друкер', category: 'motivation' },
+  { text: 'Усердная работа побеждает талант, когда талант не работает усердно.', author: 'Тим Нотке', category: 'success' },
+  { text: 'Десять пальцев — десять друзей.', author: 'Инструктор по печати', category: 'typing' },
+  { text: 'Сегодня лучше, чем вчера. Завтра лучше, чем сегодня.', author: 'Японская пословица', category: 'motivation' },
+  { text: 'Точность важнее скорости.', author: 'Правило слепой печати', category: 'typing' },
+  { text: 'Успех — это не ключ к счастью. Счастье — это ключ к успеху.', author: 'Альберт Швейцер', category: 'success' },
+  { text: 'Не останавливайтесь, когда устали. Останавливайтесь, когда закончили.', author: 'Мэрилин Монро', category: 'motivation' },
+]
+
+interface MotivationalQuoteProps {
+  onQuoteChange?: (quote: Quote) => void
+}
+
+export function MotivationalQuote({ onQuoteChange }: MotivationalQuoteProps) {
+  const [currentQuote, setCurrentQuote] = useState<Quote>(quotes[0])
+
+  const getRandomQuote = () => {
+    const randomIndex = Math.floor(Math.random() * quotes.length)
+    const newQuote = quotes[randomIndex]
+    setCurrentQuote(newQuote)
+    onQuoteChange?.(newQuote)
+  }
+
+  useEffect(() => {
+    getRandomQuote()
+  }, [])
+
+  const categoryColors = {
+    motivation: 'from-blue-600 to-cyan-500',
+    typing: 'from-purple-600 to-pink-500',
+    success: 'from-yellow-600 to-orange-500',
+  }
+
+  const categoryIcons = {
+    motivation: '💪',
+    typing: '⌨️',
+    success: '🏆',
+  }
+
+  return (
+    <div className="glass rounded-xl p-6 relative overflow-hidden">
+      {/* Градиентный фон */}
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${categoryColors[currentQuote.category]}`} />
+      
+      <div className="flex items-start justify-between mb-4">
+        <span className="text-2xl">{categoryIcons[currentQuote.category]}</span>
+        <button
+          onClick={getRandomQuote}
+          className="p-2 hover:bg-dark-800 rounded-lg transition-colors text-dark-400 hover:text-white"
+          title="Другая цитата"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+      
+      <blockquote className="mb-4">
+        <p className="text-lg font-medium leading-relaxed">
+          "{currentQuote.text}"
+        </p>
+      </blockquote>
+      
+      <footer className="flex items-center justify-between">
+        <cite className="text-sm text-dark-400 not-italic">
+          — {currentQuote.author}
+        </cite>
+        <span className="text-xs px-2 py-1 bg-dark-800 rounded-full text-dark-500 capitalize">
+          {currentQuote.category === 'typing' ? 'Печать' : 
+           currentQuote.category === 'motivation' ? 'Мотивация' : 'Успех'}
+        </span>
+      </footer>
+    </div>
+  )
+}
+
+// Компонент для отображения случайной цитаты в компактном виде
+export function QuoteOfTheDay() {
+  const [quote, setQuote] = useState<Quote>(quotes[0])
+
+  useEffect(() => {
+    // Используем дату как seed для одинаковой цитаты на весь день
+    const today = new Date().toDateString()
+    let hash = 0
+    for (let i = 0; i < today.length; i++) {
+      hash = ((hash << 5) - hash) + today.charCodeAt(i)
+      hash = hash & hash
+    }
+    const index = Math.abs(hash) % quotes.length
+    setQuote(quotes[index])
+  }, [])
+
+  return (
+    <div className="text-center p-4 bg-dark-800/30 rounded-lg">
+      <p className="text-sm text-dark-300 mb-2">{quote.text}</p>
+      <p className="text-xs text-dark-500">— {quote.author}</p>
+    </div>
+  )
+}
