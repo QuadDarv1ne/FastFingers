@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #7c3aed;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-bg: #0f0f0f;
+  --color-surface: #1e293b;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Утилиты */
+.text-gradient {
+  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Фокус клавиши */
+.key-highlight {
+  animation: key-pulse 0.3s ease-out;
+}
+
+@keyframes key-pulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 5px rgba(124, 58, 237, 0.3);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+  }
+}
+
+/* Ошибка */
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Прогресс бар */
+.progress-bar {
+  transition: width 0.3s ease-out;
+}
+
+/* Стили для текста ввода */
+.char {
+  @apply relative inline-flex items-center justify-center w-4 h-8 md:w-5 md:h-10 rounded text-lg md:text-xl font-mono transition-all duration-100;
+}
+
+.char.correct {
+  @apply bg-green-500/20 text-green-500;
+}
+
+.char.incorrect {
+  @apply bg-red-500/20 text-red-500;
+}
+
+.char.current {
+  @apply bg-violet-500/30 text-violet-500 border-2 border-violet-500;
+  animation: cursor-blink 1s infinite;
+}
+
+.char.pending {
+  @apply text-dark-400;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { border-color: rgba(124, 58, 237, 1); }
+  51%, 100% { border-color: rgba(124, 58, 237, 0.3); }
+}

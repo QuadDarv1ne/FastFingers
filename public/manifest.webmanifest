@@ -1,0 +1,19 @@
+{
+  "name": "FastFingers — Тренажёр слепой печати",
+  "short_name": "FastFingers",
+  "description": "Современный тренажёр слепой десятипальцевой печати",
+  "theme_color": "#7c3aed",
+  "background_color": "#0f0f0f",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
