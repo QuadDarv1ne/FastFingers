@@ -74,46 +74,6 @@ export function useDailyChallenges() {
     practiceDates: [],
   })
 
-  // Загрузка данных
-  useEffect(() => {
-    try {
-      const storedChallenges = localStorage.getItem(STORAGE_KEY_CHALLENGES)
-      const storedStreak = localStorage.getItem(STORAGE_KEY_STREAK)
-      
-      if (storedChallenges) {
-        setChallenges(JSON.parse(storedChallenges))
-      }
-      
-      if (storedStreak) {
-        setStreak(JSON.parse(storedStreak))
-      }
-    } catch (e) {
-      console.error('Failed to load challenges:', e)
-    }
-  }, [])
-
-  // Проверка и создание челленджа на сегодня
-  useEffect(() => {
-    const today = getTodayDate()
-    const todayChallenge = challenges.find(c => c.date === today)
-    
-    if (!todayChallenge) {
-      // Создаём новый челлендж на сегодня
-      const newChallenge = generateDailyChallenge(today)
-      const updatedChallenges = [...challenges, newChallenge].slice(-30) // Храним 30 дней
-      
-      setChallenges(updatedChallenges)
-      try {
-        localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(updatedChallenges))
-      } catch (e) {
-        console.error('Failed to save challenge:', e)
-      }
-    }
-    
-    // Проверка стрика
-    checkStreak(today)
-  }, [challenges])
-
   // Проверка обновления стрика
   const checkStreak = useCallback((today: string) => {
     setStreak(prev => {
@@ -121,11 +81,11 @@ export function useDailyChallenges() {
       const yesterday = new Date()
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toISOString().split('T')[0]
-      
+
       let newCurrent = prev.current
       let newLongest = prev.longest
       let newDates = [...prev.practiceDates]
-      
+
       if (!lastDate) {
         // Первая практика
         newCurrent = 1
@@ -142,9 +102,9 @@ export function useDailyChallenges() {
         newCurrent = 1
         newDates = [today]
       }
-      
+
       newLongest = Math.max(newLongest, newCurrent)
-      
+
       const newStreak = {
         ...prev,
         current: newCurrent,
@@ -152,16 +112,56 @@ export function useDailyChallenges() {
         lastPracticeDate: today,
         practiceDates: newDates.slice(-365), // Храним год
       }
-      
+
       try {
         localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(newStreak))
       } catch (e) {
         console.error('Failed to save streak:', e)
       }
-      
+
       return newStreak
     })
   }, [])
+
+  // Загрузка данных
+  useEffect(() => {
+    try {
+      const storedChallenges = localStorage.getItem(STORAGE_KEY_CHALLENGES)
+      const storedStreak = localStorage.getItem(STORAGE_KEY_STREAK)
+
+      if (storedChallenges) {
+        setChallenges(JSON.parse(storedChallenges))
+      }
+
+      if (storedStreak) {
+        setStreak(JSON.parse(storedStreak))
+      }
+    } catch (e) {
+      console.error('Failed to load challenges:', e)
+    }
+  }, [])
+
+  // Проверка и создание челленджа на сегодня
+  useEffect(() => {
+    const today = getTodayDate()
+    const todayChallenge = challenges.find(c => c.date === today)
+
+    if (!todayChallenge) {
+      // Создаём новый челлендж на сегодня
+      const newChallenge = generateDailyChallenge(today)
+      const updatedChallenges = [...challenges, newChallenge].slice(-30) // Храним 30 дней
+
+      setChallenges(updatedChallenges)
+      try {
+        localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(updatedChallenges))
+      } catch (e) {
+        console.error('Failed to save challenge:', e)
+      }
+    }
+
+    // Проверка стрика
+    checkStreak(today)
+  }, [challenges, checkStreak])
 
   // Завершение челленджа
   const completeChallenge = useCallback((challengeId: string, wpm: number, accuracy: number) => {

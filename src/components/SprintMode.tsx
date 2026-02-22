@@ -24,6 +24,16 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Завершение
+  const handleFinish = useCallback(() => {
+    const correct = inputResults.filter(r => r.isCorrect).length
+    const timeElapsed = SPRINT_DURATION - timeLeft
+    const errors = inputResults.filter(r => !r.isCorrect).length
+
+    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+    onComplete(stats)
+  }, [inputResults, timeLeft, onComplete])
+
   // Генерация текста
   const generateNewText = useCallback(() => {
     const newText = generatePracticeText(50, 5)
@@ -59,7 +69,8 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     return () => {
       if (interval) window.clearInterval(interval)
     }
-  }, [isActive])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, handleFinish])
 
   // Старт при первом нажатии
   const handleStart = () => {
@@ -111,16 +122,6 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
       setAccuracy(newAccuracy)
     }
   }, [inputResults, timeLeft])
-
-  // Завершение
-  const handleFinish = () => {
-    const correct = inputResults.filter(r => r.isCorrect).length
-    const timeElapsed = SPRINT_DURATION - timeLeft
-    const errors = inputResults.filter(r => !r.isCorrect).length
-    
-    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
-    onComplete(stats)
-  }
 
   // Пропуск
   const handleSkip = () => {

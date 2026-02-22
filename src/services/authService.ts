@@ -111,7 +111,7 @@ export const authService = {
     saveUsers(users);
 
     // Сохранение текущего пользователя
-    const { password, ...userWithoutPassword } = newUser;
+    const { password: _, ...userWithoutPassword } = newUser;
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
 
     return userWithoutPassword;
@@ -142,7 +142,7 @@ export const authService = {
     saveUsers(users);
 
     // Сохранение текущего пользователя
-    const { password, ...userWithoutPassword } = user;
+    const { password: _pwd, ...userWithoutPassword } = user;
     
     if (credentials.rememberMe) {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
@@ -251,7 +251,7 @@ export const authService = {
     users[userIndex] = { ...users[userIndex], ...updates };
     saveUsers(users);
 
-    const { password, ...userWithoutPassword } = users[userIndex];
+    const { password: _pwd2, ...userWithoutPassword } = users[userIndex];
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
 
     return userWithoutPassword;
@@ -269,7 +269,7 @@ export const authService = {
     users[userIndex].stats = { ...users[userIndex].stats, ...stats };
     saveUsers(users);
 
-    const { password, ...userWithoutPassword } = users[userIndex];
+    const { password: _pwd3, ...userWithoutPassword } = users[userIndex];
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
 
     return userWithoutPassword;

@@ -25,6 +25,16 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Завершение
+  const handleFinish = useCallback(() => {
+    const correct = inputResults.filter(r => r.isCorrect).length
+    const timeElapsed = duration - timeLeft
+    const errors = inputResults.filter(r => !r.isCorrect).length
+
+    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+    onComplete(stats)
+  }, [inputResults, timeLeft, duration, onComplete])
+
   // Генерация текста
   const generateNewText = useCallback(() => {
     const newText = generatePracticeText(100, 5)
@@ -59,7 +69,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     return () => {
       if (interval) window.clearInterval(interval)
     }
-  }, [isActive])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, handleFinish])
 
   // Старт при первом нажатии
   const handleStart = () => {
@@ -110,16 +121,6 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
       setAccuracy(newAccuracy)
     }
   }, [inputResults, timeLeft, duration])
-
-  // Завершение
-  const handleFinish = () => {
-    const correct = inputResults.filter(r => r.isCorrect).length
-    const timeElapsed = duration - timeLeft
-    const errors = inputResults.filter(r => !r.isCorrect).length
-    
-    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
-    onComplete(stats)
-  }
 
   // Пропуск текста
   const handleSkip = () => {

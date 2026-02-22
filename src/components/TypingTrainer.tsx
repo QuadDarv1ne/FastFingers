@@ -37,10 +37,21 @@ export function TypingTrainer({
   const inputRef = useRef<HTMLInputElement>(null)
   const textContainerRef = useRef<HTMLDivElement>(null)
 
+  // Завершение упражнения
+  const handleComplete = useCallback((results: KeyInputResult[]) => {
+    const correctChars = results.filter(r => r.isCorrect).length
+    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
+
+    const stats = calculateStats(correctChars, results.length, results.filter(r => !r.isCorrect).length, timeElapsed)
+
+    setIsComplete(true)
+    onSessionComplete(stats)
+  }, [startTime, onSessionComplete])
+
   // Инициализация упражнения
   const initExercise = useCallback(() => {
     let exerciseText: string
-    
+
     // Если режим челленджа - используем текст челленджа
     if (isChallenge && challengeText) {
       exerciseText = challengeText
@@ -53,14 +64,14 @@ export function TypingTrainer({
     } else {
       exerciseText = generatePracticeText(20, selectedDifficulty)
     }
-    
+
     setText(exerciseText)
     setCurrentIndex(0)
     setInputResults([])
     setStartTime(null)
     setIsComplete(false)
     setIsPaused(false)
-    
+
     setTimeout(() => inputRef.current?.focus(), 100)
   }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
 
@@ -71,9 +82,9 @@ export function TypingTrainer({
   // Обработка ввода
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
-    
+
     if (isComplete || isPaused) return
-    
+
     // Начало отсчёта времени при первом вводе
     if (!startTime) {
       setStartTime(Date.now())
@@ -81,48 +92,37 @@ export function TypingTrainer({
 
     const newChar = value[value.length - 1]
     const expectedChar = text[currentIndex]
-    
+
     if (newChar) {
       const isCorrect = newChar === expectedChar
-      
+
       // Звуковой эффект
       if (sound) {
         isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
       }
-      
+
       // Callback для тепловой карты
       onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
-      
+
       const result: KeyInputResult = {
         isCorrect,
         char: newChar,
         expectedChar,
         timestamp: Date.now(),
       }
-      
+
       setInputResults(prev => [...prev, result])
       setCurrentIndex(prev => prev + 1)
-      
+
       // Проверка завершения
       if (currentIndex >= text.length - 1) {
         handleComplete([...inputResults, result])
       }
     }
-    
+
     // Очищаем инпут, но сохраняем историю
     e.currentTarget.value = ''
-  }, [text, currentIndex, startTime, isComplete, isPaused, inputResults, sound, onKeyInput])
-
-  // Завершение упражнения
-  const handleComplete = (results: KeyInputResult[]) => {
-    const correctChars = results.filter(r => r.isCorrect).length
-    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    
-    const stats = calculateStats(correctChars, results.length, results.filter(r => !r.isCorrect).length, timeElapsed)
-    
-    setIsComplete(true)
-    onSessionComplete(stats)
-  }
+  }, [text, currentIndex, startTime, isComplete, isPaused, inputResults, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = () => {

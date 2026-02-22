@@ -15,7 +15,8 @@ export function useTypingSound(options: SoundOptions) {
 
   const initAudio = useCallback(() => {
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      audioContextRef.current = new AudioContextClass()
       gainNodeRef.current = audioContextRef.current.createGain()
       gainNodeRef.current.connect(audioContextRef.current.destination)
       gainNodeRef.current.gain.value = options.volume

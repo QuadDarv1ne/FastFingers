@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface Quote {
   text: string
@@ -31,16 +31,16 @@ interface MotivationalQuoteProps {
 export function MotivationalQuote({ onQuoteChange }: MotivationalQuoteProps) {
   const [currentQuote, setCurrentQuote] = useState<Quote>(quotes[0])
 
-  const getRandomQuote = () => {
+  const getRandomQuote = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * quotes.length)
     const newQuote = quotes[randomIndex]
     setCurrentQuote(newQuote)
     onQuoteChange?.(newQuote)
-  }
+  }, [onQuoteChange])
 
   useEffect(() => {
     getRandomQuote()
-  }, [])
+  }, [getRandomQuote])
 
   const categoryColors = {
     motivation: 'from-blue-600 to-cyan-500',

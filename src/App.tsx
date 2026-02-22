@@ -58,27 +58,6 @@ function AppContent() {
     showStats: true,
   })
 
-  // Показываем экран загрузки во время проверки аутентификации
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-            </svg>
-          </div>
-          <p className="text-dark-400">Загрузка...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Показываем экран аутентификации если пользователь не авторизован
-  if (!isAuthenticated) {
-    return <AuthWrapper onSuccess={() => {}} />
-  }
-
   const [showHeatmap, setShowHeatmap] = useState(false)
   const [heatmap, setHeatmap] = useState<KeyHeatmapData>({})
   const [gameMode, setGameMode] = useState<GameMode>('practice')
@@ -121,6 +100,16 @@ function AppContent() {
     setShowOnboarding(false)
   }
 
+  // Хуки должны быть вызваны до любых ранних return
+  const sound = useTypingSound({
+    enabled: settings.soundEnabled,
+    volume: settings.soundVolume,
+    theme: settings.soundTheme
+  })
+  const { addSession } = useTypingHistory()
+  const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
+  const { theme, resolvedTheme, setTheme } = useTheme()
+
   // Горячие клавиши
   useHotkeys({
     'ctrl+1': () => { setGameMode('practice'); setView('main') },
@@ -134,14 +123,6 @@ function AppContent() {
       button?.click()
     },
   }, { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile })
-  const sound = useTypingSound({ 
-    enabled: settings.soundEnabled, 
-    volume: settings.soundVolume,
-    theme: settings.soundTheme
-  })
-  const { addSession } = useTypingHistory()
-  const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
-  const { theme, resolvedTheme, setTheme } = useTheme()
 
   // Обработка начала челленджа
   useEffect(() => {
@@ -154,6 +135,27 @@ function AppContent() {
     window.addEventListener('startChallenge', handleStartChallenge as EventListener)
     return () => window.removeEventListener('startChallenge', handleStartChallenge as EventListener)
   }, [])
+
+  // Показываем экран загрузки во время проверки аутентификации
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+          </div>
+          <p className="text-dark-400">Загрузка...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Показываем экран аутентификации если пользователь не авторизован
+  if (!isAuthenticated) {
+    return <AuthWrapper onSuccess={() => {}} />
+  }
 
   const handleSessionComplete = (stats: TypingStatsType) => {
     setCurrentStats(stats)

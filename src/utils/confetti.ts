@@ -5,6 +5,8 @@ interface ConfettiOptions {
   duration?: number
 }
 
+type ConfettiParams = Parameters<typeof confetti>[0]
+
 export function triggerConfetti(options: ConfettiOptions = {}) {
   const { type = 'default', duration = 3000 } = options
 
@@ -19,13 +21,15 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
   }
   const colors = colorsMap[type]
 
-  // Основной взрыв
-  confetti({
+  const baseParams: ConfettiParams = {
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 },
     colors: colors,
-  } as any)
+  }
+
+  // Основной взрыв
+  confetti(baseParams)
 
   // Боковые залпы
   const sideConfetti = () => {
@@ -35,14 +39,14 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
       spread: 55,
       origin: { x: 0, y: 0.6 },
       colors: colors,
-    } as any)
+    })
     confetti({
       particleCount: 30,
       angle: 120,
       spread: 55,
       origin: { x: 1, y: 0.6 },
       colors: colors,
-    } as any)
+    })
   }
 
   // Запускаем боковые залпы несколько раз
@@ -58,14 +62,14 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
       spread: 55,
       origin: { x: 0 },
       colors: colors,
-    } as any)
+    })
     confetti({
       particleCount: 5,
       angle: 120,
       spread: 55,
       origin: { x: 1 },
       colors: colors,
-    } as any)
+    })
 
     if (Date.now() < end) {
       requestAnimationFrame(frame)
@@ -88,7 +92,7 @@ export function triggerConfettiRain(duration = 5000) {
       colors: colors,
       gravity: 0.5,
       scalar: Math.random() * 0.5 + 0.5,
-    } as any)
+    })
 
     if (Date.now() < end) {
       requestAnimationFrame(frame)
@@ -105,5 +109,5 @@ export function triggerConfettiAt(x: number, y: number) {
     spread: 100,
     origin: { x, y },
     colors: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ffffff'],
-  } as any)
+  })
 }

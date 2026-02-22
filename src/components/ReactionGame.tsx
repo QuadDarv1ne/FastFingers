@@ -104,9 +104,9 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   }
 
   // Клик по цели
-  const handleTargetClick = (id: number) => {
+  const handleTargetClick = useCallback((id: number) => {
     if (!isPlaying) return
-    
+
     setTargets(prev => prev.filter(t => t.id !== id))
     setScore(s => s + 10 + combo)
     setCombo(c => {
@@ -114,16 +114,16 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       setMaxCombo(m => Math.max(m, newCombo))
       return newCombo
     })
-  }
+  }, [isPlaying, combo])
 
   // Обработка клавиатуры
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isPlaying) return
-      
+
       const key = e.key.toLowerCase()
       const targetIndex = targets.findIndex(t => t.key === key)
-      
+
       if (targetIndex !== -1) {
         handleTargetClick(targets[targetIndex].id)
       }
@@ -131,7 +131,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isPlaying, targets])
+  }, [isPlaying, targets, handleTargetClick])
 
   const progress = ((GAME_DURATION - timeLeft) / GAME_DURATION) * 100
 
