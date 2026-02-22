@@ -19,15 +19,22 @@ const hashPassword = (password: string): string => {
 const getUsers = (): (User & { password: string })[] => {
   try {
     const stored = localStorage.getItem(USERS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
+    if (!stored) return [];
+    return JSON.parse(stored);
+  } catch (e) {
+    console.error('[Auth] Ошибка чтения пользователей:', e);
     return [];
   }
 };
 
 // Сохранение пользователей в хранилище
 const saveUsers = (users: (User & { password: string })[]) => {
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  try {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    console.log('[Auth] Пользователи сохранены, всего:', users.length);
+  } catch (e) {
+    console.error('[Auth] Ошибка сохранения пользователей:', e);
+  }
 };
 
 // Валидация email
@@ -45,27 +52,35 @@ export const authService = {
   async register(credentials: RegisterCredentials): Promise<User> {
     await delay(500);
 
+    console.log('[Auth] Регистрация:', { email: credentials.email, name: credentials.name });
+
     // Валидация
     if (!isValidEmail(credentials.email)) {
+      console.error('[Auth] Неверный email');
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
     if (!isValidPassword(credentials.password)) {
+      console.error('[Auth] Слабый пароль');
       throw { code: 'weak-password', message: 'Пароль должен содержать минимум 8 символов' } as AuthError;
     }
 
     if (credentials.password !== credentials.confirmPassword) {
+      console.error('[Auth] Пароли не совпадают');
       throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
     }
 
     if (!credentials.agreeToTerms) {
+      console.error('[Auth] Не принято соглашение');
       throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
     }
 
     const users = getUsers();
+    console.log('[Auth] Текущие пользователи:', users.length);
 
     // Проверка существования email
     if (users.find(u => u.email === credentials.email)) {
+      console.error('[Auth] Email уже занят');
       throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
     }
 

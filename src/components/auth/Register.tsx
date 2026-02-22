@@ -20,11 +20,15 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     clearError()
-    
+
+    console.log('[Register] Попытка регистрации:', { email, name, passwordLength: password.length, agreeToTerms })
+
     try {
       await register({ email, password, confirmPassword, name, agreeToTerms })
+      console.log('[Register] Успешная регистрация')
       onRegisterSuccess()
-    } catch {
+    } catch (error) {
+      console.error('[Register] Ошибка регистрации:', error)
       // Ошибка уже установлена в контексте
     }
   }
