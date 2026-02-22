@@ -4,11 +4,14 @@ import { Header } from './components/Header'
 import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
 import { SprintMode } from './components/SprintMode'
+import { SpeedTest } from './components/SpeedTest'
 import { TrainingHistory } from './components/TrainingHistory'
 import { DailyChallengeCard } from './components/DailyChallengeCard'
 import { CustomExerciseEditor } from './components/CustomExerciseEditor'
 import { ExportImport } from './components/ExportImport'
 import { ThemeToggle } from './components/ThemeToggle'
+import { TypingTips } from './components/TypingTips'
+import { Onboarding } from './components/Onboarding'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -17,8 +20,9 @@ import { useTheme } from './hooks/useTheme'
 import { calculateSessionXp } from './utils/stats'
 import { Exercise } from './types'
 
-type GameMode = 'practice' | 'sprint' | 'challenge'
-type View = 'main' | 'history' | 'custom-exercise'
+type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest'
+type View = 'main' | 'history' | 'custom-exercise' | 'tips'
+type SpeedTestDuration = 15 | 30 | 60
 
 function App() {
   const [settings, setSettings] = useState<UserSettings>({
@@ -36,6 +40,7 @@ function App() {
   const [gameMode, setGameMode] = useState<GameMode>('practice')
   const [view, setView] = useState<View>('main')
   const [customExercises, setCustomExercises] = useState<Exercise[]>([])
+  const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
 
   const [progress, setProgress] = useState<UserProgress>({
     level: 1,
@@ -51,6 +56,21 @@ function App() {
 
   const [currentStats, setCurrentStats] = useState<TypingStatsType | null>(null)
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null)
+
+  // Онбординг для новых пользователей
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      const seen = localStorage.getItem('fastfingers_onboarding_seen')
+      return !seen
+    } catch {
+      return true
+    }
+  })
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('fastfingers_onboarding_seen', 'true')
+    setShowOnboarding(false)
+  }
 
   // Хуки
   const sound = useTypingSound({ enabled: settings.soundEnabled, volume: settings.soundVolume })
@@ -140,10 +160,10 @@ function App() {
         {/* Верхняя панель */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           {/* Переключатель режимов */}
-          <div className="glass rounded-xl p-1 inline-flex">
+          <div className="glass rounded-xl p-1 inline-flex flex-wrap">
             <button
               onClick={() => { setGameMode('practice'); setView('main') }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 gameMode === 'practice' && view === 'main'
                   ? 'bg-primary-600 text-white'
                   : 'text-dark-400 hover:text-white'
@@ -153,7 +173,7 @@ function App() {
             </button>
             <button
               onClick={() => { setGameMode('sprint'); setView('main') }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 gameMode === 'sprint'
                   ? 'bg-primary-600 text-white'
                   : 'text-dark-400 hover:text-white'
@@ -161,15 +181,61 @@ function App() {
             >
               ⚡ Спринт
             </button>
+            <div className="relative group">
+              <button
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                  gameMode === 'speedtest'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-dark-400 hover:text-white'
+                }`}
+                onClick={() => setGameMode('speedtest')}
+              >
+                🕐 Тест
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {/* Выпадающее меню */}
+              <div className="absolute top-full left-0 mt-1 glass rounded-lg p-1 hidden group-hover:block z-10">
+                <button
+                  onClick={() => { setSpeedTestDuration(15); setGameMode('speedtest') }}
+                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                >
+                  15 секунд
+                </button>
+                <button
+                  onClick={() => { setSpeedTestDuration(30); setGameMode('speedtest') }}
+                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                >
+                  30 секунд
+                </button>
+                <button
+                  onClick={() => { setSpeedTestDuration(60); setGameMode('speedtest') }}
+                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                >
+                  60 секунд
+                </button>
+              </div>
+            </div>
             <button
               onClick={() => setView('custom-exercise')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 view === 'custom-exercise'
                   ? 'bg-primary-600 text-white'
                   : 'text-dark-400 hover:text-white'
               }`}
             >
               ✏️ Своё
+            </button>
+            <button
+              onClick={() => setView('tips')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                view === 'tips'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-dark-400 hover:text-white'
+              }`}
+            >
+              💡 Советы
             </button>
           </div>
 
@@ -187,8 +253,17 @@ function App() {
                 onSave={handleSaveCustomExercise}
                 onCancel={() => setView('main')}
               />
+            ) : view === 'tips' ? (
+              <TypingTips />
             ) : gameMode === 'sprint' ? (
               <SprintMode
+                onExit={() => setGameMode('practice')}
+                onComplete={handleSessionComplete}
+                sound={sound}
+              />
+            ) : gameMode === 'speedtest' ? (
+              <SpeedTest
+                duration={speedTestDuration}
                 onExit={() => setGameMode('practice')}
                 onComplete={handleSessionComplete}
                 sound={sound}
@@ -293,6 +368,9 @@ function App() {
       <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm">
         <p>FastFingers © 2026 — Тренажёр слепой печати</p>
       </footer>
+
+      {/* Онбординг для новых пользователей */}
+      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
     </div>
   )
 }
