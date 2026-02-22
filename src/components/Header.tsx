@@ -2,9 +2,10 @@ interface HeaderProps {
   level: number
   xp: number
   xpToNextLevel: number
+  onProfileClick?: () => void
 }
 
-export function Header({ level, xp, xpToNextLevel }: HeaderProps) {
+export function Header({ level, xp, xpToNextLevel, onProfileClick }: HeaderProps) {
   const progress = ((xp / xpToNextLevel) * 100).toFixed(0)
 
   return (
@@ -39,6 +40,17 @@ export function Header({ level, xp, xpToNextLevel }: HeaderProps) {
               </div>
               <p className="text-xs text-dark-500 mt-1">{xp} / {xpToNextLevel} XP</p>
             </div>
+            
+            {/* Кнопка профиля */}
+            {onProfileClick && (
+              <button
+                onClick={onProfileClick}
+                className="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold hover:scale-105 transition-transform"
+                title="Профиль"
+              >
+                👤
+              </button>
+            )}
           </div>
         </div>
       </div>

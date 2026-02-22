@@ -1,0 +1,222 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useAuth } from '../../contexts/AuthContext'
+
+interface PasswordResetProps {
+  onBack: () => void
+}
+
+export function PasswordReset({ onBack }: PasswordResetProps) {
+  const { resetPassword, confirmPasswordReset, isLoading, error, clearError } = useAuth()
+  
+  const [step, setStep] = useState<'request' | 'confirm'>('request')
+  const [email, setEmail] = useState('')
+  const [token, setToken] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    clearError()
+    setSuccessMessage('')
+    
+    try {
+      await resetPassword({ email })
+      setSuccessMessage('Инструкции по сбросу пароля отправлены на ваш email')
+      setStep('confirm')
+    } catch {
+      // Ошибка уже установлена в контексте
+    }
+  }
+
+  const handleConfirmReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    clearError()
+    
+    try {
+      await confirmPasswordReset({ token, newPassword, confirmPassword })
+      setSuccessMessage('Пароль успешно изменён!')
+      setTimeout(() => onBack(), 2000)
+    } catch {
+      // Ошибка уже установлена в контексте
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-md"
+    >
+      <div className="glass rounded-2xl p-8">
+        {/* Заголовок */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold mb-2">
+            {step === 'request' ? 'Восстановление пароля' : 'Новый пароль'}
+          </h1>
+          <p className="text-dark-400">
+            {step === 'request' 
+              ? 'Введите email для сброса пароля' 
+              : 'Введите код из письма и новый пароль'}
+          </p>
+        </div>
+
+        {/* Ошибка */}
+        {error && (
+          <div className="mb-6 p-4 bg-error/20 border border-error/50 rounded-lg flex items-start gap-3">
+            <svg className="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <p className="text-error font-medium">Ошибка</p>
+              <p className="text-error/80 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Успех */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-success/20 border border-success/50 rounded-lg flex items-start gap-3">
+            <svg className="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <p className="text-success">{successMessage}</p>
+          </div>
+        )}
+
+        {/* Форма запроса */}
+        {step === 'request' && (
+          <form onSubmit={handleRequestReset} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Отправка...
+                </>
+              ) : (
+                'Отправить инструкции'
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Форма подтверждения */}
+        {step === 'confirm' && (
+          <form onSubmit={handleConfirmReset} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Код из письма
+              </label>
+              <input
+                type="text"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="ABC123"
+                required
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-center text-lg tracking-wider"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Новый пароль
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={8}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Подтверждение пароля
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={8}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-success-600 hover:bg-success-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Сохранение...
+                </>
+              ) : (
+                'Изменить пароль'
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Кнопка назад */}
+        <div className="mt-6">
+          <button
+            onClick={onBack}
+            className="w-full py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Назад
+          </button>
+        </div>
+
+        {/* Подсказка */}
+        {step === 'request' && (
+          <div className="mt-6 p-4 bg-dark-800/50 rounded-lg">
+            <p className="text-sm text-dark-400">
+              <strong>💡 Совет:</strong> Введите email, который вы использовали при регистрации. 
+              Мы отправим инструкции по сбросу пароля.
+            </p>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}

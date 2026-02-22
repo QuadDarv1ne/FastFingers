@@ -19,6 +19,9 @@ import { StreakRewardsPanel } from './components/StreakRewardsPanel'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
 import { SessionSummary } from './components/SessionSummary'
+import { AuthWrapper } from './components/auth/AuthWrapper'
+import { UserProfile } from './components/auth/UserProfile'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -33,7 +36,9 @@ type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly'
 type SpeedTestDuration = 15 | 30 | 60
 
-function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  
   const [settings, setSettings] = useState<UserSettings>({
     layout: 'jcuken',
     soundEnabled: true,
@@ -45,6 +50,27 @@ function App() {
     showStats: true,
   })
 
+  // Показываем экран загрузки во время проверки аутентификации
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+          </div>
+          <p className="text-dark-400">Загрузка...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Показываем экран аутентификации если пользователь не авторизован
+  if (!isAuthenticated) {
+    return <AuthWrapper onSuccess={() => {}} />
+  }
+
   const [showHeatmap, setShowHeatmap] = useState(false)
   const [heatmap, setHeatmap] = useState<KeyHeatmapData>({})
   const [gameMode, setGameMode] = useState<GameMode>('practice')
@@ -54,6 +80,7 @@ function App() {
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
   const [showStreakRewards, setShowStreakRewards] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
   const [lastSessionXp, setLastSessionXp] = useState(0)
 
   const [progress, setProgress] = useState<UserProgress>({
@@ -195,6 +222,7 @@ function App() {
         level={progress.level}
         xp={progress.xp}
         xpToNextLevel={progress.xpToNextLevel}
+        onProfileClick={() => setShowProfile(true)}
       />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -500,7 +528,21 @@ function App() {
           onClose={() => setShowStreakRewards(false)}
         />
       )}
+
+      {/* Профиль пользователя */}
+      {showProfile && (
+        <UserProfile onClose={() => setShowProfile(false)} />
+      )}
     </div>
+  )
+}
+
+// Главный компонент App с AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
