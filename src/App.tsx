@@ -21,7 +21,9 @@ import { MotivationalQuote } from './components/MotivationalQuote'
 import { SessionSummary } from './components/SessionSummary'
 import { AuthWrapper } from './components/auth/AuthWrapper'
 import { UserProfile } from './components/auth/UserProfile'
+import { NotificationBell, NotificationPanel } from './components/NotificationBell'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { NotificationProvider, useNotifications, createLevelUpNotification } from './contexts/NotificationContext'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -38,7 +40,9 @@ type SpeedTestDuration = 15 | 30 | 60
 
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { addNotification } = useNotifications()
   
+  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [settings, setSettings] = useState<UserSettings>({
     layout: 'jcuken',
     soundEnabled: true,
@@ -156,6 +160,12 @@ function AppContent() {
     setProgress(prev => {
       const newXp = prev.xp + totalXp
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
+      const prevLevel = Math.floor(Math.sqrt(prev.xp / 100)) + 1
+      
+      // Уведомление о повышении уровня
+      if (newLevel > prevLevel) {
+        addNotification(createLevelUpNotification(newLevel))
+      }
       
       // Показываем сводку сессии
       setShowSessionSummary(true)
@@ -224,6 +234,16 @@ function AppContent() {
         xpToNextLevel={progress.xpToNextLevel}
         onProfileClick={() => setShowProfile(true)}
       />
+
+      {/* Колокольчик уведомлений */}
+      <div className="fixed top-4 right-4 z-40">
+        <NotificationBell onOpenPanel={() => setShowNotificationPanel(true)} />
+      </div>
+
+      {/* Панель уведомлений */}
+      {showNotificationPanel && (
+        <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
+      )}
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Верхняя панель */}
@@ -537,11 +557,13 @@ function AppContent() {
   )
 }
 
-// Главный компонент App с AuthProvider
+// Главный компонент App с AuthProvider и NotificationProvider
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+      </NotificationProvider>
     </AuthProvider>
   )
 }
