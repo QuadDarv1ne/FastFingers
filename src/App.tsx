@@ -21,7 +21,6 @@ import { MotivationalQuote } from './components/MotivationalQuote'
 import { SessionSummary } from './components/SessionSummary'
 import { StatisticsPage } from './components/StatisticsPage'
 import { LearningMode } from './components/LearningMode'
-import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { AuthWrapper } from './components/auth/AuthWrapper'
 import { UserProfile } from './components/auth/UserProfile'
 import { NotificationBell, NotificationPanel } from './components/NotificationBell'
@@ -386,11 +385,8 @@ function AppContent() {
             </button>
           </div>
 
-          {/* Переключатель языка и тема */}
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <ThemeToggle theme={theme} resolvedTheme={resolvedTheme} onThemeChange={setTheme} />
-          </div>
+          {/* Переключатель темы */}
+          <ThemeToggle theme={theme} resolvedTheme={resolvedTheme} onThemeChange={setTheme} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

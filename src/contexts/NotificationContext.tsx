@@ -30,9 +30,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
 
-  // Загрузка уведомлений
+  // Загрузка уведомлений - только если пользователь есть
   useEffect(() => {
-    if (!user) return
+    if (!user?.id) return
     
     try {
       const stored = localStorage.getItem(`${NOTIFICATIONS_STORAGE_KEY}_${user.id}`)
@@ -46,7 +46,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   // Сохранение уведомлений
   useEffect(() => {
-    if (!user) return
+    if (!user?.id) return
     
     try {
       localStorage.setItem(`${NOTIFICATIONS_STORAGE_KEY}_${user.id}`, JSON.stringify(notifications))
