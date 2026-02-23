@@ -96,24 +96,42 @@ export function calculateLevelProgress(xp: number): number {
  * @returns Количество опыта за сессию
  */
 export function calculateSessionXp(stats: TypingStats): number {
+  const XP_PER_10_SECONDS = 1;
+  const XP_PERFECT_ACCURACY = 50;
+  const XP_GREAT_ACCURACY = 30;
+  const XP_GOOD_ACCURACY = 20;
+  const XP_DECENT_ACCURACY = 10;
+  const XP_HIGH_WPM = 50;
+  const XP_MEDIUM_WPM = 30;
+  const XP_LOW_WPM = 20;
+  const PENALTY_PER_ERROR = 2;
+
+  const ACCURACY_PERFECT = 95;
+  const ACCURACY_GREAT = 90;
+  const ACCURACY_GOOD = 85;
+  const ACCURACY_DECENT = 80;
+  const WPM_HIGH = 60;
+  const WPM_MEDIUM = 40;
+  const WPM_LOW = 20;
+
   let xp = 0;
 
   // Базовый XP за время (1 XP за каждые 10 секунд)
-  xp += Math.floor(stats.timeElapsed / 10);
+  xp += Math.floor(stats.timeElapsed / 10) * XP_PER_10_SECONDS;
 
   // Бонус за точность
-  if (stats.accuracy >= 95) xp += 50;
-  else if (stats.accuracy >= 90) xp += 30;
-  else if (stats.accuracy >= 85) xp += 20;
-  else if (stats.accuracy >= 80) xp += 10;
+  if (stats.accuracy >= ACCURACY_PERFECT) xp += XP_PERFECT_ACCURACY;
+  else if (stats.accuracy >= ACCURACY_GREAT) xp += XP_GREAT_ACCURACY;
+  else if (stats.accuracy >= ACCURACY_GOOD) xp += XP_GOOD_ACCURACY;
+  else if (stats.accuracy >= ACCURACY_DECENT) xp += XP_DECENT_ACCURACY;
 
   // Бонус за WPM
-  if (stats.wpm >= 60) xp += 50;
-  else if (stats.wpm >= 40) xp += 30;
-  else if (stats.wpm >= 20) xp += 20;
+  if (stats.wpm >= WPM_HIGH) xp += XP_HIGH_WPM;
+  else if (stats.wpm >= WPM_MEDIUM) xp += XP_MEDIUM_WPM;
+  else if (stats.wpm >= WPM_LOW) xp += XP_LOW_WPM;
 
   // Штраф за ошибки
-  xp -= stats.errors * 2;
+  xp -= stats.errors * PENALTY_PER_ERROR;
 
   return Math.max(0, xp);
 }
