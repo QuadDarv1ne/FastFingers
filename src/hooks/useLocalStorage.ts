@@ -3,9 +3,9 @@ import { getFromStorage, setToStorage } from './storage'
 
 type SetValue<T> = T | ((val: T) => T)
 
-interface UseLocalStorageOptions {
-  serialize?: (value: any) => string
-  deserialize?: (value: string) => any
+interface UseLocalStorageOptions<T> {
+  serialize?: (value: T) => string
+  deserialize?: (value: string) => T
 }
 
 /**

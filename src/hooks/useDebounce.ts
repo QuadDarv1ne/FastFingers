@@ -26,7 +26,7 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  * @param fn - Функция для debouncing
  * @param delay - Задержка в миллисекундах
  */
-export function useDebounceCallback<T extends (...args: any[]) => any>(
+export function useDebounceCallback<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number = 300
 ): T {
