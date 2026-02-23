@@ -1,93 +1,84 @@
-import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
+import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth'
+import { AuthError, isValidEmail, isValidPassword } from './authErrors'
 
-const USERS_STORAGE_KEY = 'fastfingers_users';
-const CURRENT_USER_KEY = 'fastfingers_current_user';
-const RESET_TOKENS_KEY = 'fastfingers_reset_tokens';
+const USERS_STORAGE_KEY = 'fastfingers_users'
+const CURRENT_USER_KEY = 'fastfingers_current_user'
+const RESET_TOKENS_KEY = 'fastfingers_reset_tokens'
 
 // Имитация задержки сети
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // Генерация уникального ID
-const generateId = () => Math.random().toString(36).substring(2) + Date.now().toString(36);
+const generateId = () => Math.random().toString(36).substring(2) + Date.now().toString(36)
 
 // Хэширование пароля (упрощённое, для демонстрации)
 const hashPassword = (password: string): string => {
-  return btoa(password + 'fastfingers-salt-2026');
-};
+  return btoa(password + 'fastfingers-salt-2026')
+}
 
 // Получение пользователей из хранилища
 const getUsers = (): (User & { password: string })[] => {
   try {
-    const stored = localStorage.getItem(USERS_STORAGE_KEY);
-    if (!stored) return [];
-    return JSON.parse(stored);
+    const stored = localStorage.getItem(USERS_STORAGE_KEY)
+    if (!stored) return []
+    return JSON.parse(stored)
   } catch (e) {
-    console.error('[Auth] Ошибка чтения пользователей:', e);
-    return [];
+    console.error('[Auth] Ошибка чтения пользователей:', e)
+    throw new AuthError('unknown', 'Ошибка при чтении данных пользователей')
   }
-};
+}
 
 // Сохранение пользователей в хранилище
 const saveUsers = (users: (User & { password: string })[]) => {
   try {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    console.log('[Auth] Пользователи сохранены, всего:', users.length);
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+    console.log('[Auth] Пользователи сохранены, всего:', users.length)
   } catch (e) {
-    console.error('[Auth] Ошибка сохранения пользователей:', e);
+    console.error('[Auth] Ошибка сохранения пользователей:', e)
+    throw new AuthError('unknown', 'Ошибка при сохранении данных пользователей')
   }
-};
-
-// Валидация email
-const isValidEmail = (email: string): boolean => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-// Валидация пароля
-const isValidPassword = (password: string): boolean => {
-  return password.length >= 8;
-};
+}
 
 export const authService = {
-  // Регистрация
+  /**
+   * Регистрация нового пользователя
+   */
   async register(credentials: RegisterCredentials): Promise<User> {
-    await delay(500);
+    await delay(500)
 
-    console.log('[Auth] Регистрация:', { email: credentials.email, name: credentials.name });
+    console.log('[Auth] Регистрация:', { email: credentials.email, name: credentials.name })
 
-    // Валидация
+    // Валидация email
     if (!isValidEmail(credentials.email)) {
-      console.error('[Auth] Неверный email');
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
     }
 
+    // Валидация пароля
     if (!isValidPassword(credentials.password)) {
-      console.error('[Auth] Слабый пароль');
-      throw { code: 'weak-password', message: 'Пароль должен содержать минимум 8 символов' } as AuthError;
+      throw new AuthError('weak-password', 'Пароль должен содержать минимум 8 символов', 'password')
     }
 
+    // Проверка совпадения паролей
     if (credentials.password !== credentials.confirmPassword) {
-      console.error('[Auth] Пароли не совпадают');
-      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
+      throw new AuthError('password-mismatch', 'Пароли не совпадают', 'confirmPassword')
     }
 
+    // Проверка принятия соглашения
     if (!credentials.agreeToTerms) {
-      console.error('[Auth] Не принято соглашение');
-      throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
+      throw new AuthError('terms-not-accepted', 'Необходимо принять условия использования')
     }
 
-    const users = getUsers();
-    console.log('[Auth] Текущие пользователи:', users.length);
+    const users = getUsers()
 
     // Проверка существования email
     if (users.find(u => u.email === credentials.email)) {
-      console.error('[Auth] Email уже занят');
-      throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
+      throw new AuthError('email-in-use', 'Этот email уже зарегистрирован', 'email')
     }
 
     // Создание пользователя
-    const hashedPassword = hashPassword(credentials.password);
-    const now = new Date().toISOString();
-    
+    const hashedPassword = hashPassword(credentials.password)
+    const now = new Date().toISOString()
+
     const newUser: User & { password: string } = {
       id: generateId(),
       email: credentials.email,
@@ -105,173 +96,213 @@ export const authService = {
         longestStreak: 0,
         completedChallenges: 0,
       },
-    };
+    }
 
-    users.push(newUser);
-    saveUsers(users);
+    users.push(newUser)
+    saveUsers(users)
 
     // Сохранение текущего пользователя
-    const { password: _, ...userWithoutPassword } = newUser;
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+    const { password: _, ...userWithoutPassword } = newUser
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
 
-    return userWithoutPassword;
+    return userWithoutPassword
   },
 
-  // Вход
+  /**
+   * Вход пользователя
+   */
   async login(credentials: LoginCredentials): Promise<User> {
-    await delay(500);
+    await delay(500)
 
+    // Валидация email
     if (!isValidEmail(credentials.email)) {
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
     }
 
-    const users = getUsers();
-    const user = users.find(u => u.email === credentials.email);
+    const users = getUsers()
+    const user = users.find(u => u.email === credentials.email)
 
+    // Проверка существования пользователя
     if (!user) {
-      throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь с таким email не найден', 'email')
     }
 
-    const hashedPassword = hashPassword(credentials.password);
+    // Проверка пароля
+    const hashedPassword = hashPassword(credentials.password)
     if (user.password !== hashedPassword) {
-      throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
+      throw new AuthError('wrong-password', 'Неверный пароль', 'password')
     }
 
     // Обновление последнего входа
-    user.lastLogin = new Date().toISOString();
-    saveUsers(users);
+    user.lastLogin = new Date().toISOString()
+    saveUsers(users)
 
     // Сохранение текущего пользователя
-    const { password: _pwd, ...userWithoutPassword } = user;
-    
+    const { password: _pwd, ...userWithoutPassword } = user
+
     if (credentials.rememberMe) {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
     } else {
-      sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+      sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
     }
 
-    return userWithoutPassword;
+    return userWithoutPassword
   },
 
-  // Выход
+  /**
+   * Выход из системы
+   */
   logout(): void {
-    localStorage.removeItem(CURRENT_USER_KEY);
-    sessionStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(CURRENT_USER_KEY)
+    sessionStorage.removeItem(CURRENT_USER_KEY)
   },
 
-  // Проверка текущего пользователя
+  /**
+   * Проверка текущего пользователя
+   */
   getCurrentUser(): User | null {
     try {
-      const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY)
+      return stored ? JSON.parse(stored) : null
     } catch {
-      return null;
+      return null
     }
   },
 
-  // Запрос на сброс пароля
+  /**
+   * Запрос на сброс пароля
+   */
   async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
-    await delay(500);
+    await delay(500)
 
     if (!isValidEmail(request.email)) {
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
     }
 
-    const users = getUsers();
-    const user = users.find(u => u.email === request.email);
+    const users = getUsers()
+    const user = users.find(u => u.email === request.email)
 
     if (!user) {
-      // Не раскрываем, существует ли пользователь
-      return;
+      // Не раскрываем, существует ли пользователь (безопасность)
+      return
     }
 
     // Генерация токена
-    const token = generateId();
-    const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1 час
+    const token = generateId()
+    const expiresAt = new Date(Date.now() + 3600000).toISOString() // 1 час
 
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
-    tokens.push({ email: request.email, token, expiresAt });
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
+    tokens.push({ email: request.email, token, expiresAt })
+    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens))
 
     // В реальном приложении здесь была бы отправка email
-    console.log('Reset token:', token);
-    alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`);
+    console.log('Reset token:', token)
+    alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`)
   },
 
-  // Подтверждение сброса пароля
+  /**
+   * Подтверждение сброса пароля
+   */
   async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<void> {
-    await delay(500);
+    await delay(500)
 
+    // Валидация нового пароля
     if (!isValidPassword(confirm.newPassword)) {
-      throw { code: 'weak-password', message: 'Пароль должен содержать минимум 8 символов' } as AuthError;
+      throw new AuthError('weak-password', 'Пароль должен содержать минимум 8 символов', 'newPassword')
     }
 
+    // Проверка совпадения паролей
     if (confirm.newPassword !== confirm.confirmPassword) {
-      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
+      throw new AuthError('password-mismatch', 'Пароли не совпадают', 'confirmPassword')
     }
 
     // Проверка токена
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
-    const tokenIndex = tokens.findIndex((t: { token: string; expiresAt: string }) => 
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
+    const tokenIndex = tokens.findIndex((t: { token: string; expiresAt: string }) =>
       t.token === confirm.token && new Date(t.expiresAt) > new Date()
-    );
+    )
 
     if (tokenIndex === -1) {
-      throw { code: 'invalid-token', message: 'Неверный или истёкший токен' } as AuthError;
+      throw new AuthError('invalid-token', 'Неверный или истёкший токен')
     }
 
-    const tokenData = tokens[tokenIndex];
-    const users = getUsers();
-    const userIndex = users.findIndex(u => u.email === tokenData.email);
+    const tokenData = tokens[tokenIndex]
+    const users = getUsers()
+    const userIndex = users.findIndex(u => u.email === tokenData.email)
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден')
     }
 
     // Обновление пароля
-    users[userIndex].password = hashPassword(confirm.newPassword);
-    saveUsers(users);
+    users[userIndex].password = hashPassword(confirm.newPassword)
+    saveUsers(users)
 
     // Удаление использованного токена
-    tokens.splice(tokenIndex, 1);
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
+    tokens.splice(tokenIndex, 1)
+    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens))
   },
 
-  // Обновление профиля
+  /**
+   * Обновление профиля пользователя
+   */
   async updateProfile(userId: string, updates: Partial<Pick<User, 'name' | 'avatar'>>): Promise<User> {
-    await delay(300);
+    await delay(300)
 
-    const users = getUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
+    const users = getUsers()
+    const userIndex = users.findIndex(u => u.id === userId)
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден')
     }
 
-    users[userIndex] = { ...users[userIndex], ...updates };
-    saveUsers(users);
+    users[userIndex] = { ...users[userIndex], ...updates }
+    saveUsers(users)
 
-    const { password: _pwd2, ...userWithoutPassword } = users[userIndex];
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+    const { password: _pwd2, ...userWithoutPassword } = users[userIndex]
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
 
-    return userWithoutPassword;
+    return userWithoutPassword
   },
 
-  // Синхронизация статистики пользователя
+  /**
+   * Синхронизация статистики пользователя
+   */
   async syncUserStats(userId: string, stats: Partial<User['stats']>): Promise<User> {
-    const users = getUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
+    const users = getUsers()
+    const userIndex = users.findIndex(u => u.id === userId)
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден')
     }
 
-    users[userIndex].stats = { ...users[userIndex].stats, ...stats };
-    saveUsers(users);
+    users[userIndex].stats = { ...users[userIndex].stats, ...stats }
+    saveUsers(users)
 
-    const { password: _pwd3, ...userWithoutPassword } = users[userIndex];
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+    const { password: _pwd3, ...userWithoutPassword } = users[userIndex]
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
 
-    return userWithoutPassword;
+    return userWithoutPassword
   },
-};
+
+  /**
+   * Проверка токена сброса пароля
+   */
+  verifyResetToken(token: string): boolean {
+    try {
+      const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
+      return tokens.some((t: { token: string; expiresAt: string }) =>
+        t.token === token && new Date(t.expiresAt) > new Date()
+      )
+    } catch {
+      return false
+    }
+  },
+
+  /**
+   * Очистка токенов сброса пароля
+   */
+  clearResetTokens(): void {
+    localStorage.removeItem(RESET_TOKENS_KEY)
+  },
+}
