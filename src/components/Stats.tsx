@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { UserProgress, TypingStats as TypingStatsType } from '../types'
 import { formatTime } from '../utils/stats'
 
@@ -13,7 +14,7 @@ interface StatsProps {
   }
 }
 
-export function Stats({ progress, currentStats, onViewHistory, onViewAchievements, challengeStats }: StatsProps) {
+export const Stats = memo(function Stats({ progress, currentStats, onViewHistory, onViewAchievements, challengeStats }: StatsProps) {
   return (
     <div className="space-y-4">
       {/* Текущая сессия */}
@@ -25,7 +26,7 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
             </svg>
             Последняя сессия
           </h3>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <StatCard label="WPM" value={currentStats.wpm.toString()} color="text-primary-400" />
             <StatCard label="CPM" value={currentStats.cpm.toString()} color="text-primary-400" />
@@ -36,7 +37,7 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
           </div>
         </div>
       )}
-      
+
       {/* Общий прогресс */}
       <div className="glass rounded-xl p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -45,19 +46,19 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
           </svg>
           Прогресс
         </h3>
-        
+
         <div className="space-y-4">
           <StatCard label="Лучший WPM" value={progress.bestWpm.toString()} color="text-primary-400" large />
           <StatCard label="Лучшая точность" value={`${progress.bestAccuracy}%`} color="text-success" large />
           <StatCard label="Всего слов" value={progress.totalWordsTyped.toLocaleString()} color="text-dark-300" large />
-          
+
           <div className="pt-4 border-t border-dark-700">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-dark-400">Уровень {progress.level}</span>
               <span className="text-sm text-dark-400">{progress.xp} XP</span>
             </div>
             <div className="w-full h-3 bg-dark-800 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-primary-600 to-primary-400 progress-bar"
                 style={{ width: `${(progress.xp / progress.xpToNextLevel) * 100}%` }}
               />
@@ -66,7 +67,7 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
           </div>
         </div>
       </div>
-      
+
       {/* Достижения */}
       <div className="glass rounded-xl p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -75,31 +76,31 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
           </svg>
           Достижения
         </h3>
-        
+
         <div className="space-y-2">
-          <AchievementBadge 
-            icon="🚀" 
-            title="Первые шаги" 
-            description="WPM 10+" 
-            unlocked={progress.bestWpm >= 10} 
+          <AchievementBadge
+            icon="🚀"
+            title="Первые шаги"
+            description="WPM 10+"
+            unlocked={progress.bestWpm >= 10}
           />
-          <AchievementBadge 
-            icon="⚡" 
-            title="Скоростной демон" 
-            description="WPM 40+" 
-            unlocked={progress.bestWpm >= 40} 
+          <AchievementBadge
+            icon="⚡"
+            title="Скоростной демон"
+            description="WPM 40+"
+            unlocked={progress.bestWpm >= 40}
           />
-          <AchievementBadge 
-            icon="🎯" 
-            title="Мастер точности" 
-            description="95% точности" 
-            unlocked={progress.bestAccuracy >= 95} 
+          <AchievementBadge
+            icon="🎯"
+            title="Мастер точности"
+            description="95% точности"
+            unlocked={progress.bestAccuracy >= 95}
           />
-          <AchievementBadge 
-            icon="📚" 
-            title="Словарь" 
-            description="1000 слов" 
-            unlocked={progress.totalWordsTyped >= 1000} 
+          <AchievementBadge
+            icon="📚"
+            title="Словарь"
+            description="1000 слов"
+            unlocked={progress.totalWordsTyped >= 1000}
           />
         </div>
       </div>
@@ -158,14 +159,14 @@ export function Stats({ progress, currentStats, onViewHistory, onViewAchievement
       )}
     </div>
   )
-}
+})
 
-function StatCard({ 
-  label, 
-  value, 
+const StatCard = memo(function StatCard({
+  label,
+  value,
   color = 'text-white',
-  large = false 
-}: { 
+  large = false
+}: {
   label: string
   value: string
   color?: string
@@ -177,14 +178,14 @@ function StatCard({
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   )
-}
+})
 
-function AchievementBadge({ 
-  icon, 
-  title, 
-  description, 
-  unlocked 
-}: { 
+const AchievementBadge = memo(function AchievementBadge({
+  icon,
+  title,
+  description,
+  unlocked
+}: {
   icon: string
   title: string
   description: string
@@ -204,4 +205,4 @@ function AchievementBadge({
       )}
     </div>
   )
-}
+})

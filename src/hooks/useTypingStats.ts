@@ -15,7 +15,7 @@ interface UseTypingStatsReturn {
     totalChars: number
     errors: number
   }) => void
-  completeSession: () => void
+  completeSession: () => (TypingStats & { xp: number }) | undefined
   resetSession: () => void
 }
 

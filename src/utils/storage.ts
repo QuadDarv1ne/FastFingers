@@ -5,6 +5,34 @@
 type StorageValue = string | number | boolean | object | null | undefined
 
 /**
+ * Проверка доступности localStorage (работает в приватных режимах и iframe)
+ */
+export function isLocalStorageAvailable(): boolean {
+  try {
+    const testKey = '__storage_test__'
+    localStorage.setItem(testKey, testKey)
+    localStorage.removeItem(testKey)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Проверка доступности sessionStorage
+ */
+export function isSessionStorageAvailable(): boolean {
+  try {
+    const testKey = '__storage_test__'
+    sessionStorage.setItem(testKey, testKey)
+    sessionStorage.removeItem(testKey)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * Получить значение из localStorage
  * @param key - Ключ
  * @param defaultValue - Значение по умолчанию
@@ -13,6 +41,11 @@ export function getFromStorage<T extends StorageValue>(
   key: string,
   defaultValue?: T
 ): T | undefined {
+  if (!isLocalStorageAvailable()) {
+    console.warn('localStorage is not available, using default value')
+    return defaultValue
+  }
+
   try {
     const item = localStorage.getItem(key)
     if (item === null) {
@@ -31,6 +64,11 @@ export function getFromStorage<T extends StorageValue>(
  * @param value - Значение
  */
 export function setToStorage<T extends StorageValue>(key: string, value: T): void {
+  if (!isLocalStorageAvailable()) {
+    console.warn('localStorage is not available, value not saved')
+    return
+  }
+
   try {
     if (value === null || value === undefined) {
       localStorage.removeItem(key)
@@ -58,6 +96,11 @@ export function removeFromStorage(key: string): void {
  * Очистить всё localStorage
  */
 export function clearStorage(): void {
+  if (!isLocalStorageAvailable()) {
+    console.warn('localStorage is not available, cannot clear')
+    return
+  }
+
   try {
     localStorage.clear()
   } catch (error) {
@@ -69,6 +112,11 @@ export function clearStorage(): void {
  * Получить все ключи из localStorage
  */
 export function getStorageKeys(): string[] {
+  if (!isLocalStorageAvailable()) {
+    console.warn('localStorage is not available')
+    return []
+  }
+
   try {
     return Object.keys(localStorage)
   } catch (error) {
@@ -81,6 +129,11 @@ export function getStorageKeys(): string[] {
  * Получить размер localStorage в байтах
  */
 export function getStorageSize(): number {
+  if (!isLocalStorageAvailable()) {
+    console.warn('localStorage is not available')
+    return 0
+  }
+
   try {
     let totalSize = 0
     for (const key in localStorage) {

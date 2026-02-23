@@ -71,14 +71,14 @@ describe('useTypingStats', () => {
       })
     })
 
-    let sessionResult: ReturnType<typeof result.current.completeSession>
     act(() => {
-      sessionResult = result.current.completeSession()
+      const res = result.current.completeSession()
+      expect(res).toBeDefined()
+      expect(res?.xp).toBeGreaterThan(0)
     })
 
     expect(result.current.isComplete).toBe(true)
     expect(onSaveStats).toHaveBeenCalled()
-    expect(sessionResult?.xp).toBeGreaterThan(0)
   })
 
   it('должен сбрасывать сессию', () => {

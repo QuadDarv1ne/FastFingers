@@ -33,29 +33,31 @@ export function useKeyPress(
   }, [callback])
 
   const handler = useCallback(
-    (e: KeyboardEvent) => {
+    (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent
       const keys = Array.isArray(key) ? key : [key]
-      
-      if (keys.includes(e.key)) {
+
+      if (keys.includes(keyboardEvent.key)) {
         if (preventDefault) {
-          e.preventDefault()
+          keyboardEvent.preventDefault()
         }
-        
+
         if (stopPropagation) {
-          e.stopPropagation()
+          keyboardEvent.stopPropagation()
         }
-        
-        callbackRef.current(e)
+
+        callbackRef.current(keyboardEvent)
       }
     },
     [key, preventDefault, stopPropagation]
   )
 
   useEffect(() => {
-    target.addEventListener(event, handler)
+    const targetElement = target as EventTarget
+    targetElement.addEventListener(event, handler)
 
     return () => {
-      target.removeEventListener(event, handler)
+      targetElement.removeEventListener(event, handler)
     }
   }, [event, target, handler])
 }
@@ -76,12 +78,13 @@ export function useKeyCombo(
   } = options
 
   const comboKeys = combo.toLowerCase().split('+').map(k => k.trim())
-  
+
   const pressedKeys = useRef<Set<string>>(new Set())
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase()
+    const handleKeyDown = (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent
+      const key = keyboardEvent.key.toLowerCase()
       pressedKeys.current.add(key)
 
       const needsCtrl = comboKeys.includes('ctrl') || comboKeys.includes('control')
@@ -89,10 +92,10 @@ export function useKeyCombo(
       const needsAlt = comboKeys.includes('alt')
       const needsMeta = comboKeys.includes('meta') || comboKeys.includes('cmd')
 
-      const hasCtrl = needsCtrl ? (e.ctrlKey || e.metaKey) : true
-      const hasShift = needsShift ? e.shiftKey : true
-      const hasAlt = needsAlt ? e.altKey : true
-      const hasMeta = needsMeta ? (e.metaKey || e.ctrlKey) : true
+      const hasCtrl = needsCtrl ? (keyboardEvent.ctrlKey || keyboardEvent.metaKey) : true
+      const hasShift = needsShift ? keyboardEvent.shiftKey : true
+      const hasAlt = needsAlt ? keyboardEvent.altKey : true
+      const hasMeta = needsMeta ? (keyboardEvent.metaKey || keyboardEvent.ctrlKey) : true
 
       const mainKey = comboKeys.find(
         k => !['ctrl', 'control', 'shift', 'alt', 'meta', 'cmd'].includes(k)
@@ -106,22 +109,24 @@ export function useKeyCombo(
         mainKey &&
         pressedKeys.current.has(mainKey)
       ) {
-        if (preventDefault) e.preventDefault()
-        if (stopPropagation) e.stopPropagation()
-        callback(e)
+        if (preventDefault) keyboardEvent.preventDefault()
+        if (stopPropagation) keyboardEvent.stopPropagation()
+        callback(keyboardEvent)
       }
     }
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      pressedKeys.current.delete(e.key.toLowerCase())
+    const handleKeyUp = (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent
+      pressedKeys.current.delete(keyboardEvent.key.toLowerCase())
     }
 
-    target.addEventListener(event, handleKeyDown)
-    target.addEventListener('keyup', handleKeyUp)
+    const targetElement = target as EventTarget
+    targetElement.addEventListener(event, handleKeyDown)
+    targetElement.addEventListener('keyup', handleKeyUp)
 
     return () => {
-      target.removeEventListener(event, handleKeyDown)
-      target.removeEventListener('keyup', handleKeyUp)
+      targetElement.removeEventListener(event, handleKeyDown)
+      targetElement.removeEventListener('keyup', handleKeyUp)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combo, callback, event, target, preventDefault, stopPropagation])
