@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
-import { useAuth } from './AuthContext'
+import { createContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import { useAuth } from '@hooks/useAuth'
 
 export interface Notification {
   id: string
@@ -109,39 +109,4 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useNotifications() {
-  const context = useContext(NotificationContext)
-  if (context === undefined) {
-    throw new Error('useNotifications must be used within a NotificationProvider')
-  }
-  return context
-}
-
-// Хелперы для создания уведомлений
-export const createAchievementNotification = (achievement: { title: string; description: string; icon: string }) => ({
-  type: 'achievement' as const,
-  title: '🏆 Достижение разблокировано!',
-  message: achievement.title,
-  icon: achievement.icon,
-})
-
-export const createLevelUpNotification = (level: number) => ({
-  type: 'level' as const,
-  title: '⭐ Уровень повышен!',
-  message: `Вы достигли ${level} уровня!`,
-  icon: '🎉',
-})
-
-export const createStreakNotification = (days: number, bonus: number) => ({
-  type: 'streak' as const,
-  title: '🔥 Серия продолжается!',
-  message: `${days} дней подряд! +${bonus} XP бонус`,
-  icon: '🔥',
-})
-
-export const createChallengeNotification = (challenge: { title: string; reward: number }) => ({
-  type: 'challenge' as const,
-  title: '✅ Челлендж выполнен!',
-  message: `${challenge.title} +${challenge.reward} XP`,
-  icon: '🎯',
-})
+export { NotificationContext }

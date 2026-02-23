@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
@@ -53,10 +55,42 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@types': path.resolve(__dirname, './src/types'),
+      '@contexts': path.resolve(__dirname, './src/contexts'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@i18n': path.resolve(__dirname, './src/i18n'),
+    },
+  },
   server: {
     port: 3000,
     open: true
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'charts-vendor': ['recharts'],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'i18n-vendor': ['i18next', 'react-i18next'],
+          'animations-vendor': ['framer-motion', 'canvas-confetti'],
+          'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+        },
+      },
+    },
+  },
 })

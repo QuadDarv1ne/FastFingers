@@ -74,7 +74,7 @@ export function MotivationalQuote({ onQuoteChange }: MotivationalQuoteProps) {
       
       <blockquote className="mb-4">
         <p className="text-lg font-medium leading-relaxed">
-          "{currentQuote.text}"
+          &quot;{currentQuote.text}&quot;
         </p>
       </blockquote>
       

@@ -1,0 +1,27 @@
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+.skip-link__button {
+  display: block;
+  padding: 1rem 1.5rem;
+  background: #7c3aed;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link__button:focus {
+  transform: translateY(0);
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.skip-link__button:hover {
+  background: #6d28d9;
+}

@@ -1,40 +1,50 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { TypingTrainer } from './components/TypingTrainer'
 import { Header } from './components/Header'
 import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
-import { SprintMode } from './components/SprintMode'
-import { SpeedTest } from './components/SpeedTest'
-import { ReactionGame } from './components/ReactionGame'
-import { TrainingHistory } from './components/TrainingHistory'
-import { WeeklyProgress } from './components/WeeklyProgress'
-import { DailyChallengeCard } from './components/DailyChallengeCard'
-import { CustomExerciseEditor } from './components/CustomExerciseEditor'
-import { ExportImport } from './components/ExportImport'
 import { ThemeToggle } from './components/ThemeToggle'
-import { TypingTips } from './components/TypingTips'
-import { Onboarding } from './components/Onboarding'
-import { AchievementsPanel } from './components/AchievementsPanel'
-import { StreakRewardsPanel } from './components/StreakRewardsPanel'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
-import { SessionSummary } from './components/SessionSummary'
-import { StatisticsPage } from './components/StatisticsPage'
-import { LearningMode } from './components/LearningMode'
-import { AuthWrapper } from './components/auth/AuthWrapper'
-import { UserProfile } from './components/auth/UserProfile'
-import { NotificationBell, NotificationPanel } from './components/NotificationBell'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { NotificationProvider, useNotifications, createLevelUpNotification } from './contexts/NotificationContext'
+import { LoadingFallback } from './components/LoadingFallback'
+import { SkipLink } from './components/SkipLink'
+import { AriaAnnouncer } from './components/AriaAnnouncer'
+import { OnlineStatus } from './components/OnlineStatus'
+import { AuthProvider } from './contexts/AuthContext'
+import { useAuth } from '@hooks/useAuth'
+import { NotificationProvider } from './contexts/NotificationContext'
+import { useNotifications } from '@hooks/useNotifications'
+import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
 import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
+
+// Ленивая загрузка крупных компонентов (с именованным экспортом)
+const SprintMode = lazy(() => import('./components/SprintMode').then(module => ({ default: module.SprintMode })))
+const SpeedTest = lazy(() => import('./components/SpeedTest').then(module => ({ default: module.SpeedTest })))
+const ReactionGame = lazy(() => import('./components/ReactionGame').then(module => ({ default: module.ReactionGame })))
+const TrainingHistory = lazy(() => import('./components/TrainingHistory').then(module => ({ default: module.TrainingHistory })))
+const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then(module => ({ default: module.WeeklyProgress })))
+const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then(module => ({ default: module.DailyChallengeCard })))
+const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then(module => ({ default: module.CustomExerciseEditor })))
+const ExportImport = lazy(() => import('./components/ExportImport').then(module => ({ default: module.ExportImport })))
+const TypingTips = lazy(() => import('./components/TypingTips').then(module => ({ default: module.TypingTips })))
+const Onboarding = lazy(() => import('./components/Onboarding').then(module => ({ default: module.Onboarding })))
+const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then(module => ({ default: module.AchievementsPanel })))
+const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then(module => ({ default: module.StreakRewardsPanel })))
+const SessionSummary = lazy(() => import('./components/SessionSummary').then(module => ({ default: module.SessionSummary })))
+const StatisticsPage = lazy(() => import('./components/StatisticsPage').then(module => ({ default: module.StatisticsPage })))
+const LearningMode = lazy(() => import('./components/LearningMode').then(module => ({ default: module.LearningMode })))
+const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then(module => ({ default: module.AuthWrapper })))
+const UserProfile = lazy(() => import('./components/auth/UserProfile').then(module => ({ default: module.UserProfile })))
+const NotificationBell = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationBell })))
+const NotificationPanel = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationPanel })))
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useTheme } from './hooks/useTheme'
 import { useHotkeys } from './hooks/useHotkeys'
 import { calculateSessionXp } from './utils/stats'
-import { calculateStreakXpBonus } from './components/StreakRewardsPanel'
+import { calculateStreakXpBonus } from '@utils/streakBonus'
 import { Exercise } from './types'
 import { SoundTheme } from './utils/soundThemes'
 
@@ -154,7 +164,11 @@ function AppContent() {
 
   // Показываем экран аутентификации если пользователь не авторизован
   if (!isAuthenticated) {
-    return <AuthWrapper onSuccess={() => {}} />
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <AuthWrapper onSuccess={() => {}} />
+      </Suspense>
+    )
   }
 
   const handleSessionComplete = (stats: TypingStatsType) => {
@@ -247,6 +261,12 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-dark-900 transition-colors duration-300">
+      {/* Accessibility: Skip Links */}
+      <SkipLink />
+
+      {/* Accessibility: ARIA Announcer */}
+      <AriaAnnouncer />
+
       <Header
         level={progress.level}
         xp={progress.xp}
@@ -256,15 +276,19 @@ function AppContent() {
 
       {/* Колокольчик уведомлений */}
       <div className="fixed top-4 right-4 z-40">
-        <NotificationBell onOpenPanel={() => setShowNotificationPanel(true)} />
+        <Suspense fallback={null}>
+          <NotificationBell onOpenPanel={() => setShowNotificationPanel(true)} />
+        </Suspense>
       </div>
 
       {/* Панель уведомлений */}
       {showNotificationPanel && (
-        <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
+        <Suspense fallback={<LoadingFallback />}>
+          <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
+        </Suspense>
       )}
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
+      <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
         {/* Верхняя панель */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           {/* Переключатель режимов */}
@@ -394,72 +418,74 @@ function AppContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Основная зона */}
           <div className="lg:col-span-2 space-y-6">
-            {view === 'history' ? (
-              <TrainingHistory onBack={() => setView('main')} />
-            ) : view === 'custom-exercise' ? (
-              <CustomExerciseEditor
-                onSave={handleSaveCustomExercise}
-                onCancel={() => setView('main')}
-              />
-            ) : view === 'tips' ? (
-              <TypingTips />
-            ) : view === 'weekly' ? (
-              <WeeklyProgress />
-            ) : gameMode === 'reaction' ? (
-              <ReactionGame
-                onExit={() => setGameMode('practice')}
-                onComplete={handleReactionGameComplete}
-              />
-            ) : view === 'statistics' ? (
-              <StatisticsPage onBack={() => setView('main')} />
-            ) : view === 'learning' ? (
-              <LearningMode onBack={() => setView('main')} />
-            ) : gameMode === 'sprint' ? (
-              <SprintMode
-                onExit={() => setGameMode('practice')}
-                onComplete={handleSessionComplete}
-                sound={sound}
-              />
-            ) : gameMode === 'speedtest' ? (
-              <SpeedTest
-                duration={speedTestDuration}
-                onExit={() => setGameMode('practice')}
-                onComplete={handleSessionComplete}
-                sound={sound}
-              />
-            ) : (
-              <>
-                {/* Карточка ежедневного челленджа */}
-                {todayChallenge && gameMode !== 'challenge' && (
-                  <DailyChallengeCard
-                    challenge={todayChallenge}
-                    streak={streak}
-                    onComplete={completeChallenge}
-                  />
-                )}
-
-                <TypingTrainer
-                  layout={settings.layout}
-                  fontSize={settings.fontSize}
-                  onSessionComplete={handleSessionComplete}
-                  onKeyInput={handleKeyInput}
-                  sound={sound}
-                  customExercises={customExercises}
-                  isChallenge={gameMode === 'challenge'}
-                  challengeText={gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined}
+            <Suspense fallback={<LoadingFallback />}>
+              {view === 'history' ? (
+                <TrainingHistory onBack={() => setView('main')} />
+              ) : view === 'custom-exercise' ? (
+                <CustomExerciseEditor
+                  onSave={handleSaveCustomExercise}
+                  onCancel={() => setView('main')}
                 />
+              ) : view === 'tips' ? (
+                <TypingTips />
+              ) : view === 'weekly' ? (
+                <WeeklyProgress />
+              ) : gameMode === 'reaction' ? (
+                <ReactionGame
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleReactionGameComplete}
+                />
+              ) : view === 'statistics' ? (
+                <StatisticsPage onBack={() => setView('main')} />
+              ) : view === 'learning' ? (
+                <LearningMode onBack={() => setView('main')} />
+              ) : gameMode === 'sprint' ? (
+                <SprintMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionComplete}
+                  sound={sound}
+                />
+              ) : gameMode === 'speedtest' ? (
+                <SpeedTest
+                  duration={speedTestDuration}
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionComplete}
+                  sound={sound}
+                />
+              ) : (
+                <>
+                  {/* Карточка ежедневного челленджа */}
+                  {todayChallenge && gameMode !== 'challenge' && (
+                    <DailyChallengeCard
+                      challenge={todayChallenge}
+                      streak={streak}
+                      onComplete={completeChallenge}
+                    />
+                  )}
 
-                {settings.showKeyboard && (
-                  <Keyboard
+                  <TypingTrainer
                     layout={settings.layout}
-                    highlightKey={null}
-                    heatmap={heatmap}
-                    showHeatmap={showHeatmap}
-                    onToggleHeatmap={setShowHeatmap}
+                    fontSize={settings.fontSize}
+                    onSessionComplete={handleSessionComplete}
+                    onKeyInput={handleKeyInput}
+                    sound={sound}
+                    customExercises={customExercises}
+                    isChallenge={gameMode === 'challenge'}
+                    challengeText={gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined}
                   />
-                )}
-              </>
-            )}
+
+                  {settings.showKeyboard && (
+                    <Keyboard
+                      layout={settings.layout}
+                      highlightKey={null}
+                      heatmap={heatmap}
+                      showHeatmap={showHeatmap}
+                      onToggleHeatmap={setShowHeatmap}
+                    />
+                  )}
+                </>
+              )}
+            </Suspense>
           </div>
 
           {/* Боковая панель */}
@@ -560,41 +586,56 @@ function AppContent() {
         <p>FastFingers © 2026 — Тренажёр слепой печати</p>
       </footer>
 
+      {/* Индикатор онлайн/офлайн статуса */}
+      <OnlineStatus />
+
       {/* Онбординг для новых пользователей */}
-      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+      {showOnboarding && (
+        <Suspense fallback={<LoadingFallback />}>
+          <Onboarding onComplete={handleOnboardingComplete} />
+        </Suspense>
+      )}
 
       {/* Панель достижений */}
       {showAchievements && (
-        <AchievementsPanel
-          progress={progress}
-          onClose={() => setShowAchievements(false)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <AchievementsPanel
+            progress={progress}
+            onClose={() => setShowAchievements(false)}
+          />
+        </Suspense>
       )}
 
       {/* Сводка сессии */}
       {showSessionSummary && currentStats && (
-        <SessionSummary
-          stats={currentStats}
-          xpEarned={lastSessionXp}
-          onClose={() => setShowSessionSummary(false)}
-          onRetry={() => {
-            setShowSessionSummary(false)
-            setGameMode('practice')
-          }}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <SessionSummary
+            stats={currentStats}
+            xpEarned={lastSessionXp}
+            onClose={() => setShowSessionSummary(false)}
+            onRetry={() => {
+              setShowSessionSummary(false)
+              setGameMode('practice')
+            }}
+          />
+        </Suspense>
       )}
 
       {/* Награды за серию */}
       {showStreakRewards && (
-        <StreakRewardsPanel
-          currentStreak={streak.current}
-          onClose={() => setShowStreakRewards(false)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <StreakRewardsPanel
+            currentStreak={streak.current}
+            onClose={() => setShowStreakRewards(false)}
+          />
+        </Suspense>
       )}
 
       {/* Профиль пользователя */}
       {showProfile && (
-        <UserProfile onClose={() => setShowProfile(false)} />
+        <Suspense fallback={<LoadingFallback />}>
+          <UserProfile onClose={() => setShowProfile(false)} />
+        </Suspense>
       )}
     </div>
   )

@@ -171,8 +171,4 @@ export function StreakRewardsPanel({ currentStreak, onClose }: StreakRewardsProp
   )
 }
 
-// Хук для расчёта бонуса XP за серию
-export function calculateStreakXpBonus(streak: number): number {
-  const reward = streakRewards.filter(r => r.days <= streak).pop()
-  return reward ? reward.xpBonus : 0
-}
+export default StreakRewardsPanel
