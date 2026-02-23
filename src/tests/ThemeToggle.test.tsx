@@ -10,109 +10,104 @@ describe('ThemeToggle', () => {
     mockOnThemeChange.mockClear()
   })
 
-  it('должен рендерить три кнопки переключения темы', () => {
+  it('должен рендерить кнопку выбора темы', () => {
     render(
       <ThemeToggle
         theme="dark"
-        resolvedTheme="dark"
         onThemeChange={mockOnThemeChange}
       />
     )
 
-    expect(screen.getByRole('button', { name: /светлая тема/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /тёмная тема/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /системная тема/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /выбрать тему/i })).toBeInTheDocument()
   })
 
-  it('должен подсвечивать активную тему', () => {
+  it('должен показывать текущую тему', () => {
     render(
       <ThemeToggle
         theme="dark"
-        resolvedTheme="dark"
         onThemeChange={mockOnThemeChange}
       />
     )
 
-    const darkButton = screen.getByRole('button', { name: /тёмная тема/i })
-    expect(darkButton).toHaveClass('bg-primary-600')
+    expect(screen.getByText('Тёмная')).toBeInTheDocument()
   })
 
-  it('должен вызывать onThemeChange при клике на светлую тему', async () => {
+  it('должен открывать меню при клике', async () => {
     const user = userEvent.setup()
     
     render(
       <ThemeToggle
         theme="dark"
-        resolvedTheme="dark"
         onThemeChange={mockOnThemeChange}
       />
     )
 
-    const lightButton = screen.getByRole('button', { name: /светлая тема/i })
-    await user.click(lightButton)
+    const button = screen.getByRole('button', { name: /выбрать тему/i })
+    await user.click(button)
+
+    expect(screen.getByText('Светлая')).toBeInTheDocument()
+    expect(screen.getByText('Фиолетовая')).toBeInTheDocument()
+    expect(screen.getByText('Синяя')).toBeInTheDocument()
+    expect(screen.getByText('Оранжевая')).toBeInTheDocument()
+    expect(screen.getByText('Настраиваемая')).toBeInTheDocument()
+  })
+
+  it('должен вызывать onThemeChange при выборе темы', async () => {
+    const user = userEvent.setup()
+    
+    render(
+      <ThemeToggle
+        theme="dark"
+        onThemeChange={mockOnThemeChange}
+      />
+    )
+
+    const button = screen.getByRole('button', { name: /выбрать тему/i })
+    await user.click(button)
+
+    const lightTheme = screen.getByText('Светлая')
+    await user.click(lightTheme)
 
     expect(mockOnThemeChange).toHaveBeenCalledWith('light')
   })
 
-  it('должен вызывать onThemeChange при клике на тёмную тему', async () => {
+  it('должен закрывать меню после выбора темы', async () => {
     const user = userEvent.setup()
     
-    render(
-      <ThemeToggle
-        theme="light"
-        resolvedTheme="light"
-        onThemeChange={mockOnThemeChange}
-      />
-    )
-
-    const darkButton = screen.getByRole('button', { name: /тёмная тема/i })
-    await user.click(darkButton)
-
-    expect(mockOnThemeChange).toHaveBeenCalledWith('dark')
-  })
-
-  it('должен вызывать onThemeChange при клике на системную тему', async () => {
-    const user = userEvent.setup()
-    
-    render(
-      <ThemeToggle
-        theme="light"
-        resolvedTheme="light"
-        onThemeChange={mockOnThemeChange}
-      />
-    )
-
-    const systemButton = screen.getByRole('button', { name: /системная тема/i })
-    await user.click(systemButton)
-
-    expect(mockOnThemeChange).toHaveBeenCalledWith('system')
-  })
-
-  it('должен отображать иконку солнца для светлой темы', () => {
-    render(
-      <ThemeToggle
-        theme="light"
-        resolvedTheme="light"
-        onThemeChange={mockOnThemeChange}
-      />
-    )
-
-    const lightButton = screen.getByRole('button', { name: /светлая тема/i })
-    const sunIcon = lightButton.querySelector('svg')
-    expect(sunIcon).toBeInTheDocument()
-  })
-
-  it('должен отображать иконку луны для тёмной темы', () => {
     render(
       <ThemeToggle
         theme="dark"
-        resolvedTheme="dark"
         onThemeChange={mockOnThemeChange}
       />
     )
 
-    const darkButton = screen.getByRole('button', { name: /тёмная тема/i })
-    const moonIcon = darkButton.querySelector('svg')
-    expect(moonIcon).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: /выбрать тему/i })
+    await user.click(button)
+
+    const purpleTheme = screen.getByText('Фиолетовая')
+    await user.click(purpleTheme)
+
+    expect(screen.queryByText('Синяя')).not.toBeInTheDocument()
+  })
+
+  it('должен отображать иконки для каждой темы', async () => {
+    const user = userEvent.setup()
+    
+    render(
+      <ThemeToggle
+        theme="dark"
+        onThemeChange={mockOnThemeChange}
+      />
+    )
+
+    const button = screen.getByRole('button', { name: /выбрать тему/i })
+    await user.click(button)
+
+    expect(screen.getByText('🌙')).toBeInTheDocument()
+    expect(screen.getByText('☀️')).toBeInTheDocument()
+    expect(screen.getByText('💜')).toBeInTheDocument()
+    expect(screen.getByText('💙')).toBeInTheDocument()
+    expect(screen.getByText('🧡')).toBeInTheDocument()
+    expect(screen.getByText('🎨')).toBeInTheDocument()
   })
 })
