@@ -1,5 +1,26 @@
 import { Exercise } from '../types';
 
+const EASY_WORDS = [
+  'он', 'она', 'оно', 'мы', 'вы', 'они', 'там', 'тут', 'вот', 'как', 'так', 'где', 'кто', 'что',
+  'мир', 'дом', 'лес', 'кот', 'год', 'рот', 'нос', 'лёд', 'мёд', 'сон', 'дым'
+] as const;
+
+const MEDIUM_WORDS = [
+  'привет', 'работа', 'книга', 'письмо', 'экран', 'окно', 'дверь', 'стол', 'стул', 'ручка',
+  'бумага', 'карта', 'город', 'река', 'море', 'поле', 'гора', 'луна', 'звезда', 'птица'
+] as const;
+
+const HARD_WORDS = [
+  'программирование', 'клавиатура', 'монитор', 'интернет', 'телефон', 'камера', 'музыка',
+  'картина', 'история', 'победа', 'удача', 'здоровье', 'счастье', 'свобода', 'правосудие'
+] as const;
+
+const ALL_WORDS = {
+  easy: EASY_WORDS,
+  medium: MEDIUM_WORDS,
+  hard: HARD_WORDS,
+} as const;
+
 // Базовые упражнения для разных уровней
 export const exercises: Exercise[] = [
   // Уровень 1 - Базовые клавиши
@@ -183,23 +204,16 @@ export function getRandomExercise(category?: string, difficulty?: number): Exerc
 
 // Генерация текста из слов для тренировки
 export function generatePracticeText(wordCount: number, difficulty: number): string {
-  const easyWords = ['он', 'она', 'оно', 'мы', 'вы', 'они', 'там', 'тут', 'вот', 'как', 'так', 'где', 'кто', 'что', 'мир', 'дом', 'лес', 'кот', 'год', 'рот', 'нос', 'лёд', 'мёд', 'сон', 'дым'];
-  const mediumWords = ['привет', 'работа', 'книга', 'письмо', 'экран', 'окно', 'дверь', 'стол', 'стул', 'ручка', 'бумага', 'карта', 'город', 'река', 'море', 'поле', 'гора', 'луна', 'звезда', 'птица'];
-  const hardWords = ['программирование', 'клавиатура', 'монитор', 'интернет', 'телефон', 'камера', 'музыка', 'картина', 'история', 'победа', 'удача', 'здоровье', 'счастье', 'свобода', 'правосудие'];
-  
-  let words: string[];
-  if (difficulty <= 3) {
-    words = easyWords;
-  } else if (difficulty <= 6) {
-    words = [...easyWords, ...mediumWords];
-  } else {
-    words = [...easyWords, ...mediumWords, ...hardWords];
-  }
-  
+  const words = difficulty <= 3
+    ? ALL_WORDS.easy
+    : difficulty <= 6
+      ? [...ALL_WORDS.easy, ...ALL_WORDS.medium]
+      : [...ALL_WORDS.easy, ...ALL_WORDS.medium, ...ALL_WORDS.hard];
+
   const result: string[] = [];
   for (let i = 0; i < wordCount; i++) {
     result.push(words[Math.floor(Math.random() * words.length)]);
   }
-  
+
   return result.join(' ');
 }
