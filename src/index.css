@@ -37,12 +37,42 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* Улучшенная типографика */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  line-height: 1.7;
 }
 
 /* Скроллбар */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -51,11 +81,12 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-surface);
-  border-radius: 4px;
+  border-radius: 5px;
+  border: 2px solid var(--color-bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--color-primary);
 }
 
 /* Анимации */
@@ -79,6 +110,28 @@ body {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes pulse-glow {
   0%,
   100% {
@@ -97,6 +150,14 @@ body {
   animation: slideUp 0.4s ease-out;
 }
 
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
@@ -109,10 +170,58 @@ body {
   background-clip: text;
 }
 
+.text-gradient-success {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-error {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Улучшенные кнопки */
+button,
+.btn {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active:not(:disabled),
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Фокус клавиши */
@@ -158,22 +267,27 @@ body {
   transition: width 0.3s ease-out;
 }
 
-/* Стили для текста ввода */
+/* Улучшенные стили для текста ввода */
 .char {
-  @apply relative inline-flex items-center justify-center w-4 h-8 md:w-5 md:h-10 rounded text-lg md:text-xl font-mono transition-all duration-100;
+  @apply relative inline-flex items-center justify-center min-w-[0.6em] h-[1.4em] rounded-md text-lg md:text-xl font-mono transition-all duration-150;
+  margin: 0 1px;
 }
 
 .char.correct {
-  @apply bg-green-500/20 text-green-500;
+  @apply bg-green-500/20 text-green-400;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
 }
 
 .char.incorrect {
-  @apply bg-red-500/20 text-red-500;
+  @apply bg-red-500/20 text-red-400;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+  animation: shake 0.3s ease-in-out;
 }
 
 .char.current {
-  @apply bg-violet-500/30 text-violet-500 border-2 border-violet-500;
+  @apply bg-violet-500/30 text-violet-400 border-2 border-violet-500;
   animation: cursor-blink 1s infinite;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
 }
 
 .char.pending {
@@ -184,9 +298,92 @@ body {
   0%,
   50% {
     border-color: rgba(124, 58, 237, 1);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
   }
   51%,
   100% {
     border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 6px rgba(124, 58, 237, 0.2);
   }
+}
+
+/* Карточки */
+.card {
+  @apply glass rounded-2xl p-6 transition-all duration-300;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Инпуты */
+input,
+select,
+textarea {
+  @apply transition-all duration-200;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Светлая тема */
+.light {
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: rgba(0, 0, 0, 0.1);
+}
+
+.light .glass {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  .card {
+    @apply p-4;
+  }
+}
+
+/* Улучшенные тени */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+.shadow-glow-success {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.shadow-glow-error {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
