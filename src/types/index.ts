@@ -1,4 +1,4 @@
-// Раскладки клавиатуры
+/** Раскладки клавиатуры */
 export type KeyboardLayout = 'qwerty' | 'jcuken' | 'dvorak';
 
 export interface KeyPosition {
@@ -14,43 +14,43 @@ export interface KeyboardLayoutData {
   keyToFinger: Record<string, string>;
 }
 
-// Статистика печати
+/** Статистика печати */
 export interface TypingStats {
-  wpm: number;        // слов в минуту
-  cpm: number;        // символов в минуту
-  accuracy: number;   // точность в %
-  errors: number;     // количество ошибок
+  wpm: number;
+  cpm: number;
+  accuracy: number;
+  errors: number;
   correctChars: number;
   totalChars: number;
-  timeElapsed: number; // время в секундах
+  timeElapsed: number;
 }
 
-// Прогресс пользователя
+/** Прогресс пользователя */
 export interface UserProgress {
   level: number;
   xp: number;
   xpToNextLevel: number;
   totalWordsTyped: number;
-  totalPracticeTime: number; // в минутах
+  totalPracticeTime: number;
   bestWpm: number;
   bestAccuracy: number;
-  streak: number; // дней подряд
+  streak: number;
   lastPracticeDate: string | null;
 }
 
-// Настройки пользователя
+/** Настройки пользователя */
 export interface UserSettings {
   layout: KeyboardLayout;
   soundEnabled: boolean;
   soundVolume: number;
-  soundTheme: 'default' | 'piano' | 'mechanical' | 'soft' | 'retro';
-  fontSize: 'small' | 'medium' | 'large';
-  theme: 'dark' | 'light' | 'system';
+  soundTheme: SoundTheme;
+  fontSize: FontSize;
+  theme: Theme;
   showKeyboard: boolean;
   showStats: boolean;
 }
 
-// Результат ввода символа
+/** Результат ввода символа */
 export interface KeyInputResult {
   isCorrect: boolean;
   char: string;
@@ -58,16 +58,10 @@ export interface KeyInputResult {
   timestamp: number;
 }
 
-// Тепловая карта ошибок
-export interface KeyHeatmapData {
-  [key: string]: {
-    errors: number;
-    total: number;
-    accuracy: number;
-  };
-}
+/** Тепловая карта ошибок */
+export type KeyHeatmapData = Record<string, { errors: number; total: number; accuracy: number }>;
 
-// Ежедневный челлендж
+/** Ежедневный челлендж */
 export interface ChallengeWithProgress {
   id: string;
   date: string;
@@ -80,7 +74,7 @@ export interface ChallengeWithProgress {
   userAccuracy?: number;
 }
 
-// Данные стрика
+/** Данные стрика */
 export interface StreakData {
   current: number;
   longest: number;
@@ -88,18 +82,18 @@ export interface StreakData {
   practiceDates: string[];
 }
 
-// Упражнение
+/** Упражнение */
 export interface Exercise {
   id: string;
   title: string;
   description: string;
   text: string;
-  difficulty: number; // 1-10
+  difficulty: number;
   category: string;
-  focusKeys: string[]; // клавиши для отработки
+  focusKeys: string[];
 }
 
-// Достижение
+/** Достижение */
 export interface Achievement {
   id: string;
   title: string;
@@ -110,11 +104,20 @@ export interface Achievement {
   condition: (stats: UserProgress, session: TypingStats) => boolean;
 }
 
-// Событие для WebSocket (соревнования)
+/** Событие для WebSocket (соревнования) */
 export interface RaceEvent {
   type: 'start' | 'progress' | 'finish';
   playerId: string;
-  progress: number; // 0-100%
+  progress: number;
   wpm?: number;
   timestamp: number;
 }
+
+/** Звуковые темы */
+export type SoundTheme = 'default' | 'piano' | 'mechanical' | 'soft' | 'retro';
+
+/** Размеры шрифта */
+export type FontSize = 'small' | 'medium' | 'large';
+
+/** Темы оформления */
+export type Theme = 'dark' | 'light' | 'system';
