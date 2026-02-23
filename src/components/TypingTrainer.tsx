@@ -86,46 +86,53 @@ export function TypingTrainer({
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
 
-    if (isComplete || isPaused) return
+    if (isPaused) return
 
     // Начало отсчёта времени при первом вводе
-    if (!startTime) {
+    if (!startTime && value) {
       setStartTime(Date.now())
     }
 
     const newChar = value[value.length - 1]
-    const expectedChar = text[currentIndex]
 
     if (newChar) {
-      const isCorrect = newChar === expectedChar
+      setCurrentIndex(prevIndex => {
+        const expectedChar = text[prevIndex]
+        const isCorrect = newChar === expectedChar
 
-      // Звуковой эффект
-      if (sound) {
-        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
-      }
+        // Звуковой эффект
+        if (sound) {
+          isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+        }
 
-      // Callback для тепловой карты
-      onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+        // Callback для тепловой карты
+        onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
 
-      const result: KeyInputResult = {
-        isCorrect,
-        char: newChar,
-        expectedChar,
-        timestamp: Date.now(),
-      }
+        const result: KeyInputResult = {
+          isCorrect,
+          char: newChar,
+          expectedChar,
+          timestamp: Date.now(),
+        }
 
-      setInputResults(prev => [...prev, result])
-      setCurrentIndex(prev => prev + 1)
+        setInputResults(prev => {
+          const newResults = [...prev, result]
+          
+          // Проверка завершения
+          if (prevIndex >= text.length - 1) {
+            handleComplete(newResults)
+          }
+          
+          return newResults
+        })
 
-      // Проверка завершения
-      if (currentIndex >= text.length - 1) {
-        handleComplete([...inputResults, result])
-      }
+        return prevIndex + 1
+      })
     }
 
     // Очищаем инпут, но сохраняем историю
     e.currentTarget.value = ''
-  }, [text, currentIndex, startTime, isComplete, isPaused, inputResults, sound, onKeyInput, handleComplete])
+  }, [text, startTime, isPaused, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = () => {
