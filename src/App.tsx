@@ -118,7 +118,7 @@ function AppContent() {
   })
   const { addSession } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
-  const { theme, resolvedTheme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
 
   // Горячие клавиши
   useHotkeys({
@@ -412,7 +412,7 @@ function AppContent() {
           </div>
 
           {/* Переключатель темы */}
-          <ThemeToggle theme={theme} resolvedTheme={resolvedTheme} onThemeChange={setTheme} />
+          <ThemeToggle theme={theme} onThemeChange={setTheme} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

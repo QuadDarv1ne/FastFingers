@@ -1,60 +1,37 @@
 import { useState, useEffect } from 'react'
-
-export type Theme = 'dark' | 'light' | 'system'
+import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 
 interface UseThemeReturn {
-  theme: Theme
-  resolvedTheme: 'dark' | 'light'
-  setTheme: (theme: Theme) => void
-  toggleTheme: () => void
+  theme: ThemeColor
+  setTheme: (theme: ThemeColor) => void
+  customColors: Partial<ThemeColors> | null
+  setCustomColors: (colors: Partial<ThemeColors>) => void
 }
 
 export function useTheme(): UseThemeReturn {
-  const [theme, setThemeState] = useState<Theme>(() => {
+  const [theme, setThemeState] = useState<ThemeColor>(() => {
     try {
       const stored = localStorage.getItem('fastfingers_theme')
-      return (stored as Theme) || 'system'
+      return (stored as ThemeColor) || 'dark'
     } catch {
-      return 'system'
+      return 'dark'
     }
   })
 
-  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('dark')
+  const [customColors, setCustomColorsState] = useState<Partial<ThemeColors> | null>(() => {
+    try {
+      const stored = localStorage.getItem('fastfingers_custom_colors')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  })
 
   useEffect(() => {
-    const root = document.documentElement
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    
-    const applyTheme = (isDark: boolean) => {
-      setResolvedTheme(isDark ? 'dark' : 'light')
-      
-      if (isDark) {
-        root.classList.remove('light')
-        root.style.setProperty('--color-bg', '#0f0f0f')
-        root.style.setProperty('--color-surface', '#1e293b')
-        root.style.setProperty('--color-text', '#f8fafc')
-        root.style.setProperty('--color-text-muted', '#94a3b8')
-      } else {
-        root.classList.add('light')
-        root.style.setProperty('--color-bg', '#ffffff')
-        root.style.setProperty('--color-surface', '#f1f5f9')
-        root.style.setProperty('--color-text', '#0f0f0f')
-        root.style.setProperty('--color-text-muted', '#64748b')
-      }
-    }
+    applyTheme(theme, customColors || undefined)
+  }, [theme, customColors])
 
-    if (theme === 'system') {
-      applyTheme(mediaQuery.matches)
-      
-      const handler = (e: MediaQueryListEvent) => applyTheme(e.matches)
-      mediaQuery.addEventListener('change', handler)
-      return () => mediaQuery.removeEventListener('change', handler)
-    } else {
-      applyTheme(theme === 'dark')
-    }
-  }, [theme])
-
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = (newTheme: ThemeColor) => {
     setThemeState(newTheme)
     try {
       localStorage.setItem('fastfingers_theme', newTheme)
@@ -63,9 +40,14 @@ export function useTheme(): UseThemeReturn {
     }
   }
 
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+  const setCustomColors = (colors: Partial<ThemeColors>) => {
+    setCustomColorsState(colors)
+    try {
+      localStorage.setItem('fastfingers_custom_colors', JSON.stringify(colors))
+    } catch (e) {
+      console.error('Failed to save custom colors:', e)
+    }
   }
 
-  return { theme, resolvedTheme, setTheme, toggleTheme }
+  return { theme, setTheme, customColors, setCustomColors }
 }
