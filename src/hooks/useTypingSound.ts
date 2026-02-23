@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { SoundTheme, soundThemes, pianoNotes } from '../utils/soundThemes'
 
 interface SoundOptions {
@@ -12,16 +12,36 @@ export function useTypingSound(options: SoundOptions) {
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
   const throttleMs = 30
+  const isInitialisedRef = useRef(false)
 
   const initAudio = useCallback(() => {
+    if (isInitialisedRef.current) return
+    
+    isInitialisedRef.current = true
+    
     if (!audioContextRef.current) {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       audioContextRef.current = new AudioContextClass()
+    }
+    
+    if (!gainNodeRef.current && audioContextRef.current) {
       gainNodeRef.current = audioContextRef.current.createGain()
       gainNodeRef.current.connect(audioContextRef.current.destination)
       gainNodeRef.current.gain.value = options.volume
     }
   }, [options.volume])
+
+  useEffect(() => {
+    initAudio()
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+        audioContextRef.current = null
+        gainNodeRef.current = null
+        isInitialisedRef.current = false
+      }
+    }
+  }, [initAudio])
 
   const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click', key?: string) => {
     if (!options.enabled) return
@@ -74,21 +94,12 @@ export function useTypingSound(options: SoundOptions) {
     }
   }, [])
 
-  const cleanup = useCallback(() => {
-    if (audioContextRef.current) {
-      audioContextRef.current.close()
-      audioContextRef.current = null
-      gainNodeRef.current = null
-    }
-  }, [])
-
   return {
     playCorrect: (key?: string) => playSound('correct', key),
     playError: () => playSound('error'),
     playComplete: () => playSound('complete'),
     playClick: (key?: string) => playSound('click', key),
     setVolume,
-    cleanup,
     initAudio,
   }
 }
