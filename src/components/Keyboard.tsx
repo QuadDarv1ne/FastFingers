@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { KeyboardLayout, KeyHeatmapData } from '../types'
 import { layouts, fingerColors, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
@@ -10,15 +11,15 @@ interface KeyboardProps {
   onToggleHeatmap?: (show: boolean) => void
 }
 
-export function Keyboard({ 
-  layout, 
-  highlightKey = null, 
-  heatmap = {}, 
+export const Keyboard = memo<KeyboardProps>(function Keyboard({
+  layout,
+  highlightKey = null,
+  heatmap = {},
   showHeatmap = false,
-  onToggleHeatmap 
+  onToggleHeatmap
 }: KeyboardProps) {
   const layoutData = layouts[layout]
-  
+
   if (!layoutData) return null
 
   return (
@@ -121,4 +122,12 @@ export function Keyboard({
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  // Кастомное сравнение для оптимизации
+  return (
+    prevProps.layout === nextProps.layout &&
+    prevProps.highlightKey === nextProps.highlightKey &&
+    prevProps.showHeatmap === nextProps.showHeatmap &&
+    JSON.stringify(prevProps.heatmap) === JSON.stringify(nextProps.heatmap)
+  )
+})
