@@ -158,51 +158,59 @@ export function TypingTrainer({
   return (
     <div className="space-y-6">
       {/* Выбор режима */}
-      <div className="glass rounded-xl p-4">
-        <div className="flex flex-wrap gap-4">
-          <div>
-            <label className="block text-sm text-dark-400 mb-2">Категория</label>
+      <div className="card">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+              <span>📁</span>
+              Категория
+            </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
               disabled={isChallenge}
             >
-              <option value="all">Случайные слова</option>
-              <option value="basic">Основной ряд</option>
-              <option value="upper">Верхний ряд</option>
-              <option value="lower">Нижний ряд</option>
-              <option value="words">Слова</option>
-              <option value="sentences">Предложения</option>
-              <option value="code">Код</option>
+              <option value="all">🎲 Случайные слова</option>
+              <option value="basic">⌨️ Основной ряд</option>
+              <option value="upper">⬆️ Верхний ряд</option>
+              <option value="lower">⬇️ Нижний ряд</option>
+              <option value="words">📝 Слова</option>
+              <option value="sentences">📄 Предложения</option>
+              <option value="code">💻 Код</option>
               {customExercises.length > 0 && (
-                <option value="custom">Мои упражнения ({customExercises.length})</option>
+                <option value="custom">✏️ Мои упражнения ({customExercises.length})</option>
               )}
             </select>
           </div>
           
-          <div>
-            <label className="block text-sm text-dark-400 mb-2">Сложность</label>
+          <div className="flex-1 min-w-[180px]">
+            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+              <span>🎯</span>
+              Сложность
+            </label>
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
-              className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
             >
-              <option value={1}>1 - Очень легко</option>
-              <option value={3}>3 - Легко</option>
-              <option value={5}>5 - Средне</option>
-              <option value={7}>7 - Сложно</option>
-              <option value={9}>9 - Очень сложно</option>
+              <option value={1}>⭐ Очень легко</option>
+              <option value={3}>⭐⭐ Легко</option>
+              <option value={5}>⭐⭐⭐ Средне</option>
+              <option value={7}>⭐⭐⭐⭐ Сложно</option>
+              <option value={9}>⭐⭐⭐⭐⭐ Очень сложно</option>
             </select>
           </div>
           
-          <div className="flex-1" />
-          
           <button
             onClick={initExercise}
-            className="px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg text-sm font-medium transition-colors"
+            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
+            title="Сгенерировать новое упражнение"
           >
-            Новое упражнение
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">Новое</span>
           </button>
         </div>
       </div>
@@ -211,18 +219,29 @@ export function TypingTrainer({
       <div
         ref={textContainerRef}
         onClick={handleContainerClick}
-        className="glass rounded-xl p-8 cursor-text min-h-[200px] relative"
+        className="card cursor-text min-h-[250px] relative group hover:border-primary-500/30 transition-all"
       >
+        {/* Подсказка о фокусе */}
+        {!isComplete && (
+          <div className="absolute top-4 right-4 text-xs text-dark-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+            Кликните для начала
+          </div>
+        )}
+        
         <input
           ref={inputRef}
           type="text"
-          className="opacity-0 absolute"
+          className="opacity-0 absolute pointer-events-none"
           onInput={handleInput}
           onBlur={() => !isComplete && setTimeout(() => inputRef.current?.focus(), 100)}
           disabled={isComplete}
+          aria-label="Поле ввода для печати"
         />
         
-        <div className={`font-mono leading-relaxed ${fontSizeClass} break-words`}>
+        <div className={`font-mono leading-relaxed ${fontSizeClass} break-words select-none`}>
           {text.split('').map((char, index) => {
             let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
             
@@ -237,26 +256,36 @@ export function TypingTrainer({
         </div>
         
         {/* Индикатор прогресса */}
-        <div className="mt-6 flex items-center gap-4">
-          <div className="flex-1 h-2 bg-dark-800 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-primary-600 to-primary-400"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentIndex / text.length) * 100}%` }}
-              transition={{ duration: 0.1 }}
-            />
+        <div className="mt-8 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-dark-400 font-medium">Прогресс</span>
+            <span className="text-primary-400 font-bold">{Math.round((currentIndex / text.length) * 100)}%</span>
           </div>
-          <span className="text-sm text-dark-400 whitespace-nowrap">
-            {currentIndex} / {text.length}
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-3 bg-dark-800 rounded-full overflow-hidden shadow-inner">
+              <motion.div
+                className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 shadow-glow"
+                initial={{ width: 0 }}
+                animate={{ width: `${(currentIndex / text.length) * 100}%` }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              />
+            </div>
+            <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-right">
+              {currentIndex} / {text.length}
           </span>
+          </div>
         </div>
         
         {/* Кнопки управления */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex justify-between items-center mt-6 pt-6 border-t border-dark-700/50">
           <button
             onClick={handleSkip}
-            className="px-4 py-2 text-dark-400 hover:text-white transition-colors text-sm"
+            className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            title="Пропустить это упражнение"
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
             Пропустить
           </button>
           
@@ -265,9 +294,12 @@ export function TypingTrainer({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               onClick={initExercise}
-              className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+              className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
             >
-              Продолжить →
+              Продолжить
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </motion.button>
           )}
         </div>
@@ -279,27 +311,47 @@ export function TypingTrainer({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-dark-900/90 rounded-xl flex items-center justify-center"
+              className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl flex items-center justify-center"
             >
-              <div className="text-center">
+              <div className="text-center px-6">
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', delay: 0.2 }}
-                  className="w-20 h-20 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', delay: 0.1, duration: 0.6 }}
+                  className="w-24 h-24 bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow-success"
                 >
-                  <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </motion.div>
-                <h3 className="text-2xl font-bold mb-2">Упражнение завершено!</h3>
-                <p className="text-dark-400 mb-6">Отличная работа! Так держать!</p>
-                <button
+                <motion.h3 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl font-bold mb-3 text-gradient-success"
+                >
+                  Отлично! 🎉
+                </motion.h3>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-dark-300 mb-8 text-lg"
+                >
+                  Упражнение завершено. Продолжайте в том же духе!
+                </motion.p>
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
                   onClick={initExercise}
-                  className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+                  className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2 mx-auto"
                 >
                   Следующее упражнение
-                </button>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </motion.button>
               </div>
             </motion.div>
           )}
@@ -308,11 +360,18 @@ export function TypingTrainer({
 
       {/* Подсказка по текущей клавише */}
       {currentKey && !isComplete && (
-        <div className="text-center">
-          <p className="text-sm text-dark-400">
-            Текущая клавиша: <span className="text-primary-400 font-mono text-lg">{currentKey}</span>
-          </p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card text-center"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-sm text-dark-400 font-medium">Следующая клавиша:</span>
+            <div className="px-4 py-2 bg-primary-500/20 rounded-lg border border-primary-500/30">
+              <span className="text-primary-400 font-mono text-2xl font-bold">{currentKey}</span>
+            </div>
+          </div>
+        </motion.div>
       )}
     </div>
   )

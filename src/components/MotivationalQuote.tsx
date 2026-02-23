@@ -30,12 +30,17 @@ interface MotivationalQuoteProps {
 
 export function MotivationalQuote({ onQuoteChange }: MotivationalQuoteProps) {
   const [currentQuote, setCurrentQuote] = useState<Quote>(quotes[0])
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const getRandomQuote = useCallback(() => {
-    const randomIndex = Math.floor(Math.random() * quotes.length)
-    const newQuote = quotes[randomIndex]
-    setCurrentQuote(newQuote)
-    onQuoteChange?.(newQuote)
+    setIsRefreshing(true)
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * quotes.length)
+      const newQuote = quotes[randomIndex]
+      setCurrentQuote(newQuote)
+      onQuoteChange?.(newQuote)
+      setIsRefreshing(false)
+    }, 300)
   }, [onQuoteChange])
 
   useEffect(() => {
@@ -55,37 +60,51 @@ export function MotivationalQuote({ onQuoteChange }: MotivationalQuoteProps) {
   }
 
   return (
-    <div className="glass rounded-xl p-6 relative overflow-hidden">
+    <div className="card relative overflow-hidden">
       {/* Градиентный фон */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${categoryColors[currentQuote.category]}`} />
+      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${categoryColors[currentQuote.category]}`} />
       
-      <div className="flex items-start justify-between mb-4">
-        <span className="text-2xl">{categoryIcons[currentQuote.category]}</span>
+      <div className="flex items-start justify-between mb-4 mt-2">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">{categoryIcons[currentQuote.category]}</span>
+          <span className="text-xs px-2.5 py-1 bg-dark-800/50 rounded-full text-dark-400 capitalize font-medium border border-dark-700/50">
+            {currentQuote.category === 'typing' ? '📝 Печать' : 
+             currentQuote.category === 'motivation' ? '🔥 Мотивация' : '✨ Успех'}
+          </span>
+        </div>
         <button
           onClick={getRandomQuote}
-          className="p-2 hover:bg-dark-800 rounded-lg transition-colors text-dark-400 hover:text-white"
+          disabled={isRefreshing}
+          className="p-2 hover:bg-dark-800/50 rounded-lg transition-all text-dark-400 hover:text-white disabled:opacity-50"
           title="Другая цитата"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg 
+            className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
       </div>
       
       <blockquote className="mb-4">
-        <p className="text-lg font-medium leading-relaxed">
-          &quot;{currentQuote.text}&quot;
+        <svg className="w-8 h-8 text-primary-500/20 mb-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+        </svg>
+        <p className="text-lg font-medium leading-relaxed text-dark-100">
+          {currentQuote.text}
         </p>
       </blockquote>
       
-      <footer className="flex items-center justify-between">
-        <cite className="text-sm text-dark-400 not-italic">
-          — {currentQuote.author}
+      <footer className="flex items-center justify-between pt-3 border-t border-dark-700/50">
+        <cite className="text-sm text-dark-400 not-italic font-medium flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          {currentQuote.author}
         </cite>
-        <span className="text-xs px-2 py-1 bg-dark-800 rounded-full text-dark-500 capitalize">
-          {currentQuote.category === 'typing' ? 'Печать' : 
-           currentQuote.category === 'motivation' ? 'Мотивация' : 'Успех'}
-        </span>
       </footer>
     </div>
   )
