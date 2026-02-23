@@ -141,6 +141,24 @@ export const exercises: Exercise[] = [
     category: 'code',
     focusKeys: [],
   },
+  {
+    id: 'code-3',
+    title: 'React компоненты',
+    description: 'Примеры React кода',
+    text: 'const [state, setState] = useState(initialValue); useEffect(() => { console.log("mounted"); }, []);',
+    difficulty: 9,
+    category: 'code',
+    focusKeys: [],
+  },
+  {
+    id: 'code-4',
+    title: 'CSS стили',
+    description: 'Примеры CSS кода',
+    text: '.container { display: flex; justify-content: center; align-items: center; gap: 1rem; }',
+    difficulty: 7,
+    category: 'code',
+    focusKeys: [],
+  },
 ];
 
 // Генерация случайного текста из упражнений

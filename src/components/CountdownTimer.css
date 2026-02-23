@@ -1,0 +1,85 @@
+.countdown-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  background: #1f2937;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.countdown-timer__label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.countdown-timer__display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.countdown-timer__time {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: #7c3aed;
+  min-width: 120px;
+  text-align: center;
+}
+
+.countdown-timer__time--warning {
+  color: #ef4444;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.countdown-timer__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.countdown-timer__button:hover {
+  background: #4b5563;
+  color: #fff;
+}
+
+.countdown-timer__button:active {
+  transform: scale(0.95);
+}
+
+.countdown-timer__progress {
+  width: 100%;
+  height: 4px;
+  background: #374151;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.countdown-timer__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  transition: width 1s linear;
+}
