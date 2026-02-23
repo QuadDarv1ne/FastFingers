@@ -25,57 +25,68 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
 const NOTIFICATIONS_STORAGE_KEY = 'fastfingers_notifications'
+const MAX_NOTIFICATIONS = 50
+
+const getStorageKey = (userId: string) => `${NOTIFICATIONS_STORAGE_KEY}_${userId}`
+
+const loadNotifications = (userId: string): Notification[] => {
+  try {
+    const stored = localStorage.getItem(getStorageKey(userId))
+    return stored ? JSON.parse(stored) : []
+  } catch (e) {
+    console.error('Failed to load notifications:', e)
+    return []
+  }
+}
+
+const saveNotifications = (userId: string, notifications: Notification[]) => {
+  try {
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(notifications))
+  } catch (e) {
+    console.error('Failed to save notifications:', e)
+  }
+}
+
+const generateNotificationId = (): string =>
+  Date.now().toString() + Math.random().toString(36).substring(2)
+
+const showBrowserNotification = (title: string, message: string) => {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, {
+      body: message,
+      icon: '/favicon.svg',
+    })
+  }
+}
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
 
-  // Загрузка уведомлений - только если пользователь есть
   useEffect(() => {
     if (!user?.id) return
-    
-    try {
-      const stored = localStorage.getItem(`${NOTIFICATIONS_STORAGE_KEY}_${user.id}`)
-      if (stored) {
-        setNotifications(JSON.parse(stored))
-      }
-    } catch (e) {
-      console.error('Failed to load notifications:', e)
-    }
+    setNotifications(loadNotifications(user.id))
   }, [user])
 
-  // Сохранение уведомлений
   useEffect(() => {
     if (!user?.id) return
-    
-    try {
-      localStorage.setItem(`${NOTIFICATIONS_STORAGE_KEY}_${user.id}`, JSON.stringify(notifications))
-    } catch (e) {
-      console.error('Failed to save notifications:', e)
-    }
+    saveNotifications(user.id, notifications)
   }, [notifications, user])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
       ...notification,
-      id: Date.now().toString() + Math.random().toString(36).substring(2),
+      id: generateNotificationId(),
       timestamp: Date.now(),
       read: false,
     }
 
-    setNotifications(prev => [newNotification, ...prev].slice(0, 50)) // Храним последние 50
-    
-    // Показываем браузерное уведомление если разрешено
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(notification.title, {
-        body: notification.message,
-        icon: '/favicon.svg',
-      })
-    }
+    setNotifications(prev => [newNotification, ...prev].slice(0, MAX_NOTIFICATIONS))
+    showBrowserNotification(notification.title, notification.message)
   }, [])
 
   const markAsRead = useCallback((id: string) => {
-    setNotifications(prev => prev.map(n => 
+    setNotifications(prev => prev.map(n =>
       n.id === id ? { ...n, read: true } : n
     ))
   }, [])
