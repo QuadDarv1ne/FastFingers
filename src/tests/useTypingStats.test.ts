@@ -71,7 +71,7 @@ describe('useTypingStats', () => {
       })
     })
 
-    let sessionResult: ReturnType<typeof result.current.completeSession>
+    let sessionResult: ReturnType<typeof result.current.completeSession> | undefined
     act(() => {
       sessionResult = result.current.completeSession()
     })

@@ -52,10 +52,10 @@ export function useKeyPress(
   )
 
   useEffect(() => {
-    target.addEventListener(event, handler)
+    target.addEventListener(event, handler as EventListener)
 
     return () => {
-      target.removeEventListener(event, handler)
+      target.removeEventListener(event, handler as EventListener)
     }
   }, [event, target, handler])
 }
@@ -116,12 +116,12 @@ export function useKeyCombo(
       pressedKeys.current.delete(e.key.toLowerCase())
     }
 
-    target.addEventListener(event, handleKeyDown)
-    target.addEventListener('keyup', handleKeyUp)
+    target.addEventListener(event, handleKeyDown as EventListener)
+    target.addEventListener('keyup', handleKeyUp as EventListener)
 
     return () => {
-      target.removeEventListener(event, handleKeyDown)
-      target.removeEventListener('keyup', handleKeyUp)
+      target.removeEventListener(event, handleKeyDown as EventListener)
+      target.removeEventListener('keyup', handleKeyUp as EventListener)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combo, callback, event, target, preventDefault, stopPropagation])

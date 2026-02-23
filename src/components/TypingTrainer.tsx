@@ -72,7 +72,10 @@ export function TypingTrainer({
     setIsComplete(false)
     setIsPaused(false)
 
-    setTimeout(() => inputRef.current?.focus(), 100)
+    requestAnimationFrame(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    })
   }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
 
   useEffect(() => {

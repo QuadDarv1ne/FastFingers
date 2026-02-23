@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getFromStorage, setToStorage } from './storage'
+import { getFromStorage, setToStorage } from '../utils/storage'
 
 type SetValue<T> = T | ((val: T) => T)
 
@@ -16,7 +16,7 @@ interface UseLocalStorageOptions<T> {
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
-  options: UseLocalStorageOptions = {}
+  options: UseLocalStorageOptions<T> = {}
 ): [T, (value: SetValue<T>) => void, () => void] {
   const {
     serialize = JSON.stringify,
