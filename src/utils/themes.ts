@@ -88,6 +88,8 @@ export function applyTheme(theme: ThemeColor, customColors?: Partial<ThemeColors
 
   const root = document.documentElement
 
+  console.log('Applying theme:', theme, colors)
+
   root.style.setProperty('--color-bg', colors.bg)
   root.style.setProperty('--color-surface', colors.surface)
   root.style.setProperty('--color-text', colors.text)
