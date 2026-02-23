@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
 import { authService } from '../services/authService';
 
@@ -14,6 +14,10 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getErrorMessage = (error: unknown): string => {
+  return error instanceof Error ? error.message : 'Unknown error';
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -21,6 +25,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     error: null,
   });
+
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
 
   // Проверка текущего пользователя при загрузке
   useEffect(() => {
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: (error as { message: string }).message,
+        error: getErrorMessage(error),
       }));
       throw error;
     }
@@ -67,13 +75,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: (error as { message: string }).message,
+        error: getErrorMessage(error),
       }));
       throw error;
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     authService.logout();
     setState({
       user: null,
@@ -81,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       error: null,
     });
-  };
+  }, []);
 
   const resetPassword = async (request: PasswordResetRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -95,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: (error as { message: string }).message,
+        error: getErrorMessage(error),
       }));
       throw error;
     }
@@ -113,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: (error as { message: string }).message,
+        error: getErrorMessage(error),
       }));
       throw error;
     }
@@ -130,10 +138,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to sync user stats:', error);
     }
-  };
-
-  const clearError = () => {
-    setState(prev => ({ ...prev, error: null }));
   };
 
   return (
