@@ -4,10 +4,13 @@
 
 type StorageValue = string | number | boolean | object | null | undefined
 
+const handleStorageError = (operation: string, key?: string, error?: unknown) => {
+  const context = key ? `: ${key}` : ''
+  console.error(`Error ${operation}${context}`, error)
+}
+
 /**
  * Получить значение из localStorage
- * @param key - Ключ
- * @param defaultValue - Значение по умолчанию
  */
 export function getFromStorage<T extends StorageValue>(
   key: string,
@@ -15,42 +18,34 @@ export function getFromStorage<T extends StorageValue>(
 ): T | undefined {
   try {
     const item = localStorage.getItem(key)
-    if (item === null) {
-      return defaultValue
-    }
-    return JSON.parse(item) as T
+    return item === null ? defaultValue : (JSON.parse(item) as T)
   } catch (error) {
-    console.error(`Error reading from localStorage: ${key}`, error)
+    handleStorageError('reading from localStorage', key, error)
     return defaultValue
   }
 }
 
 /**
  * Сохранить значение в localStorage
- * @param key - Ключ
- * @param value - Значение
  */
 export function setToStorage<T extends StorageValue>(key: string, value: T): void {
   try {
-    if (value === null || value === undefined) {
-      localStorage.removeItem(key)
-    } else {
-      localStorage.setItem(key, JSON.stringify(value))
-    }
+    value === null || value === undefined
+      ? localStorage.removeItem(key)
+      : localStorage.setItem(key, JSON.stringify(value))
   } catch (error) {
-    console.error(`Error writing to localStorage: ${key}`, error)
+    handleStorageError('writing to localStorage', key, error)
   }
 }
 
 /**
  * Удалить значение из localStorage
- * @param key - Ключ
  */
 export function removeFromStorage(key: string): void {
   try {
     localStorage.removeItem(key)
   } catch (error) {
-    console.error(`Error removing from localStorage: ${key}`, error)
+    handleStorageError('removing from localStorage', key, error)
   }
 }
 
@@ -61,7 +56,7 @@ export function clearStorage(): void {
   try {
     localStorage.clear()
   } catch (error) {
-    console.error('Error clearing localStorage', error)
+    handleStorageError('clearing localStorage', undefined, error)
   }
 }
 
@@ -72,7 +67,7 @@ export function getStorageKeys(): string[] {
   try {
     return Object.keys(localStorage)
   } catch (error) {
-    console.error('Error getting storage keys', error)
+    handleStorageError('getting storage keys', undefined, error)
     return []
   }
 }
@@ -85,18 +80,12 @@ export function getStorageSize(): number {
     let totalSize = 0
     for (const key in localStorage) {
       if (localStorage.hasOwnProperty(key)) {
-        totalSize += (key.length + localStorage[key].length) * 2 // 2 bytes per character
+        totalSize += (key.length + localStorage[key].length) * 2
       }
     }
     return totalSize
   } catch (error) {
-    console.error('Error calculating storage size', error)
+    handleStorageError('calculating storage size', undefined, error)
     return 0
   }
 }
-
-/**
- * Хук для работы с localStorage (для React компонентов)
- * Пример использования:
- * const [value, setValue] = useStorage('key', defaultValue)
- */
