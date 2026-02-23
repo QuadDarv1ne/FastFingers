@@ -10,6 +10,7 @@ import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { OnlineStatus } from './components/OnlineStatus'
+import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -290,126 +291,147 @@ function AppContent() {
 
       <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
         {/* Верхняя панель */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           {/* Переключатель режимов */}
-          <div className="glass rounded-xl p-1 inline-flex flex-wrap">
+          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label="Режимы тренировки">
             <button
               onClick={() => { setGameMode('practice'); setView('main') }}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 gameMode === 'practice' && view === 'main'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Свободная практика печати"
             >
-              📝 Практика
+              <span className="text-lg">📝</span>
+              <span className="hidden sm:inline">Практика</span>
             </button>
             <button
               onClick={() => { setGameMode('sprint'); setView('main') }}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 gameMode === 'sprint'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="60 секунд на максимальную скорость"
             >
-              ⚡ Спринт
+              <span className="text-lg">⚡</span>
+              <span className="hidden sm:inline">Спринт</span>
             </button>
             <div className="relative group">
               <button
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                   gameMode === 'speedtest'
-                    ? 'bg-primary-600 text-white'
-                    : 'text-dark-400 hover:text-white'
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                    : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
                 }`}
                 onClick={() => setGameMode('speedtest')}
+                title="Тест скорости печати"
               >
-                🕐 Тест
+                <span className="text-lg">🕐</span>
+                <span className="hidden sm:inline">Тест</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {/* Выпадающее меню */}
-              <div className="absolute top-full left-0 mt-1 glass rounded-lg p-1 hidden group-hover:block z-10">
+              <div className="absolute top-full left-0 mt-2 card p-2 hidden group-hover:block z-10 min-w-[160px] animate-scale-in">
                 <button
                   onClick={() => { setSpeedTestDuration(15); setGameMode('speedtest') }}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
                 >
-                  15 секунд
+                  <span>15 секунд</span>
+                  <span className="text-xs text-dark-500">⚡</span>
                 </button>
                 <button
                   onClick={() => { setSpeedTestDuration(30); setGameMode('speedtest') }}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
                 >
-                  30 секунд
+                  <span>30 секунд</span>
+                  <span className="text-xs text-dark-500">⭐</span>
                 </button>
                 <button
                   onClick={() => { setSpeedTestDuration(60); setGameMode('speedtest') }}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-dark-800 rounded transition-colors"
+                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
                 >
-                  60 секунд
+                  <span>60 секунд</span>
+                  <span className="text-xs text-dark-500">🔥</span>
                 </button>
               </div>
             </div>
             <button
               onClick={() => setView('custom-exercise')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 view === 'custom-exercise'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Создать своё упражнение"
             >
-              ✏️ Своё
+              <span className="text-lg">✏️</span>
+              <span className="hidden sm:inline">Своё</span>
             </button>
             <button
               onClick={() => setView('tips')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 view === 'tips'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Советы по слепой печати"
             >
-              💡 Советы
+              <span className="text-lg">💡</span>
+              <span className="hidden sm:inline">Советы</span>
             </button>
             <button
               onClick={() => setView('weekly')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 view === 'weekly'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Прогресс за неделю"
             >
-              📈 Неделя
+              <span className="text-lg">📈</span>
+              <span className="hidden sm:inline">Неделя</span>
             </button>
             <button
               onClick={() => setView('statistics')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 view === 'statistics'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Детальная статистика"
             >
-              📊 Статистика
+              <span className="text-lg">📊</span>
+              <span className="hidden sm:inline">Статистика</span>
             </button>
             <button
               onClick={() => setView('learning')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 view === 'learning'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Режим обучения"
             >
-              📚 Обучение
+              <span className="text-lg">📚</span>
+              <span className="hidden sm:inline">Обучение</span>
             </button>
             <button
               onClick={() => setGameMode('reaction')}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 gameMode === 'reaction'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-dark-400 hover:text-white'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
               }`}
+              title="Игра на реакцию"
             >
-              🎮 Игра
+              <span className="text-lg">🎮</span>
+              <span className="hidden sm:inline">Игра</span>
             </button>
-          </div>
+          </nav>
 
           {/* Переключатель темы */}
           <ThemeToggle theme={theme} onThemeChange={setTheme} />
@@ -588,6 +610,9 @@ function AppContent() {
 
       {/* Индикатор онлайн/офлайн статуса */}
       <OnlineStatus />
+
+      {/* Горячие клавиши */}
+      <KeyboardShortcuts />
 
       {/* Онбординг для новых пользователей */}
       {showOnboarding && (
