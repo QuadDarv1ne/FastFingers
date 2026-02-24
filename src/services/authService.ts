@@ -28,7 +28,20 @@ const generateId = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
 
-const hashPassword = (password: string): string => {
+const hashPassword = async (password: string): Promise<string> => {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password + PASSWORD_SALT);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      // Fallback to simple hash
+    }
+  }
+  
+  // Fallback для старых браузеров
   const encoder = new TextEncoder();
   const data = encoder.encode(password + PASSWORD_SALT);
   const hash = Array.from(new Uint8Array(data)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -173,7 +186,7 @@ export const authService = {
       throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
     }
 
-    const hashedPassword = hashPassword(credentials.password);
+    const hashedPassword = await hashPassword(credentials.password);
     const now = new Date().toISOString();
 
     const newUser: StoredUser = {
@@ -230,7 +243,7 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
     }
 
-    const hashedPassword = hashPassword(credentials.password);
+    const hashedPassword = await hashPassword(credentials.password);
     if (user.password !== hashedPassword) {
       saveLoginAttempt(sanitizedEmail);
       throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
@@ -311,7 +324,7 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex].password = hashPassword(confirm.newPassword);
+    users[userIndex].password = await hashPassword(confirm.newPassword);
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);

@@ -8,6 +8,7 @@ interface PasswordResetProps {
 
 const TOKEN_EXPIRY_SECONDS = 300 // 5 минут
 const MIN_PASSWORD_LENGTH = 8
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function PasswordReset({ onBack }: PasswordResetProps) {
   const { resetPassword, confirmPasswordReset, isLoading, error, clearError } = useAuth()
@@ -20,8 +21,10 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   const [successMessage, setSuccessMessage] = useState('')
   const [timeLeft, setTimeLeft] = useState(TOKEN_EXPIRY_SECONDS)
   const [passwordError, setPasswordError] = useState('')
+  const [emailError, setEmailError] = useState('')
   
   const emailInputRef = useRef<HTMLInputElement>(null)
+  const tokenInputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -45,8 +48,20 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   }, [step])
 
   useEffect(() => {
-    emailInputRef.current?.focus()
-  }, [])
+    if (step === 'request') {
+      emailInputRef.current?.focus()
+    } else if (step === 'confirm') {
+      tokenInputRef.current?.focus()
+    }
+  }, [step])
+
+  useEffect(() => {
+    if (email && !EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+    } else {
+      setEmailError('')
+    }
+  }, [email])
 
   useEffect(() => {
     if (newPassword && newPassword.length < MIN_PASSWORD_LENGTH) {
@@ -64,6 +79,12 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+      return
+    }
+    
     clearError()
     setSuccessMessage('')
     
@@ -71,6 +92,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       await resetPassword({ email })
       setSuccessMessage('Инструкции по сбросу пароля отправлены на ваш email')
       setStep('confirm')
+      setTimeLeft(TOKEN_EXPIRY_SECONDS)
     } catch {
       // Ошибка уже установлена в контексте
     }
@@ -96,6 +118,16 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       setTimeout(() => onBack(), 2000)
     } catch {
       // Ошибка уже установлена в контексте
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      if (step === 'request' && email && !emailError) {
+        handleRequestReset(e)
+      } else if (step === 'confirm' && token && newPassword && confirmPassword && !passwordError && newPassword === confirmPassword) {
+        handleConfirmReset(e)
+      }
     }
   }
 
@@ -154,18 +186,30 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 Email
               </label>
               <input
+                ref={emailInputRef}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="your@email.com"
                 required
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                  emailError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+                }`}
               />
+              {emailError && (
+                <p className="text-xs text-error mt-1 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {emailError}
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !email || emailError}
               className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
@@ -191,9 +235,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 Код из письма
               </label>
               <input
+                ref={tokenInputRef}
                 type="text"
                 value={token}
                 onChange={(e) => setToken(e.target.value.toUpperCase())}
+                onKeyDown={handleKeyDown}
                 placeholder="ABC123"
                 required
                 maxLength={6}
@@ -214,6 +260,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
                 minLength={8}
@@ -239,6 +286,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
                 minLength={8}
