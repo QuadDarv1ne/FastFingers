@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, useState } from 'react'
+import { useRef, useCallback, useEffect, useState, useMemo } from 'react'
 import { SoundTheme, soundThemes, pianoNotes } from '../utils/soundThemes'
 
 interface SoundOptions {
@@ -13,19 +13,26 @@ interface UseTypingSoundReturn {
   playComplete: () => void
   playClick: (key?: string) => void
   setVolume: (volume: number) => void
+  setEnabled: (enabled: boolean) => void
+  setTheme: (theme: SoundTheme) => void
   initAudio: () => void
   isReady: boolean
+  isEnabled: boolean
   error: string | null
 }
 
-export function useTypingSound(options: SoundOptions): UseTypingSoundReturn {
+export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundReturn {
   const audioContextRef = useRef<AudioContext | null>(null)
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
   const throttleMs = 30
   const isInitialisedRef = useRef(false)
+  
+  const [options, setOptions] = useState<SoundOptions>(initialOptions)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const currentTheme = useMemo(() => soundThemes[options.theme], [options.theme])
 
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
@@ -53,18 +60,20 @@ export function useTypingSound(options: SoundOptions): UseTypingSoundReturn {
     }
   }, [options.volume])
 
-  useEffect(() => {
-    initAudio()
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
-        audioContextRef.current = null
-        gainNodeRef.current = null
-        isInitialisedRef.current = false
-        setIsReady(false)
-      }
+  const setVolume = useCallback((volume: number) => {
+    setOptions(prev => ({ ...prev, volume }))
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = volume
     }
-  }, [initAudio])
+  }, [])
+
+  const setEnabled = useCallback((enabled: boolean) => {
+    setOptions(prev => ({ ...prev, enabled }))
+  }, [])
+
+  const setTheme = useCallback((theme: SoundTheme) => {
+    setOptions(prev => ({ ...prev, theme }))
+  }, [])
 
   const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click', key?: string) => {
     if (!options.enabled || !isReady) return
@@ -85,10 +94,9 @@ export function useTypingSound(options: SoundOptions): UseTypingSoundReturn {
         ctx.resume()
       }
 
-      const theme = soundThemes[options.theme]
       const sound = soundName === 'click' && options.theme === 'piano' && key
         ? { freq: pianoNotes[key as keyof typeof pianoNotes] || 440, duration: 0.15, type: 'sine' as const }
-        : theme[soundName]
+        : currentTheme[soundName]
 
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
@@ -110,13 +118,20 @@ export function useTypingSound(options: SoundOptions): UseTypingSoundReturn {
       setError(message)
       console.warn(message, err)
     }
-  }, [options.enabled, options.volume, options.theme, isReady, initAudio])
+  }, [options.enabled, options.volume, options.theme, isReady, initAudio, currentTheme])
 
-  const setVolume = useCallback((volume: number) => {
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = volume
+  useEffect(() => {
+    initAudio()
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+        audioContextRef.current = null
+        gainNodeRef.current = null
+        isInitialisedRef.current = false
+        setIsReady(false)
+      }
     }
-  }, [])
+  }, [initAudio])
 
   return {
     playCorrect: (key?: string) => playSound('correct', key),
@@ -124,8 +139,11 @@ export function useTypingSound(options: SoundOptions): UseTypingSoundReturn {
     playComplete: () => playSound('complete'),
     playClick: (key?: string) => playSound('click', key),
     setVolume,
+    setEnabled,
+    setTheme,
     initAudio,
     isReady,
+    isEnabled: options.enabled,
     error,
   }
 }
