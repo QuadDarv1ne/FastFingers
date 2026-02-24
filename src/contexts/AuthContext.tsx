@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
+import { createContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
+import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
 import { authService } from '../services/authService';
 
 interface AuthContextType extends AuthState {
@@ -10,13 +10,26 @@ interface AuthContextType extends AuthState {
   confirmPasswordReset: (confirm: PasswordResetConfirm) => Promise<void>;
   updateUserStats: (stats: Partial<User['stats']>) => Promise<void>;
   clearError: () => void;
+  refreshUser: () => Promise<void>;
+  isActionPending: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const getErrorMessage = (error: unknown): string => {
-  return error instanceof Error ? error.message : 'Unknown error';
+const getAuthError = (error: unknown): { code?: string; message: string } => {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const authError = error as Partial<AuthError>;
+    return {
+      code: authError.code,
+      message: authError.message || 'Unknown error',
+    };
+  }
+  return {
+    message: error instanceof Error ? error.message : 'Unknown error',
+  };
 };
+
+const ACTION_DELAY = 300;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -25,12 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     error: null,
   });
+  
+  const [isActionPending, setIsActionPending] = useState(false);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  // Проверка текущего пользователя при загрузке
   useEffect(() => {
     const user = authService.getCurrentUser();
     setState({
@@ -41,10 +55,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const user = authService.getCurrentUser();
+    setState(prev => ({
+      ...prev,
+      user,
+      isAuthenticated: !!user,
+    }));
+  }, []);
+
+  const withActionState = async <T,>(action: Promise<T>): Promise<T> => {
+    setIsActionPending(true);
+    await new Promise(resolve => setTimeout(resolve, ACTION_DELAY));
+    try {
+      const result = await action;
+      return result;
+    } finally {
+      setIsActionPending(false);
+    }
+  };
+
   const login = async (credentials: LoginCredentials) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      const user = await authService.login(credentials);
+      await withActionState(authService.login(credentials));
+      const user = authService.getCurrentUser();
       setState({
         user,
         isAuthenticated: true,
@@ -52,10 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: null,
       });
     } catch (error) {
+      const authError = getAuthError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: getErrorMessage(error),
+        error: authError.message,
       }));
       throw error;
     }
@@ -64,7 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (credentials: RegisterCredentials) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      const user = await authService.register(credentials);
+      await withActionState(authService.register(credentials));
+      const user = authService.getCurrentUser();
       setState({
         user,
         isAuthenticated: true,
@@ -72,10 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: null,
       });
     } catch (error) {
+      const authError = getAuthError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: getErrorMessage(error),
+        error: authError.message,
       }));
       throw error;
     }
@@ -94,16 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (request: PasswordResetRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      await authService.requestPasswordReset(request);
+      await withActionState(authService.requestPasswordReset(request));
       setState(prev => ({
         ...prev,
         isLoading: false,
       }));
     } catch (error) {
+      const authError = getAuthError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: getErrorMessage(error),
+        error: authError.message,
       }));
       throw error;
     }
@@ -112,16 +151,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const confirmPasswordReset = async (confirm: PasswordResetConfirm) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      await authService.confirmPasswordReset(confirm);
+      await withActionState(authService.confirmPasswordReset(confirm));
       setState(prev => ({
         ...prev,
         isLoading: false,
       }));
     } catch (error) {
+      const authError = getAuthError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: getErrorMessage(error),
+        error: authError.message,
       }));
       throw error;
     }
@@ -140,20 +180,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const contextValue = useMemo<AuthContextType>(() => ({
+    ...state,
+    login,
+    register,
+    logout,
+    resetPassword,
+    confirmPasswordReset,
+    updateUserStats,
+    clearError,
+    refreshUser,
+    isActionPending,
+  }), [state, logout, updateUserStats, clearError, refreshUser, isActionPending]);
+
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      register,
-      logout,
-      resetPassword,
-      confirmPasswordReset,
-      updateUserStats,
-      clearError,
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export { AuthContext }
+export { AuthContext };
