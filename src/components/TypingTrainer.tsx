@@ -4,6 +4,7 @@ import { KeyboardLayout, TypingStats, KeyInputResult, Exercise } from '../types'
 import { getRandomExercise, generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
+import { useHotkey } from '../hooks/useHotkeys'
 import { TypingChar } from './TypingChar'
 
 interface TypingTrainerProps {
@@ -136,14 +137,20 @@ export function TypingTrainer({
   }, [text, startTime, isPaused, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     initExercise()
-  }
+  }, [initExercise])
 
-  // Фокус при клике
-  const handleContainerClick = () => {
+  // Горячие клавиши
+  useHotkey('escape', () => {
+    if (!isChallenge) {
+      handleSkip()
+    }
+  }, { enabled: !isPaused })
+
+  useHotkey('enter', () => {
     inputRef.current?.focus()
-  }
+  }, { enabled: true })
 
   // Размер шрифта (мемоизация)
   const fontSizeClass = useMemo(() => ({
@@ -221,7 +228,6 @@ export function TypingTrainer({
       {/* Область текста */}
       <div
         ref={textContainerRef}
-        onClick={handleContainerClick}
         className="card cursor-text min-h-[250px] relative group hover:border-primary-500/30 transition-all"
       >
         {/* Подсказка о фокусе */}
@@ -230,7 +236,7 @@ export function TypingTrainer({
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
             </svg>
-            Кликните для начала
+            Кликните или нажмите Enter
           </div>
         )}
         
