@@ -1,55 +1,72 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+interface UseDebounceOptions {
+  delay?: number
+  immediate?: boolean
+}
+
+interface UseDebounceReturn<T> {
+  debouncedValue: T
+  isPending: boolean
+  cancel: () => void
+  flush: () => void
+}
+
 /**
- * Хук для debouncing значений
- * @param value - Значение для debouncing
- * @param delay - Задержка в миллисекундах
+ * Хук для debouncing значений с расширенными возможностями
  */
-export function useDebounce<T>(value: T, delay: number = 300): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+export function useDebounce<T>(
+  value: T,
+  options: UseDebounceOptions = {}
+): UseDebounceReturn<T> {
+  const { delay = 300, immediate = false } = options
+  const [debouncedValue, setDebouncedValue] = useState<T>(immediate ? value : (undefined as T))
+  const [isPending, setIsPending] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isFirstRender = useRef(true)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (isFirstRender.current && immediate) {
       setDebouncedValue(value)
+      isFirstRender.current = false
+      return
+    }
+
+    setIsPending(true)
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setDebouncedValue(value)
+      setIsPending(false)
     }, delay)
 
     return () => {
-      clearTimeout(timer)
-    }
-  }, [value, delay])
-
-  return debouncedValue
-}
-
-/**
- * Хук для debouncing функций
- * @param fn - Функция для debouncing
- * @param delay - Задержка в миллисекундах
- */
-export function useDebounceCallback<T extends (...args: unknown[]) => unknown>(
-  fn: T,
-  delay: number = 300
-): T {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
+    }
+  }, [value, delay, immediate])
+
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
   }, [])
 
-  return useCallback(
-    (...args: Parameters<T>) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+  const flush = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      setDebouncedValue(value)
+      setIsPending(false)
+      timeoutRef.current = null
+    }
+  }, [value])
 
-      timeoutRef.current = setTimeout(() => {
-        fn(...args)
-      }, delay)
-    },
-    [fn, delay]
-  ) as T
+  return { debouncedValue, isPending, cancel, flush }
 }
+
+export { useDebounce as default }
