@@ -8,19 +8,36 @@ const REGISTRATION_DELAY_MS = 500;
 const PROFILE_UPDATE_DELAY_MS = 300;
 const RESET_TOKEN_EXPIRY_MS = 3600000;
 const MIN_PASSWORD_LENGTH = 8;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_TIME_MS = 300000;
+const LOGIN_ATTEMPTS_KEY = 'fastfingers_login_attempts';
 
 type StoredUser = User & { password: string };
 
-// Имитация задержки сети
+interface LoginAttempt {
+  email: string;
+  timestamp: number;
+}
+
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Генерация уникального ID
-const generateId = () => Math.random().toString(36).substring(2) + Date.now().toString(36);
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
 
-// Хэширование пароля (упрощённое, для демонстрации)
-const hashPassword = (password: string): string => btoa(password + PASSWORD_SALT);
+const hashPassword = (password: string): string => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + PASSWORD_SALT);
+  const hash = Array.from(new Uint8Array(data)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return hash;
+};
 
-// Получение пользователей из хранилища
+const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
+const sanitizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
+
 const getUsers = (): StoredUser[] => {
   try {
     const stored = localStorage.getItem(USERS_STORAGE_KEY);
@@ -32,17 +49,14 @@ const getUsers = (): StoredUser[] => {
   }
 };
 
-// Сохранение пользователей в хранилище
 const saveUsers = (users: StoredUser[]) => {
   try {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-    console.log('[Auth] Пользователи сохранены, всего:', users.length);
   } catch (e) {
     console.error('[Auth] Ошибка сохранения пользователей:', e);
   }
 };
 
-// Получение текущего пользователя из хранилища
 const getCurrentUserFromStorage = (): User | null => {
   try {
     const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY);
@@ -52,59 +66,81 @@ const getCurrentUserFromStorage = (): User | null => {
   }
 };
 
-// Сохранение текущего пользователя
 const saveCurrentUser = (user: User, remember: boolean) => {
   const storage = remember ? localStorage : sessionStorage;
   storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
 };
 
-// Удаление текущего пользователя из хранилища
 const removeCurrentUser = () => {
   localStorage.removeItem(CURRENT_USER_KEY);
   sessionStorage.removeItem(CURRENT_USER_KEY);
 };
 
-// Валидация email
 const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-// Валидация пароля
 const isValidPassword = (password: string): boolean => password.length >= MIN_PASSWORD_LENGTH;
 
-// Извлечение данных пользователя без пароля
 const withoutPassword = ({ password: _pwd, ...user }: StoredUser): User => user;
 
+const getLoginAttempts = (): LoginAttempt[] => {
+  try {
+    const stored = localStorage.getItem(LOGIN_ATTEMPTS_KEY);
+    if (!stored) return [];
+    return JSON.parse(stored);
+  } catch {
+    return [];
+  }
+};
+
+const saveLoginAttempt = (email: string) => {
+  const attempts = getLoginAttempts();
+  attempts.push({ email, timestamp: Date.now() });
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+};
+
+const clearLoginAttempts = (email: string) => {
+  const attempts = getLoginAttempts().filter(a => a.email !== email);
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+};
+
+const checkLockout = (email: string): number | null => {
+  const attempts = getLoginAttempts().filter(a => a.email === email);
+  const recentAttempts = attempts.filter(a => Date.now() - a.timestamp < LOCKOUT_TIME_MS);
+  
+  if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
+    const oldestRecent = Math.min(...recentAttempts.map(a => a.timestamp));
+    const remainingTime = LOCKOUT_TIME_MS - (Date.now() - oldestRecent);
+    return remainingTime > 0 ? remainingTime : null;
+  }
+  return null;
+};
+
 export const authService = {
-  // Регистрация
   async register(credentials: RegisterCredentials): Promise<User> {
     await delay(REGISTRATION_DELAY_MS);
 
-    console.log('[Auth] Регистрация:', { email: credentials.email, name: credentials.name });
+    const sanitizedEmail = sanitizeEmail(credentials.email);
+    const sanitizedName = sanitizeName(credentials.name);
 
-    if (!isValidEmail(credentials.email)) {
-      console.error('[Auth] Неверный email');
+    if (!isValidEmail(sanitizedEmail)) {
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
     if (!isValidPassword(credentials.password)) {
-      console.error('[Auth] Слабый пароль');
       throw { code: 'weak-password', message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов` } as AuthError;
     }
 
     if (credentials.password !== credentials.confirmPassword) {
-      console.error('[Auth] Пароли не совпадают');
       throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
     }
 
     if (!credentials.agreeToTerms) {
-      console.error('[Auth] Не принято соглашение');
       throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
     }
 
     const users = getUsers();
-    console.log('[Auth] Текущие пользователи:', users.length);
 
-    if (users.find(u => u.email === credentials.email)) {
-      console.error('[Auth] Email уже занят');
+    if (users.find(u => u.email === sanitizedEmail)) {
       throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
     }
 
@@ -113,8 +149,8 @@ export const authService = {
 
     const newUser: StoredUser = {
       id: generateId(),
-      email: credentials.email,
-      name: credentials.name,
+      email: sanitizedEmail,
+      name: sanitizedName,
       password: hashedPassword,
       createdAt: now,
       stats: {
@@ -139,26 +175,39 @@ export const authService = {
     return userWithoutPassword;
   },
 
-  // Вход
   async login(credentials: LoginCredentials): Promise<User> {
     await delay(REGISTRATION_DELAY_MS);
 
-    if (!isValidEmail(credentials.email)) {
+    const sanitizedEmail = sanitizeEmail(credentials.email);
+
+    if (!isValidEmail(sanitizedEmail)) {
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
+    const lockoutTime = checkLockout(sanitizedEmail);
+    if (lockoutTime) {
+      const minutes = Math.ceil(lockoutTime / 60000);
+      throw { 
+        code: 'locked-out', 
+        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.` 
+      } as AuthError;
+    }
+
     const users = getUsers();
-    const user = users.find(u => u.email === credentials.email);
+    const user = users.find(u => u.email === sanitizedEmail);
 
     if (!user) {
+      saveLoginAttempt(sanitizedEmail);
       throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
     }
 
     const hashedPassword = hashPassword(credentials.password);
     if (user.password !== hashedPassword) {
+      saveLoginAttempt(sanitizedEmail);
       throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
     }
 
+    clearLoginAttempts(sanitizedEmail);
     user.lastLogin = new Date().toISOString();
     saveUsers(users);
 
