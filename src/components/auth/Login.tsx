@@ -127,6 +127,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
