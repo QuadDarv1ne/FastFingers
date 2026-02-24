@@ -21,6 +21,30 @@ const ALL_WORDS = {
   hard: HARD_WORDS,
 } as const;
 
+const exercisesCache = new Map<string, Exercise[]>();
+
+function getExercisesByCategory(category: string): Exercise[] {
+  const cacheKey = `category:${category}`;
+  if (exercisesCache.has(cacheKey)) {
+    return exercisesCache.get(cacheKey)!;
+  }
+  
+  const filtered = exercises.filter(e => e.category === category);
+  exercisesCache.set(cacheKey, filtered);
+  return filtered;
+}
+
+function getExercisesByDifficulty(difficulty: number): Exercise[] {
+  const cacheKey = `difficulty:${difficulty}`;
+  if (exercisesCache.has(cacheKey)) {
+    return exercisesCache.get(cacheKey)!;
+  }
+  
+  const filtered = exercises.filter(e => e.difficulty <= difficulty);
+  exercisesCache.set(cacheKey, filtered);
+  return filtered;
+}
+
 // Базовые упражнения для разных уровней
 export const exercises: Exercise[] = [
   // Уровень 1 - Базовые клавиши
@@ -184,26 +208,54 @@ export const exercises: Exercise[] = [
 
 // Генерация случайного текста из упражнений
 export function getRandomExercise(category?: string, difficulty?: number): Exercise {
-  const filtered = exercises.filter(e => {
-    if (category && e.category !== category) return false
-    if (difficulty && e.difficulty > difficulty) return false
-    return true
-  })
+  let pool: Exercise[];
+  
+  if (category && difficulty) {
+    const cacheKey = `cat:${category}:diff:${difficulty}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category) {
+    pool = getExercisesByCategory(category);
+  } else if (difficulty) {
+    pool = getExercisesByDifficulty(difficulty);
+  } else {
+    pool = exercises;
+  }
 
-  const pool = filtered.length > 0 ? filtered : exercises
-  return pool[Math.floor(Math.random() * pool.length)]
+  if (pool.length === 0) pool = exercises;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number): Exercise[] {
-  const filtered = exercises.filter(e => {
-    if (category && e.category !== category) return false
-    if (difficulty && e.difficulty > difficulty) return false
-    return true
-  })
+  let pool: Exercise[];
+  
+  if (category && difficulty) {
+    const cacheKey = `cat:${category}:diff:${difficulty}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category) {
+    pool = getExercisesByCategory(category);
+  } else if (difficulty) {
+    pool = getExercisesByDifficulty(difficulty);
+  } else {
+    pool = exercises;
+  }
 
-  const pool = filtered.length > 0 ? filtered : exercises
-  const shuffled = [...pool].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, Math.min(count, pool.length))
+  if (pool.length === 0) pool = exercises;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, pool.length));
+}
+
+export function clearExercisesCache(): void {
+  exercisesCache.clear();
 }
 
 const getWordsByDifficulty = (difficulty: number): readonly string[] => {
