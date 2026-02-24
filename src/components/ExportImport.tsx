@@ -7,7 +7,7 @@ interface ExportImportProps {
 
 export function ExportImport({ onClose }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
-  const { showToast } = useToast()
+  const { success, error } = useToast()
 
   const handleExport = () => {
     try {
@@ -42,10 +42,10 @@ export function ExportImport({ onClose }: ExportImportProps) {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
 
-      showToast('Данные успешно экспортированы', 'success')
+      success({ title: 'Данные успешно экспортированы' })
     } catch (error) {
       console.error('Export error:', error)
-      showToast('Ошибка при экспорте данных', 'error')
+      error({ title: 'Ошибка при экспорте данных' })
     }
   }
 
@@ -82,19 +82,19 @@ export function ExportImport({ onClose }: ExportImportProps) {
           }
         })
 
-        showToast('Данные успешно импортированы', 'success')
+        success({ title: 'Данные успешно импортированы' })
         setTimeout(() => {
           window.location.reload()
         }, 1000)
       } catch (error) {
         console.error('Import error:', error)
-        showToast('Ошибка при импорте данных', 'error')
+        error({ title: 'Ошибка при импорте данных' })
         setImporting(false)
       }
     }
 
     reader.onerror = () => {
-      showToast('Ошибка при чтении файла', 'error')
+      error({ title: 'Ошибка при чтении файла' })
       setImporting(false)
     }
 
@@ -129,13 +129,13 @@ export function ExportImport({ onClose }: ExportImportProps) {
 
       keysToRemove.forEach(key => localStorage.removeItem(key))
 
-      showToast('Все данные удалены', 'success')
+      success({ title: 'Все данные удалены' })
       setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch (error) {
       console.error('Clear data error:', error)
-      showToast('Ошибка при удалении данных', 'error')
+      error({ title: 'Ошибка при удалении данных' })
     }
   }
 

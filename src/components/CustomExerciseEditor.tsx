@@ -24,7 +24,7 @@ export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseE
   )
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { showToast } = useToast()
+  const { success, error } = useToast()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -35,7 +35,7 @@ export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseE
 
   const handleCreate = () => {
     if (!formData.title.trim() || !formData.text.trim()) {
-      showToast('Заполните название и текст', 'error')
+      error({ title: 'Заполните название и текст' })
       return
     }
 
@@ -53,7 +53,7 @@ export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseE
     }
 
     setExercises([...exercises, newExercise])
-    showToast('Упражнение создано', 'success')
+    success({ title: 'Упражнение создано' })
     resetForm()
   }
 
@@ -76,14 +76,14 @@ export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseE
     )
 
     setExercises(updated)
-    showToast('Упражнение обновлено', 'success')
+    success({ title: 'Упражнение обновлено' })
     resetForm()
   }
 
   const handleDelete = (id: string) => {
     if (confirm('Удалить это упражнение?')) {
       setExercises(exercises.filter(ex => ex.id !== id))
-      showToast('Упражнение удалено', 'success')
+      success({ title: 'Упражнение удалено' })
     }
   }
 
