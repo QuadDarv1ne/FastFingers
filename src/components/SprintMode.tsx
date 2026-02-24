@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
+import { useHotkey } from '../hooks/useHotkeys'
 
 interface SprintModeProps {
   onExit: () => void
@@ -12,6 +13,7 @@ interface SprintModeProps {
 }
 
 const SPRINT_DURATION = 60 // секунд
+const COUNTDOWN_SECONDS = 3
 
 export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const [text, setText] = useState('')
@@ -21,7 +23,8 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const [isActive, setIsActive] = useState(false)
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
-  
+  const [countdown, setCountdown] = useState<number | null>(null)
+
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Завершение
@@ -72,11 +75,35 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, handleFinish])
 
-  // Старт при первом нажатии
-  const handleStart = () => {
-    setIsActive(true)
-    inputRef.current?.focus()
-  }
+  // Старт спринта с обратным отсчётом
+  const handleStart = useCallback(() => {
+    setCountdown(COUNTDOWN_SECONDS)
+    
+    const countdownInterval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval)
+          setIsActive(true)
+          inputRef.current?.focus()
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [])
+
+  // Горячие клавиши
+  useHotkey('escape', () => {
+    if (countdown === null) {
+      onExit()
+    }
+  }, { enabled: true })
+
+  useHotkey('r', () => {
+    if (countdown === null && !isActive) {
+      handleStart()
+    }
+  }, { enabled: true })
 
   // Обработка ввода
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
@@ -134,6 +161,29 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden">
+      {/* Overlay с обратным отсчётом */}
+      <AnimatePresence>
+        {countdown !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-dark-900/90 z-50 flex items-center justify-center"
+          >
+            <motion.div
+              key={countdown}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-9xl font-bold text-primary-400"
+            >
+              {countdown || 'GO!'}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Фон с прогрессом */}
       <div 
         className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary-600 to-primary-400 transition-all duration-1000"
@@ -146,16 +196,26 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
           <h2 className="text-2xl font-bold text-gradient">Спринт</h2>
           <p className="text-sm text-dark-400">Напечатайте максимум за 60 секунд</p>
         </div>
-        
-        <button
-          onClick={onExit}
-          className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-          title="Выйти"
-        >
-          <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+
+        <div className="flex items-center gap-2">
+          {!isActive && countdown === null && (
+            <button
+              onClick={handleStart}
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg text-sm font-semibold transition-all"
+            >
+              Старт (R)
+            </button>
+          )}
+          <button
+            onClick={onExit}
+            className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
+            title="Выйти (Escape)"
+          >
+            <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Таймер */}
