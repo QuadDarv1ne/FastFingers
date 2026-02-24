@@ -4,7 +4,7 @@ import {
   getRecommendationsByCategory,
   getHighPriorityRecommendations,
 } from '@utils/practiceRecommendations'
-import type { TypingStats } from '@types/index'
+import type { TypingStats } from '../../types'
 
 describe('Practice Recommendations Utils', () => {
   describe('generatePracticeRecommendations', () => {

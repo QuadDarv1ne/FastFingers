@@ -1,4 +1,4 @@
-import { TypingStats, KeyHeatmapData } from '@types/index'
+import { TypingStats, KeyHeatmapData } from '../types'
 import { analyzeTypingProgress } from './analytics'
 
 export interface PracticeRecommendation {

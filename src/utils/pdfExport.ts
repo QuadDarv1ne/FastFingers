@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { UserProgress, TypingStats } from '@types/index'
+import { UserProgress, TypingStats } from '../types'
 
 interface ExportData {
   progress: UserProgress

@@ -11,7 +11,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
-import { TypingStats } from '@types/index'
+import { TypingStats } from '../../types'
 
 interface TypingSpeedChartProps {
   sessions: (TypingStats & { timestamp: string })[]

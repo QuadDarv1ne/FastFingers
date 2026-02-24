@@ -7,7 +7,7 @@ import {
   generateRecommendations,
   analyzeTypingProgress,
 } from '@utils/analytics'
-import { TypingStats } from '@types/index'
+import { TypingStats } from '../../types'
 
 describe('Analytics Utils', () => {
   describe('calculateTrend', () => {
