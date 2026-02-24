@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 
@@ -6,15 +6,61 @@ interface PasswordResetProps {
   onBack: () => void
 }
 
+const TOKEN_EXPIRY_SECONDS = 300 // 5 минут
+const MIN_PASSWORD_LENGTH = 8
+
 export function PasswordReset({ onBack }: PasswordResetProps) {
   const { resetPassword, confirmPasswordReset, isLoading, error, clearError } = useAuth()
-  
+
   const [step, setStep] = useState<'request' | 'confirm'>('request')
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [timeLeft, setTimeLeft] = useState(TOKEN_EXPIRY_SECONDS)
+  const [passwordError, setPasswordError] = useState('')
+  
+  const emailInputRef = useRef<HTMLInputElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (step === 'confirm') {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!)
+            setStep('request')
+            setTimeLeft(TOKEN_EXPIRY_SECONDS)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current)
+      }
+    }
+  }, [step])
+
+  useEffect(() => {
+    emailInputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (newPassword && newPassword.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+    } else {
+      setPasswordError('')
+    }
+  }, [newPassword])
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +80,16 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     e.preventDefault()
     clearError()
     
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+      return
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Пароли не совпадают')
+      return
+    }
+
     try {
       await confirmPasswordReset({ token, newPassword, confirmPassword })
       setSuccessMessage('Пароль успешно изменён!')
@@ -137,11 +193,17 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
               <input
                 type="text"
                 value={token}
-                onChange={(e) => setToken(e.target.value)}
+                onChange={(e) => setToken(e.target.value.toUpperCase())}
                 placeholder="ABC123"
                 required
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-center text-lg tracking-wider"
+                maxLength={6}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-center text-lg tracking-wider uppercase"
               />
+              <div className="mt-2 flex items-center justify-center gap-2">
+                <span className={`text-sm font-mono ${timeLeft < 60 ? 'text-error animate-pulse' : 'text-dark-400'}`}>
+                  ⏳ {formatTime(timeLeft)}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -155,8 +217,18 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 placeholder="••••••••"
                 required
                 minLength={8}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                  passwordError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+                }`}
               />
+              {passwordError && (
+                <p className="text-xs text-error mt-1 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {passwordError}
+                </p>
+              )}
             </div>
 
             <div>
