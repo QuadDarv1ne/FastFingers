@@ -4,30 +4,61 @@ interface Props {
   children: ReactNode
   fallback?: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
+  onRetry?: () => void
+  resetKeys?: unknown[]
 }
 
 interface State {
   hasError: boolean
   error: Error | null
+  errorInfo: ErrorInfo | null
+  key: number
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
+    errorInfo: null,
+    key: 0,
   }
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
     return { hasError: true, error }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
+    this.setState({ errorInfo })
     this.props.onError?.(error, errorInfo)
   }
 
+  public static getDerivedStateFromProps(nextProps: Props, prevState: State): Pick<State, 'hasError' | 'error' | 'errorInfo'> | null {
+    if (nextProps.resetKeys && nextProps.resetKeys.length > 0) {
+      const keysChanged = prevState.key !== nextProps.resetKeys.length
+      if (keysChanged && prevState.hasError) {
+        return { hasError: false, error: null, errorInfo: null }
+      }
+    }
+    return null
+  }
+
   public handleRetry = () => {
-    this.setState({ hasError: false, error: null })
+    this.props.onRetry?.()
+    this.setState(prev => ({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      key: prev.key + 1,
+    }))
+  }
+
+  public resetError = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    })
   }
 
   public render() {
@@ -47,12 +78,12 @@ export class ErrorBoundary extends Component<Props, State> {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            
+
             <h1 className="text-xl font-semibold mb-2">Упс! Что-то пошло не так</h1>
             <p className="text-dark-400 mb-6">
               Произошла непредвиденная ошибка. Попробуйте обновить страницу или повторить попытку.
             </p>
-            
+
             {error && (
               <details className="text-left mb-6">
                 <summary className="cursor-pointer text-sm text-dark-500 hover:text-dark-400 mb-2">
@@ -63,7 +94,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </pre>
               </details>
             )}
-            
+
             <div className="flex gap-3 justify-center">
               <button
                 onClick={this.handleRetry}
@@ -71,7 +102,7 @@ export class ErrorBoundary extends Component<Props, State> {
               >
                 Попробовать снова
               </button>
-              
+
               <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
