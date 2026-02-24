@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 
@@ -8,23 +8,52 @@ interface LoginProps {
   onLoginSuccess: () => void
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: LoginProps) {
   const { login, isLoading, error, clearError } = useAuth()
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  
+  const emailInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    emailInputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (email && !EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+    } else {
+      setEmailError('')
+    }
+  }, [email])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    clearError()
     
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+      return
+    }
+    
+    clearError()
+
     try {
       await login({ email, password, rememberMe })
       onLoginSuccess()
     } catch {
       // Ошибка уже установлена в контексте
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !emailError) {
+      handleSubmit(e)
     }
   }
 
@@ -66,13 +95,25 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
               Email
             </label>
             <input
+              ref={emailInputRef}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="your@email.com"
               required
-              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                emailError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+              }`}
             />
+            {emailError && (
+              <p className="text-xs text-error mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {emailError}
+              </p>
+            )}
           </div>
 
           <div>

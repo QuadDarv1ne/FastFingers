@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 
@@ -7,28 +7,67 @@ interface RegisterProps {
   onRegisterSuccess: () => void
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MIN_PASSWORD_LENGTH = 8
+
 export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) {
   const { register, isLoading, error, clearError } = useAuth()
-  
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    nameInputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (email && !EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+    } else {
+      setEmailError('')
+    }
+  }, [email])
+
+  useEffect(() => {
+    if (password && password.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+    } else {
+      setPasswordError('')
+    }
+  }, [password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError('Неверный формат email')
+      return
+    }
+    
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+      return
+    }
+    
+    if (password !== confirmPassword) {
+      setPasswordError('Пароли не совпадают')
+      return
+    }
+    
     clearError()
-
-    console.log('[Register] Попытка регистрации:', { email, name, passwordLength: password.length, agreeToTerms })
 
     try {
       await register({ email, password, confirmPassword, name, agreeToTerms })
-      console.log('[Register] Успешная регистрация')
       onRegisterSuccess()
-    } catch (error) {
-      console.error('[Register] Ошибка регистрации:', error)
+    } catch {
       // Ошибка уже установлена в контексте
     }
   }
@@ -82,6 +121,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               Имя
             </label>
             <input
+              ref={nameInputRef}
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -101,8 +141,18 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
-              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                emailError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+              }`}
             />
+            {emailError && (
+              <p className="text-xs text-error mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {emailError}
+              </p>
+            )}
           </div>
 
           <div>
@@ -160,6 +210,14 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                    passwordStrength <= 4 ? 'Хороший пароль' :
                    'Отличный пароль'}
                 </p>
+                {passwordError && (
+                  <p className="text-xs text-error mt-1 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {passwordError}
+                  </p>
+                )}
               </div>
             )}
           </div>
