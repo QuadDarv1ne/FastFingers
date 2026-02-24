@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { KeyboardLayout, TypingStats, KeyInputResult, Exercise } from '../types'
 import { getRandomExercise, generatePracticeText } from '../utils/exercises'
@@ -145,15 +145,18 @@ export function TypingTrainer({
     inputRef.current?.focus()
   }
 
-  // Размер шрифта
-  const fontSizeClass = {
+  // Размер шрифта (мемоизация)
+  const fontSizeClass = useMemo(() => ({
     small: 'text-lg',
     medium: 'text-xl',
     large: 'text-2xl',
-  }[fontSize]
+  }[fontSize]), [fontSize])
 
-  // Текущая клавиша для подсветки
-  const currentKey = text[currentIndex]?.toLowerCase() || ''
+  // Текущая клавиша для подсветки (мемоизация)
+  const currentKey = useMemo(() => 
+    text[currentIndex]?.toLowerCase() || '',
+    [text, currentIndex]
+  )
 
   return (
     <div className="space-y-6">

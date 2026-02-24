@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { ThemeColor } from '../utils/themes'
 
 interface ThemeToggleProps {
@@ -8,61 +8,115 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
   const [showMenu, setShowMenu] = useState(false)
+  const [focusedIndex, setFocusedIndex] = useState(0)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const themes: { value: ThemeColor; label: string; icon: string; gradient: string }[] = [
-    { 
-      value: 'dark', 
-      label: 'Тёмная', 
+  // Мемоизация массива тем для стабильности зависимостей
+  const themes = useMemo(() => [
+    {
+      value: 'dark' as ThemeColor,
+      label: 'Тёмная',
       icon: '🌙',
       gradient: 'from-gray-900 to-gray-700'
     },
-    { 
-      value: 'light', 
-      label: 'Светлая', 
+    {
+      value: 'light' as ThemeColor,
+      label: 'Светлая',
       icon: '☀️',
       gradient: 'from-gray-100 to-white'
     },
-    { 
-      value: 'purple', 
-      label: 'Фиолетовая', 
+    {
+      value: 'purple' as ThemeColor,
+      label: 'Фиолетовая',
       icon: '💜',
       gradient: 'from-purple-900 to-purple-600'
     },
-    { 
-      value: 'blue', 
-      label: 'Синяя', 
+    {
+      value: 'blue' as ThemeColor,
+      label: 'Синяя',
       icon: '💙',
       gradient: 'from-blue-900 to-blue-600'
     },
-    { 
-      value: 'orange', 
-      label: 'Оранжевая', 
+    {
+      value: 'orange' as ThemeColor,
+      label: 'Оранжевая',
       icon: '🧡',
       gradient: 'from-orange-900 to-orange-600'
     },
-    { 
-      value: 'custom', 
-      label: 'Настраиваемая', 
+    {
+      value: 'custom' as ThemeColor,
+      label: 'Настраиваемая',
       icon: '🎨',
       gradient: 'from-pink-900 to-yellow-600'
     },
-  ]
+  ], [])
 
-  const currentTheme = themes.find(t => t.value === theme) || themes[0]
+  const currentTheme = useMemo(() => 
+    themes.find(t => t.value === theme) || themes[0],
+    [theme, themes]
+  )
+
+  // Обработка клавиатуры
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!showMenu) return
+
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault()
+          setShowMenu(false)
+          buttonRef.current?.focus()
+          break
+        case 'ArrowDown':
+          e.preventDefault()
+          setFocusedIndex(prev => (prev + 1) % themes.length)
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          setFocusedIndex(prev => (prev - 1 + themes.length) % themes.length)
+          break
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (showMenu) {
+            onThemeChange(themes[focusedIndex].value)
+            setShowMenu(false)
+          }
+          break
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [showMenu, focusedIndex, themes, onThemeChange])
+
+  // Сброс фокуса при открытии меню
+  useEffect(() => {
+    if (showMenu) {
+      setFocusedIndex(themes.findIndex(t => t.value === theme))
+    }
+  }, [showMenu, theme, themes])
 
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setShowMenu(!showMenu)}
         className="flex items-center gap-2 px-4 py-2 glass rounded-xl hover:bg-dark-800/50 transition-colors"
         title="Выбрать тему"
+        aria-label="Выбрать тему"
+        aria-expanded={showMenu}
+        aria-haspopup="menu"
       >
         <span className="text-xl">{currentTheme.icon}</span>
         <span className="text-sm hidden sm:inline">{currentTheme.label}</span>
-        <svg 
-          className={`w-4 h-4 transition-transform ${showMenu ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={`w-4 h-4 transition-transform ${showMenu ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -71,14 +125,22 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
 
       {showMenu && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setShowMenu(false)}
+            aria-hidden="true"
           />
-          <div className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in">
-            {themes.map((t) => (
+          <div
+            ref={menuRef}
+            className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in"
+            role="menu"
+            aria-orientation="vertical"
+            aria-activedescendant={`theme-item-${focusedIndex}`}
+          >
+            {themes.map((t, index) => (
               <button
                 key={t.value}
+                id={`theme-item-${index}`}
                 onClick={() => {
                   onThemeChange(t.value)
                   setShowMenu(false)
@@ -87,7 +149,10 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
                   theme === t.value
                     ? 'bg-primary-600 text-white'
                     : 'hover:bg-dark-800/50'
-                }`}
+                } ${index === focusedIndex ? 'ring-2 ring-primary-500 ring-offset-2 ring-offset-dark-900' : ''}`}
+                role="menuitem"
+                tabIndex={index === focusedIndex ? 0 : -1}
+                aria-selected={theme === t.value}
               >
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${t.gradient} flex items-center justify-center text-lg`}>
                   {t.icon}

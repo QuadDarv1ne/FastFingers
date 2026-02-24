@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react'
 import { KeyboardLayout, KeyHeatmapData } from '../types'
 import { layouts, fingerColors, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
@@ -10,15 +11,59 @@ interface KeyboardProps {
   onToggleHeatmap?: (show: boolean) => void
 }
 
-export function Keyboard({ 
-  layout, 
-  highlightKey = null, 
-  heatmap = {}, 
+export const Keyboard = memo<KeyboardProps>(function Keyboard({
+  layout,
+  highlightKey = null,
+  heatmap = {},
   showHeatmap = false,
-  onToggleHeatmap 
+  onToggleHeatmap
 }: KeyboardProps) {
   const layoutData = layouts[layout]
-  
+
+  // Мемоизация вычисления подсветки и тепловой карты
+  const keyStyles = useMemo(() => {
+    if (!layoutData) return {}
+    
+    const styles: Record<string, { className: string; style: React.CSSProperties; title: string }> = {}
+    
+    layoutData.rows.forEach(row => {
+      row.forEach(key => {
+        const finger = layoutData.keyToFinger[key]
+        const color = finger ? fingerColors[finger] : '#475569'
+        const isHighlighted = highlightKey === key.toLowerCase()
+        
+        const keyData = heatmap[key.toLowerCase()]
+        const heatmapColor = showHeatmap && keyData && keyData.total >= 3
+          ? getHeatmapColor(keyData.accuracy)
+          : null
+        
+        styles[key] = {
+          className: `
+            relative flex items-center justify-center
+            w-10 h-10 md:w-11 md:h-11
+            rounded-xl text-sm font-semibold
+            transition-all duration-200
+            ${isHighlighted
+              ? 'bg-primary-600 text-white scale-110 shadow-xl shadow-primary-500/50 animate-pulse'
+              : heatmapColor
+                ? 'text-white shadow-lg'
+                : 'bg-dark-800/70 text-dark-300 hover:bg-dark-800 border border-dark-700/50'}
+          `,
+          style: {
+            backgroundColor: heatmapColor || undefined,
+            borderColor: isHighlighted ? color : undefined,
+            borderWidth: isHighlighted ? '2px' : undefined,
+          },
+          title: finger
+            ? `${fingerZones[finger]}${keyData ? `\nТочность: ${keyData.accuracy}%\nОшибок: ${keyData.errors}/${keyData.total}` : ''}`
+            : ''
+        }
+      })
+    })
+    
+    return styles
+  }, [layoutData, highlightKey, heatmap, showHeatmap])
+
   if (!layoutData) return null
 
   return (
@@ -53,49 +98,25 @@ export function Keyboard({
       <div className="space-y-2 select-none">
         {/* Ряды клавиш */}
         {layoutData.rows.map((row, rowIndex) => (
-          <div 
-            key={rowIndex} 
+          <div
+            key={rowIndex}
             className="flex justify-center gap-1.5"
             style={{ paddingLeft: `${rowIndex * 12}px` }}
           >
             {row.map((key) => {
-              const finger = layoutData.keyToFinger[key]
-              const color = finger ? fingerColors[finger] : '#475569'
-              const isHighlighted = highlightKey === key.toLowerCase()
-              
-              // Цвет тепловой карты для проблемных клавиш
-              const keyData = heatmap[key.toLowerCase()]
-              const heatmapColor = showHeatmap && keyData && keyData.total >= 3 
-                ? getHeatmapColor(keyData.accuracy)
-                : null
+              const { className, style, title } = keyStyles[key]
               
               return (
                 <div
                   key={key}
-                  className={`
-                    relative flex items-center justify-center
-                    w-10 h-10 md:w-11 md:h-11
-                    rounded-xl text-sm font-semibold
-                    transition-all duration-200
-                    ${isHighlighted 
-                      ? 'bg-primary-600 text-white scale-110 shadow-xl shadow-primary-500/50 animate-pulse' 
-                      : heatmapColor 
-                        ? 'text-white shadow-lg'
-                        : 'bg-dark-800/70 text-dark-300 hover:bg-dark-800 border border-dark-700/50'}
-                  `}
-                  style={{
-                    backgroundColor: heatmapColor || (isHighlighted ? undefined : undefined),
-                    borderColor: isHighlighted ? color : undefined,
-                    borderWidth: isHighlighted ? '2px' : undefined,
-                  }}
-                  title={finger 
-                    ? `${fingerZones[finger]}${keyData ? `\nТочность: ${keyData.accuracy}%\nОшибок: ${keyData.errors}/${keyData.total}` : ''}` 
-                    : ''}
+                  className={className}
+                  style={style}
+                  title={title}
                 >
                   {key.toUpperCase()}
-                  {showHeatmap && keyData && keyData.total >= 3 && (
+                  {showHeatmap && heatmap[key.toLowerCase()]?.total && heatmap[key.toLowerCase()].total >= 3 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-dark-900 rounded-full text-[10px] flex items-center justify-center font-bold border border-dark-700">
-                      {keyData.accuracy}
+                      {heatmap[key.toLowerCase()].accuracy}
                     </span>
                   )}
                 </div>
@@ -130,4 +151,4 @@ export function Keyboard({
       </div>
     </div>
   )
-}
+})
