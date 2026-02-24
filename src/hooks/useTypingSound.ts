@@ -112,7 +112,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       setError(message)
       console.warn(message, err)
     }
-  }, [options.enabled, options.volume, options.theme, isReady, initAudio, currentTheme])
+  }, [options.enabled, options.volume, isReady, initAudio])
 
   useEffect(() => {
     initAudio()
