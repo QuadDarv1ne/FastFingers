@@ -291,7 +291,6 @@ export const authService = {
     tokens.push({ email: request.email, token, expiresAt });
     localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
 
-    console.log('Reset token:', token);
     alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`);
   },
 
