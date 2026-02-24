@@ -1,33 +1,29 @@
 import { TypingStats, KeyHeatmapData } from '../types';
 
-/**
- * Расчёт статистики печати
- * @param correctChars - Количество правильных символов
- * @param totalChars - Общее количество символов
- * @param errors - Количество ошибок
- * @param timeElapsed - Время в секундах
- * @returns Объект со статистикой печати (WPM, CPM, точность)
- */
+const statsCache = new Map<string, TypingStats>();
+const formatCache = new Map<string, string>();
+
 export function calculateStats(
   correctChars: number,
   totalChars: number,
   errors: number,
-  timeElapsed: number // в секундах
+  timeElapsed: number
 ): TypingStats {
+  const cacheKey = `${correctChars}:${totalChars}:${errors}:${timeElapsed.toFixed(1)}`;
+  
+  if (statsCache.has(cacheKey)) {
+    return statsCache.get(cacheKey)!;
+  }
+
   const timeInMinutes = timeElapsed / 60;
 
-  // CPM - символов в минуту
   const cpm = timeInMinutes > 0 ? Math.round(correctChars / timeInMinutes) : 0;
-
-  // WPM - слов в минуту (среднее слово = 5 символов)
   const wpm = timeInMinutes > 0 ? Math.round(correctChars / 5 / timeInMinutes) : 0;
-
-  // Точность в процентах
   const accuracy = totalChars > 0
     ? Math.round((correctChars / totalChars) * 100)
     : 100;
 
-  return {
+  const result: TypingStats = {
     wpm,
     cpm,
     accuracy,
@@ -36,31 +32,62 @@ export function calculateStats(
     totalChars,
     timeElapsed,
   };
+
+  if (statsCache.size > 100) {
+    statsCache.clear();
+  }
+  statsCache.set(cacheKey, result);
+
+  return result;
+}
+
+export function clearStatsCache(): void {
+  statsCache.clear();
+  formatCache.clear();
 }
 
 /**
  * Форматирование числа с разделителями тысяч
- * @param num - Число для форматирования
- * @returns Строка с разделителями тысяч
  */
 export function formatNumber(num: number): string {
-  return num.toLocaleString('ru-RU');
+  const cacheKey = `num:${num}`;
+  if (formatCache.has(cacheKey)) {
+    return formatCache.get(cacheKey)!;
+  }
+  
+  const result = num.toLocaleString('ru-RU');
+  
+  if (formatCache.size > 200) {
+    formatCache.clear();
+  }
+  formatCache.set(cacheKey, result);
+  
+  return result;
 }
 
 /**
  * Форматирование времени (секунды -> ММ:СС или ЧЧ:ММ:СС)
- * @param seconds - Время в секундах
- * @returns Строка в формате ММ:СС или ЧЧ:ММ:СС
  */
 export function formatTime(seconds: number): string {
+  const cacheKey = `time:${seconds}`;
+  if (formatCache.has(cacheKey)) {
+    return formatCache.get(cacheKey)!;
+  }
+  
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
   
-  if (hours > 0) {
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const result = hours > 0
+    ? `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  
+  if (formatCache.size > 200) {
+    formatCache.clear();
   }
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  formatCache.set(cacheKey, result);
+  
+  return result;
 }
 
 /**
