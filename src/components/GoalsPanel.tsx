@@ -72,7 +72,7 @@ const DEFAULT_GOALS: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>[] 
 
 export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   const [goals, setGoals] = useLocalStorageState<Goal[]>('fastfingers_goals', [])
-  const [_showAddGoal, _setShowAddGoal] = useState(false) // TODO: будет использоваться для добавления кастомных целей
+  const [showAddGoal, setShowAddGoal] = useState(false)
 
   // Инициализация целей по умолчанию
   if (goals.length === 0) {
@@ -110,6 +110,18 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
 
   const activeGoals = goals.filter(g => !g.completed)
   const completedGoals = goals.filter(g => g.completed)
+
+  const handleAddGoal = (newGoal: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>) => {
+    const goal: Goal = {
+      ...newGoal,
+      id: `goal-${Date.now()}`,
+      current: getCurrentValue(newGoal.unit, currentProgress),
+      completed: false,
+      createdAt: new Date().toISOString(),
+    }
+    setGoals([...goals, goal])
+    setShowAddGoal(false)
+  }
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -214,15 +226,36 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
                 Создайте свою первую цель для отслеживания прогресса
               </p>
               <button
-                onClick={() => _setShowAddGoal(true)}
+                onClick={() => setShowAddGoal(true)}
                 className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all"
               >
                 Создать цель
               </button>
             </div>
           )}
+
+          {/* Кнопка добавления цели */}
+          {goals.length > 0 && (
+            <button
+              onClick={() => setShowAddGoal(true)}
+              className="w-full py-3 bg-dark-800 hover:bg-dark-700 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Добавить цель
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Модальное окно добавления цели */}
+      {showAddGoal && (
+        <AddGoalModal
+          onClose={() => setShowAddGoal(false)}
+          onAdd={handleAddGoal}
+        />
+      )}
     </div>
   )
 }
@@ -362,4 +395,152 @@ function getUnitLabel(unit: Goal['unit']): string {
     default:
       return ''
   }
+}
+
+function AddGoalModal({
+  onClose,
+  onAdd,
+}: {
+  onClose: () => void
+  onAdd: (goal: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>) => void
+}) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [target, setTarget] = useState('')
+  const [unit, setUnit] = useState<Goal['unit']>('wpm')
+  const [icon, setIcon] = useState('🎯')
+
+  const icons = ['🎯', '🚀', '⚡', '🔥', '💪', '🏆', '⭐', '💎', '🎨', '📚']
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title || !target) return
+
+    onAdd({
+      title,
+      description,
+      target: Number(target),
+      unit,
+      icon,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+      <div className="glass rounded-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold">Новая цель</h3>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">
+              Иконка
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {icons.map(i => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setIcon(i)}
+                  className={`w-10 h-10 rounded-lg text-xl transition-all ${
+                    icon === i
+                      ? 'bg-primary-600 scale-110'
+                      : 'bg-dark-800 hover:bg-dark-700'
+                  }`}
+                >
+                  {i}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">
+              Название
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Моя цель"
+              required
+              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">
+              Описание
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Краткое описание"
+              className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Цель
+              </label>
+              <input
+                type="number"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                placeholder="100"
+                required
+                min="1"
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                Единица
+              </label>
+              <select
+                value={unit}
+                onChange={(e) => setUnit(e.target.value as Goal['unit'])}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="wpm">WPM</option>
+                <option value="accuracy">Точность %</option>
+                <option value="words">Слова</option>
+                <option value="sessions">Сессии</option>
+                <option value="streak">Серия дней</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-semibold transition-all"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-semibold transition-all"
+            >
+              Создать
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
