@@ -52,7 +52,7 @@ export interface PasswordResetConfirm {
   confirmPassword: string;
 }
 
-export type AuthErrorCode = 
+export type AuthErrorCode =
   | 'invalid-email'
   | 'weak-password'
   | 'email-in-use'
@@ -61,6 +61,7 @@ export type AuthErrorCode =
   | 'invalid-token'
   | 'token-expired'
   | 'network-error'
+  | 'locked-out'
   | 'unknown';
 
 export interface AuthError {
