@@ -106,7 +106,7 @@ const clearLoginAttempts = (email: string) => {
 const checkLockout = (email: string): number | null => {
   const attempts = getLoginAttempts().filter(a => a.email === email);
   const recentAttempts = attempts.filter(a => Date.now() - a.timestamp < LOCKOUT_TIME_MS);
-  
+
   if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
     const oldestRecent = Math.min(...recentAttempts.map(a => a.timestamp));
     const remainingTime = LOCKOUT_TIME_MS - (Date.now() - oldestRecent);
@@ -114,6 +114,35 @@ const checkLockout = (email: string): number | null => {
   }
   return null;
 };
+
+const cleanupExpiredTokens = () => {
+  try {
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
+    const now = Date.now();
+    const validTokens = tokens.filter((t: { expiresAt: string }) => new Date(t.expiresAt).getTime() > now);
+    if (tokens.length !== validTokens.length) {
+      localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
+    }
+  } catch {
+    // Игнорируем ошибки
+  }
+};
+
+const cleanupOldAttempts = () => {
+  try {
+    const attempts = getLoginAttempts();
+    const now = Date.now();
+    const recentAttempts = attempts.filter(a => now - a.timestamp < LOCKOUT_TIME_MS * 2);
+    if (attempts.length !== recentAttempts.length) {
+      localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(recentAttempts));
+    }
+  } catch {
+    // Игнорируем ошибки
+  }
+};
+
+cleanupExpiredTokens();
+cleanupOldAttempts();
 
 export const authService = {
   async register(credentials: RegisterCredentials): Promise<User> {
