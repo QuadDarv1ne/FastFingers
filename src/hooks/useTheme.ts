@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 
 interface UseThemeReturn {
@@ -28,26 +28,29 @@ export function useTheme(): UseThemeReturn {
   })
 
   useEffect(() => {
-    applyTheme(theme, customColors || undefined)
+    const timer = requestAnimationFrame(() => {
+      applyTheme(theme, customColors || undefined)
+    })
+    return () => cancelAnimationFrame(timer)
   }, [theme, customColors])
 
-  const setTheme = (newTheme: ThemeColor) => {
+  const setTheme = useCallback((newTheme: ThemeColor) => {
     setThemeState(newTheme)
     try {
       localStorage.setItem('fastfingers_theme', newTheme)
     } catch (e) {
       console.error('Failed to save theme:', e)
     }
-  }
+  }, [])
 
-  const setCustomColors = (colors: Partial<ThemeColors>) => {
+  const setCustomColors = useCallback((colors: Partial<ThemeColors>) => {
     setCustomColorsState(colors)
     try {
       localStorage.setItem('fastfingers_custom_colors', JSON.stringify(colors))
     } catch (e) {
       console.error('Failed to save custom colors:', e)
     }
-  }
+  }, [])
 
   return { theme, setTheme, customColors, setCustomColors }
 }

@@ -66,7 +66,6 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
         case 'Escape':
           e.preventDefault()
           setShowMenu(false)
-          buttonRef.current?.focus()
           break
         case 'ArrowDown':
           e.preventDefault()
@@ -104,12 +103,17 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setShowMenu(!showMenu)
+        }}
         className="flex items-center gap-2 px-4 py-2 glass rounded-xl hover:bg-dark-800/50 transition-colors"
         title="Выбрать тему"
         aria-label="Выбрать тему"
         aria-expanded={showMenu}
         aria-haspopup="menu"
+        type="button"
       >
         <span className="text-xl">{currentTheme.icon}</span>
         <span className="text-sm hidden sm:inline">{currentTheme.label}</span>
@@ -136,12 +140,15 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
             role="menu"
             aria-orientation="vertical"
             aria-activedescendant={`theme-item-${focusedIndex}`}
+            onClick={(e) => e.stopPropagation()}
           >
             {themes.map((t, index) => (
               <button
                 key={t.value}
                 id={`theme-item-${index}`}
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   onThemeChange(t.value)
                   setShowMenu(false)
                 }}
@@ -153,6 +160,7 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
                 role="menuitem"
                 tabIndex={index === focusedIndex ? 0 : -1}
                 aria-selected={theme === t.value}
+                type="button"
               >
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${t.gradient} flex items-center justify-center text-lg`}>
                   {t.icon}
