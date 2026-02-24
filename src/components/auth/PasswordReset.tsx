@@ -209,7 +209,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
             <button
               type="submit"
-              disabled={isLoading || !email || emailError}
+              disabled={isLoading || !email || !!emailError}
               className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
