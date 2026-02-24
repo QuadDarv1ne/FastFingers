@@ -1,362 +1,503 @@
-import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { UserProgress } from '../types'
+import { useMemo } from 'react'
+import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
-interface Achievement {
+export interface Achievement {
   id: string
-  icon: string
   title: string
   description: string
-  category: 'speed' | 'accuracy' | 'dedication' | 'special'
+  icon: string
+  category: 'speed' | 'accuracy' | 'practice' | 'streak' | 'special'
+  requirement: {
+    type: 'wpm' | 'accuracy' | 'words' | 'sessions' | 'streak' | 'perfect-session'
+    value: number
+  }
   unlocked: boolean
-  progress: number // 0-100
-  requirement: string
+  unlockedAt?: string
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
 }
 
 interface AchievementsPanelProps {
-  progress: UserProgress
   onClose: () => void
+  stats: {
+    maxWpm: number
+    maxAccuracy: number
+    totalWords: number
+    totalSessions: number
+    currentStreak: number
+    perfectSessions: number
+  }
 }
 
-export function AchievementsPanel({ progress, onClose }: AchievementsPanelProps) {
-  const achievements: Achievement[] = useMemo(() => [
-    // Скорость
-    {
-      id: 'speed-10',
-      icon: '🐣',
-      title: 'Новичок',
-      description: 'Достигните 10 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 10,
-      progress: Math.min(100, (progress.bestWpm / 10) * 100),
-      requirement: '10 WPM',
-    },
-    {
-      id: 'speed-20',
-      icon: '🐤',
-      title: 'Любитель',
-      description: 'Достигните 20 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 20,
-      progress: Math.min(100, (progress.bestWpm / 20) * 100),
-      requirement: '20 WPM',
-    },
-    {
-      id: 'speed-40',
-      icon: '🐇',
-      title: 'Спринтер',
-      description: 'Достигните 40 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 40,
-      progress: Math.min(100, (progress.bestWpm / 40) * 100),
-      requirement: '40 WPM',
-    },
-    {
-      id: 'speed-60',
-      icon: '🐆',
-      title: 'Молния',
-      description: 'Достигните 60 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 60,
-      progress: Math.min(100, (progress.bestWpm / 60) * 100),
-      requirement: '60 WPM',
-    },
-    {
-      id: 'speed-80',
-      icon: '⚡',
-      title: 'Скоростной демон',
-      description: 'Достигните 80 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 80,
-      progress: Math.min(100, (progress.bestWpm / 80) * 100),
-      requirement: '80 WPM',
-    },
-    {
-      id: 'speed-100',
-      icon: '🚀',
-      title: 'Легенда',
-      description: 'Достигните 100 WPM',
-      category: 'speed',
-      unlocked: progress.bestWpm >= 100,
-      progress: Math.min(100, (progress.bestWpm / 100) * 100),
-      requirement: '100 WPM',
-    },
-    
-    // Точность
-    {
-      id: 'acc-80',
-      icon: '🎯',
-      title: 'Стрелок',
-      description: 'Достигните 80% точности',
-      category: 'accuracy',
-      unlocked: progress.bestAccuracy >= 80,
-      progress: Math.min(100, (progress.bestAccuracy / 80) * 100),
-      requirement: '80%',
-    },
-    {
-      id: 'acc-90',
-      icon: '🏹',
-      title: 'Снайпер',
-      description: 'Достигните 90% точности',
-      category: 'accuracy',
-      unlocked: progress.bestAccuracy >= 90,
-      progress: Math.min(100, (progress.bestAccuracy / 90) * 100),
-      requirement: '90%',
-    },
-    {
-      id: 'acc-95',
-      icon: '💎',
-      title: 'Перфекционист',
-      description: 'Достигните 95% точности',
-      category: 'accuracy',
-      unlocked: progress.bestAccuracy >= 95,
-      progress: Math.min(100, (progress.bestAccuracy / 95) * 100),
-      requirement: '95%',
-    },
-    {
-      id: 'acc-100',
-      icon: '👑',
-      title: 'Безупречный',
-      description: 'Достигните 100% точности',
-      category: 'accuracy',
-      unlocked: progress.bestAccuracy >= 100,
-      progress: Math.min(100, progress.bestAccuracy),
-      requirement: '100%',
-    },
-    
-    // Преданность
-    {
-      id: 'words-100',
-      icon: '📝',
-      title: 'Писатель',
-      description: 'Напечатайте 100 слов',
-      category: 'dedication',
-      unlocked: progress.totalWordsTyped >= 100,
-      progress: Math.min(100, (progress.totalWordsTyped / 100) * 100),
-      requirement: '100 слов',
-    },
-    {
-      id: 'words-1000',
-      icon: '📚',
-      title: 'Автор',
-      description: 'Напечатайте 1000 слов',
-      category: 'dedication',
-      unlocked: progress.totalWordsTyped >= 1000,
-      progress: Math.min(100, (progress.totalWordsTyped / 1000) * 100),
-      requirement: '1000 слов',
-    },
-    {
-      id: 'words-10000',
-      icon: '📖',
-      title: 'Мастер слова',
-      description: 'Напечатайте 10000 слов',
-      category: 'dedication',
-      unlocked: progress.totalWordsTyped >= 10000,
-      progress: Math.min(100, (progress.totalWordsTyped / 10000) * 100),
-      requirement: '10000 слов',
-    },
-    {
-      id: 'streak-7',
-      icon: '🔥',
-      title: 'Недельный стрик',
-      description: '7 дней практики подряд',
-      category: 'dedication',
-      unlocked: progress.streak >= 7,
-      progress: Math.min(100, (progress.streak / 7) * 100),
-      requirement: '7 дней',
-    },
-    {
-      id: 'streak-30',
-      icon: '🌟',
-      title: 'Месячный стрик',
-      description: '30 дней практики подряд',
-      category: 'dedication',
-      unlocked: progress.streak >= 30,
-      progress: Math.min(100, (progress.streak / 30) * 100),
-      requirement: '30 дней',
-    },
-    
-    // Специальные
-    {
-      id: 'level-5',
-      icon: '⭐',
-      title: 'Опытный',
-      description: 'Достигните 5 уровня',
-      category: 'special',
-      unlocked: progress.level >= 5,
-      progress: Math.min(100, (progress.level / 5) * 100),
-      requirement: 'Ур. 5',
-    },
-    {
-      id: 'level-10',
-      icon: '🌙',
-      title: 'Эксперт',
-      description: 'Достигните 10 уровня',
-      category: 'special',
-      unlocked: progress.level >= 10,
-      progress: Math.min(100, (progress.level / 10) * 100),
-      requirement: 'Ур. 10',
-    },
-    {
-      id: 'level-20',
-      icon: '☀️',
-      title: 'Мастер',
-      description: 'Достигните 20 уровня',
-      category: 'special',
-      unlocked: progress.level >= 20,
-      progress: Math.min(100, (progress.level / 20) * 100),
-      requirement: 'Ур. 20',
-    },
-  ], [progress])
+const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
+  // Speed achievements
+  {
+    id: 'speed-10',
+    title: 'Первые шаги',
+    description: 'Достигните скорости 10 WPM',
+    icon: '🐢',
+    category: 'speed',
+    requirement: { type: 'wpm', value: 10 },
+    rarity: 'common',
+  },
+  {
+    id: 'speed-30',
+    title: 'Набираю темп',
+    description: 'Достигните скорости 30 WPM',
+    icon: '🚶',
+    category: 'speed',
+    requirement: { type: 'wpm', value: 30 },
+    rarity: 'common',
+  },
+  {
+    id: 'speed-50',
+    title: 'Быстрые пальцы',
+    description: 'Достигните скорости 50 WPM',
+    icon: '🏃',
+    category: 'speed',
+    requirement: { type: 'wpm', value: 50 },
+    rarity: 'rare',
+  },
+  {
+    id: 'speed-70',
+    title: 'Скоростной печатник',
+    description: 'Достигните скорости 70 WPM',
+    icon: '⚡',
+    category: 'speed',
+    requirement: { type: 'wpm', value: 70 },
+    rarity: 'epic',
+  },
+  {
+    id: 'speed-100',
+    title: 'Мастер скорости',
+    description: 'Достигните скорости 100 WPM',
+    icon: '🚀',
+    category: 'speed',
+    requirement: { type: 'wpm', value: 100 },
+    rarity: 'legendary',
+  },
 
-  const categories = [
-    { id: 'all', label: 'Все', icon: '🏆' },
-    { id: 'speed', label: 'Скорость', icon: '⚡' },
-    { id: 'accuracy', label: 'Точность', icon: '🎯' },
-    { id: 'dedication', label: 'Преданность', icon: '💪' },
-    { id: 'special', label: 'Особые', icon: '🌟' },
-  ]
+  // Accuracy achievements
+  {
+    id: 'accuracy-90',
+    title: 'Точный стрелок',
+    description: 'Достигните точности 90%',
+    icon: '🎯',
+    category: 'accuracy',
+    requirement: { type: 'accuracy', value: 90 },
+    rarity: 'common',
+  },
+  {
+    id: 'accuracy-95',
+    title: 'Снайпер',
+    description: 'Достигните точности 95%',
+    icon: '🎖️',
+    category: 'accuracy',
+    requirement: { type: 'accuracy', value: 95 },
+    rarity: 'rare',
+  },
+  {
+    id: 'accuracy-98',
+    title: 'Перфекционист',
+    description: 'Достигните точности 98%',
+    icon: '💎',
+    category: 'accuracy',
+    requirement: { type: 'accuracy', value: 98 },
+    rarity: 'epic',
+  },
+  {
+    id: 'perfect-10',
+    title: 'Безупречность',
+    description: 'Завершите 10 сессий с точностью 100%',
+    icon: '👑',
+    category: 'accuracy',
+    requirement: { type: 'perfect-session', value: 10 },
+    rarity: 'legendary',
+  },
 
-  const [activeCategory, setActiveCategory] = useState('all')
+  // Practice achievements
+  {
+    id: 'words-1000',
+    title: 'Тысяча слов',
+    description: 'Напечатайте 1000 слов',
+    icon: '📝',
+    category: 'practice',
+    requirement: { type: 'words', value: 1000 },
+    rarity: 'common',
+  },
+  {
+    id: 'words-10000',
+    title: 'Десять тысяч',
+    description: 'Напечатайте 10000 слов',
+    icon: '📚',
+    category: 'practice',
+    requirement: { type: 'words', value: 10000 },
+    rarity: 'rare',
+  },
+  {
+    id: 'words-50000',
+    title: 'Писатель',
+    description: 'Напечатайте 50000 слов',
+    icon: '✍️',
+    category: 'practice',
+    requirement: { type: 'words', value: 50000 },
+    rarity: 'epic',
+  },
+  {
+    id: 'sessions-50',
+    title: 'Постоянный ученик',
+    description: 'Завершите 50 сессий',
+    icon: '🎓',
+    category: 'practice',
+    requirement: { type: 'sessions', value: 50 },
+    rarity: 'rare',
+  },
+  {
+    id: 'sessions-100',
+    title: 'Мастер практики',
+    description: 'Завершите 100 сессий',
+    icon: '🏆',
+    category: 'practice',
+    requirement: { type: 'sessions', value: 100 },
+    rarity: 'epic',
+  },
 
-  const filteredAchievements = activeCategory === 'all'
-    ? achievements
-    : achievements.filter(a => a.category === activeCategory)
+  // Streak achievements
+  {
+    id: 'streak-3',
+    title: 'Начало серии',
+    description: 'Тренируйтесь 3 дня подряд',
+    icon: '🔥',
+    category: 'streak',
+    requirement: { type: 'streak', value: 3 },
+    rarity: 'common',
+  },
+  {
+    id: 'streak-7',
+    title: 'Неделя силы',
+    description: 'Тренируйтесь 7 дней подряд',
+    icon: '💪',
+    category: 'streak',
+    requirement: { type: 'streak', value: 7 },
+    rarity: 'rare',
+  },
+  {
+    id: 'streak-30',
+    title: 'Месяц дисциплины',
+    description: 'Тренируйтесь 30 дней подряд',
+    icon: '🌟',
+    category: 'streak',
+    requirement: { type: 'streak', value: 30 },
+    rarity: 'epic',
+  },
+  {
+    id: 'streak-100',
+    title: 'Легенда постоянства',
+    description: 'Тренируйтесь 100 дней подряд',
+    icon: '👑',
+    category: 'streak',
+    requirement: { type: 'streak', value: 100 },
+    rarity: 'legendary',
+  },
+]
 
-  const unlockedCount = achievements.filter(a => a.unlocked).length
-  const totalCount = achievements.length
-  const completionPercentage = Math.round((unlockedCount / totalCount) * 100)
+export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
+  const [achievements, setAchievements] = useLocalStorageState<Achievement[]>(
+    'fastfingers_achievements',
+    []
+  )
+
+  // Initialize achievements
+  if (achievements.length === 0) {
+    const initialAchievements: Achievement[] = ACHIEVEMENTS.map(ach => ({
+      ...ach,
+      unlocked: false,
+    }))
+    setAchievements(initialAchievements)
+  }
+
+  // Check and unlock achievements
+  useMemo(() => {
+    const updated = achievements.map(ach => {
+      if (ach.unlocked) return ach
+
+      const isUnlocked = checkAchievement(ach, stats)
+      if (isUnlocked) {
+        return {
+          ...ach,
+          unlocked: true,
+          unlockedAt: new Date().toISOString(),
+        }
+      }
+      return ach
+    })
+
+    if (JSON.stringify(updated) !== JSON.stringify(achievements)) {
+      setAchievements(updated)
+    }
+  }, [stats, achievements, setAchievements])
+
+  const unlockedAchievements = achievements.filter(a => a.unlocked)
+  const lockedAchievements = achievements.filter(a => !a.unlocked)
+
+  const statsByCategory = useMemo(() => {
+    const categories = ['speed', 'accuracy', 'practice', 'streak', 'special'] as const
+    return categories.map(cat => ({
+      category: cat,
+      total: achievements.filter(a => a.category === cat).length,
+      unlocked: unlockedAchievements.filter(a => a.category === cat).length,
+    }))
+  }, [achievements, unlockedAchievements])
 
   return (
-    <div className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-4xl my-8"
-      >
-        <div className="glass rounded-2xl p-6 md:p-8">
-          {/* Заголовок */}
-          <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold flex items-center gap-3">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>🏆</span>
                 Достижения
               </h2>
-              <p className="text-dark-400 mt-1">
-                {unlockedCount} из {totalCount} разблокировано
+              <p className="text-dark-400 text-sm mt-1">
+                {unlockedAchievements.length} из {achievements.length} разблокировано
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
+              className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
+              aria-label="Закрыть"
             >
-              <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
-          {/* Прогресс */}
-          <div className="mb-6 p-4 bg-dark-800/50 rounded-xl">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Общий прогресс</span>
-              <span className="text-sm font-bold text-primary-400">{completionPercentage}%</span>
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-dark-400">Общий прогресс</span>
+              <span className="font-semibold">
+                {Math.round((unlockedAchievements.length / achievements.length) * 100)}%
+              </span>
             </div>
-            <div className="w-full h-3 bg-dark-700 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${completionPercentage}%` }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="h-full bg-gradient-to-r from-primary-600 via-purple-500 to-pink-500"
+            <div className="w-full h-3 bg-dark-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400 transition-all duration-500"
+                style={{
+                  width: `${(unlockedAchievements.length / achievements.length) * 100}%`,
+                }}
               />
             </div>
           </div>
+        </div>
 
-          {/* Категории */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                  activeCategory === cat.id
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-dark-800 text-dark-400 hover:text-white'
-                }`}
-              >
-                <span>{cat.icon}</span>
-                <span className="hidden sm:inline">{cat.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Сетка достижений */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2">
-            {filteredAchievements.map((achievement) => (
-              <motion.div
-                key={achievement.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-xl border transition-all ${
-                  achievement.unlocked
-                    ? 'bg-gradient-to-br from-primary-600/20 to-purple-600/20 border-primary-500/50'
-                    : 'bg-dark-800/50 border-dark-700 opacity-60'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-3xl">{achievement.icon}</span>
-                  <div className="flex-1">
-                    <h3 className={`font-semibold ${achievement.unlocked ? 'text-white' : 'text-dark-500'}`}>
-                      {achievement.title}
-                    </h3>
-                    <p className="text-xs text-dark-400 mt-1">{achievement.description}</p>
-                    
-                    {!achievement.unlocked && (
-                      <div className="mt-2">
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-dark-500">Прогресс</span>
-                          <span className="text-dark-400">{Math.round(achievement.progress)}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-dark-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary-600"
-                            style={{ width: `${achievement.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                    
-                    {achievement.unlocked && (
-                      <div className="mt-2 flex items-center gap-1 text-xs text-success">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Разблокировано
-                      </div>
-                    )}
+        <div className="p-6 space-y-6">
+          {/* Category stats */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {statsByCategory.map(({ category, total, unlocked }) => (
+              <div key={category} className="card p-3">
+                <div className="text-center">
+                  <div className="text-2xl mb-1">{getCategoryIcon(category)}</div>
+                  <div className="text-xs text-dark-400 mb-1">{getCategoryName(category)}</div>
+                  <div className="text-lg font-bold">
+                    {unlocked}/{total}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          {/* Статистика */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-dark-700">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary-400">{unlockedCount}</p>
-              <p className="text-xs text-dark-400">Разблокировано</p>
+          {/* Unlocked achievements */}
+          {unlockedAchievements.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>✨</span>
+                Разблокированные
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {unlockedAchievements.map(ach => (
+                  <AchievementCard key={ach.id} achievement={ach} stats={stats} />
+                ))}
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-dark-300">{totalCount - unlockedCount}</p>
-              <p className="text-xs text-dark-400">Осталось</p>
+          )}
+
+          {/* Locked achievements */}
+          {lockedAchievements.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>🔒</span>
+                Заблокированные
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {lockedAchievements.map(ach => (
+                  <AchievementCard key={ach.id} achievement={ach} stats={stats} />
+                ))}
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-yellow-400">{completionPercentage}%</p>
-              <p className="text-xs text-dark-400">Завершено</p>
-            </div>
-          </div>
+          )}
         </div>
-      </motion.div>
+      </div>
     </div>
   )
+}
+
+function AchievementCard({
+  achievement,
+  stats,
+}: {
+  achievement: Achievement
+  stats: AchievementsPanelProps['stats']
+}) {
+  const progress = getAchievementProgress(achievement, stats)
+  const rarityColors = {
+    common: 'from-gray-600 to-gray-500',
+    rare: 'from-blue-600 to-blue-500',
+    epic: 'from-purple-600 to-purple-500',
+    legendary: 'from-yellow-600 to-yellow-500',
+  }
+
+  return (
+    <div
+      className={`card p-4 ${achievement.unlocked ? 'border border-yellow-500/30 bg-yellow-500/5' : 'opacity-60'}`}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl bg-gradient-to-br ${rarityColors[achievement.rarity]}`}
+        >
+          {achievement.unlocked ? achievement.icon : '🔒'}
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-1">
+            <h4 className="font-semibold text-white">{achievement.title}</h4>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${getRarityBadgeClass(achievement.rarity)}`}>
+              {getRarityName(achievement.rarity)}
+            </span>
+          </div>
+          <p className="text-sm text-dark-400 mb-2">{achievement.description}</p>
+
+          {!achievement.unlocked && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-dark-500">Прогресс</span>
+                <span className="font-semibold">{progress.toFixed(0)}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-dark-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full bg-gradient-to-r ${rarityColors[achievement.rarity]} transition-all duration-500`}
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {achievement.unlockedAt && (
+            <p className="text-xs text-yellow-400 mt-2">
+              Разблокировано {new Date(achievement.unlockedAt).toLocaleDateString('ru-RU')}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function checkAchievement(
+  achievement: Achievement,
+  stats: AchievementsPanelProps['stats']
+): boolean {
+  const { type, value } = achievement.requirement
+
+  switch (type) {
+    case 'wpm':
+      return stats.maxWpm >= value
+    case 'accuracy':
+      return stats.maxAccuracy >= value
+    case 'words':
+      return stats.totalWords >= value
+    case 'sessions':
+      return stats.totalSessions >= value
+    case 'streak':
+      return stats.currentStreak >= value
+    case 'perfect-session':
+      return stats.perfectSessions >= value
+    default:
+      return false
+  }
+}
+
+function getAchievementProgress(
+  achievement: Achievement,
+  stats: AchievementsPanelProps['stats']
+): number {
+  const { type, value } = achievement.requirement
+  let current = 0
+
+  switch (type) {
+    case 'wpm':
+      current = stats.maxWpm
+      break
+    case 'accuracy':
+      current = stats.maxAccuracy
+      break
+    case 'words':
+      current = stats.totalWords
+      break
+    case 'sessions':
+      current = stats.totalSessions
+      break
+    case 'streak':
+      current = stats.currentStreak
+      break
+    case 'perfect-session':
+      current = stats.perfectSessions
+      break
+  }
+
+  return (current / value) * 100
+}
+
+function getCategoryIcon(category: Achievement['category']): string {
+  const icons = {
+    speed: '⚡',
+    accuracy: '🎯',
+    practice: '📚',
+    streak: '🔥',
+    special: '⭐',
+  }
+  return icons[category]
+}
+
+function getCategoryName(category: Achievement['category']): string {
+  const names = {
+    speed: 'Скорость',
+    accuracy: 'Точность',
+    practice: 'Практика',
+    streak: 'Серии',
+    special: 'Особые',
+  }
+  return names[category]
+}
+
+function getRarityName(rarity: Achievement['rarity']): string {
+  const names = {
+    common: 'Обычное',
+    rare: 'Редкое',
+    epic: 'Эпическое',
+    legendary: 'Легендарное',
+  }
+  return names[rarity]
+}
+
+function getRarityBadgeClass(rarity: Achievement['rarity']): string {
+  const classes = {
+    common: 'bg-gray-500/20 text-gray-300',
+    rare: 'bg-blue-500/20 text-blue-300',
+    epic: 'bg-purple-500/20 text-purple-300',
+    legendary: 'bg-yellow-500/20 text-yellow-300',
+  }
+  return classes[rarity]
 }

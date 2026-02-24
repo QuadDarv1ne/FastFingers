@@ -1,88 +1,198 @@
-import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth'
-import { AuthError, isValidEmail, isValidPassword } from './authErrors'
+import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
 
-const USERS_STORAGE_KEY = 'fastfingers_users'
-const CURRENT_USER_KEY = 'fastfingers_current_user'
-const RESET_TOKENS_KEY = 'fastfingers_reset_tokens'
+const USERS_STORAGE_KEY = 'fastfingers_users';
+const CURRENT_USER_KEY = 'fastfingers_current_user';
+const RESET_TOKENS_KEY = 'fastfingers_reset_tokens';
+const PASSWORD_SALT = 'fastfingers-salt-2026';
+const REGISTRATION_DELAY_MS = 500;
+const PROFILE_UPDATE_DELAY_MS = 300;
+const RESET_TOKEN_EXPIRY_MS = 3600000;
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_TIME_MS = 300000;
+const LOGIN_ATTEMPTS_KEY = 'fastfingers_login_attempts';
 
-// Имитация задержки сети
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+type StoredUser = User & { password: string };
 
-// Генерация уникального ID
-const generateId = () => Math.random().toString(36).substring(2) + Date.now().toString(36)
-
-// Хэширование пароля (упрощённое, для демонстрации)
-const hashPassword = (password: string): string => {
-  return btoa(password + 'fastfingers-salt-2026')
+interface LoginAttempt {
+  email: string;
+  timestamp: number;
 }
 
-// Получение пользователей из хранилища
-const getUsers = (): (User & { password: string })[] => {
-  try {
-    const stored = localStorage.getItem(USERS_STORAGE_KEY)
-    if (!stored) return []
-    return JSON.parse(stored)
-  } catch (e) {
-    console.error('[Auth] Ошибка чтения пользователей:', e)
-    throw new AuthError('unknown', 'Ошибка при чтении данных пользователей')
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
   }
-}
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
 
-// Сохранение пользователей в хранилище
-const saveUsers = (users: (User & { password: string })[]) => {
-  try {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
-    console.log('[Auth] Пользователи сохранены, всего:', users.length)
-  } catch (e) {
-    console.error('[Auth] Ошибка сохранения пользователей:', e)
-    throw new AuthError('unknown', 'Ошибка при сохранении данных пользователей')
+const hashPassword = async (password: string): Promise<string> => {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password + PASSWORD_SALT);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      // Fallback to simple hash
+    }
   }
-}
+  
+  // Fallback для старых браузеров
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + PASSWORD_SALT);
+  const hash = Array.from(new Uint8Array(data)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return hash;
+};
+
+const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
+const sanitizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
+
+const getUsers = (): StoredUser[] => {
+  try {
+    const stored = localStorage.getItem(USERS_STORAGE_KEY);
+    if (!stored) return [];
+    return JSON.parse(stored);
+  } catch (e) {
+    console.error('[Auth] Ошибка чтения пользователей:', e);
+    return [];
+  }
+};
+
+const saveUsers = (users: StoredUser[]) => {
+  try {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.error('[Auth] Ошибка сохранения пользователей:', e);
+  }
+};
+
+const getCurrentUserFromStorage = (): User | null => {
+  try {
+    const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveCurrentUser = (user: User, remember: boolean) => {
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+};
+
+const removeCurrentUser = () => {
+  localStorage.removeItem(CURRENT_USER_KEY);
+  sessionStorage.removeItem(CURRENT_USER_KEY);
+};
+
+const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidPassword = (password: string): boolean => password.length >= MIN_PASSWORD_LENGTH;
+
+const withoutPassword = ({ password: _pwd, ...user }: StoredUser): User => user;
+
+const getLoginAttempts = (): LoginAttempt[] => {
+  try {
+    const stored = localStorage.getItem(LOGIN_ATTEMPTS_KEY);
+    if (!stored) return [];
+    return JSON.parse(stored);
+  } catch {
+    return [];
+  }
+};
+
+const saveLoginAttempt = (email: string) => {
+  const attempts = getLoginAttempts();
+  attempts.push({ email, timestamp: Date.now() });
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+};
+
+const clearLoginAttempts = (email: string) => {
+  const attempts = getLoginAttempts().filter(a => a.email !== email);
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+};
+
+const checkLockout = (email: string): number | null => {
+  const attempts = getLoginAttempts().filter(a => a.email === email);
+  const recentAttempts = attempts.filter(a => Date.now() - a.timestamp < LOCKOUT_TIME_MS);
+
+  if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
+    const oldestRecent = Math.min(...recentAttempts.map(a => a.timestamp));
+    const remainingTime = LOCKOUT_TIME_MS - (Date.now() - oldestRecent);
+    return remainingTime > 0 ? remainingTime : null;
+  }
+  return null;
+};
+
+const cleanupExpiredTokens = () => {
+  try {
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
+    const now = Date.now();
+    const validTokens = tokens.filter((t: { expiresAt: string }) => new Date(t.expiresAt).getTime() > now);
+    if (tokens.length !== validTokens.length) {
+      localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
+    }
+  } catch {
+    // Игнорируем ошибки
+  }
+};
+
+const cleanupOldAttempts = () => {
+  try {
+    const attempts = getLoginAttempts();
+    const now = Date.now();
+    const recentAttempts = attempts.filter(a => now - a.timestamp < LOCKOUT_TIME_MS * 2);
+    if (attempts.length !== recentAttempts.length) {
+      localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(recentAttempts));
+    }
+  } catch {
+    // Игнорируем ошибки
+  }
+};
+
+cleanupExpiredTokens();
+cleanupOldAttempts();
 
 export const authService = {
-  /**
-   * Регистрация нового пользователя
-   */
   async register(credentials: RegisterCredentials): Promise<User> {
-    await delay(500)
+    await delay(REGISTRATION_DELAY_MS);
 
-    console.log('[Auth] Регистрация:', { email: credentials.email, name: credentials.name })
+    const sanitizedEmail = sanitizeEmail(credentials.email);
+    const sanitizedName = sanitizeName(credentials.name);
 
-    // Валидация email
-    if (!isValidEmail(credentials.email)) {
-      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
+    if (!isValidEmail(sanitizedEmail)) {
+      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
-    // Валидация пароля
     if (!isValidPassword(credentials.password)) {
-      throw new AuthError('weak-password', 'Пароль должен содержать минимум 8 символов', 'password')
+      throw { code: 'weak-password', message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов` } as AuthError;
     }
 
-    // Проверка совпадения паролей
     if (credentials.password !== credentials.confirmPassword) {
-      throw new AuthError('password-mismatch', 'Пароли не совпадают', 'confirmPassword')
+      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
     }
 
-    // Проверка принятия соглашения
     if (!credentials.agreeToTerms) {
-      throw new AuthError('terms-not-accepted', 'Необходимо принять условия использования')
+      throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
     }
 
-    const users = getUsers()
+    const users = getUsers();
 
-    // Проверка существования email
-    if (users.find(u => u.email === credentials.email)) {
-      throw new AuthError('email-in-use', 'Этот email уже зарегистрирован', 'email')
+    if (users.find(u => u.email === sanitizedEmail)) {
+      throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
     }
 
-    // Создание пользователя
-    const hashedPassword = hashPassword(credentials.password)
-    const now = new Date().toISOString()
+    const hashedPassword = await hashPassword(credentials.password);
+    const now = new Date().toISOString();
 
-    const newUser: User & { password: string } = {
+    const newUser: StoredUser = {
       id: generateId(),
-      email: credentials.email,
-      name: credentials.name,
+      email: sanitizedEmail,
+      name: sanitizedName,
       password: hashedPassword,
       createdAt: now,
       stats: {
@@ -96,213 +206,165 @@ export const authService = {
         longestStreak: 0,
         completedChallenges: 0,
       },
-    }
+    };
 
-    users.push(newUser)
-    saveUsers(users)
+    users.push(newUser);
+    saveUsers(users);
 
-    // Сохранение текущего пользователя
-    const { password: _, ...userWithoutPassword } = newUser
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
+    const userWithoutPassword = withoutPassword(newUser);
+    saveCurrentUser(userWithoutPassword, true);
 
-    return userWithoutPassword
+    return userWithoutPassword;
   },
 
-  /**
-   * Вход пользователя
-   */
   async login(credentials: LoginCredentials): Promise<User> {
-    await delay(500)
+    await delay(REGISTRATION_DELAY_MS);
 
-    // Валидация email
-    if (!isValidEmail(credentials.email)) {
-      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
+    const sanitizedEmail = sanitizeEmail(credentials.email);
+
+    if (!isValidEmail(sanitizedEmail)) {
+      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
-    const users = getUsers()
-    const user = users.find(u => u.email === credentials.email)
+    const lockoutTime = checkLockout(sanitizedEmail);
+    if (lockoutTime) {
+      const minutes = Math.ceil(lockoutTime / 60000);
+      throw { 
+        code: 'locked-out', 
+        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.` 
+      } as AuthError;
+    }
 
-    // Проверка существования пользователя
+    const users = getUsers();
+    const user = users.find(u => u.email === sanitizedEmail);
+
     if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь с таким email не найден', 'email')
+      saveLoginAttempt(sanitizedEmail);
+      throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
     }
 
-    // Проверка пароля
-    const hashedPassword = hashPassword(credentials.password)
+    const hashedPassword = await hashPassword(credentials.password);
     if (user.password !== hashedPassword) {
-      throw new AuthError('wrong-password', 'Неверный пароль', 'password')
+      saveLoginAttempt(sanitizedEmail);
+      throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
     }
 
-    // Обновление последнего входа
-    user.lastLogin = new Date().toISOString()
-    saveUsers(users)
+    clearLoginAttempts(sanitizedEmail);
+    user.lastLogin = new Date().toISOString();
+    saveUsers(users);
 
-    // Сохранение текущего пользователя
-    const { password: _pwd, ...userWithoutPassword } = user
+    const userWithoutPassword = withoutPassword(user);
+    saveCurrentUser(userWithoutPassword, credentials.rememberMe ?? false);
 
-    if (credentials.rememberMe) {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
-    } else {
-      sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
-    }
-
-    return userWithoutPassword
+    return userWithoutPassword;
   },
 
-  /**
-   * Выход из системы
-   */
+  // Выход
   logout(): void {
-    localStorage.removeItem(CURRENT_USER_KEY)
-    sessionStorage.removeItem(CURRENT_USER_KEY)
+    removeCurrentUser();
   },
 
-  /**
-   * Проверка текущего пользователя
-   */
+  // Проверка текущего пользователя
   getCurrentUser(): User | null {
-    try {
-      const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY)
-      return stored ? JSON.parse(stored) : null
-    } catch {
-      return null
-    }
+    return getCurrentUserFromStorage();
   },
 
-  /**
-   * Запрос на сброс пароля
-   */
+  // Запрос на сброс пароля
   async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
-    await delay(500)
+    await delay(REGISTRATION_DELAY_MS);
 
     if (!isValidEmail(request.email)) {
-      throw new AuthError('invalid-email', 'Неверный формат email', 'email')
+      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
-    const users = getUsers()
-    const user = users.find(u => u.email === request.email)
+    const users = getUsers();
+    const user = users.find(u => u.email === request.email);
 
     if (!user) {
-      // Не раскрываем, существует ли пользователь (безопасность)
-      return
+      return;
     }
 
-    // Генерация токена
-    const token = generateId()
-    const expiresAt = new Date(Date.now() + 3600000).toISOString() // 1 час
+    const token = generateId();
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS).toISOString();
 
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
-    tokens.push({ email: request.email, token, expiresAt })
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens))
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
+    tokens.push({ email: request.email, token, expiresAt });
+    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
 
-    // В реальном приложении здесь была бы отправка email
-    console.log('Reset token:', token)
-    alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`)
+    alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`);
   },
 
-  /**
-   * Подтверждение сброса пароля
-   */
+  // Подтверждение сброса пароля
   async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<void> {
-    await delay(500)
+    await delay(REGISTRATION_DELAY_MS);
 
-    // Валидация нового пароля
     if (!isValidPassword(confirm.newPassword)) {
-      throw new AuthError('weak-password', 'Пароль должен содержать минимум 8 символов', 'newPassword')
+      throw { code: 'weak-password', message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов` } as AuthError;
     }
 
-    // Проверка совпадения паролей
     if (confirm.newPassword !== confirm.confirmPassword) {
-      throw new AuthError('password-mismatch', 'Пароли не совпадают', 'confirmPassword')
+      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
     }
 
-    // Проверка токена
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
+    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
     const tokenIndex = tokens.findIndex((t: { token: string; expiresAt: string }) =>
       t.token === confirm.token && new Date(t.expiresAt) > new Date()
-    )
+    );
 
     if (tokenIndex === -1) {
-      throw new AuthError('invalid-token', 'Неверный или истёкший токен')
+      throw { code: 'invalid-token', message: 'Неверный или истёкший токен' } as AuthError;
     }
 
-    const tokenData = tokens[tokenIndex]
-    const users = getUsers()
-    const userIndex = users.findIndex(u => u.email === tokenData.email)
+    const tokenData = tokens[tokenIndex];
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.email === tokenData.email);
 
     if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден')
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    // Обновление пароля
-    users[userIndex].password = hashPassword(confirm.newPassword)
-    saveUsers(users)
+    users[userIndex].password = await hashPassword(confirm.newPassword);
+    saveUsers(users);
 
-    // Удаление использованного токена
-    tokens.splice(tokenIndex, 1)
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens))
+    tokens.splice(tokenIndex, 1);
+    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
   },
 
-  /**
-   * Обновление профиля пользователя
-   */
+  // Обновление профиля
   async updateProfile(userId: string, updates: Partial<Pick<User, 'name' | 'avatar'>>): Promise<User> {
-    await delay(300)
+    await delay(PROFILE_UPDATE_DELAY_MS);
 
-    const users = getUsers()
-    const userIndex = users.findIndex(u => u.id === userId)
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден')
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex] = { ...users[userIndex], ...updates }
-    saveUsers(users)
+    users[userIndex] = { ...users[userIndex], ...updates };
+    saveUsers(users);
 
-    const { password: _pwd2, ...userWithoutPassword } = users[userIndex]
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
+    const userWithoutPassword = withoutPassword(users[userIndex]);
+    saveCurrentUser(userWithoutPassword, true);
 
-    return userWithoutPassword
+    return userWithoutPassword;
   },
 
-  /**
-   * Синхронизация статистики пользователя
-   */
+  // Синхронизация статистики пользователя
   async syncUserStats(userId: string, stats: Partial<User['stats']>): Promise<User> {
-    const users = getUsers()
-    const userIndex = users.findIndex(u => u.id === userId)
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден')
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex].stats = { ...users[userIndex].stats, ...stats }
-    saveUsers(users)
+    users[userIndex].stats = { ...users[userIndex].stats, ...stats };
+    saveUsers(users);
 
-    const { password: _pwd3, ...userWithoutPassword } = users[userIndex]
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword))
+    const userWithoutPassword = withoutPassword(users[userIndex]);
+    saveCurrentUser(userWithoutPassword, true);
 
-    return userWithoutPassword
+    return userWithoutPassword;
   },
-
-  /**
-   * Проверка токена сброса пароля
-   */
-  verifyResetToken(token: string): boolean {
-    try {
-      const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]')
-      return tokens.some((t: { token: string; expiresAt: string }) =>
-        t.token === token && new Date(t.expiresAt) > new Date()
-      )
-    } catch {
-      return false
-    }
-  },
-
-  /**
-   * Очистка токенов сброса пароля
-   */
-  clearResetTokens(): void {
-    localStorage.removeItem(RESET_TOKENS_KEY)
-  },
-}
+};

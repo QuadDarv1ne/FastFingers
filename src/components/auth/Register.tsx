@@ -62,6 +62,10 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
       return
     }
     
+    if (!agreeToTerms) {
+      return
+    }
+    
     clearError()
 
     try {
@@ -69,6 +73,12 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
       onRegisterSuccess()
     } catch {
       // Ошибка уже установлена в контексте
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && isFormValid) {
+      handleSubmit(e)
     }
   }
 
@@ -82,6 +92,16 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
     if (/[^a-zA-Z0-9]/.test(password)) strength++
     return strength
   })()
+
+  const isFormValid = 
+    name.trim() && 
+    email && 
+    !emailError && 
+    password && 
+    !passwordError && 
+    confirmPassword && 
+    password === confirmPassword && 
+    agreeToTerms
 
   return (
     <motion.div
@@ -125,6 +145,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Иван Иванов"
               required
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -139,6 +160,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="your@email.com"
               required
               className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
@@ -164,6 +186,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -230,6 +253,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="••••••••"
               required
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -262,7 +286,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
           <button
             type="submit"
-            disabled={isLoading || !agreeToTerms}
+            disabled={isLoading || !isFormValid}
             className="w-full py-3 bg-success-600 hover:bg-success-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
           >
             {isLoading ? (

@@ -51,8 +51,10 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
     }
   }
 
+  const isFormValid = email && password && !emailError
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !emailError) {
+    if (e.key === 'Enter' && isFormValid) {
       handleSubmit(e)
     }
   }
@@ -125,6 +127,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -169,7 +172,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !isFormValid}
             className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
           >
             {isLoading ? (

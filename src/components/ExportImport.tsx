@@ -1,160 +1,261 @@
 import { useState } from 'react'
-import { UserProgress } from '../types'
+import { useToast } from '@hooks/useToast'
 
 interface ExportImportProps {
-  progress: UserProgress
-  onImport: (data: ExportData) => void
+  onClose: () => void
 }
 
-export interface ExportData {
-  version: string
-  exportedAt: string
-  progress: UserProgress
-  history?: unknown[]
-  settings?: unknown
-}
+export function ExportImport({ onClose }: ExportImportProps) {
+  const [importing, setImporting] = useState(false)
+  const { success, error } = useToast()
 
-export function ExportImport({ progress, onImport }: ExportImportProps) {
-  const [showImport, setShowImport] = useState(false)
-  const [importText, setImportText] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-
-  // Экспорт прогресса
   const handleExport = () => {
-    const data: ExportData = {
-      version: '1.0',
-      exportedAt: new Date().toISOString(),
-      progress,
-    }
-
-    const json = JSON.stringify(data, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `fastfingers-export-${new Date().toISOString().split('T')[0]}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
-
-  // Импорт прогресса
-  const handleImport = () => {
     try {
-      const data = JSON.parse(importText) as ExportData
+      const data: Record<string, string> = {}
       
-      if (!data.version || !data.progress) {
-        throw new Error('Неверный формат файла')
+      // Collect all FastFingers data from localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('fastfingers_')) {
+          const value = localStorage.getItem(key)
+          if (value) {
+            data[key] = value
+          }
+        }
       }
-      
-      if (data.version !== '1.0') {
-        throw new Error(`Несовместимая версия: ${data.version}`)
+
+      const exportData = {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        data,
       }
-      
-      onImport(data)
-      setSuccess(true)
-      setError('')
-      setImportText('')
-      
-      setTimeout(() => {
-        setSuccess(false)
-        setShowImport(false)
-      }, 2000)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Ошибка импорта')
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json',
+      })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fastfingers-backup-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      success({ title: 'Данные успешно экспортированы' })
+    } catch (error) {
+      console.error('Export error:', error)
+      error({ title: 'Ошибка при экспорте данных' })
     }
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
     if (!file) return
 
+    setImporting(true)
     const reader = new FileReader()
-    reader.onload = (event) => {
+
+    reader.onload = e => {
       try {
-        const text = event.target?.result as string
-        setImportText(text)
-      } catch {
-        setError('Не удалось прочитать файл')
+        const content = e.target?.result as string
+        const importData = JSON.parse(content)
+
+        if (!importData.version || !importData.data) {
+          throw new Error('Invalid backup file format')
+        }
+
+        // Confirm before overwriting
+        if (
+          !confirm(
+            'Это действие перезапишет все текущие данные. Продолжить?'
+          )
+        ) {
+          setImporting(false)
+          return
+        }
+
+        // Import data
+        Object.entries(importData.data).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            localStorage.setItem(key, value)
+          }
+        })
+
+        success({ title: 'Данные успешно импортированы' })
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+      } catch (error) {
+        console.error('Import error:', error)
+        error({ title: 'Ошибка при импорте данных' })
+        setImporting(false)
       }
     }
+
+    reader.onerror = () => {
+      error({ title: 'Ошибка при чтении файла' })
+      setImporting(false)
+    }
+
     reader.readAsText(file)
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-3">
-        <button
-          onClick={handleExport}
-          className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          Экспорт
-        </button>
-        
-        <button
-          onClick={() => setShowImport(!showImport)}
-          className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
-          Импорт
-        </button>
-      </div>
+  const handleClearData = () => {
+    if (
+      !confirm(
+        'Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!'
+      )
+    ) {
+      return
+    }
 
-      {showImport && (
-        <div className="glass rounded-xl p-4 space-y-3">
-          <h4 className="font-medium">Импорт прогресса</h4>
-          
-          <textarea
-            value={importText}
-            onChange={(e) => setImportText(e.target.value)}
-            placeholder="Вставьте JSON данные или загрузите файл..."
-            rows={5}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm font-mono resize-none"
-          />
-          
-          <div className="flex items-center gap-2">
-            <label className="flex-1">
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <div className="py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-center text-sm cursor-pointer transition-colors">
-                📁 Загрузить файл
+    if (
+      !confirm(
+        'Последнее предупреждение! Все ваши достижения, статистика и настройки будут удалены. Продолжить?'
+      )
+    ) {
+      return
+    }
+
+    try {
+      const keysToRemove: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('fastfingers_')) {
+          keysToRemove.push(key)
+        }
+      }
+
+      keysToRemove.forEach(key => localStorage.removeItem(key))
+
+      success({ title: 'Все данные удалены' })
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+    } catch (error) {
+      console.error('Clear data error:', error)
+      error({ title: 'Ошибка при удалении данных' })
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass rounded-2xl max-w-2xl w-full">
+        {/* Header */}
+        <div className="border-b border-dark-700 p-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span>💾</span>
+              Экспорт и импорт данных
+            </h2>
+            <p className="text-dark-400 text-sm mt-1">
+              Сохраните или восстановите свой прогресс
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
+            aria-label="Закрыть"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Export section */}
+          <div className="card p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-2xl">
+                📤
               </div>
-            </label>
-            
-            <button
-              onClick={handleImport}
-              disabled={!importText.trim()}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
-            >
-              Импорт
-            </button>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">Экспорт данных</h3>
+                <p className="text-dark-400 text-sm mb-4">
+                  Сохраните все ваши данные в файл. Включает статистику, достижения, настройки и прогресс.
+                </p>
+                <button
+                  onClick={handleExport}
+                  className="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-xl font-semibold transition-all flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Экспортировать данные
+                </button>
+              </div>
+            </div>
           </div>
 
-          {error && (
-            <p className="text-error text-sm">{error}</p>
-          )}
-          
-          {success && (
-            <p className="text-success text-sm">✓ Прогресс успешно импортирован!</p>
-          )}
-        </div>
-      )}
+          {/* Import section */}
+          <div className="card p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl">
+                📥
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">Импорт данных</h3>
+                <p className="text-dark-400 text-sm mb-4">
+                  Восстановите данные из ранее сохранённого файла. Текущие данные будут перезаписаны.
+                </p>
+                <label className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-all flex items-center gap-2 cursor-pointer inline-flex">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  {importing ? 'Импортирование...' : 'Импортировать данные'}
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImport}
+                    disabled={importing}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
 
-      <p className="text-xs text-dark-500 text-center">
-        Экспортируйте свой прогресс для резервного копирования или переноса на другое устройство
-      </p>
+          {/* Clear data section */}
+          <div className="card p-6 border border-red-500/30 bg-red-500/5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center text-2xl">
+                ⚠️
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2 text-red-400">Опасная зона</h3>
+                <p className="text-dark-400 text-sm mb-4">
+                  Удалить все данные приложения. Это действие необратимо!
+                </p>
+                <button
+                  onClick={handleClearData}
+                  className="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-semibold transition-all flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Удалить все данные
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="p-4 bg-dark-800/30 rounded-lg">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+              <span>ℹ️</span>
+              Информация
+            </h4>
+            <ul className="text-xs text-dark-400 space-y-1">
+              <li>• Экспортированные данные сохраняются в формате JSON</li>
+              <li>• Рекомендуется регулярно создавать резервные копии</li>
+              <li>• Импорт данных перезапишет все текущие настройки</li>
+              <li>• Данные хранятся локально в вашем браузере</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

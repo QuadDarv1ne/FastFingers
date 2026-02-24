@@ -6,7 +6,6 @@ import { Providers } from './contexts/Providers.tsx'
 import { initSentry } from './utils/sentry'
 import './index.css'
 
-// Инициализация Sentry
 initSentry()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

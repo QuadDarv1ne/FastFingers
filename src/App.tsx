@@ -10,7 +10,6 @@ import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { OnlineStatus } from './components/OnlineStatus'
-import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -610,9 +609,6 @@ function AppContent() {
 
       {/* Индикатор онлайн/офлайн статуса */}
       <OnlineStatus />
-
-      {/* Горячие клавиши */}
-      <KeyboardShortcuts />
 
       {/* Онбординг для новых пользователей */}
       {showOnboarding && (

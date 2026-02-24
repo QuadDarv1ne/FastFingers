@@ -1,299 +1,315 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { lessons, isLessonUnlocked, isLessonCompleted, Lesson } from '../utils/lessons'
+import { useState } from 'react'
+import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
-interface LearningModeProps {
-  onBack: () => void
+interface Lesson {
+  id: string
+  title: string
+  description: string
+  level: number
+  keys: string[]
+  exercises: string[]
+  completed: boolean
+  icon: string
 }
 
-export function LearningMode({ onBack }: LearningModeProps) {
+const LESSONS: Omit<Lesson, 'completed'>[] = [
+  {
+    id: 'lesson-1',
+    title: 'Основной ряд',
+    description: 'Изучите клавиши ФЫВА ОЛДЖ (ASDF JKL;)',
+    level: 1,
+    keys: ['ф', 'ы', 'в', 'а', 'о', 'л', 'д', 'ж'],
+    exercises: [
+      'фыва олдж',
+      'фыва фыва олдж олдж',
+      'ффф ввв ааа ооо ллл джж',
+      'фывафыва олджолдж',
+    ],
+    icon: '🎯',
+  },
+  {
+    id: 'lesson-2',
+    title: 'Верхний ряд',
+    description: 'Добавьте клавиши ЙЦУК ЕНГШ',
+    level: 2,
+    keys: ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш'],
+    exercises: [
+      'йцук енгш',
+      'фыва йцук олдж енгш',
+      'куй шен гук цен',
+      'йцукен фывапролдж',
+    ],
+    icon: '⬆️',
+  },
+  {
+    id: 'lesson-3',
+    title: 'Нижний ряд',
+    description: 'Добавьте клавиши ЯЧСМ ИТЬБ',
+    level: 3,
+    keys: ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б'],
+    exercises: [
+      'ячсм итьб',
+      'час мяч сыт бит',
+      'ячсмитьб фывапролдж',
+      'часы мячи сыты биты',
+    ],
+    icon: '⬇️',
+  },
+  {
+    id: 'lesson-4',
+    title: 'Цифры',
+    description: 'Научитесь печатать цифры',
+    level: 4,
+    keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+    exercises: [
+      '123 456 789 0',
+      '1234567890',
+      '111 222 333 444 555',
+      '12 34 56 78 90',
+    ],
+    icon: '🔢',
+  },
+  {
+    id: 'lesson-5',
+    title: 'Знаки препинания',
+    description: 'Освойте знаки препинания',
+    level: 5,
+    keys: ['.', ',', '!', '?', '-', ':', ';'],
+    exercises: [
+      'Привет, мир!',
+      'Как дела? Отлично!',
+      'Один, два, три.',
+      'Вопрос: что это?',
+    ],
+    icon: '❓',
+  },
+  {
+    id: 'lesson-6',
+    title: 'Слова',
+    description: 'Практикуйте простые слова',
+    level: 6,
+    keys: [],
+    exercises: [
+      'дом кот сад лес',
+      'мама папа дети семья',
+      'день ночь утро вечер',
+      'вода огонь земля воздух',
+    ],
+    icon: '📝',
+  },
+  {
+    id: 'lesson-7',
+    title: 'Предложения',
+    description: 'Печатайте целые предложения',
+    level: 7,
+    keys: [],
+    exercises: [
+      'Я учусь печатать быстро.',
+      'Практика делает совершенным.',
+      'Каждый день я становлюсь лучше.',
+      'Слепая печать это полезный навык.',
+    ],
+    icon: '✍️',
+  },
+]
+
+interface LearningModeProps {
+  onClose: () => void
+  onStartLesson: (lesson: Lesson, exercise: string) => void
+}
+
+export function LearningMode({ onClose, onStartLesson }: LearningModeProps) {
+  const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
+    'fastfingers_learning_progress',
+    {}
+  )
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
-  const [completedLessons, setCompletedLessons] = useState<number[]>(() => {
-    const stored = localStorage.getItem('fastfingers_completed_lessons')
-    return stored ? JSON.parse(stored) : []
-  })
-  const [currentText, setCurrentText] = useState('')
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [startTime, setStartTime] = useState<number | null>(null)
-  const [isComplete, setIsComplete] = useState(false)
-  const [results, setResults] = useState<{ isCorrect: boolean; char: string }[]>([])
 
-  useEffect(() => {
-    if (selectedLesson) {
-      setCurrentText(selectedLesson.text)
-      setCurrentIndex(0)
-      setStartTime(null)
-      setIsComplete(false)
-      setResults([])
-    }
-  }, [selectedLesson])
+  const lessons: Lesson[] = LESSONS.map(lesson => ({
+    ...lesson,
+    completed: progress[lesson.id] || false,
+  }))
 
-  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    if (isComplete) return
+  const completedCount = lessons.filter(l => l.completed).length
+  const progressPercent = (completedCount / lessons.length) * 100
 
-    if (!startTime) setStartTime(Date.now())
-
-    const newChar = value[value.length - 1]
-    if (newChar && currentIndex < currentText.length) {
-      const expectedChar = currentText[currentIndex]
-      const isCorrect = newChar === expectedChar
-      
-      setResults(prev => [...prev, { isCorrect, char: newChar }])
-      setCurrentIndex(prev => prev + 1)
-
-      if (currentIndex >= currentText.length - 1) {
-        handleLessonComplete()
-      }
-    }
-    e.currentTarget.value = ''
+  const handleCompleteLesson = (lessonId: string) => {
+    setProgress({ ...progress, [lessonId]: true })
   }
 
-  const handleLessonComplete = () => {
-    setIsComplete(true)
-    const correct = results.filter(r => r.isCorrect).length
-    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const wpm = timeElapsed > 0 ? Math.round(correct / 5 / (timeElapsed / 60)) : 0
-    const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
-
-    if (selectedLesson && isLessonCompleted(wpm, accuracy, selectedLesson)) {
-      if (!completedLessons.includes(selectedLesson.id)) {
-        const newCompleted = [...completedLessons, selectedLesson.id]
-        setCompletedLessons(newCompleted)
-        localStorage.setItem('fastfingers_completed_lessons', JSON.stringify(newCompleted))
-      }
-    }
-  }
-
-  const nextLesson = () => {
-    if (!selectedLesson) return
-    const nextId = selectedLesson.id + 1
-    const next = lessons.find(l => l.id === nextId)
-    if (next && isLessonUnlocked(nextId, completedLessons)) {
-      setSelectedLesson(next)
-    } else {
-      setSelectedLesson(null)
-    }
+  const handleStartExercise = (lesson: Lesson, exercise: string) => {
+    onStartLesson(lesson, exercise)
+    handleCompleteLesson(lesson.id)
   }
 
   return (
-    <div className="min-h-screen bg-dark-900 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Заголовок */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gradient">📚 Обучение</h1>
-            <p className="text-dark-400 mt-1">Поурочная программа слепой печати</p>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <span>📚</span>
+                Режим обучения
+              </h2>
+              <p className="text-dark-400 text-sm mt-1">
+                Пошаговое обучение слепой печати
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
+              aria-label="Закрыть"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
-          >
-            ← Назад
-          </button>
+
+          {/* Progress */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-dark-400">Общий прогресс</span>
+              <span className="font-semibold">
+                {completedCount} / {lessons.length} уроков
+              </span>
+            </div>
+            <div className="w-full h-3 bg-dark-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-green-600 to-emerald-500 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
         </div>
 
-        {!selectedLesson ? (
-          /* Список уроков */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {lessons.map((lesson) => {
-              const unlocked = isLessonUnlocked(lesson.id, completedLessons)
-              const completed = completedLessons.includes(lesson.id)
-
-              return (
-                <motion.button
-                  key={lesson.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={() => unlocked && setSelectedLesson(lesson)}
-                  disabled={!unlocked}
-                  className={`p-6 rounded-xl border text-left transition-all ${
-                    completed
-                      ? 'bg-success/20 border-success/50'
-                      : unlocked
-                      ? 'glass hover:border-primary-500/50 cursor-pointer'
-                      : 'bg-dark-800/30 border-dark-700 opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        completed ? 'bg-success/20 text-success' : 'bg-primary-600/20 text-primary-400'
-                      }`}>
-                        {completed ? '✓' : lesson.id}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{lesson.title}</h3>
-                        <p className="text-sm text-dark-400">{lesson.description}</p>
-                      </div>
-                    </div>
-                    {!unlocked && <span className="text-2xl">🔒</span>}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-xs text-dark-500">
-                    <span>Цель: {lesson.minWpm} WPM</span>
-                    <span>Точность: {lesson.minAccuracy}%</span>
-                    <span>Сложность: {'⭐'.repeat(lesson.difficulty)}</span>
-                  </div>
-                </motion.button>
-              )
-            })}
-          </div>
-        ) : (
-          /* Режим урока */
-          <div className="space-y-6">
-            {/* Инфо урока */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-bold">{selectedLesson.title}</h2>
-                  <p className="text-dark-400">{selectedLesson.description}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedLesson(null)}
-                  className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-                >
-                  <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-dark-800 rounded-lg p-3 text-center">
-                  <p className="text-xs text-dark-400">Цель WPM</p>
-                  <p className="text-xl font-bold text-primary-400">{selectedLesson.minWpm}</p>
-                </div>
-                <div className="bg-dark-800 rounded-lg p-3 text-center">
-                  <p className="text-xs text-dark-400">Точность</p>
-                  <p className="text-xl font-bold text-success">{selectedLesson.minAccuracy}%</p>
-                </div>
-                <div className="bg-dark-800 rounded-lg p-3 text-center">
-                  <p className="text-xs text-dark-400">Сложность</p>
-                  <p className="text-xl font-bold text-yellow-400">{'⭐'.repeat(selectedLesson.difficulty)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Область ввода */}
-            <div className="glass rounded-xl p-8 relative">
-              <input
-                type="text"
-                className="opacity-0 absolute"
-                onInput={handleInput}
-                autoFocus
-                disabled={isComplete}
-              />
-
-              <div className="font-mono text-xl leading-relaxed break-words mb-6" onClick={() => document.querySelector('input')?.focus()}>
-                {currentText.split('').map((char, index) => {
-                  let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-                  if (index < currentIndex) {
-                    status = results[index]?.isCorrect ? 'correct' : 'incorrect'
-                  } else if (index === currentIndex && !isComplete) {
-                    status = 'current'
-                  }
-
-                  return (
-                    <span
-                      key={index}
-                      className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded transition-all ${
-                        status === 'correct' ? 'bg-green-500/20 text-green-500' :
-                        status === 'incorrect' ? 'bg-red-500/20 text-red-500' :
-                        status === 'current' ? 'bg-violet-500/30 text-violet-500 border-2 border-violet-500 animate-pulse' :
-                        'text-dark-500'
-                      }`}
-                    >
-                      {char}
-                    </span>
-                  )
-                })}
-              </div>
-
-              {/* Прогресс */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-1 h-2 bg-dark-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-600 to-primary-400"
-                    style={{ width: `${(currentIndex / currentText.length) * 100}%` }}
+        <div className="p-6">
+          {!selectedLesson ? (
+            /* Lessons list */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {lessons.map((lesson, index) => {
+                const isLocked = index > 0 && !lessons[index - 1].completed
+                return (
+                  <LessonCard
+                    key={lesson.id}
+                    lesson={lesson}
+                    isLocked={isLocked}
+                    onSelect={() => !isLocked && setSelectedLesson(lesson)}
                   />
+                )
+              })}
+            </div>
+          ) : (
+            /* Lesson details */
+            <div>
+              <button
+                onClick={() => setSelectedLesson(null)}
+                className="mb-4 text-sm text-dark-400 hover:text-white transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Назад к урокам
+              </button>
+
+              <div className="card p-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl">{selectedLesson.icon}</div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-2">{selectedLesson.title}</h3>
+                    <p className="text-dark-400 mb-4">{selectedLesson.description}</p>
+                    
+                    {selectedLesson.keys.length > 0 && (
+                      <div>
+                        <p className="text-sm text-dark-400 mb-2">Клавиши для изучения:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedLesson.keys.map(key => (
+                            <div
+                              key={key}
+                              className="w-10 h-10 rounded-lg bg-dark-800 flex items-center justify-center font-mono font-bold text-lg"
+                            >
+                              {key}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm text-dark-400">{currentIndex} / {currentText.length}</span>
               </div>
 
-              {/* Результаты */}
-              {isComplete && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-dark-800 rounded-xl p-6"
-                >
-                  <h3 className="text-xl font-bold mb-4">Результаты урока</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {(() => {
-                      const correct = results.filter(r => r.isCorrect).length
-                      const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-                      const wpm = timeElapsed > 0 ? Math.round(correct / 5 / (timeElapsed / 60)) : 0
-                      const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
-                      const passed = wpm >= selectedLesson.minWpm && accuracy >= selectedLesson.minAccuracy
-
-                      return (
-                        <>
-                          <div className="bg-dark-900 rounded-lg p-4 text-center">
-                            <p className="text-sm text-dark-400">WPM</p>
-                            <p className={`text-3xl font-bold ${wpm >= selectedLesson.minWpm ? 'text-success' : 'text-error'}`}>
-                              {wpm}
-                            </p>
-                            <p className="text-xs text-dark-500">цель: {selectedLesson.minWpm}</p>
-                          </div>
-                          <div className="bg-dark-900 rounded-lg p-4 text-center">
-                            <p className="text-sm text-dark-400">Точность</p>
-                            <p className={`text-3xl font-bold ${accuracy >= selectedLesson.minAccuracy ? 'text-success' : 'text-error'}`}>
-                              {accuracy}%
-                            </p>
-                            <p className="text-xs text-dark-500">цель: {selectedLesson.minAccuracy}%</p>
-                          </div>
-                          <div className="bg-dark-900 rounded-lg p-4 text-center">
-                            <p className="text-sm text-dark-400">Статус</p>
-                            <p className={`text-2xl font-bold ${passed ? 'text-success' : 'text-error'}`}>
-                              {passed ? '✓ Пройден' : '✗ Не пройден'}
-                            </p>
-                          </div>
-                        </>
-                      )
-                    })()}
+              <h4 className="text-lg font-semibold mb-4">Упражнения</h4>
+              <div className="space-y-3">
+                {selectedLesson.exercises.map((exercise, index) => (
+                  <div key={index} className="card p-4 hover:bg-dark-800/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm text-dark-400 mb-1">Упражнение {index + 1}</p>
+                        <p className="font-mono text-lg">{exercise}</p>
+                      </div>
+                      <button
+                        onClick={() => handleStartExercise(selectedLesson, exercise)}
+                        className="px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg font-semibold transition-all"
+                      >
+                        Начать
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={nextLesson}
-                      className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
-                    >
-                      Следующий урок →
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCurrentIndex(0)
-                        setResults([])
-                        setStartTime(null)
-                        setIsComplete(false)
-                      }}
-                      className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
-                    >
-                      Повторить
-                    </button>
-                  </div>
-                </motion.div>
-              )}
+                ))}
+              </div>
             </div>
-
-            {/* Подсказка */}
-            <div className="text-center text-dark-500 text-sm">
-              Нажмите на текст для фокуса и начните печатать
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
+  )
+}
+
+function LessonCard({
+  lesson,
+  isLocked,
+  onSelect,
+}: {
+  lesson: Lesson
+  isLocked: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      disabled={isLocked}
+      className={`card p-6 text-left transition-all ${
+        isLocked
+          ? 'opacity-50 cursor-not-allowed'
+          : 'hover:bg-dark-800/50 cursor-pointer'
+      } ${lesson.completed ? 'border border-green-500/30 bg-green-500/5' : ''}`}
+    >
+      <div className="flex items-start gap-4">
+        <div className="text-4xl">{isLocked ? '🔒' : lesson.icon}</div>
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h3 className="font-semibold text-lg">{lesson.title}</h3>
+              <p className="text-xs text-dark-400">Уровень {lesson.level}</p>
+            </div>
+            {lesson.completed && (
+              <span className="text-green-400 text-xl">✓</span>
+            )}
+          </div>
+          <p className="text-sm text-dark-400 mb-3">{lesson.description}</p>
+          <div className="flex items-center gap-2 text-xs text-dark-500">
+            <span>{lesson.exercises.length} упражнений</span>
+            {lesson.keys.length > 0 && (
+              <>
+                <span>•</span>
+                <span>{lesson.keys.length} клавиш</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </button>
   )
 }

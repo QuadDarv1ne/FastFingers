@@ -1,4 +1,4 @@
-import { SoundTheme, soundThemes } from '../utils/soundThemes'
+import { SoundTheme } from '../utils/soundThemes'
 
 interface SoundThemeSelectorProps {
   currentTheme: SoundTheme
@@ -6,6 +6,8 @@ interface SoundThemeSelectorProps {
 }
 
 export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSelectorProps) {
+  const themes: SoundTheme[] = ['default', 'piano', 'mechanical', 'soft', 'retro']
+  
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-dark-300">
@@ -13,8 +15,7 @@ export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSe
       </label>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {(Object.keys(soundThemes) as SoundTheme[]).map((themeId) => {
-          const theme = soundThemes[themeId]
+        {themes.map((themeId) => {
           const isSelected = currentTheme === themeId
           
           return (
@@ -28,16 +29,22 @@ export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSe
               }`}
             >
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">{theme.icon}</span>
+                <span className="text-2xl">
+                  {themeId === 'default' ? '🔊' : 
+                   themeId === 'piano' ? '🎹' : 
+                   themeId === 'mechanical' ? '⌨️' : 
+                   themeId === 'soft' ? '🌸' : '👾'}
+                </span>
                 <div>
                   <p className={`font-medium ${isSelected ? 'text-white' : 'text-dark-300'}`}>
-                    {theme.name}
+                    {themeId === 'default' ? 'По умолчанию' : 
+                     themeId === 'piano' ? 'Пианино' : 
+                     themeId === 'mechanical' ? 'Механическая' : 
+                     themeId === 'soft' ? 'Мягкий' : 'Ретро'}
                   </p>
-                  <p className="text-xs text-dark-500">{theme.description}</p>
                 </div>
               </div>
               
-              {/* Предпрослушивание звуков */}
               <div className="flex gap-1 mt-2">
                 <span className="w-2 h-2 rounded-full bg-primary-400" title="Правильно" />
                 <span className="w-2 h-2 rounded-full bg-error" title="Ошибка" />

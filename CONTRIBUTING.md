@@ -104,4 +104,6 @@ npm run build
 
 ## Лицензия
 
-MIT
+Custom License by Programming School Maestro7IT
+
+Copyright (c) 2026 Dupley Maxim Igorevich

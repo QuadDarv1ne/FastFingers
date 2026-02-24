@@ -1,153 +1,271 @@
-import { motion } from 'framer-motion'
-import { ChallengeWithProgress, StreakData } from '../types'
+import { useState, useEffect } from 'react'
+import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
-interface DailyChallengeCardProps {
-  challenge?: ChallengeWithProgress
-  streak: StreakData
-  onComplete?: (id: string, wpm: number, accuracy: number) => void
+export interface DailyChallenge {
+  id: string
+  date: string
+  title: string
+  description: string
+  goal: {
+    type: 'wpm' | 'accuracy' | 'words' | 'time' | 'combo'
+    target: number
+    unit: string
+  }
+  reward: {
+    points: number
+    badge?: string
+  }
+  difficulty: 'easy' | 'medium' | 'hard'
+  completed: boolean
+  progress: number
 }
 
-export function DailyChallengeCard({ challenge, streak }: DailyChallengeCardProps) {
+interface ChallengeProgress {
+  [challengeId: string]: {
+    completed: boolean
+    progress: number
+    completedAt?: string
+  }
+}
+
+export function DailyChallengeCard() {
+  const [progress] = useLocalStorageState<ChallengeProgress>(
+    'fastfingers_challenge_progress',
+    {}
+  )
+  const [challenge, setChallenge] = useState<DailyChallenge | null>(null)
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
+    const dailyChallenge = generateDailyChallenge(today)
+    const challengeProgress = progress[dailyChallenge.id] || {
+      completed: false,
+      progress: 0,
+    }
+
+    setChallenge({
+      ...dailyChallenge,
+      completed: challengeProgress.completed,
+      progress: challengeProgress.progress,
+    })
+  }, [progress])
+
   if (!challenge) return null
 
-  const isCompleted = challenge.completed
-  const isSuccessful = challenge.userWpm && challenge.userWpm >= challenge.targetWpm
+  const progressPercent = Math.min((challenge.progress / challenge.goal.target) * 100, 100)
+
+  const difficultyColors = {
+    easy: 'from-green-600 to-green-500',
+    medium: 'from-yellow-600 to-yellow-500',
+    hard: 'from-red-600 to-red-500',
+  }
+
+  const difficultyLabels = {
+    easy: 'Легко',
+    medium: 'Средне',
+    hard: 'Сложно',
+  }
 
   return (
-    <div className="glass rounded-xl p-6 relative overflow-hidden">
-      {/* Фон с градиентом */}
-      <div className={`absolute inset-0 opacity-10 ${
-        isCompleted 
-          ? 'bg-gradient-to-br from-success to-transparent' 
-          : 'bg-gradient-to-br from-primary-600 to-transparent'
-      }`} />
-      
+    <div className="card p-6 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 text-8xl opacity-5 select-none">
+        🎯
+      </div>
+
       <div className="relative">
-        {/* Заголовок */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              isCompleted 
-                ? 'bg-success/20 text-success' 
-                : 'bg-primary-600/20 text-primary-400'
-            }`}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">Ежедневный челлендж</h3>
-              <p className="text-sm text-dark-400">{challenge.date}</p>
-            </div>
-          </div>
-          
-          {/* Награда */}
-          <div className="text-right">
-            <p className="text-sm text-dark-400">Награда</p>
-            <p className="text-xl font-bold text-yellow-400">+{challenge.xpReward} XP</p>
-          </div>
-        </div>
-
-        {/* Стрик */}
-        <div className="flex items-center gap-2 mb-4 p-3 bg-dark-800/50 rounded-lg">
-          <span className="text-2xl">🔥</span>
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="text-sm font-medium">
-              Текущая серия: <span className="text-orange-400">{streak.current} дн.</span>
-            </p>
-            <p className="text-xs text-dark-500">
-              Лучшая: {streak.longest} дн.
-            </p>
-          </div>
-        </div>
-
-        {/* Цели */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-dark-800/50 rounded-lg p-3 text-center">
-            <p className="text-xs text-dark-400 mb-1">Цель WPM</p>
-            <p className="text-2xl font-bold text-primary-400">{challenge.targetWpm}</p>
-          </div>
-          <div className="bg-dark-800/50 rounded-lg p-3 text-center">
-            <p className="text-xs text-dark-400 mb-1">Точность</p>
-            <p className="text-2xl font-bold text-success">{challenge.targetAccuracy}%</p>
-          </div>
-        </div>
-
-        {/* Текст для печати */}
-        <div className="bg-dark-800/30 rounded-lg p-4 mb-4">
-          <p className="text-sm text-dark-300 font-mono leading-relaxed">
-            {challenge.text}
-          </p>
-        </div>
-
-        {/* Результаты пользователя */}
-        {isCompleted && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-4 rounded-lg bg-dark-800/50"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              {isSuccessful ? (
-                <>
-                  <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-success font-medium">Челлендж выполнен!</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-yellow-400 font-medium">Почти получилось!</span>
-                </>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">Челлендж дня</h3>
+              {challenge.completed && (
+                <span className="text-green-400 text-xl">✓</span>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-dark-400">Ваш WPM:</span>{' '}
-                <span className={challenge.userWpm! >= challenge.targetWpm ? 'text-success font-bold' : ''}>
-                  {challenge.userWpm}
-                </span>
-              </div>
-              <div>
-                <span className="text-dark-400">Точность:</span>{' '}
-                <span className={challenge.userAccuracy! >= challenge.targetAccuracy ? 'text-success font-bold' : ''}>
-                  {challenge.userAccuracy}%
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Кнопка старта */}
-        {!isCompleted && (
-          <button
-            onClick={() => {
-              // Запуск челленджа будет обработан в родительском компоненте
-              const event = new CustomEvent('startChallenge', { 
-                detail: { 
-                  challenge: {
-                    id: challenge.id,
-                    text: challenge.text,
-                    targetWpm: challenge.targetWpm,
-                    targetAccuracy: challenge.targetAccuracy,
-                  }
-                } 
-              })
-              window.dispatchEvent(event)
-            }}
-            className="w-full py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            aria-label={`Начать челлендж: ${challenge.text.substring(0, 30)}...`}
+            <p className="text-xs text-dark-400">
+              Обновляется каждый день в полночь
+            </p>
+          </div>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${difficultyColors[challenge.difficulty]}`}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Начать челлендж
-          </button>
+            {difficultyLabels[challenge.difficulty]}
+          </span>
+        </div>
+
+        {/* Challenge info */}
+        <div className="mb-4">
+          <h4 className="font-semibold text-white mb-2">{challenge.title}</h4>
+          <p className="text-sm text-dark-400">{challenge.description}</p>
+        </div>
+
+        {/* Goal */}
+        <div className="p-4 bg-dark-800/50 rounded-xl mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-dark-400">Цель</span>
+            <span className="text-sm font-semibold">
+              {challenge.progress} / {challenge.goal.target} {challenge.goal.unit}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all duration-500 bg-gradient-to-r ${difficultyColors[challenge.difficulty]}`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <div className="text-xs text-dark-500 text-right mt-1">
+            {progressPercent.toFixed(0)}%
+          </div>
+        </div>
+
+        {/* Reward */}
+        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 rounded-xl border border-yellow-500/30">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🏆</span>
+            <div>
+              <p className="text-sm font-semibold">Награда</p>
+              <p className="text-xs text-dark-400">
+                {challenge.reward.points} очков опыта
+              </p>
+            </div>
+          </div>
+          {challenge.reward.badge && (
+            <span className="text-3xl">{challenge.reward.badge}</span>
+          )}
+        </div>
+
+        {/* Completion message */}
+        {challenge.completed && (
+          <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-xl text-center">
+            <p className="text-sm text-green-400 font-semibold">
+              🎉 Челлендж выполнен!
+            </p>
+            <p className="text-xs text-dark-400 mt-1">
+              Возвращайтесь завтра за новым заданием
+            </p>
+          </div>
         )}
       </div>
     </div>
   )
+}
+
+function generateDailyChallenge(date: string): DailyChallenge {
+  // Use date as seed for consistent daily challenges
+  const seed = date.split('-').reduce((acc, val) => acc + parseInt(val), 0)
+  const random = (min: number, max: number) => {
+    const x = Math.sin(seed) * 10000
+    return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min
+  }
+
+  const challenges = [
+    {
+      title: 'Спринтер',
+      description: 'Достигните указанной скорости печати',
+      type: 'wpm' as const,
+      targets: { easy: 30, medium: 50, hard: 70 },
+      unit: 'WPM',
+      badge: '⚡',
+    },
+    {
+      title: 'Снайпер',
+      description: 'Достигните указанной точности',
+      type: 'accuracy' as const,
+      targets: { easy: 90, medium: 95, hard: 98 },
+      unit: '%',
+      badge: '🎯',
+    },
+    {
+      title: 'Марафонец',
+      description: 'Напечатайте указанное количество слов',
+      type: 'words' as const,
+      targets: { easy: 200, medium: 500, hard: 1000 },
+      unit: 'слов',
+      badge: '📝',
+    },
+    {
+      title: 'Выносливость',
+      description: 'Тренируйтесь указанное время',
+      type: 'time' as const,
+      targets: { easy: 10, medium: 20, hard: 30 },
+      unit: 'мин',
+      badge: '⏱️',
+    },
+    {
+      title: 'Комбо мастер',
+      description: 'Достигните указанного комбо',
+      type: 'combo' as const,
+      targets: { easy: 50, medium: 100, hard: 200 },
+      unit: 'подряд',
+      badge: '🔥',
+    },
+  ]
+
+  const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard']
+  const challengeIndex = random(0, challenges.length - 1)
+  const difficultyIndex = random(0, 2)
+  const difficulty = difficulties[difficultyIndex]
+  const template = challenges[challengeIndex]
+
+  const points = { easy: 50, medium: 100, hard: 200 }
+
+  return {
+    id: `challenge-${date}`,
+    date,
+    title: template.title,
+    description: template.description,
+    goal: {
+      type: template.type,
+      target: template.targets[difficulty],
+      unit: template.unit,
+    },
+    reward: {
+      points: points[difficulty],
+      badge: template.badge,
+    },
+    difficulty,
+    completed: false,
+    progress: 0,
+  }
+}
+
+// Helper to update challenge progress
+export function updateChallengeProgress(
+  type: DailyChallenge['goal']['type'],
+  value: number
+) {
+  const today = new Date().toISOString().split('T')[0]
+  const challengeId = `challenge-${today}`
+  
+  const progressData = JSON.parse(
+    localStorage.getItem('fastfingers_challenge_progress') || '{}'
+  )
+
+  const currentProgress = progressData[challengeId] || {
+    completed: false,
+    progress: 0,
+  }
+
+  if (currentProgress.completed) return
+
+  const challenge = generateDailyChallenge(today)
+  if (challenge.goal.type !== type) return
+
+  const newProgress = Math.max(currentProgress.progress, value)
+  const completed = newProgress >= challenge.goal.target
+
+  progressData[challengeId] = {
+    completed,
+    progress: newProgress,
+    completedAt: completed ? new Date().toISOString() : undefined,
+  }
+
+  localStorage.setItem(
+    'fastfingers_challenge_progress',
+    JSON.stringify(progressData)
+  )
+
+  // Dispatch event for real-time updates
+  window.dispatchEvent(new CustomEvent('challenge-updated'))
 }
