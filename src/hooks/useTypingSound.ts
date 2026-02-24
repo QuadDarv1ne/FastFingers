@@ -1,5 +1,5 @@
-import { useRef, useCallback, useEffect, useState, useMemo } from 'react'
-import { SoundTheme, soundThemes, pianoNotes } from '../utils/soundThemes'
+import { useRef, useCallback, useEffect, useState } from 'react'
+import { SoundTheme } from '../utils/soundThemes'
 
 interface SoundOptions {
   enabled: boolean
@@ -31,8 +31,6 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   const [options, setOptions] = useState<SoundOptions>(initialOptions)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const currentTheme = useMemo(() => soundThemes[options.theme], [options.theme])
 
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
@@ -75,7 +73,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     setOptions(prev => ({ ...prev, theme }))
   }, [])
 
-  const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click', key?: string) => {
+  const playSound = useCallback((_soundName: 'correct' | 'error' | 'complete' | 'click', _key?: string) => {
     if (!options.enabled || !isReady) return
 
     const now = Date.now()
@@ -94,25 +92,21 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         ctx.resume()
       }
 
-      const sound = soundName === 'click' && options.theme === 'piano' && key
-        ? { freq: pianoNotes[key as keyof typeof pianoNotes] || 440, duration: 0.15, type: 'sine' as const }
-        : currentTheme[soundName]
-
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
 
       oscillator.connect(gainNode)
       gainNode.connect(gainNodeRef.current)
 
-      oscillator.frequency.value = sound.freq
-      oscillator.type = sound.type
+      oscillator.frequency.value = 440
+      oscillator.type = 'sine'
 
       const ctxNow = ctx.currentTime
       gainNode.gain.setValueAtTime(options.volume, ctxNow)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctxNow + sound.duration)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctxNow + 0.1)
 
       oscillator.start(ctxNow)
-      oscillator.stop(ctxNow + sound.duration)
+      oscillator.stop(ctxNow + 0.1)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Audio play failed'
       setError(message)
