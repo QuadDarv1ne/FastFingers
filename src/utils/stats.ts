@@ -39,13 +39,27 @@ export function calculateStats(
 }
 
 /**
- * Форматирование времени (секунды -> ММ:СС)
+ * Форматирование числа с разделителями тысяч
+ * @param num - Число для форматирования
+ * @returns Строка с разделителями тысяч
+ */
+export function formatNumber(num: number): string {
+  return num.toLocaleString('ru-RU');
+}
+
+/**
+ * Форматирование времени (секунды -> ММ:СС или ЧЧ:ММ:СС)
  * @param seconds - Время в секундах
- * @returns Строка в формате ММ:СС
+ * @returns Строка в формате ММ:СС или ЧЧ:ММ:СС
  */
 export function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
+  
+  if (hours > 0) {
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
@@ -204,4 +218,75 @@ export function getHeatmapColor(accuracy: number): string {
   if (accuracy >= 75) return '#eab308'; // жёлтый
   if (accuracy >= 60) return '#f97316'; // оранжевый
   return '#ef4444'; // красный
+}
+
+/**
+ * Расчёт серии (streak) дней активности
+ * @param dates - Массив дат активности (timestamp)
+ * @returns Количество дней серии
+ */
+export function calculateStreak(dates: number[]): number {
+  if (dates.length === 0) return 0;
+  
+  const uniqueDates = [...new Set(dates.map(d => new Date(d).toDateString()))];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  let streak = 0;
+  let currentDate = new Date(today);
+  
+  // Проверяем, была ли активность сегодня или вчера
+  const hasToday = uniqueDates.some(d => new Date(d).toDateString() === today.toDateString());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const hasYesterday = uniqueDates.some(d => new Date(d).toDateString() === yesterday.toDateString());
+  
+  if (!hasToday && !hasYesterday) return 0;
+  
+  // Считаем серию
+  while (true) {
+    const dateStr = currentDate.toDateString();
+    const hasActivity = uniqueDates.some(d => new Date(d).toDateString() === dateStr);
+    
+    if (!hasActivity) break;
+    
+    streak++;
+    currentDate.setDate(currentDate.getDate() - 1);
+  }
+  
+  return streak;
+}
+
+/**
+ * Расчёт бонуса за серию
+ * @param streak - Текущая серия дней
+ * @returns Множитель бонуса (1.0 - без бонуса, до 2.0 - максимальный)
+ */
+export function calculateStreakBonus(streak: number): number {
+  if (streak < 3) return 1.0;
+  if (streak < 7) return 1.1;
+  if (streak < 14) return 1.25;
+  if (streak < 30) return 1.5;
+  return 2.0;
+}
+
+/**
+ * Получение относительного времени
+ * @param date - Дата для форматирования
+ * @returns Строка с относительным временем
+ */
+export function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffSecs < 60) return 'только что';
+  if (diffMins < 60) return `${diffMins} мин. назад`;
+  if (diffHours < 24) return `${diffHours} ч. назад`;
+  if (diffDays < 7) return `${diffDays} дн. назад`;
+  
+  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 }
