@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react'
 import { generateId } from '../utils/id'
-import { Toast, ToastType } from '../components/Toast'
+import { Toast, ToastType, ToastAction } from '../components/Toast'
 
 interface ToastOptions {
   title: string
   message?: string
   duration?: number
+  action?: ToastAction
 }
 
 /**
@@ -19,7 +20,7 @@ export function useToast(defaultDuration: number = 5000) {
   }, [])
 
   const addToast = useCallback(
-    (type: ToastType, { title, message, duration }: ToastOptions) => {
+    (type: ToastType, { title, message, duration, action }: ToastOptions) => {
       const id = generateId()
       const toastDuration = duration ?? defaultDuration
 
@@ -29,6 +30,7 @@ export function useToast(defaultDuration: number = 5000) {
         title,
         message,
         duration: toastDuration,
+        action,
       }
 
       setToasts(prev => [...prev, toast])

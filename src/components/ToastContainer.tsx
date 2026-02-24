@@ -1,8 +1,17 @@
-import { Toast } from './Toast'
+import { Toast, ToastAction } from './Toast'
 import './ToastContainer.css'
 
+export interface ToastWithAction {
+  id: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  title: string
+  message?: string
+  duration?: number
+  action?: ToastAction
+}
+
 interface ToastContainerProps {
-  toasts: Toast[]
+  toasts: ToastWithAction[]
   onDismiss: (id: string) => void
 }
 
