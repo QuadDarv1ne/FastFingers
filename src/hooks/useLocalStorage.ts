@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getFromStorage, setToStorage } from '../utils/storage'
 
 type SetValue<T> = T | ((val: T) => T)
@@ -6,91 +6,113 @@ type SetValue<T> = T | ((val: T) => T)
 interface UseLocalStorageOptions<T> {
   serialize?: (value: T) => string
   deserialize?: (value: string) => T
+  onError?: (error: Error) => void
 }
 
-/**
- * Хук для работы с localStorage с реактивным обновлением
- * @param key - Ключ в localStorage
- * @param initialValue - Значение по умолчанию
- */
+interface UseLocalStorageReturn<T> {
+  value: T
+  setValue: (value: SetValue<T>) => void
+  removeValue: () => void
+  isLoading: boolean
+  error: Error | null
+}
+
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
   options: UseLocalStorageOptions<T> = {}
-): [T, (value: SetValue<T>) => void, () => void] {
+): UseLocalStorageReturn<T> {
   const {
     serialize = JSON.stringify,
     deserialize = JSON.parse,
+    onError,
   } = options
 
-  // Получить начальное значение
+  const isInitialMount = useRef(true)
+  const [storedValue, setStoredValue] = useState<T>(initialValue)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
   const readValue = useCallback((): T => {
-    const item = getFromStorage<string>(key)
-    
-    if (!item) {
+    if (typeof window === 'undefined') {
       return initialValue
     }
 
     try {
+      const item = getFromStorage<string>(key)
+      if (!item) {
+        return initialValue
+      }
       return deserialize(item)
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error)
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to read from localStorage')
+      setError(error)
+      onError?.(error)
       return initialValue
     }
-  }, [initialValue, key, deserialize])
+  }, [initialValue, key, deserialize, onError])
 
-  // Состояние для хранения значения
-  const [storedValue, setStoredValue] = useState<T>(readValue)
-
-  // Синхронизация при изменении key или initialValue
   useEffect(() => {
-    setStoredValue(readValue())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+    const value = readValue()
+    setStoredValue(value)
+    setIsLoading(false)
+  }, [readValue])
 
-  // Слушать изменения в других вкладках
+  // Синхронизация между вкладками
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === key && event.newValue) {
-        try {
-          setStoredValue(deserialize(event.newValue))
-        } catch (error) {
-          console.error(`Error parsing storage event for key "${key}":`, error)
-        }
+      if (event.key !== key || event.newValue === null) return
+
+      try {
+        setStoredValue(deserialize(event.newValue))
+        setError(null)
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to parse storage event')
+        setError(error)
+        onError?.(error)
       }
     }
 
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [key, deserialize])
+  }, [key, deserialize, onError])
 
-  // Установить значение
   const setValue = useCallback(
     (value: SetValue<T>) => {
+      if (typeof window === 'undefined') return
+
       try {
         const valueToStore = value instanceof Function ? value(storedValue) : value
         setStoredValue(valueToStore)
         setToStorage(key, serialize(valueToStore))
 
-        // Отправить событие для синхронизации между вкладками
-        window.dispatchEvent(
-          new StorageEvent('storage', {
-            key,
-            newValue: serialize(valueToStore),
-          })
-        )
-      } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error)
+        if (!isInitialMount.current) {
+          window.dispatchEvent(
+            new StorageEvent('storage', {
+              key,
+              newValue: serialize(valueToStore),
+            })
+          )
+        }
+        setError(null)
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to write to localStorage')
+        setError(error)
+        onError?.(error)
       }
     },
-    [key, storedValue, serialize]
+    [key, storedValue, serialize, onError]
   )
 
-  // Удалить значение
   const removeValue = useCallback(() => {
+    if (typeof window === 'undefined') return
+
     try {
       setStoredValue(initialValue)
       setToStorage(key, null)
+      setError(null)
 
       window.dispatchEvent(
         new StorageEvent('storage', {
@@ -98,10 +120,16 @@ export function useLocalStorage<T>(
           newValue: null,
         })
       )
-    } catch (error) {
-      console.error(`Error removing localStorage key "${key}":`, error)
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to remove from localStorage')
+      setError(error)
+      onError?.(error)
     }
-  }, [key, initialValue])
+  }, [key, initialValue, onError])
 
-  return [storedValue, setValue, removeValue]
+  useEffect(() => {
+    isInitialMount.current = false
+  }, [])
+
+  return { value: storedValue, setValue, removeValue, isLoading, error }
 }
