@@ -34,6 +34,8 @@ const DUR = {
   SHORT_4: 0.12, MED: 0.15, MED_2: 0.2, MED_3: 0.25, LONG: 0.3, LONG_2: 0.4, LONG_3: 0.5,
 } as const
 
+const soundThemesCache = new Map<SoundTheme, SoundThemeConfig>()
+
 export const soundThemes: Record<SoundTheme, SoundThemeConfig> = {
   default: {
     id: 'default',
@@ -87,6 +89,22 @@ export const soundThemes: Record<SoundTheme, SoundThemeConfig> = {
   },
 }
 
+export function getSoundTheme(theme: SoundTheme): SoundThemeConfig {
+  if (soundThemesCache.has(theme)) {
+    return soundThemesCache.get(theme)!
+  }
+  
+  const config = soundThemes[theme]
+  soundThemesCache.set(theme, config)
+  return config
+}
+
+export function getAllSoundThemes(): SoundThemeConfig[] {
+  return Object.values(soundThemes)
+}
+
+const pianoNotesCache = new Map<string, number>()
+
 export const pianoNotes: Record<string, number> = {
   'й': FREQ.C5, 'ц': FREQ['C#5'], 'у': FREQ.D5, 'к': FREQ['D#5'], 'е': FREQ.E5,
   'н': FREQ.F5, 'г': FREQ['F#5'], 'ш': FREQ.G5, 'щ': FREQ['G#5'], 'з': FREQ.A5,
@@ -95,4 +113,21 @@ export const pianoNotes: Record<string, number> = {
   'д': FREQ['D#4'], 'ж': FREQ.D4, 'э': FREQ['C#4'], 'я': FREQ.C4, 'ч': FREQ['C#4'],
   'с': FREQ.D4, 'м': FREQ['D#4'], 'и': FREQ.E4, 'т': FREQ.F4, 'ь': FREQ['F#4'],
   'б': FREQ.G4, 'ю': FREQ['G#4'], '.': FREQ.A4,
+}
+
+export function getPianoNote(key: string): number {
+  const normalizedKey = key.toLowerCase()
+  
+  if (pianoNotesCache.has(normalizedKey)) {
+    return pianoNotesCache.get(normalizedKey)!
+  }
+  
+  const freq = pianoNotes[normalizedKey] || FREQ.A4
+  pianoNotesCache.set(normalizedKey, freq)
+  return freq
+}
+
+export function clearSoundThemesCache(): void {
+  soundThemesCache.clear()
+  pianoNotesCache.clear()
 }
