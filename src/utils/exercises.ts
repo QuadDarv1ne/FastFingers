@@ -194,14 +194,35 @@ export function getRandomExercise(category?: string, difficulty?: number): Exerc
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
+export function getRandomExercises(count: number, category?: string, difficulty?: number): Exercise[] {
+  const filtered = exercises.filter(e => {
+    if (category && e.category !== category) return false
+    if (difficulty && e.difficulty > difficulty) return false
+    return true
+  })
+
+  const pool = filtered.length > 0 ? filtered : exercises
+  const shuffled = [...pool].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, Math.min(count, pool.length))
+}
+
 const getWordsByDifficulty = (difficulty: number): readonly string[] => {
   if (difficulty <= 3) return ALL_WORDS.easy
   if (difficulty <= 6) return [...ALL_WORDS.easy, ...ALL_WORDS.medium]
   return [...ALL_WORDS.easy, ...ALL_WORDS.medium, ...ALL_WORDS.hard]
 }
 
-// Генерация текста из слов для тренировки
-export function generatePracticeText(wordCount: number, difficulty: number): string {
-  const words = getWordsByDifficulty(difficulty)
-  return Array.from({ length: wordCount }, () => words[Math.floor(Math.random() * words.length)]).join(' ')
+export function generatePracticeText(wordCount: number, difficulty: number, options: {
+  unique?: boolean
+  separator?: string
+} = {}): string {
+  const { unique = false, separator = ' ' } = options
+  let words = getWordsByDifficulty(difficulty)
+  
+  if (unique) {
+    words = [...words].sort(() => Math.random() - 0.5)
+    return words.slice(0, Math.min(wordCount, words.length)).join(separator)
+  }
+  
+  return Array.from({ length: wordCount }, () => words[Math.floor(Math.random() * words.length)]).join(separator)
 }
