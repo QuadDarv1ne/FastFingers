@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface FeedbackToastProps {
@@ -9,12 +9,12 @@ interface FeedbackToastProps {
   duration?: number
 }
 
-export function FeedbackToast({ 
-  type, 
-  message, 
-  isVisible, 
-  onClose, 
-  duration = 3000 
+export function FeedbackToast({
+  type,
+  message,
+  isVisible,
+  onClose,
+  duration = 3000
 }: FeedbackToastProps) {
   useEffect(() => {
     if (isVisible && duration > 0) {
@@ -84,28 +84,5 @@ export function FeedbackToast({
       )}
     </AnimatePresence>
   )
-}
-
-// Хук для управления toast уведомлениями
-export function useFeedbackToast() {
-  const [toast, setToast] = useState<{
-    type: 'success' | 'error' | 'info' | 'warning'
-    message: string
-    isVisible: boolean
-  }>({
-    type: 'info',
-    message: '',
-    isVisible: false,
-  })
-
-  const showToast = (type: 'success' | 'error' | 'info' | 'warning', message: string) => {
-    setToast({ type, message, isVisible: true })
-  }
-
-  const hideToast = () => {
-    setToast(prev => ({ ...prev, isVisible: false }))
-  }
-
-  return { toast, showToast, hideToast }
 }
 

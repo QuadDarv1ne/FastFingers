@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import { formatNotificationTimestamp } from '@utils/notifications'
 
 export interface Notification {
   id: string
@@ -175,7 +176,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                             {notification.message}
                           </p>
                           <p className="text-xs text-dark-500 mt-2">
-                            {formatTimestamp(notification.timestamp)}
+                            {formatNotificationTimestamp(notification.timestamp)}
                           </p>
                         </div>
                       </div>
@@ -306,7 +307,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                       {notification.message}
                     </p>
                     <p className="text-xs text-dark-500 mt-2">
-                      {formatTimestamp(notification.timestamp)}
+                      {formatNotificationTimestamp(notification.timestamp)}
                     </p>
                   </div>
                 </div>
@@ -317,49 +318,4 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
       </div>
     </div>
   )
-}
-
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 1) return 'Только что'
-  if (diffMins < 60) return `${diffMins} мин назад`
-  if (diffHours < 24) return `${diffHours} ч назад`
-  if (diffDays < 7) return `${diffDays} д назад`
-
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-  })
-}
-
-// Helper function to add notification
-export function addNotification(
-  notification: Omit<Notification, 'id' | 'timestamp' | 'read'>
-) {
-  const notifications = JSON.parse(
-    localStorage.getItem('fastfingers_notifications') || '[]'
-  )
-
-  const newNotification: Notification = {
-    ...notification,
-    id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    timestamp: new Date().toISOString(),
-    read: false,
-  }
-
-  notifications.unshift(newNotification)
-
-  // Keep only last 50 notifications
-  const trimmed = notifications.slice(0, 50)
-
-  localStorage.setItem('fastfingers_notifications', JSON.stringify(trimmed))
-
-  // Dispatch custom event for real-time updates
-  window.dispatchEvent(new CustomEvent('notification-added'))
 }
