@@ -1,6 +1,19 @@
-import { useMemo } from 'react'
-import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { useMemo, lazy, Suspense } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
+import { LoadingFallback } from './LoadingFallback'
+
+const BarChart = lazy(() => import('recharts').then(module => ({ default: module.BarChart })))
+const Bar = lazy(() => import('recharts').then(module => ({ default: module.Bar })))
+const AreaChart = lazy(() => import('recharts').then(module => ({ default: module.AreaChart })))
+const Area = lazy(() => import('recharts').then(module => ({ default: module.Area })))
+const XAxis = lazy(() => import('recharts').then(module => ({ default: module.XAxis })))
+const YAxis = lazy(() => import('recharts').then(module => ({ default: module.YAxis })))
+const CartesianGrid = lazy(() => import('recharts').then(module => ({ default: module.CartesianGrid })))
+const Tooltip = lazy(() => import('recharts').then(module => ({ default: module.Tooltip })))
+const ResponsiveContainer = lazy(() => import('recharts').then(module => ({ default: module.ResponsiveContainer })))
+const PieChart = lazy(() => import('recharts').then(module => ({ default: module.PieChart })))
+const Pie = lazy(() => import('recharts').then(module => ({ default: module.Pie })))
+const Cell = lazy(() => import('recharts').then(module => ({ default: module.Cell })))
 
 interface StatisticsPageProps {
   onBack: () => void
@@ -139,24 +152,26 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
             <h3 className="text-lg font-semibold mb-4">Прогресс скорости (WPM)</h3>
             <div className="h-64">
               {wpmTrendData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={wpmTrendData}>
-                    <defs>
-                      <linearGradient id="wpmGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="index" stroke="#64748b" fontSize={12} />
-                    <YAxis stroke="#64748b" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                      labelStyle={{ color: '#94a3b8' }}
-                    />
-                    <Area type="monotone" dataKey="wpm" stroke="#8b5cf6" fillOpacity={1} fill="url(#wpmGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={wpmTrendData}>
+                      <defs>
+                        <linearGradient id="wpmGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="index" stroke="#64748b" fontSize={12} />
+                      <YAxis stroke="#64748b" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                      />
+                      <Area type="monotone" dataKey="wpm" stroke="#8b5cf6" fillOpacity={1} fill="url(#wpmGradient)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Suspense>
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
@@ -170,27 +185,29 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
             <h3 className="text-lg font-semibold mb-4">Распределение точности</h3>
             <div className="h-64">
               {accuracyDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={accuracyDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {accuracyDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={accuracyDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {accuracyDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </Suspense>
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
