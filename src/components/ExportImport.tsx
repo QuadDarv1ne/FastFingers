@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import { UserProgress } from '@/types'
 import { useToast } from '@hooks/useToast'
 
 interface ExportImportProps {
   onClose: () => void
-  progress?: unknown
-  onImport?: (data: { progress: unknown }) => void
+  progress?: UserProgress
+  onImport?: (data: { progress: UserProgress }) => void
 }
 
 export function ExportImport({ onClose, progress: _progress, onImport: _onImport }: ExportImportProps) {
