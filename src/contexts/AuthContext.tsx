@@ -200,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser,
     isActionPending,
     lastResetToken,
-  }), [state, logout, updateUserStats, clearError, refreshUser, isActionPending, lastResetToken]);
+  }), [state, login, register, logout, resetPassword, confirmPasswordReset, updateUserStats, clearError, refreshUser, isActionPending, lastResetToken]);
 
   return (
     <AuthContext.Provider value={contextValue}>

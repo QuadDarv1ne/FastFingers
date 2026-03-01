@@ -113,27 +113,27 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
 
     const value = e.currentTarget.value
     const newChar = value[value.length - 1]
-    
+
     if (newChar && currentIndex < text.length) {
       const expectedChar = text[currentIndex]
       const isCorrect = newChar === expectedChar
-      
+
       // Звук
       if (sound) {
         isCorrect ? sound.playCorrect() : sound.playError()
       }
-      
+
       setInputResults(prev => [...prev, { isCorrect, char: newChar }])
       setCurrentIndex(prev => prev + 1)
-      
+
       // Если текст закончился, генерируем новый
       if (currentIndex >= text.length - 5) {
         generateNewText()
       }
     }
-    
+
     e.currentTarget.value = ''
-  }, [isActive, timeLeft, text, currentIndex, sound, generateNewText])
+  }, [isActive, timeLeft, text, currentIndex, sound, generateNewText, handleStart])
 
   // Подсчёт статистики в реальном времени
   useEffect(() => {

@@ -8,6 +8,16 @@ interface ExportData {
   heatmap: Record<string, { errors: number; total: number; accuracy: number }>
 }
 
+interface AutoTableDocument {
+  lastAutoTable?: {
+    finalY: number
+  }
+}
+
+function getLastAutoTableY(doc: jsPDF): number {
+  return (doc as unknown as AutoTableDocument).lastAutoTable?.finalY ?? 0
+}
+
 /**
  * Экспорт статистики в PDF
  */
@@ -65,7 +75,7 @@ export function exportStatsToPDF(data: ExportData): void {
     margin: { left: 14, right: 14 },
   })
 
-  yPosition = (doc as any).lastAutoTable?.finalY + 15
+  yPosition = getLastAutoTableY(doc) + 15
 
   // Последние сессии
   if (data.recentSessions.length > 0) {
@@ -90,7 +100,7 @@ export function exportStatsToPDF(data: ExportData): void {
       margin: { left: 14, right: 14 },
     })
 
-    yPosition = (doc as any).lastAutoTable?.finalY + 15
+    yPosition = getLastAutoTableY(doc) + 15
   }
 
   // Проблемные клавиши
@@ -122,7 +132,7 @@ export function exportStatsToPDF(data: ExportData): void {
   }
 
   // Новая страница для графиков (если нужно)
-  const lastY = (doc as any).lastAutoTable?.finalY
+  const lastY = getLastAutoTableY(doc)
   if (lastY && lastY > 250) {
     doc.addPage()
     yPosition = 20
