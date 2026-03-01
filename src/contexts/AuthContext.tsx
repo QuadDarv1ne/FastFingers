@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const withActionState = async <T,>(action: Promise<T>): Promise<T> => {
+  const withActionState = useCallback(async <T,>(action: Promise<T>): Promise<T> => {
     setIsActionPending(true);
     await new Promise(resolve => setTimeout(resolve, ACTION_DELAY));
     try {
@@ -79,9 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsActionPending(false);
     }
-  };
+  }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       await withActionState(authService.login(credentials));
@@ -101,9 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       throw error;
     }
-  };
+  }, [withActionState]);
 
-  const register = async (credentials: RegisterCredentials) => {
+  const register = useCallback(async (credentials: RegisterCredentials) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       await withActionState(authService.register(credentials));
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       throw error;
     }
-  };
+  }, [withActionState]);
 
   const logout = useCallback(() => {
     authService.logout();
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const resetPassword = async (request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> => {
+  const resetPassword = useCallback(async (request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       const result = await withActionState(authService.requestPasswordReset(request));
@@ -154,9 +154,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       throw error;
     }
-  };
+  }, [withActionState]);
 
-  const confirmPasswordReset = async (confirm: PasswordResetConfirm) => {
+  const confirmPasswordReset = useCallback(async (confirm: PasswordResetConfirm) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       await withActionState(authService.confirmPasswordReset(confirm));
@@ -173,9 +173,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       throw error;
     }
-  };
+  }, [withActionState]);
 
-  const updateUserStats = async (stats: Partial<User['stats']>) => {
+  const updateUserStats = useCallback(async (stats: Partial<User['stats']>) => {
     if (!state.user) return;
     try {
       const updatedUser = await authService.syncUserStats(state.user.id, stats);
@@ -186,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to sync user stats:', error);
     }
-  };
+  }, [state.user]);
 
   const contextValue = useMemo<AuthContextType>(() => ({
     ...state,
