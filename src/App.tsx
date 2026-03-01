@@ -45,8 +45,7 @@ import { useTheme } from './hooks/useTheme'
 import { useHotkeys } from './hooks/useHotkeys'
 import { calculateSessionXp } from './utils/stats'
 import { calculateStreakXpBonus } from '@utils/streakBonus'
-import { Exercise } from './types'
-import { SoundTheme } from './utils/soundThemes'
+import { Exercise, SoundTheme } from './types'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
@@ -444,8 +443,16 @@ function AppContent() {
                 <TrainingHistory onBack={() => setView('main')} />
               ) : view === 'custom-exercise' ? (
                 <CustomExerciseEditor
-                  onSave={handleSaveCustomExercise}
-                  onCancel={() => setView('main')}
+                  onSave={(exercise) => handleSaveCustomExercise({
+                    id: exercise.id,
+                    title: exercise.title,
+                    description: 'Пользовательское упражнение',
+                    text: exercise.text,
+                    difficulty: 3,
+                    category: 'custom',
+                    focusKeys: [],
+                  })}
+                  onClose={() => setView('main')}
                 />
               ) : view === 'tips' ? (
                 <TypingTips />
@@ -459,7 +466,11 @@ function AppContent() {
               ) : view === 'statistics' ? (
                 <StatisticsPage onBack={() => setView('main')} />
               ) : view === 'learning' ? (
-                <LearningMode onBack={() => setView('main')} />
+                <LearningMode
+                  onBack={() => setView('main')}
+                  onClose={() => setView('main')}
+                  onStartLesson={() => {}}
+                />
               ) : gameMode === 'sprint' ? (
                 <SprintMode
                   onExit={() => setGameMode('practice')}
@@ -478,8 +489,18 @@ function AppContent() {
                   {/* Карточка ежедневного челленджа */}
                   {todayChallenge && gameMode !== 'challenge' && (
                     <DailyChallengeCard
-                      challenge={todayChallenge}
-                      streak={streak}
+                      challenge={{
+                        id: todayChallenge.id,
+                        date: todayChallenge.date,
+                        title: 'Челлендж дня',
+                        description: todayChallenge.text,
+                        goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
+                        reward: { points: 100, badge: '🏆' },
+                        difficulty: 'medium' as const,
+                        completed: todayChallenge.completed,
+                        progress: 0,
+                      }}
+                      streak={streak.current}
                       onComplete={completeChallenge}
                     />
                   )}
@@ -597,7 +618,11 @@ function AppContent() {
             {/* Экспорт/Импорт */}
             <div className="glass rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4">Данные</h3>
-              <ExportImport progress={progress} onImport={handleImportProgress} />
+              <ExportImport
+                onClose={() => {}}
+                progress={progress}
+                onImport={handleImportProgress}
+              />
             </div>
           </div>
         </div>
@@ -622,6 +647,14 @@ function AppContent() {
         <Suspense fallback={<LoadingFallback />}>
           <AchievementsPanel
             progress={progress}
+            stats={{
+              maxWpm: progress.bestWpm,
+              maxAccuracy: progress.bestAccuracy,
+              totalWords: progress.totalWordsTyped,
+              totalSessions: 0,
+              currentStreak: progress.streak,
+              perfectSessions: 0,
+            }}
             onClose={() => setShowAchievements(false)}
           />
         </Suspense>

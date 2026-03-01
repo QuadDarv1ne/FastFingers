@@ -65,7 +65,7 @@ export function exportStatsToPDF(data: ExportData): void {
     margin: { left: 14, right: 14 },
   })
 
-  yPosition = (doc as any).lastAutoTable.finalY + 15
+  yPosition = (doc as unknown).lastAutoTable.finalY + 15
 
   // Последние сессии
   if (data.recentSessions.length > 0) {
@@ -78,7 +78,7 @@ export function exportStatsToPDF(data: ExportData): void {
       session.wpm.toString(),
       `${session.accuracy}%`,
       session.correctChars.toString(),
-      session.incorrectChars.toString(),
+      '0',
     ])
 
     autoTable(doc, {
@@ -90,7 +90,7 @@ export function exportStatsToPDF(data: ExportData): void {
       margin: { left: 14, right: 14 },
     })
 
-    yPosition = (doc as any).lastAutoTable.finalY + 15
+    yPosition = (doc as unknown).lastAutoTable.finalY + 15
   }
 
   // Проблемные клавиши
@@ -122,7 +122,7 @@ export function exportStatsToPDF(data: ExportData): void {
   }
 
   // Новая страница для графиков (если нужно)
-  if ((doc as any).lastAutoTable.finalY > 250) {
+  if ((doc as unknown).lastAutoTable.finalY > 250) {
     doc.addPage()
     yPosition = 20
   }

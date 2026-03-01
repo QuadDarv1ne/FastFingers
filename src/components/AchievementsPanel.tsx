@@ -18,6 +18,14 @@ export interface Achievement {
 
 interface AchievementsPanelProps {
   onClose: () => void
+  progress: {
+    level: number
+    xp: number
+    streak: number
+    bestWpm: number
+    bestAccuracy: number
+    totalWordsTyped: number
+  }
   stats: {
     maxWpm: number
     maxAccuracy: number
@@ -200,7 +208,7 @@ const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
   },
 ]
 
-export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
+export function AchievementsPanel({ onClose, progress: _progress, stats }: AchievementsPanelProps) {
   const [achievements, setAchievements] = useLocalStorageState<Achievement[]>(
     'fastfingers_achievements',
     []

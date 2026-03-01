@@ -391,15 +391,17 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'ru',
-    fallbackLng: 'en',
+    lng: undefined, // Будет определено через detection
+    fallbackLng: 'ru',
+    supportedLngs: ['ru', 'en'],
     interpolation: {
       escapeValue: false, // React уже экранирует значения
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
       lookupLocalStorage: 'fastfingers_language',
+      checkWhitelist: true,
     },
     react: {
       useSuspense: false,

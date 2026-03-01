@@ -115,10 +115,11 @@ const LESSONS: Omit<Lesson, 'completed'>[] = [
 
 interface LearningModeProps {
   onClose: () => void
+  onBack: () => void
   onStartLesson: (lesson: Lesson, exercise: string) => void
 }
 
-export function LearningMode({ onClose, onStartLesson }: LearningModeProps) {
+export function LearningMode({ onClose, onBack: _onBack, onStartLesson }: LearningModeProps) {
   const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
     'fastfingers_learning_progress',
     {}

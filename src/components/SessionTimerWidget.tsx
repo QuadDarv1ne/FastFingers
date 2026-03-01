@@ -17,11 +17,10 @@ export function SessionTimerWidget({
     breakDuration: 60, // 1 минута
     onBreakReminder: () => {
       addNotification({
-        id: `break-${Date.now()}`,
         type: 'info',
         title: 'Время для перерыва',
         message: 'Вы печатаете уже 10 минут. Сделайте небольшой перерыв!',
-        duration: 10000,
+        icon: '☕',
       })
     },
     enabled: true,

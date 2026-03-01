@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { TypingStats, KeyHeatmapData } from '../../types'
+import { TypingStats, KeyHeatmapData } from '@/types'
 import {
   generatePracticeRecommendations,
   PracticeRecommendation,

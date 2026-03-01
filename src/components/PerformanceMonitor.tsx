@@ -18,7 +18,13 @@ export function PerformanceMonitor({ enabled = false }: PerformanceMonitorProps)
 
   usePerformanceMonitor({
     enabled,
-    onMetricsUpdate: setMetrics,
+    onMetricsUpdate: (newMetrics) => {
+      setMetrics({
+        fps: newMetrics.fps,
+        memory: newMetrics.memory ?? 0,
+        renderTime: newMetrics.renderTime,
+      })
+    },
   })
 
   if (!enabled) return null

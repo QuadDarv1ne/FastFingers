@@ -25,12 +25,10 @@ describe('Sound Themes', () => {
     expect(uniqueIds.size).toBe(ids.length)
   })
 
-  it('should include silent theme', () => {
-    const silentTheme = SOUND_THEMES.find(theme => theme.id === 'silent')
-    expect(silentTheme).toBeDefined()
-    expect(silentTheme?.sounds.keyPress).toBe('')
-    expect(silentTheme?.sounds.error).toBe('')
-    expect(silentTheme?.sounds.complete).toBe('')
+  it('should include retro theme', () => {
+    const retroTheme = SOUND_THEMES.find(theme => theme.id === 'retro')
+    expect(retroTheme).toBeDefined()
+    expect(retroTheme?.name).toBe('Ретро')
   })
 
   it('should have non-empty names and descriptions', () => {

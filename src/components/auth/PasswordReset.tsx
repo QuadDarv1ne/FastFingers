@@ -11,7 +11,7 @@ const MIN_PASSWORD_LENGTH = 8
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function PasswordReset({ onBack }: PasswordResetProps) {
-  const { resetPassword, confirmPasswordReset, isLoading, error, clearError } = useAuth()
+  const { resetPassword, confirmPasswordReset, isLoading, error, clearError, lastResetToken } = useAuth()
 
   const [step, setStep] = useState<'request' | 'confirm'>('request')
   const [email, setEmail] = useState('')
@@ -22,10 +22,20 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   const [timeLeft, setTimeLeft] = useState(TOKEN_EXPIRY_SECONDS)
   const [passwordError, setPasswordError] = useState('')
   const [emailError, setEmailError] = useState('')
-  
+  const [showToken, setShowToken] = useState(false)
+
   const emailInputRef = useRef<HTMLInputElement>(null)
   const tokenInputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (lastResetToken?.token) {
+      setToken(lastResetToken.token)
+      setShowToken(true)
+      setStep('confirm')
+      setTimeLeft(TOKEN_EXPIRY_SECONDS)
+    }
+  }, [lastResetToken])
 
   useEffect(() => {
     if (step === 'confirm') {
@@ -35,6 +45,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
             clearInterval(timerRef.current!)
             setStep('request')
             setTimeLeft(TOKEN_EXPIRY_SECONDS)
+            setShowToken(false)
             return 0
           }
           return prev - 1
@@ -79,20 +90,18 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!EMAIL_REGEX.test(email)) {
       setEmailError('Неверный формат email')
       return
     }
-    
+
     clearError()
     setSuccessMessage('')
-    
+
     try {
       await resetPassword({ email })
-      setSuccessMessage('Инструкции по сбросу пароля отправлены на ваш email')
-      setStep('confirm')
-      setTimeLeft(TOKEN_EXPIRY_SECONDS)
+      // Токен будет обработан через useEffect от lastResetToken
     } catch {
       // Ошибка уже установлена в контексте
     }
@@ -175,6 +184,31 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <p className="text-success">{successMessage}</p>
+          </div>
+        )}
+
+        {/* Отображение токена для демонстрации */}
+        {showToken && lastResetToken && (
+          <div className="mb-6 p-4 bg-primary-500/10 border border-primary-500/30 rounded-lg">
+            <p className="text-sm font-medium text-primary-400 mb-2">🔑 Токен для сброса пароля:</p>
+            <div className="flex gap-2">
+              <code className="flex-1 bg-dark-900 px-3 py-2 rounded font-mono text-lg tracking-wider">
+                {lastResetToken.token}
+              </code>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(lastResetToken.token)}
+                className="px-3 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg transition-colors"
+                title="Копировать"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-xs text-dark-400 mt-2">
+              В реальном приложении токен будет отправлен на email
+            </p>
           </div>
         )}
 

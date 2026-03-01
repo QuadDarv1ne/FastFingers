@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { KeyHeatmapData } from '../../types'
+import { KeyHeatmapData } from '@/types'
 import { getKeyInfo } from '@utils/keyboardLayouts'
 
 interface KeyboardHeatmapVisualizationProps {

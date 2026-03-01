@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect, useState } from 'react'
-import { SoundTheme } from '../utils/soundThemes'
+import { SoundTheme } from '../types'
 
 interface SoundOptions {
   enabled: boolean
@@ -21,13 +21,35 @@ interface UseTypingSoundReturn {
   error: string | null
 }
 
+interface SoundConfig {
+  frequency: number
+  type: OscillatorType
+  duration: number
+  decay: number
+}
+
+const SOUND_CONFIGS: Record<'correct' | 'error' | 'complete' | 'click', SoundConfig> = {
+  correct: { frequency: 880, type: 'sine', duration: 0.1, decay: 0.05 },
+  error: { frequency: 220, type: 'sawtooth', duration: 0.15, decay: 0.1 },
+  complete: { frequency: 1320, type: 'sine', duration: 0.3, decay: 0.2 },
+  click: { frequency: 660, type: 'triangle', duration: 0.05, decay: 0.03 },
+} as const
+
+const THEME_CONFIGS: Record<SoundTheme, { baseFreq: number; waveType: OscillatorType }> = {
+  default: { baseFreq: 1, waveType: 'sine' },
+  piano: { baseFreq: 1, waveType: 'sine' },
+  mechanical: { baseFreq: 1, waveType: 'square' },
+  soft: { baseFreq: 0.8, waveType: 'sine' },
+  retro: { baseFreq: 0.9, waveType: 'square' },
+} as const
+
 export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundReturn {
   const audioContextRef = useRef<AudioContext | null>(null)
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
   const throttleMs = 30
   const isInitialisedRef = useRef(false)
-  
+
   const [options, setOptions] = useState<SoundOptions>(initialOptions)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +95,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     setOptions(prev => ({ ...prev, theme }))
   }, [])
 
-  const playSound = useCallback((_soundName: 'correct' | 'error' | 'complete' | 'click', _key?: string) => {
+  const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click', _key?: string) => {
     if (!options.enabled || !isReady) return
 
     const now = Date.now()
@@ -92,27 +114,30 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         ctx.resume()
       }
 
+      const baseConfig = SOUND_CONFIGS[soundName]
+      const themeConfig = THEME_CONFIGS[options.theme]
+
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
 
       oscillator.connect(gainNode)
       gainNode.connect(gainNodeRef.current)
 
-      oscillator.frequency.value = 440
-      oscillator.type = 'sine'
+      oscillator.frequency.value = baseConfig.frequency * themeConfig.baseFreq
+      oscillator.type = themeConfig.waveType
 
       const ctxNow = ctx.currentTime
       gainNode.gain.setValueAtTime(options.volume, ctxNow)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctxNow + 0.1)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctxNow + baseConfig.decay)
 
       oscillator.start(ctxNow)
-      oscillator.stop(ctxNow + 0.1)
+      oscillator.stop(ctxNow + baseConfig.duration)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Audio play failed'
       setError(message)
       console.warn(message, err)
     }
-  }, [options.enabled, options.volume, isReady, initAudio])
+  }, [options.enabled, options.volume, options.theme, isReady, initAudio])
 
   useEffect(() => {
     initAudio()

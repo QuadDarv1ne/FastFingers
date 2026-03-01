@@ -4,7 +4,7 @@ import {
   getRecommendationsByCategory,
   getHighPriorityRecommendations,
 } from '@utils/practiceRecommendations'
-import type { TypingStats } from '../../types'
+import type { TypingStats } from '@/types'
 
 describe('Practice Recommendations Utils', () => {
   describe('generatePracticeRecommendations', () => {
@@ -22,10 +22,9 @@ describe('Practice Recommendations Utils', () => {
           cpm: 75,
           accuracy: 90,
           correctChars: 90,
-          incorrectChars: 10,
+          errors: 10,
           totalChars: 100,
           timeElapsed: 60,
-          errors: 10,
         },
       ]
 
@@ -46,10 +45,9 @@ describe('Practice Recommendations Utils', () => {
           cpm: 200,
           accuracy: 80,
           correctChars: 80,
-          incorrectChars: 20,
+          errors: 20,
           totalChars: 100,
           timeElapsed: 60,
-          errors: 20,
         },
       ]
 
@@ -76,10 +74,9 @@ describe('Practice Recommendations Utils', () => {
           cpm: 200,
           accuracy: 90,
           correctChars: 90,
-          incorrectChars: 10,
+          errors: 10,
           totalChars: 100,
           timeElapsed: 60,
-          errors: 10,
         },
       ]
 
@@ -99,10 +96,9 @@ describe('Practice Recommendations Utils', () => {
         cpm: 100 + i * 5,
         accuracy: 85,
         correctChars: 85,
-        incorrectChars: 15,
+        errors: 15,
         totalChars: 100,
         timeElapsed: 60,
-        errors: 15,
       }))
 
       const recommendations = generatePracticeRecommendations(
@@ -122,10 +118,9 @@ describe('Practice Recommendations Utils', () => {
           cpm: 75,
           accuracy: 80,
           correctChars: 80,
-          incorrectChars: 20,
+          errors: 20,
           totalChars: 100,
           timeElapsed: 60,
-          errors: 20,
         },
       ]
 

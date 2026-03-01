@@ -14,10 +14,11 @@ export interface CustomExercise {
 
 interface CustomExerciseEditorProps {
   onClose: () => void
+  onSave?: (exercise: CustomExercise) => void
   onUseExercise?: (exercise: CustomExercise) => void
 }
 
-export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseEditorProps) {
+export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomExerciseEditorProps) {
   const [exercises, setExercises] = useLocalStorageState<CustomExercise[]>(
     'fastfingers_custom_exercises',
     []
@@ -53,6 +54,7 @@ export function CustomExerciseEditor({ onClose, onUseExercise }: CustomExerciseE
     }
 
     setExercises([...exercises, newExercise])
+    onSave?.(newExercise)
     success({ title: 'Упражнение создано' })
     resetForm()
   }

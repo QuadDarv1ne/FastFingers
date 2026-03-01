@@ -11,7 +11,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
-import { TypingStats } from '../../types'
+import { TypingStats } from '@/types'
 
 interface TypingSpeedChartProps {
   sessions: (TypingStats & { timestamp: string })[]
@@ -60,12 +60,18 @@ export function TypingSpeedChart({
     )
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: unknown[] }) => {
     if (active && payload && payload.length) {
+      const typedPayload = payload as Array<{
+        payload: { date: string }
+        name: string
+        value: number
+        color: string
+      }>
       return (
         <div className="bg-dark-800 border border-dark-700 rounded-lg p-3 shadow-xl">
-          <p className="text-sm text-dark-400 mb-2">{payload[0].payload.date}</p>
-          {payload.map((entry: any, index: number) => (
+          <p className="text-sm text-dark-400 mb-2">{typedPayload[0].payload.date}</p>
+          {typedPayload.map((entry, index) => (
             <p key={index} className="text-sm font-semibold" style={{ color: entry.color }}>
               {entry.name}: {entry.value.toFixed(1)}
               {entry.name === 'WPM' ? '' : '%'}

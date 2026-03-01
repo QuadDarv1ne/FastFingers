@@ -5,6 +5,7 @@ import {
   getKeyColor,
   FINGER_COLORS,
 } from '@utils/keyboardLayouts'
+import { FingerZone } from '@/types'
 
 describe('Keyboard Layouts Utils', () => {
   describe('getKeyInfo', () => {

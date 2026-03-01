@@ -1,5 +1,7 @@
 import { Exercise } from '../types';
 
+type Layout = 'qwerty' | 'jcuken' | 'dvorak';
+
 const EASY_WORDS = [
   'он', 'она', 'оно', 'мы', 'вы', 'они', 'там', 'тут', 'вот', 'как', 'так', 'где', 'кто', 'что',
   'мир', 'дом', 'лес', 'кот', 'год', 'рот', 'нос', 'лёд', 'мёд', 'сон', 'дым'
@@ -28,7 +30,7 @@ function getExercisesByCategory(category: string): Exercise[] {
   if (exercisesCache.has(cacheKey)) {
     return exercisesCache.get(cacheKey)!;
   }
-  
+
   const filtered = exercises.filter(e => e.category === category);
   exercisesCache.set(cacheKey, filtered);
   return filtered;
@@ -39,8 +41,19 @@ function getExercisesByDifficulty(difficulty: number): Exercise[] {
   if (exercisesCache.has(cacheKey)) {
     return exercisesCache.get(cacheKey)!;
   }
-  
+
   const filtered = exercises.filter(e => e.difficulty <= difficulty);
+  exercisesCache.set(cacheKey, filtered);
+  return filtered;
+}
+
+function getExercisesForLayout(layout: Layout): Exercise[] {
+  const cacheKey = `layout:${layout}`;
+  if (exercisesCache.has(cacheKey)) {
+    return exercisesCache.get(cacheKey)!;
+  }
+
+  const filtered = exercises.filter(e => !e.layout || e.layout === layout);
   exercisesCache.set(cacheKey, filtered);
   return filtered;
 }
@@ -204,13 +217,120 @@ export const exercises: Exercise[] = [
     category: 'code',
     focusKeys: [],
   },
+
+  // QWERTY упражнения
+  {
+    id: 'qwerty-basic-1',
+    title: 'QWERTY - Home Row Left',
+    description: 'Basic home row practice for left hand',
+    text: 'asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf',
+    difficulty: 1,
+    category: 'basic',
+    focusKeys: ['a', 's', 'd', 'f'],
+    layout: 'qwerty',
+  },
+  {
+    id: 'qwerty-basic-2',
+    title: 'QWERTY - Home Row Right',
+    description: 'Basic home row practice for right hand',
+    text: 'jkl; jkl; jkl; jkl; jkl; jkl; jkl; jkl; jkl; jkl;',
+    difficulty: 1,
+    category: 'basic',
+    focusKeys: ['j', 'k', 'l', ';'],
+    layout: 'qwerty',
+  },
+  {
+    id: 'qwerty-basic-3',
+    title: 'QWERTY - Full Home Row',
+    description: 'Complete home row practice',
+    text: 'asdf jkl; asdf jkl; fdsa ;lkj asdf jkl; fdsa ;lkj',
+    difficulty: 2,
+    category: 'basic',
+    focusKeys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
+    layout: 'qwerty',
+  },
+  {
+    id: 'qwerty-words-1',
+    title: 'QWERTY - Simple Words',
+    description: 'Simple English words for practice',
+    text: 'the be to of and a in that have I it for not on with he as you do at',
+    difficulty: 5,
+    category: 'words',
+    focusKeys: ['t', 'h', 'e', 'a', 'o', 'i', 'n'],
+    layout: 'qwerty',
+  },
+
+  // Dvorak упражнения
+  {
+    id: 'dvorak-basic-1',
+    title: 'Dvorak - Home Row Left',
+    description: 'Basic home row practice for left hand',
+    text: 'aoeu aoeu aoeu aoeu aoeu aoeu aoeu aoeu aoeu aoeu',
+    difficulty: 1,
+    category: 'basic',
+    focusKeys: ['a', 'o', 'e', 'u'],
+    layout: 'dvorak',
+  },
+  {
+    id: 'dvorak-basic-2',
+    title: 'Dvorak - Home Row Right',
+    description: 'Basic home row practice for right hand',
+    text: 'htns htns htns htns htns htns htns htns htns htns',
+    difficulty: 1,
+    category: 'basic',
+    focusKeys: ['h', 't', 'n', 's'],
+    layout: 'dvorak',
+  },
+  {
+    id: 'dvorak-basic-3',
+    title: 'Dvorak - Full Home Row',
+    description: 'Complete home row practice',
+    text: 'aoeu htns aoeu htns uoea snt h aoeu htns uoea snt h',
+    difficulty: 2,
+    category: 'basic',
+    focusKeys: ['a', 'o', 'e', 'u', 'h', 't', 'n', 's'],
+    layout: 'dvorak',
+  },
+  {
+    id: 'dvorak-words-1',
+    title: 'Dvorak - Simple Words',
+    description: 'Simple English words for practice',
+    text: 'the be to of and a in that have I it for not on with he as you do at',
+    difficulty: 5,
+    category: 'words',
+    focusKeys: ['t', 'h', 'e', 'a', 'o', 'i', 'n'],
+    layout: 'dvorak',
+  },
 ];
 
 // Генерация случайного текста из упражнений
-export function getRandomExercise(category?: string, difficulty?: number): Exercise {
+export function getRandomExercise(category?: string, difficulty?: number, layout?: Layout): Exercise {
   let pool: Exercise[];
-  
-  if (category && difficulty) {
+
+  if (category && difficulty && layout) {
+    const cacheKey = `cat:${category}:diff:${difficulty}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => 
+        (e.category === category || !e.category) && 
+        e.difficulty <= difficulty && 
+        (!e.layout || e.layout === layout)
+      );
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category && layout) {
+    const cacheKey = `cat:${category}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => 
+        (e.category === category || !e.category) && 
+        (!e.layout || e.layout === layout)
+      );
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category && difficulty) {
     const cacheKey = `cat:${category}:diff:${difficulty}`;
     if (exercisesCache.has(cacheKey)) {
       pool = exercisesCache.get(cacheKey)!;
@@ -220,20 +340,54 @@ export function getRandomExercise(category?: string, difficulty?: number): Exerc
     }
   } else if (category) {
     pool = getExercisesByCategory(category);
+  } else if (difficulty && layout) {
+    const cacheKey = `diff:${difficulty}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+      exercisesCache.set(cacheKey, pool);
+    }
   } else if (difficulty) {
     pool = getExercisesByDifficulty(difficulty);
+  } else if (layout) {
+    pool = getExercisesForLayout(layout);
   } else {
     pool = exercises;
   }
 
   if (pool.length === 0) pool = exercises;
-  return pool[Math.floor(Math.random() * pool.length)];
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  return pool[randomIndex] ?? exercises[0]!;
 }
 
-export function getRandomExercises(count: number, category?: string, difficulty?: number): Exercise[] {
+export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {
   let pool: Exercise[];
-  
-  if (category && difficulty) {
+
+  if (category && difficulty && layout) {
+    const cacheKey = `cat:${category}:diff:${difficulty}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => 
+        (e.category === category || !e.category) && 
+        e.difficulty <= difficulty && 
+        (!e.layout || e.layout === layout)
+      );
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category && layout) {
+    const cacheKey = `cat:${category}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => 
+        (e.category === category || !e.category) && 
+        (!e.layout || e.layout === layout)
+      );
+      exercisesCache.set(cacheKey, pool);
+    }
+  } else if (category && difficulty) {
     const cacheKey = `cat:${category}:diff:${difficulty}`;
     if (exercisesCache.has(cacheKey)) {
       pool = exercisesCache.get(cacheKey)!;
@@ -243,8 +397,18 @@ export function getRandomExercises(count: number, category?: string, difficulty?
     }
   } else if (category) {
     pool = getExercisesByCategory(category);
+  } else if (difficulty && layout) {
+    const cacheKey = `diff:${difficulty}:layout:${layout}`;
+    if (exercisesCache.has(cacheKey)) {
+      pool = exercisesCache.get(cacheKey)!;
+    } else {
+      pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+      exercisesCache.set(cacheKey, pool);
+    }
   } else if (difficulty) {
     pool = getExercisesByDifficulty(difficulty);
+  } else if (layout) {
+    pool = getExercisesForLayout(layout);
   } else {
     pool = exercises;
   }

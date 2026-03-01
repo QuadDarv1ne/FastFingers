@@ -270,7 +270,7 @@ export const authService = {
   },
 
   // Запрос на сброс пароля
-  async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
+  async requestPasswordReset(request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> {
     await delay(REGISTRATION_DELAY_MS);
 
     if (!isValidEmail(request.email)) {
@@ -281,7 +281,7 @@ export const authService = {
     const user = users.find(u => u.email === request.email);
 
     if (!user) {
-      return;
+      throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
     }
 
     const token = generateId();
@@ -291,7 +291,8 @@ export const authService = {
     tokens.push({ email: request.email, token, expiresAt });
     localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
 
-    alert(`Токен для сброса пароля: ${token}\n(В реальном приложении он был бы отправлен на email)`);
+    // Возвращаем токен для отображения в UI (в реальном приложении отправляется на email)
+    return { token, expiresAt };
   },
 
   // Подтверждение сброса пароля
@@ -341,10 +342,15 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex] = { ...users[userIndex], ...updates };
+    const user = users[userIndex];
+    if (!user) {
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+    }
+
+    users[userIndex] = { ...user, ...updates };
     saveUsers(users);
 
-    const userWithoutPassword = withoutPassword(users[userIndex]);
+    const userWithoutPassword = withoutPassword(users[userIndex]!);
     saveCurrentUser(userWithoutPassword, true);
 
     return userWithoutPassword;
@@ -359,10 +365,15 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex].stats = { ...users[userIndex].stats, ...stats };
+    const user = users[userIndex];
+    if (!user) {
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+    }
+
+    users[userIndex] = { ...user, stats: { ...user.stats, ...stats } };
     saveUsers(users);
 
-    const userWithoutPassword = withoutPassword(users[userIndex]);
+    const userWithoutPassword = withoutPassword(users[userIndex]!);
     saveCurrentUser(userWithoutPassword, true);
 
     return userWithoutPassword;

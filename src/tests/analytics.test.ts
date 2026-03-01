@@ -7,7 +7,7 @@ import {
   generateRecommendations,
   analyzeTypingProgress,
 } from '@utils/analytics'
-import { TypingStats } from '../../types'
+import { TypingStats } from '@/types'
 
 describe('Analytics Utils', () => {
   describe('calculateTrend', () => {
@@ -43,7 +43,7 @@ describe('Analytics Utils', () => {
           cpm: 250,
           accuracy: 95,
           correctChars: 100,
-          incorrectChars: 5,
+          errors: 5,
           totalChars: 105,
           timeElapsed: 60,
         },
@@ -58,7 +58,7 @@ describe('Analytics Utils', () => {
           cpm: 250,
           accuracy: 95,
           correctChars: 100,
-          incorrectChars: 5,
+          errors: 5,
           totalChars: 105,
           timeElapsed: 60,
         },
@@ -67,7 +67,7 @@ describe('Analytics Utils', () => {
           cpm: 260,
           accuracy: 96,
           correctChars: 104,
-          incorrectChars: 4,
+          errors: 4,
           totalChars: 108,
           timeElapsed: 60,
         },
@@ -76,7 +76,7 @@ describe('Analytics Utils', () => {
           cpm: 240,
           accuracy: 94,
           correctChars: 96,
-          incorrectChars: 6,
+          errors: 6,
           totalChars: 102,
           timeElapsed: 60,
         },
@@ -95,7 +95,7 @@ describe('Analytics Utils', () => {
           cpm: 250,
           accuracy: 95,
           correctChars: 100,
-          incorrectChars: 5,
+          errors: 5,
           totalChars: 105,
           timeElapsed: 60,
         },
@@ -109,7 +109,7 @@ describe('Analytics Utils', () => {
         cpm: 250 + i * 10,
         accuracy: 95,
         correctChars: 100,
-        incorrectChars: 5,
+        errors: 5,
         totalChars: 105,
         timeElapsed: 60,
       }))
@@ -123,7 +123,7 @@ describe('Analytics Utils', () => {
         cpm: 350 - i * 10,
         accuracy: 95,
         correctChars: 100,
-        incorrectChars: 5,
+        errors: 5,
         totalChars: 105,
         timeElapsed: 60,
       }))
@@ -181,7 +181,7 @@ describe('Analytics Utils', () => {
         cpm: 250,
         accuracy: 85,
         correctChars: 85,
-        incorrectChars: 15,
+        errors: 15,
         totalChars: 100,
         timeElapsed: 60,
       }))
@@ -215,7 +215,7 @@ describe('Analytics Utils', () => {
         cpm: 250 + i * 5,
         accuracy: 95,
         correctChars: 100,
-        incorrectChars: 5,
+        errors: 5,
         totalChars: 105,
         timeElapsed: 60,
       }))

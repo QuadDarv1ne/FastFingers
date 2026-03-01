@@ -3,15 +3,20 @@ import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRe
 import { authService } from '../services/authService';
 
 interface AuthContextType extends AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
-  resetPassword: (request: PasswordResetRequest) => Promise<void>;
+  resetPassword: (request: PasswordResetRequest) => Promise<{ token: string; expiresAt: string }>;
   confirmPasswordReset: (confirm: PasswordResetConfirm) => Promise<void>;
   updateUserStats: (stats: Partial<User['stats']>) => Promise<void>;
   clearError: () => void;
   refreshUser: () => Promise<void>;
   isActionPending: boolean;
+  lastResetToken: { token: string; expiresAt: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,8 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     error: null,
   });
-  
+
   const [isActionPending, setIsActionPending] = useState(false);
+  const [lastResetToken, setLastResetToken] = useState<{ token: string; expiresAt: string } | null>(null);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
@@ -129,14 +135,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const resetPassword = async (request: PasswordResetRequest) => {
+  const resetPassword = async (request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      await withActionState(authService.requestPasswordReset(request));
+      const result = await withActionState(authService.requestPasswordReset(request));
+      setLastResetToken(result);
       setState(prev => ({
         ...prev,
         isLoading: false,
       }));
+      return result;
     } catch (error) {
       const authError = getAuthError(error);
       setState(prev => ({
@@ -191,7 +199,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearError,
     refreshUser,
     isActionPending,
-  }), [state, logout, updateUserStats, clearError, refreshUser, isActionPending]);
+    lastResetToken,
+  }), [state, logout, updateUserStats, clearError, refreshUser, isActionPending, lastResetToken]);
 
   return (
     <AuthContext.Provider value={contextValue}>

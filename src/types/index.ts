@@ -91,6 +91,7 @@ export interface Exercise {
   difficulty: number;
   category: string;
   focusKeys: string[];
+  layout?: KeyboardLayout;
 }
 
 /** Достижение */
@@ -121,3 +122,6 @@ export type FontSize = 'small' | 'medium' | 'large';
 
 /** Темы оформления */
 export type Theme = 'dark' | 'light' | 'system';
+
+/** Finger zones for keyboard */
+export type FingerZone = 'left-pinky' | 'left-ring' | 'left-middle' | 'left-index' | 'right-index' | 'right-middle' | 'right-ring' | 'right-pinky' | 'thumb';

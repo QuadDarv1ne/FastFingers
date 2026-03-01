@@ -3,16 +3,18 @@ import { useToast } from '@hooks/useToast'
 
 interface ExportImportProps {
   onClose: () => void
+  progress?: unknown
+  onImport?: (data: { progress: unknown }) => void
 }
 
-export function ExportImport({ onClose }: ExportImportProps) {
+export function ExportImport({ onClose, progress: _progress, onImport: _onImport }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
   const { success, error } = useToast()
 
   const handleExport = () => {
     try {
       const data: Record<string, string> = {}
-      
+
       // Collect all FastFingers data from localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
@@ -43,8 +45,9 @@ export function ExportImport({ onClose }: ExportImportProps) {
       URL.revokeObjectURL(url)
 
       success({ title: 'Данные успешно экспортированы' })
-    } catch (error) {
-      console.error('Export error:', error)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Export failed'
+      console.error('Export error:', message)
       error({ title: 'Ошибка при экспорте данных' })
     }
   }
@@ -86,8 +89,9 @@ export function ExportImport({ onClose }: ExportImportProps) {
         setTimeout(() => {
           window.location.reload()
         }, 1000)
-      } catch (error) {
-        console.error('Import error:', error)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Import failed'
+        console.error('Import error:', message)
         error({ title: 'Ошибка при импорте данных' })
         setImporting(false)
       }
@@ -133,8 +137,9 @@ export function ExportImport({ onClose }: ExportImportProps) {
       setTimeout(() => {
         window.location.reload()
       }, 1000)
-    } catch (error) {
-      console.error('Clear data error:', error)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Clear data failed'
+      console.error('Clear data error:', message)
       error({ title: 'Ошибка при удалении данных' })
     }
   }

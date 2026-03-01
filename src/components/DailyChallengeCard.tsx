@@ -28,12 +28,18 @@ interface ChallengeProgress {
   }
 }
 
-export function DailyChallengeCard() {
+interface DailyChallengeCardProps {
+  challenge: DailyChallenge
+  streak: number
+  onComplete: (challengeId: string, wpm: number, accuracy: number) => void
+}
+
+export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete: _onComplete }: DailyChallengeCardProps) {
   const [progress] = useLocalStorageState<ChallengeProgress>(
     'fastfingers_challenge_progress',
     {}
   )
-  const [challenge, setChallenge] = useState<DailyChallenge | null>(null)
+  const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
@@ -43,16 +49,19 @@ export function DailyChallengeCard() {
       progress: 0,
     }
 
-    setChallenge({
+    setLocalChallenge({
       ...dailyChallenge,
       completed: challengeProgress.completed,
       progress: challengeProgress.progress,
     })
   }, [progress])
 
-  if (!challenge) return null
+  // Используем challengeProp если он передан (из App), иначе используем локальное состояние
+  const activeChallenge = challengeProp || localChallenge
 
-  const progressPercent = Math.min((challenge.progress / challenge.goal.target) * 100, 100)
+  if (!activeChallenge) return null
+
+  const progressPercent = Math.min((activeChallenge.progress / activeChallenge.goal.target) * 100, 100)
 
   const difficultyColors = {
     easy: 'from-green-600 to-green-500',
@@ -79,7 +88,7 @@ export function DailyChallengeCard() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-semibold">Челлендж дня</h3>
-              {challenge.completed && (
+              {activeChallenge.completed && (
                 <span className="text-green-400 text-xl">✓</span>
               )}
             </div>
@@ -88,16 +97,16 @@ export function DailyChallengeCard() {
             </p>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${difficultyColors[challenge.difficulty]}`}
+            className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${difficultyColors[activeChallenge.difficulty]}`}
           >
-            {difficultyLabels[challenge.difficulty]}
+            {difficultyLabels[activeChallenge.difficulty]}
           </span>
         </div>
 
         {/* Challenge info */}
         <div className="mb-4">
-          <h4 className="font-semibold text-white mb-2">{challenge.title}</h4>
-          <p className="text-sm text-dark-400">{challenge.description}</p>
+          <h4 className="font-semibold text-white mb-2">{activeChallenge.title}</h4>
+          <p className="text-sm text-dark-400">{activeChallenge.description}</p>
         </div>
 
         {/* Goal */}
@@ -105,12 +114,12 @@ export function DailyChallengeCard() {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-dark-400">Цель</span>
             <span className="text-sm font-semibold">
-              {challenge.progress} / {challenge.goal.target} {challenge.goal.unit}
+              {activeChallenge.progress} / {activeChallenge.goal.target} {activeChallenge.goal.unit}
             </span>
           </div>
           <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 bg-gradient-to-r ${difficultyColors[challenge.difficulty]}`}
+              className={`h-full transition-all duration-500 bg-gradient-to-r ${difficultyColors[activeChallenge.difficulty]}`}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -126,17 +135,17 @@ export function DailyChallengeCard() {
             <div>
               <p className="text-sm font-semibold">Награда</p>
               <p className="text-xs text-dark-400">
-                {challenge.reward.points} очков опыта
+                {activeChallenge.reward.points} очков опыта
               </p>
             </div>
           </div>
-          {challenge.reward.badge && (
-            <span className="text-3xl">{challenge.reward.badge}</span>
+          {activeChallenge.reward.badge && (
+            <span className="text-3xl">{activeChallenge.reward.badge}</span>
           )}
         </div>
 
         {/* Completion message */}
-        {challenge.completed && (
+        {activeChallenge.completed && (
           <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-xl text-center">
             <p className="text-sm text-green-400 font-semibold">
               🎉 Челлендж выполнен!
@@ -146,126 +155,80 @@ export function DailyChallengeCard() {
             </p>
           </div>
         )}
+
+        {/* Streak info */}
+        {streak > 0 && (
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <span className="text-dark-400">Текущая серия</span>
+            <span className="font-semibold text-orange-400">
+              🔥 {streak} дн.
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
 function generateDailyChallenge(date: string): DailyChallenge {
-  // Use date as seed for consistent daily challenges
-  const seed = date.split('-').reduce((acc, val) => acc + parseInt(val), 0)
-  const random = (min: number, max: number) => {
-    const x = Math.sin(seed) * 10000
-    return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min
-  }
-
-  const challenges = [
+  const seed = date.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  
+  const challenges: Omit<DailyChallenge, 'completed' | 'progress'>[] = [
     {
-      title: 'Спринтер',
-      description: 'Достигните указанной скорости печати',
-      type: 'wpm' as const,
-      targets: { easy: 30, medium: 50, hard: 70 },
-      unit: 'WPM',
-      badge: '⚡',
+      id: `daily-${date}-speed`,
+      date,
+      title: 'Скоростная печать',
+      description: 'Достигните высокой скорости печати',
+      goal: {
+        type: 'wpm',
+        target: 60 + (seed % 40),
+        unit: 'WPM',
+      },
+      reward: {
+        points: 100 + (seed % 50),
+        badge: '⚡',
+      },
+      difficulty: seed % 3 === 0 ? 'hard' : seed % 2 === 0 ? 'medium' : 'easy',
     },
     {
-      title: 'Снайпер',
-      description: 'Достигните указанной точности',
-      type: 'accuracy' as const,
-      targets: { easy: 90, medium: 95, hard: 98 },
-      unit: '%',
-      badge: '🎯',
+      id: `daily-${date}-accuracy`,
+      date,
+      title: 'Точность',
+      description: 'Напечатайте текст с минимальными ошибками',
+      goal: {
+        type: 'accuracy',
+        target: 95 + (seed % 5),
+        unit: '%',
+      },
+      reward: {
+        points: 80 + (seed % 40),
+        badge: '🎯',
+      },
+      difficulty: seed % 3 === 0 ? 'hard' : seed % 2 === 0 ? 'medium' : 'easy',
     },
     {
-      title: 'Марафонец',
-      description: 'Напечатайте указанное количество слов',
-      type: 'words' as const,
-      targets: { easy: 200, medium: 500, hard: 1000 },
-      unit: 'слов',
-      badge: '📝',
-    },
-    {
+      id: `daily-${date}-endurance`,
+      date,
       title: 'Выносливость',
-      description: 'Тренируйтесь указанное время',
-      type: 'time' as const,
-      targets: { easy: 10, medium: 20, hard: 30 },
-      unit: 'мин',
-      badge: '⏱️',
-    },
-    {
-      title: 'Комбо мастер',
-      description: 'Достигните указанного комбо',
-      type: 'combo' as const,
-      targets: { easy: 50, medium: 100, hard: 200 },
-      unit: 'подряд',
-      badge: '🔥',
+      description: 'Напечатайте большое количество слов',
+      goal: {
+        type: 'words',
+        target: 50 + (seed % 100),
+        unit: 'слов',
+      },
+      reward: {
+        points: 120 + (seed % 60),
+        badge: '💪',
+      },
+      difficulty: seed % 3 === 0 ? 'hard' : seed % 2 === 0 ? 'medium' : 'easy',
     },
   ]
 
-  const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard']
-  const challengeIndex = random(0, challenges.length - 1)
-  const difficultyIndex = random(0, 2)
-  const difficulty = difficulties[difficultyIndex]
-  const template = challenges[challengeIndex]
-
-  const points = { easy: 50, medium: 100, hard: 200 }
+  const selected = challenges[seed % challenges.length]!
 
   return {
-    id: `challenge-${date}`,
-    date,
-    title: template.title,
-    description: template.description,
-    goal: {
-      type: template.type,
-      target: template.targets[difficulty],
-      unit: template.unit,
-    },
-    reward: {
-      points: points[difficulty],
-      badge: template.badge,
-    },
-    difficulty,
+    ...selected,
     completed: false,
     progress: 0,
   }
-}
-
-// Helper to update challenge progress
-export function updateChallengeProgress(
-  type: DailyChallenge['goal']['type'],
-  value: number
-) {
-  const today = new Date().toISOString().split('T')[0]
-  const challengeId = `challenge-${today}`
-  
-  const progressData = JSON.parse(
-    localStorage.getItem('fastfingers_challenge_progress') || '{}'
-  )
-
-  const currentProgress = progressData[challengeId] || {
-    completed: false,
-    progress: 0,
-  }
-
-  if (currentProgress.completed) return
-
-  const challenge = generateDailyChallenge(today)
-  if (challenge.goal.type !== type) return
-
-  const newProgress = Math.max(currentProgress.progress, value)
-  const completed = newProgress >= challenge.goal.target
-
-  progressData[challengeId] = {
-    completed,
-    progress: newProgress,
-    completedAt: completed ? new Date().toISOString() : undefined,
-  }
-
-  localStorage.setItem(
-    'fastfingers_challenge_progress',
-    JSON.stringify(progressData)
-  )
-
-  // Dispatch event for real-time updates
-  window.dispatchEvent(new CustomEvent('challenge-updated'))
 }

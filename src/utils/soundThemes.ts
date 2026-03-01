@@ -1,5 +1,7 @@
-export interface SoundTheme {
-  id: string
+import { SoundTheme } from '../types'
+
+export interface SoundThemeConfig {
+  id: SoundTheme
   name: string
   description: string
   icon: string
@@ -10,7 +12,29 @@ export interface SoundTheme {
   }
 }
 
-export const SOUND_THEMES: SoundTheme[] = [
+export const SOUND_THEMES: SoundThemeConfig[] = [
+  {
+    id: 'default',
+    name: 'По умолчанию',
+    description: 'Стандартные звуки',
+    icon: '🔊',
+    sounds: {
+      keyPress: 'default-click',
+      error: 'default-error',
+      complete: 'default-complete',
+    },
+  },
+  {
+    id: 'piano',
+    name: 'Пианино',
+    description: 'Звуки пианино',
+    icon: '🎹',
+    sounds: {
+      keyPress: 'piano-key',
+      error: 'piano-low',
+      complete: 'piano-chord',
+    },
+  },
   {
     id: 'mechanical',
     name: 'Механическая клавиатура',
@@ -23,21 +47,10 @@ export const SOUND_THEMES: SoundTheme[] = [
     },
   },
   {
-    id: 'typewriter',
-    name: 'Печатная машинка',
-    description: 'Ностальгический звук печатной машинки',
-    icon: '📠',
-    sounds: {
-      keyPress: 'typewriter-click',
-      error: 'typewriter-bell',
-      complete: 'typewriter-ding',
-    },
-  },
-  {
     id: 'soft',
     name: 'Мягкая клавиатура',
     description: 'Тихие и приятные звуки',
-    icon: '🎹',
+    icon: '🌸',
     sounds: {
       keyPress: 'soft-tap',
       error: 'soft-error',
@@ -45,25 +58,14 @@ export const SOUND_THEMES: SoundTheme[] = [
     },
   },
   {
-    id: 'futuristic',
-    name: 'Футуристическая',
-    description: 'Электронные звуки будущего',
-    icon: '🚀',
+    id: 'retro',
+    name: 'Ретро',
+    description: 'Электронные звуки в ретро стиле',
+    icon: '👾',
     sounds: {
-      keyPress: 'beep',
-      error: 'error-beep',
-      complete: 'success-beep',
-    },
-  },
-  {
-    id: 'silent',
-    name: 'Без звука',
-    description: 'Тихий режим без звуковых эффектов',
-    icon: '🔇',
-    sounds: {
-      keyPress: '',
-      error: '',
-      complete: '',
+      keyPress: 'retro-beep',
+      error: 'retro-error',
+      complete: 'retro-complete',
     },
   },
 ]
