@@ -10,9 +10,10 @@ export function calculateStats(
   timeElapsed: number
 ): TypingStats {
   const cacheKey = `${correctChars}:${totalChars}:${errors}:${timeElapsed.toFixed(1)}`;
-  
-  if (statsCache.has(cacheKey)) {
-    return statsCache.get(cacheKey)!;
+
+  const cached = statsCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const timeInMinutes = timeElapsed / 60;
@@ -51,17 +52,18 @@ export function clearStatsCache(): void {
  */
 export function formatNumber(num: number): string {
   const cacheKey = `num:${num}`;
-  if (formatCache.has(cacheKey)) {
-    return formatCache.get(cacheKey)!;
+  const cached = formatCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
-  
+
   const result = num.toLocaleString('ru-RU');
-  
+
   if (formatCache.size > 200) {
     formatCache.clear();
   }
   formatCache.set(cacheKey, result);
-  
+
   return result;
 }
 
@@ -70,23 +72,24 @@ export function formatNumber(num: number): string {
  */
 export function formatTime(seconds: number): string {
   const cacheKey = `time:${seconds}`;
-  if (formatCache.has(cacheKey)) {
-    return formatCache.get(cacheKey)!;
+  const cached = formatCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
-  
+
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  
+
   const result = hours > 0
     ? `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  
+
   if (formatCache.size > 200) {
     formatCache.clear();
   }
   formatCache.set(cacheKey, result);
-  
+
   return result;
 }
 
@@ -199,7 +202,7 @@ export function checkAchievement(
   };
 
   const achievement = achievements[achievementId];
-  return achievement ? achievement(progress, stats) : false;
+  return achievement?.(progress, stats) ?? false;
 }
 
 /**

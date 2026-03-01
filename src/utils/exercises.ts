@@ -27,8 +27,9 @@ const exercisesCache = new Map<string, Exercise[]>();
 
 function getExercisesByCategory(category: string): Exercise[] {
   const cacheKey = `category:${category}`;
-  if (exercisesCache.has(cacheKey)) {
-    return exercisesCache.get(cacheKey)!;
+  const cached = exercisesCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const filtered = exercises.filter(e => e.category === category);
@@ -38,8 +39,9 @@ function getExercisesByCategory(category: string): Exercise[] {
 
 function getExercisesByDifficulty(difficulty: number): Exercise[] {
   const cacheKey = `difficulty:${difficulty}`;
-  if (exercisesCache.has(cacheKey)) {
-    return exercisesCache.get(cacheKey)!;
+  const cached = exercisesCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const filtered = exercises.filter(e => e.difficulty <= difficulty);
@@ -321,33 +323,33 @@ export function getRandomExercise(category?: string, difficulty?: number, layout
     }
   } else if (category && layout) {
     const cacheKey = `cat:${category}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => 
-        (e.category === category || !e.category) && 
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e =>
+        (e.category === category || !e.category) &&
         (!e.layout || e.layout === layout)
       );
-      exercisesCache.set(cacheKey, pool);
-    }
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category && difficulty) {
     const cacheKey = `cat:${category}:diff:${difficulty}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
-      exercisesCache.set(cacheKey, pool);
-    }
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category) {
     pool = getExercisesByCategory(category);
   } else if (difficulty && layout) {
     const cacheKey = `diff:${difficulty}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
-      exercisesCache.set(cacheKey, pool);
-    }
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (difficulty) {
     pool = getExercisesByDifficulty(difficulty);
   } else if (layout) {
@@ -366,45 +368,45 @@ export function getRandomExercises(count: number, category?: string, difficulty?
 
   if (category && difficulty && layout) {
     const cacheKey = `cat:${category}:diff:${difficulty}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => 
-        (e.category === category || !e.category) && 
-        e.difficulty <= difficulty && 
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e =>
+        (e.category === category || !e.category) &&
+        e.difficulty <= difficulty &&
         (!e.layout || e.layout === layout)
       );
-      exercisesCache.set(cacheKey, pool);
-    }
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category && layout) {
     const cacheKey = `cat:${category}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => 
-        (e.category === category || !e.category) && 
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e =>
+        (e.category === category || !e.category) &&
         (!e.layout || e.layout === layout)
       );
-      exercisesCache.set(cacheKey, pool);
-    }
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category && difficulty) {
     const cacheKey = `cat:${category}:diff:${difficulty}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
-      exercisesCache.set(cacheKey, pool);
-    }
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category) {
     pool = getExercisesByCategory(category);
   } else if (difficulty && layout) {
     const cacheKey = `diff:${difficulty}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
-      exercisesCache.set(cacheKey, pool);
-    }
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (difficulty) {
     pool = getExercisesByDifficulty(difficulty);
   } else if (layout) {
