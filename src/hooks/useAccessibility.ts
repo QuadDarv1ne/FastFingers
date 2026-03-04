@@ -63,12 +63,12 @@ export function useAccessibility({
     // Shift + Tab
     if (event.shiftKey && document.activeElement === firstElement) {
       event.preventDefault()
-      lastElement.focus()
+      lastElement?.focus()
     }
     // Tab
     else if (!event.shiftKey && document.activeElement === lastElement) {
       event.preventDefault()
-      firstElement.focus()
+      firstElement?.focus()
     }
   }, [])
 

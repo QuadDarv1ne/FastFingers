@@ -2,6 +2,7 @@ import globals from 'globals'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginReactRefresh from 'eslint-plugin-react-refresh'
+import pluginJsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 
@@ -30,6 +31,7 @@ export default [
       'react': pluginReact,
       'react-hooks': pluginReactHooks,
       'react-refresh': pluginReactRefresh,
+      'jsx-a11y': pluginJsxA11y,
     },
     settings: {
       react: {
@@ -58,6 +60,9 @@ export default [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'off',
       'react-hooks/exhaustive-deps': 'warn',
+      ...pluginJsxA11y.configs.recommended.rules,
+      'jsx-a11y/no-static-element-interactions': 'off',
+      'jsx-a11y/click-events-have-key-events': 'off',
     },
   },
 ]

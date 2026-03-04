@@ -197,10 +197,11 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
               <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="exercise-title" className="block text-sm font-medium mb-2">
                     Название
                   </label>
                   <input
+                    id="exercise-title"
                     type="text"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -211,10 +212,11 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
                 {/* Text */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="exercise-text" className="block text-sm font-medium mb-2">
                     Текст упражнения
                   </label>
                   <textarea
+                    id="exercise-text"
                     value={formData.text}
                     onChange={e => setFormData({ ...formData, text: e.target.value })}
                     placeholder="Введите текст для практики..."
@@ -228,13 +230,16 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
                 {/* Difficulty */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="exercise-difficulty" id="exercise-difficulty-label" className="block text-sm font-medium mb-2">
                     Сложность
                   </label>
-                  <div className="flex gap-2">
+                  <div role="radiogroup" aria-labelledby="exercise-difficulty-label" className="flex gap-2">
                     {[1, 2, 3, 4, 5].map(level => (
                       <button
                         key={level}
+                        id={`exercise-difficulty-${level}`}
+                        role="radio"
+                        aria-checked={formData.difficulty === level}
                         onClick={() => setFormData({ ...formData, difficulty: level as 1 | 2 | 3 | 4 | 5 })}
                         className={`flex-1 py-2 rounded-lg font-semibold transition-all ${
                           formData.difficulty === level
@@ -246,14 +251,16 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                       </button>
                     ))}
                   </div>
+                  <input type="hidden" id="exercise-difficulty" value={formData.difficulty} />
                 </div>
 
                 {/* Tags */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="exercise-tags" className="block text-sm font-medium mb-2">
                     Теги (через запятую)
                   </label>
                   <input
+                    id="exercise-tags"
                     type="text"
                     value={formData.tags}
                     onChange={e => setFormData({ ...formData, tags: e.target.value })}

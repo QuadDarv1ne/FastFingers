@@ -100,8 +100,9 @@ export function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
           <div className="flex flex-wrap gap-4">
             {/* Сортировка */}
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm text-dark-400 mb-2">Сортировать по</label>
+              <label htmlFor="leaderboard-sort" className="block text-sm text-dark-400 mb-2">Сортировать по</label>
               <select
+                id="leaderboard-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -116,12 +117,15 @@ export function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
 
             {/* Временной фильтр */}
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm text-dark-400 mb-2">Период</label>
-              <div className="flex gap-2">
+              <label htmlFor="leaderboard-period" id="leaderboard-period-label" className="block text-sm text-dark-400 mb-2">Период</label>
+              <div role="radiogroup" aria-labelledby="leaderboard-period-label" className="flex gap-2">
                 {(['today', 'week', 'month', 'all'] as TimeFilter[]).map(filter => (
                   <button
                     key={filter}
+                    id={`leaderboard-period-${filter}`}
                     onClick={() => setTimeFilter(filter)}
+                    role="radio"
+                    aria-checked={timeFilter === filter}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       timeFilter === filter
                         ? 'bg-primary-600 text-white'
@@ -135,6 +139,7 @@ export function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
                   </button>
                 ))}
               </div>
+              <input type="hidden" id="leaderboard-period" value={timeFilter} />
             </div>
           </div>
 

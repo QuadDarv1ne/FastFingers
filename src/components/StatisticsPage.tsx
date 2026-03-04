@@ -44,14 +44,14 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
   const activityByDay = useMemo(() => {
     const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
     const data = days.map(day => ({ day, sessions: 0, avgWpm: 0 }))
-    
+
     history.sessions.forEach(session => {
       const date = new Date(session.date)
       const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
-      data[dayIndex].sessions += 1
-      data[dayIndex].avgWpm += session.wpm
+      data[dayIndex]!.sessions += 1
+      data[dayIndex]!.avgWpm += session.wpm
     })
-    
+
     return data.map(d => ({
       ...d,
       avgWpm: d.sessions > 0 ? Math.round(d.avgWpm / d.sessions) : 0,
@@ -67,13 +67,15 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       { name: '90-95%', value: 0, color: '#84cc16' },
       { name: '95%+', value: 0, color: '#22c55e' },
     ]
-    
-    history.sessions?.forEach(session => {
-      if (session.accuracy < 70) ranges[0].value++
-      else if (session.accuracy < 80) ranges[1].value++
-      else if (session.accuracy < 90) ranges[2].value++
-      else if (session.accuracy < 95) ranges[3].value++
-      else ranges[4].value++
+
+    history.sessions.forEach(session => {
+      let rangeIndex = 4
+      if (session.accuracy < 70) rangeIndex = 0
+      else if (session.accuracy < 80) rangeIndex = 1
+      else if (session.accuracy < 90) rangeIndex = 2
+      else if (session.accuracy < 95) rangeIndex = 3
+
+      ranges[rangeIndex]!.value++
     })
 
     return ranges.filter(r => r.value > 0)
@@ -85,10 +87,10 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
     for (let i = 6; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
+      const dateStr = date.toISOString().split('T')[0]!
       const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
 
-      const sessionsOnDay = history.sessions?.filter(s => s.date.startsWith(dateStr)) || []
+      const sessionsOnDay = history.sessions.filter(s => s.date.startsWith(dateStr))
       const totalTime = sessionsOnDay.reduce((sum, s) => sum + s.duration, 0)
 
       last7Days.push({

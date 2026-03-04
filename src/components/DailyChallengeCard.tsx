@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
 export interface DailyChallenge {
@@ -42,7 +42,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     const dailyChallenge = generateDailyChallenge(today)
     const challengeProgress = progress[dailyChallenge.id] || {
       completed: false,
@@ -59,9 +59,12 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   // Используем challengeProp если он передан (из App), иначе используем локальное состояние
   const activeChallenge = challengeProp ?? localChallenge
 
-  if (!activeChallenge) return null
+  const progressPercent = useMemo(
+    () => Math.min((activeChallenge!.progress / activeChallenge!.goal.target) * 100, 100),
+    [activeChallenge]
+  )
 
-  const progressPercent = Math.min((activeChallenge.progress / activeChallenge.goal.target) * 100, 100)
+  if (!activeChallenge) return null
 
   const difficultyColors = {
     easy: 'from-green-600 to-green-500',

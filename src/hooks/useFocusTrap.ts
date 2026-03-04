@@ -42,7 +42,7 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
     const lastElement = focusableElements[focusableElements.length - 1]
 
     // Фокусируемся на первом элементе
-    firstElement.focus()
+    firstElement?.focus()
 
     // Обработчик переключения фокуса
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,12 +51,12 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
       // Если Shift+Tab на первом элементе -> переходим к последнему
       if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault()
-        lastElement.focus()
+        lastElement?.focus()
       }
       // Если Tab на последнем элементе -> переходим к первому
       else if (!event.shiftKey && document.activeElement === lastElement) {
         event.preventDefault()
-        firstElement.focus()
+        firstElement?.focus()
       }
     }
 

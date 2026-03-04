@@ -156,25 +156,22 @@ export function useInfiniteScroll(
   const isLoadingRef = useRef(false)
 
   useEffect(() => {
-    if (isIntersecting && !disabled && !isLoadingRef.current) {
-      isLoadingRef.current = true
-      setIsLoading(true)
+    if (!isIntersecting || disabled || isLoadingRef.current) return
 
-      const load = async () => {
-        try {
-          await onLoadMore()
-        } finally {
-          isLoadingRef.current = false
-          setIsLoading(false)
-        }
-      }
+    isLoadingRef.current = true
+    setIsLoading(true)
 
-      const timeoutId = setTimeout(load, delay)
-
-      return () => {
-        clearTimeout(timeoutId)
+    const load = async () => {
+      try {
+        await onLoadMore()
+      } finally {
+        isLoadingRef.current = false
+        setIsLoading(false)
       }
     }
+
+    const timeoutId = setTimeout(load, delay)
+    return () => clearTimeout(timeoutId)
   }, [isIntersecting, disabled, delay, onLoadMore])
 
   return { ref, isLoading }

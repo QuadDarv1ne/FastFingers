@@ -324,7 +324,7 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    users[userIndex].password = await hashPassword(confirm.newPassword);
+    users[userIndex]!.password = await hashPassword(confirm.newPassword);
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);

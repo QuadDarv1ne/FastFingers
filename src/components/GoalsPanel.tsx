@@ -442,14 +442,17 @@ function AddGoalModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="goal-icon" id="goal-icon-label" className="block text-sm font-medium text-dark-300 mb-2">
               Иконка
             </label>
-            <div className="flex gap-2 flex-wrap">
+            <div role="radiogroup" aria-labelledby="goal-icon-label" className="flex gap-2 flex-wrap">
               {icons.map(i => (
                 <button
                   key={i}
+                  id={`goal-icon-${i}`}
                   type="button"
+                  role="radio"
+                  aria-checked={icon === i}
                   onClick={() => setIcon(i)}
                   className={`w-10 h-10 rounded-lg text-xl transition-all ${
                     icon === i
@@ -461,13 +464,15 @@ function AddGoalModal({
                 </button>
               ))}
             </div>
+            <input type="hidden" id="goal-icon" value={icon} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="goal-title" className="block text-sm font-medium text-dark-300 mb-2">
               Название
             </label>
             <input
+              id="goal-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -478,10 +483,11 @@ function AddGoalModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="goal-description" className="block text-sm font-medium text-dark-300 mb-2">
               Описание
             </label>
             <input
+              id="goal-description"
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -492,10 +498,11 @@ function AddGoalModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="goal-target" className="block text-sm font-medium text-dark-300 mb-2">
                 Цель
               </label>
               <input
+                id="goal-target"
                 type="number"
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
@@ -507,10 +514,11 @@ function AddGoalModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="goal-unit" className="block text-sm font-medium text-dark-300 mb-2">
                 Единица
               </label>
               <select
+                id="goal-unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value as Goal['unit'])}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"

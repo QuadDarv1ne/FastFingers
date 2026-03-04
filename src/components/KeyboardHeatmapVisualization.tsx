@@ -289,7 +289,7 @@ export function KeyboardHeatmapVisualization({
         <div className="p-4 bg-dark-800/30 rounded-lg">
           <p className="text-xs text-dark-400 mb-1">Активных клавиш</p>
           <p className="text-2xl font-bold text-blue-400">
-            {Object.keys(heatmap).filter(k => heatmap[k]?.total > 0).length}
+            {Object.keys(heatmap).filter(k => heatmap[k]?.total && heatmap[k]!.total > 0).length}
           </p>
         </div>
       </div>

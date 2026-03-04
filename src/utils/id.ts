@@ -31,19 +31,19 @@ export function generateId(): string {
 export function generateShortId(length = 8): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
-  
+
   if (cryptoObj) {
     const randomValues = new Uint32Array(length)
     cryptoObj.getRandomValues(randomValues)
     for (let i = 0; i < length; i++) {
-      result += chars.charAt(randomValues[i] % chars.length)
+      result += chars.charAt(randomValues[i]! % chars.length)
     }
   } else {
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length))
     }
   }
-  
+
   return result
 }
 
@@ -52,19 +52,19 @@ export function generateShortId(length = 8): string {
  */
 export function generateNumericId(length = 6): string {
   let result = ''
-  
+
   if (cryptoObj) {
     const randomValues = new Uint32Array(length)
     cryptoObj.getRandomValues(randomValues)
     for (let i = 0; i < length; i++) {
-      result += (randomValues[i] % 10).toString()
+      result += (randomValues[i]! % 10).toString()
     }
   } else {
     for (let i = 0; i < length; i++) {
       result += Math.floor(Math.random() * 10)
     }
   }
-  
+
   return result
 }
 
@@ -99,7 +99,7 @@ export function getInitials(name: string, maxLength = 2): string {
   const names = name.trim().split(/\s+/)
   return names
     .slice(0, maxLength)
-    .map(n => n[0]?.toUpperCase())
+    .map(n => n[0]!.toUpperCase())
     .join('')
 }
 
@@ -116,15 +116,15 @@ export function isValidUuid(uuid: string): boolean {
  */
 export function extractTimestampFromId(id: string): number | null {
   if (!isValidUuid(id)) return null
-  
+
   const parts = id.split('-')
   if (parts.length !== 5) return null
-  
-  const timestampHex = parts[2].substring(1) + parts[1] + parts[0]
+
+  const timestampHex = parts[2]!.substring(1) + parts[1]! + parts[0]!
   const timestamp = parseInt(timestampHex, 16)
-  
+
   if (isNaN(timestamp)) return null
-  
+
   const unixTimestamp = Math.floor((timestamp - 0x01b21dd213814000) / 10000)
   return unixTimestamp > 0 ? unixTimestamp : null
 }

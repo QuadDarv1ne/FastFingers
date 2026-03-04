@@ -17,10 +17,11 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
-      const dayName = days[date.getDay() === 0 ? 6 : date.getDay() - 1]
+      const dateStr = date.toISOString().split('T')[0]!
+      const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
+      const dayName = days[dayIndex]!
 
-      const sessionsOnDay = history.sessions.filter(s => 
+      const sessionsOnDay = history.sessions.filter(s =>
         s.date.startsWith(dateStr)
       )
 
@@ -47,13 +48,35 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
   const maxSessions = Math.max(...weeklyData.map(d => d.sessions), 1)
   const maxXp = Math.max(...weeklyData.map(d => d.xp), 1)
 
+  const totalSessions = useMemo(
+    () => weeklyData.reduce((sum, d) => sum + d.sessions, 0),
+    [weeklyData]
+  )
+
+  const totalXp = useMemo(
+    () => weeklyData.reduce((sum, d) => sum + d.xp, 0),
+    [weeklyData]
+  )
+
+  const avgWpmWeek = useMemo(() => {
+    const withWpm = weeklyData.filter(d => d.avgWpm > 0)
+    return withWpm.length > 0
+      ? Math.round(withWpm.reduce((sum, d) => sum + d.avgWpm, 0) / withWpm.length)
+      : 0
+  }, [weeklyData])
+
+  const totalTimeWeek = useMemo(
+    () => Math.round(weeklyData.reduce((sum, d) => sum + d.totalTime, 0) / 60),
+    [weeklyData]
+  )
+
   if (compact) {
     return (
       <div className="space-y-2">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-sm font-medium text-dark-400">Эта неделя</h3>
           <span className="text-xs text-primary-400">
-            {weeklyData.reduce((sum, d) => sum + d.sessions, 0)} тренировок
+            {totalSessions} тренировок
           </span>
         </div>
         <div className="flex gap-1 h-16">
@@ -99,7 +122,7 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
         <div className="text-right">
           <p className="text-sm text-dark-400">Всего</p>
           <p className="text-xl font-bold text-primary-400">
-            {weeklyData.reduce((sum, d) => sum + d.sessions, 0)}
+            {totalSessions}
           </p>
           <p className="text-xs text-dark-500">тренировок</p>
         </div>
@@ -174,29 +197,25 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
         <div className="bg-dark-800 rounded-lg p-3 text-center">
           <p className="text-xs text-dark-400">Тренировок</p>
           <p className="text-lg font-bold text-primary-400">
-            {weeklyData.reduce((sum, d) => sum + d.sessions, 0)}
+            {totalSessions}
           </p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
           <p className="text-xs text-dark-400">XP</p>
           <p className="text-lg font-bold text-yellow-400">
-            {weeklyData.reduce((sum, d) => sum + d.xp, 0)}
+            {totalXp}
           </p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
           <p className="text-xs text-dark-400">Ср. WPM</p>
           <p className="text-lg font-bold text-success">
-            {weeklyData.filter(d => d.avgWpm > 0).length > 0
-              ? Math.round(weeklyData.filter(d => d.avgWpm > 0)
-                  .reduce((sum, d) => sum + d.avgWpm, 0) / 
-                  weeklyData.filter(d => d.avgWpm > 0).length)
-              : 0}
+            {avgWpmWeek}
           </p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
           <p className="text-xs text-dark-400">Время</p>
           <p className="text-lg font-bold text-dark-300">
-            {Math.round(weeklyData.reduce((sum, d) => sum + d.totalTime, 0) / 60)} мин
+            {totalTimeWeek} мин
           </p>
         </div>
       </div>
