@@ -59,10 +59,10 @@ export function TypingTrainer({
       exerciseText = challengeText
     } else if (selectedCategory === 'custom' && customExercises.length > 0) {
       const randomIndex = Math.floor(Math.random() * customExercises.length)
-      exerciseText = customExercises[randomIndex].text
+      exerciseText = customExercises[randomIndex]?.text || ''
     } else if (selectedCategory !== 'all') {
       const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
-      exerciseText = exercise.text
+      exerciseText = exercise?.text || ''
     } else {
       exerciseText = generatePracticeText(20, selectedDifficulty)
     }
@@ -103,17 +103,19 @@ export function TypingTrainer({
         const isCorrect = newChar === expectedChar
 
         // Звуковой эффект
-        if (sound) {
+        if (sound && expectedChar) {
           isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
         }
 
         // Callback для тепловой карты
-        onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+        if (expectedChar) {
+          onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+        }
 
         const result: KeyInputResult = {
           isCorrect,
           char: newChar,
-          expectedChar,
+          expectedChar: expectedChar || '',
           timestamp: Date.now(),
         }
 

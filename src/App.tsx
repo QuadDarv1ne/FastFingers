@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
 import { TypingTrainer } from './components/TypingTrainer'
 import { Header } from './components/Header'
 import { Stats } from './components/Stats'
@@ -16,9 +16,20 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
-import { UserProgress, UserSettings, TypingStats as TypingStatsType, KeyHeatmapData } from './types'
+import { TypingStats as TypingStatsType, SoundTheme, UserProgress, KeyboardLayout, UserSettings } from './types'
+import type { CustomExercise } from './components/CustomExerciseEditor'
 
-// Ленивая загрузка крупных компонентов (с именованным экспортом)
+import { useGameMode, type SpeedTestDuration } from './hooks/useGameMode'
+import { useUserProgress } from './hooks/useUserProgress'
+import { useCustomExercises } from './hooks/useCustomExercises'
+import { useTypingSound } from './hooks/useTypingSound'
+import { useTypingHistory } from './hooks/useTypingHistory'
+import { useDailyChallenges } from './hooks/useDailyChallenges'
+import { useTheme } from './hooks/useTheme'
+import { useHotkeys } from './hooks/useHotkeys'
+import { calculateSessionXp } from './utils/stats'
+import { calculateStreakXpBonus } from '@utils/streakBonus'
+
 const SprintMode = lazy(() => import('./components/SprintMode').then(module => ({ default: module.SprintMode })))
 const SpeedTest = lazy(() => import('./components/SpeedTest').then(module => ({ default: module.SpeedTest })))
 const ReactionGame = lazy(() => import('./components/ReactionGame').then(module => ({ default: module.ReactionGame })))
@@ -38,63 +49,19 @@ const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then(modu
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then(module => ({ default: module.UserProfile })))
 const NotificationBell = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationBell })))
 const NotificationPanel = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationPanel })))
-import { useTypingSound } from './hooks/useTypingSound'
-import { useTypingHistory } from './hooks/useTypingHistory'
-import { useDailyChallenges } from './hooks/useDailyChallenges'
-import { useTheme } from './hooks/useTheme'
-import { useHotkeys } from './hooks/useHotkeys'
-import { calculateSessionXp } from './utils/stats'
-import { calculateStreakXpBonus } from '@utils/streakBonus'
-import { Exercise, SoundTheme } from './types'
-
-type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
-type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
-type SpeedTestDuration = 15 | 30 | 60
 
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { addNotification } = useNotifications()
-  
-  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
-  const [settings, setSettings] = useState<UserSettings>({
-    layout: 'jcuken',
-    soundEnabled: true,
-    soundVolume: 0.5,
-    soundTheme: 'default',
-    fontSize: 'medium',
-    theme: 'dark',
-    showKeyboard: true,
-    showStats: true,
-  })
 
-  const [showHeatmap, setShowHeatmap] = useState(false)
-  const [heatmap, setHeatmap] = useState<KeyHeatmapData>({})
-  const [gameMode, setGameMode] = useState<GameMode>('practice')
-  const [view, setView] = useState<View>('main')
-  const [customExercises, setCustomExercises] = useState<Exercise[]>([])
-  const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
+  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
   const [showStreakRewards, setShowStreakRewards] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [lastSessionXp, setLastSessionXp] = useState(0)
-
-  const [progress, setProgress] = useState<UserProgress>({
-    level: 1,
-    xp: 0,
-    xpToNextLevel: 100,
-    totalWordsTyped: 0,
-    totalPracticeTime: 0,
-    bestWpm: 0,
-    bestAccuracy: 0,
-    streak: 0,
-    lastPracticeDate: null,
-  })
-
-  const [currentStats, setCurrentStats] = useState<TypingStatsType | null>(null)
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null)
 
-  // Онбординг для новых пользователей
   const [showOnboarding, setShowOnboarding] = useState(() => {
     try {
       const seen = localStorage.getItem('fastfingers_onboarding_seen')
@@ -104,22 +71,46 @@ function AppContent() {
     }
   })
 
-  const handleOnboardingComplete = () => {
-    localStorage.setItem('fastfingers_onboarding_seen', 'true')
-    setShowOnboarding(false)
-  }
+  const {
+    gameMode,
+    view,
+    speedTestDuration,
+    setGameMode,
+    setView,
+    setSpeedTestDuration,
+    resetToPractice,
+  } = useGameMode()
 
-  // Хуки должны быть вызваны до любых ранних return
+  const {
+    progress,
+    currentStats,
+    heatmap,
+    showHeatmap,
+    settings,
+    handleSessionComplete,
+    updateHeatmap,
+    setShowHeatmap,
+    updateSetting,
+    setProgress,
+  } = useUserProgress({
+    onLevelUp: (newLevel) => {
+      addNotification(createLevelUpNotification(newLevel))
+      triggerConfetti({ type: 'levelup', duration: 4000 })
+    }
+  })
+
+  const { customExercises, addExercise } = useCustomExercises()
+
   const sound = useTypingSound({
     enabled: settings.soundEnabled,
     volume: settings.soundVolume,
     theme: settings.soundTheme
   })
+
   const { addSession } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, setTheme } = useTheme()
 
-  // Горячие клавиши
   useHotkeys({
     'ctrl+1': () => { setGameMode('practice'); setView('main') },
     'ctrl+2': () => { setGameMode('sprint'); setView('main') },
@@ -133,7 +124,6 @@ function AppContent() {
     },
   }, { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile })
 
-  // Обработка начала челленджа
   useEffect(() => {
     const handleStartChallenge = (e: Event) => {
       const customEvent = e as CustomEvent<{ challenge: { id: string } }>
@@ -143,9 +133,49 @@ function AppContent() {
 
     window.addEventListener('startChallenge', handleStartChallenge as EventListener)
     return () => window.removeEventListener('startChallenge', handleStartChallenge as EventListener)
+  }, [setGameMode])
+
+  const handleOnboardingComplete = useCallback(() => {
+    localStorage.setItem('fastfingers_onboarding_seen', 'true')
+    setShowOnboarding(false)
   }, [])
 
-  // Показываем экран загрузки во время проверки аутентификации
+  const handleSessionCompleteWithProgress = useCallback((stats: TypingStatsType) => {
+    const xp = calculateSessionXp(stats)
+    const streakBonus = calculateStreakXpBonus(streak.current)
+    const totalXp = xp + streakBonus
+    setLastSessionXp(totalXp)
+
+    addSession(stats, totalXp)
+
+    if (activeChallenge && todayChallenge) {
+      completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
+      setActiveChallenge(null)
+    }
+
+    handleSessionComplete(stats, streak.current)
+    setShowSessionSummary(true)
+  }, [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete])
+
+  const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
+    const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
+    setLastSessionXp(xp)
+  }, [])
+
+  const handleSaveCustomExercise = useCallback((exercise: CustomExercise) => {
+    addExercise({
+      ...exercise,
+      description: 'Пользовательское упражнение',
+      focusKeys: [],
+    })
+    setView('main')
+    setGameMode('practice')
+  }, [addExercise, setView, setGameMode])
+
+  const handleImportProgress = useCallback((data: { progress: UserProgress }) => {
+    setProgress(data.progress)
+  }, [])
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-dark-900 flex items-center justify-center" role="alert" aria-busy="true">
@@ -161,7 +191,6 @@ function AppContent() {
     )
   }
 
-  // Показываем экран аутентификации если пользователь не авторизован
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<LoadingFallback />}>
@@ -170,100 +199,9 @@ function AppContent() {
     )
   }
 
-  const handleSessionComplete = (stats: TypingStatsType) => {
-    setCurrentStats(stats)
-    sound.playComplete()
-
-    const xp = calculateSessionXp(stats)
-    const streakBonus = calculateStreakXpBonus(streak.current)
-    const totalXp = xp + streakBonus
-    setLastSessionXp(totalXp)
-
-    addSession(stats, totalXp)
-
-    // Завершение челленджа если активен
-    if (activeChallenge && todayChallenge) {
-      completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
-      setActiveChallenge(null)
-    }
-
-    // Обновление прогресса
-    setProgress(prev => {
-      const newXp = prev.xp + totalXp
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
-      const prevLevel = Math.floor(Math.sqrt(prev.xp / 100)) + 1
-      
-      // Уведомление о повышении уровня
-      if (newLevel > prevLevel) {
-        addNotification(createLevelUpNotification(newLevel))
-        triggerConfetti({ type: 'levelup', duration: 4000 })
-      }
-      
-      // Показываем сводку сессии
-      setShowSessionSummary(true)
-      
-      return {
-        ...prev,
-        xp: newXp,
-        level: newLevel,
-        xpToNextLevel: Math.pow(newLevel + 1, 2) * 100,
-        totalWordsTyped: prev.totalWordsTyped + Math.floor(stats.correctChars / 5),
-        bestWpm: Math.max(prev.bestWpm, stats.wpm),
-        bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
-      }
-    })
-  }
-
-  const handleReactionGameComplete = (score: number, accuracy: number) => {
-    const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
-    setLastSessionXp(xp)
-    
-    setProgress(prev => {
-      const newXp = prev.xp + xp
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
-      
-      return {
-        ...prev,
-        xp: newXp,
-        level: newLevel,
-        xpToNextLevel: Math.pow(newLevel + 1, 2) * 100,
-      }
-    })
-  }
-
-  const handleKeyInput = (key: string, isCorrect: boolean) => {
-    setHeatmap(prev => {
-      const newHeatmap = { ...prev }
-      if (!newHeatmap[key]) {
-        newHeatmap[key] = { errors: 0, total: 0, accuracy: 100 }
-      }
-      newHeatmap[key].total++
-      if (!isCorrect) {
-        newHeatmap[key].errors++
-      }
-      newHeatmap[key].accuracy = Math.round(
-        ((newHeatmap[key].total - newHeatmap[key].errors) / newHeatmap[key].total) * 100
-      )
-      return newHeatmap
-    })
-  }
-
-  const handleSaveCustomExercise = (exercise: Exercise) => {
-    setCustomExercises(prev => [...prev, exercise])
-    setView('main')
-    setGameMode('practice')
-  }
-
-  const handleImportProgress = (data: { progress: UserProgress }) => {
-    setProgress(data.progress)
-  }
-
   return (
     <div className="min-h-screen bg-dark-900 transition-colors duration-300">
-      {/* Accessibility: Skip Links */}
       <SkipLink />
-
-      {/* Accessibility: ARIA Announcer */}
       <AriaAnnouncer />
 
       <Header
@@ -273,14 +211,12 @@ function AppContent() {
         onProfileClick={() => setShowProfile(true)}
       />
 
-      {/* Колокольчик уведомлений */}
       <div className="fixed top-4 right-4 z-40">
         <Suspense fallback={null}>
           <NotificationBell onOpenPanel={() => setShowNotificationPanel(true)} />
         </Suspense>
       </div>
 
-      {/* Панель уведомлений */}
       {showNotificationPanel && (
         <Suspense fallback={<LoadingFallback />}>
           <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
@@ -288,170 +224,83 @@ function AppContent() {
       )}
 
       <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
-        {/* Верхняя панель */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          {/* Переключатель режимов */}
           <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label="Режимы тренировки">
-            <button
+            <ModeButton
+              isActive={gameMode === 'practice' && view === 'main'}
               onClick={() => { setGameMode('practice'); setView('main') }}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                gameMode === 'practice' && view === 'main'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="📝"
+              label="Практика"
               title="Свободная практика печати"
-            >
-              <span className="text-lg">📝</span>
-              <span className="hidden sm:inline">Практика</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={gameMode === 'sprint'}
               onClick={() => { setGameMode('sprint'); setView('main') }}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                gameMode === 'sprint'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="⚡"
+              label="Спринт"
               title="60 секунд на максимальную скорость"
-            >
-              <span className="text-lg">⚡</span>
-              <span className="hidden sm:inline">Спринт</span>
-            </button>
-            <div className="relative group">
-              <button
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                  gameMode === 'speedtest'
-                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                    : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-                }`}
-                onClick={() => setGameMode('speedtest')}
-                title="Тест скорости печати"
-              >
-                <span className="text-lg">🕐</span>
-                <span className="hidden sm:inline">Тест</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {/* Выпадающее меню */}
-              <div className="absolute top-full left-0 mt-2 card p-2 hidden group-hover:block z-10 min-w-[160px] animate-scale-in">
-                <button
-                  onClick={() => { setSpeedTestDuration(15); setGameMode('speedtest') }}
-                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
-                >
-                  <span>15 секунд</span>
-                  <span className="text-xs text-dark-500">⚡</span>
-                </button>
-                <button
-                  onClick={() => { setSpeedTestDuration(30); setGameMode('speedtest') }}
-                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
-                >
-                  <span>30 секунд</span>
-                  <span className="text-xs text-dark-500">⭐</span>
-                </button>
-                <button
-                  onClick={() => { setSpeedTestDuration(60); setGameMode('speedtest') }}
-                  className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
-                >
-                  <span>60 секунд</span>
-                  <span className="text-xs text-dark-500">🔥</span>
-                </button>
-              </div>
-            </div>
-            <button
+            />
+            <SpeedTestDropdown
+              isActive={gameMode === 'speedtest'}
+              duration={speedTestDuration}
+              onDurationChange={setSpeedTestDuration}
+              onGameModeChange={setGameMode}
+            />
+            <ModeButton
+              isActive={view === 'custom-exercise'}
               onClick={() => setView('custom-exercise')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                view === 'custom-exercise'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="✏️"
+              label="Своё"
               title="Создать своё упражнение"
-            >
-              <span className="text-lg">✏️</span>
-              <span className="hidden sm:inline">Своё</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={view === 'tips'}
               onClick={() => setView('tips')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                view === 'tips'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="💡"
+              label="Советы"
               title="Советы по слепой печати"
-            >
-              <span className="text-lg">💡</span>
-              <span className="hidden sm:inline">Советы</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={view === 'weekly'}
               onClick={() => setView('weekly')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                view === 'weekly'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="📈"
+              label="Неделя"
               title="Прогресс за неделю"
-            >
-              <span className="text-lg">📈</span>
-              <span className="hidden sm:inline">Неделя</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={view === 'statistics'}
               onClick={() => setView('statistics')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                view === 'statistics'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="📊"
+              label="Статистика"
               title="Детальная статистика"
-            >
-              <span className="text-lg">📊</span>
-              <span className="hidden sm:inline">Статистика</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={view === 'learning'}
               onClick={() => setView('learning')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                view === 'learning'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="📚"
+              label="Обучение"
               title="Режим обучения"
-            >
-              <span className="text-lg">📚</span>
-              <span className="hidden sm:inline">Обучение</span>
-            </button>
-            <button
+            />
+            <ModeButton
+              isActive={gameMode === 'reaction'}
               onClick={() => setGameMode('reaction')}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                gameMode === 'reaction'
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-              }`}
+              icon="🎮"
+              label="Игра"
               title="Игра на реакцию"
-            >
-              <span className="text-lg">🎮</span>
-              <span className="hidden sm:inline">Игра</span>
-            </button>
+            />
           </nav>
 
-          {/* Переключатель темы */}
           <ThemeToggle theme={theme} onThemeChange={setTheme} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Основная зона */}
           <div className="lg:col-span-2 space-y-6">
             <Suspense fallback={<LoadingFallback />}>
               {view === 'history' ? (
                 <TrainingHistory onBack={() => setView('main')} />
               ) : view === 'custom-exercise' ? (
                 <CustomExerciseEditor
-                  onSave={(exercise) => handleSaveCustomExercise({
-                    id: exercise.id,
-                    title: exercise.title,
-                    description: 'Пользовательское упражнение',
-                    text: exercise.text,
-                    difficulty: 3,
-                    category: 'custom',
-                    focusKeys: [],
-                  })}
+                  onSave={handleSaveCustomExercise}
                   onClose={() => setView('main')}
                 />
               ) : view === 'tips' ? (
@@ -474,19 +323,18 @@ function AppContent() {
               ) : gameMode === 'sprint' ? (
                 <SprintMode
                   onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionComplete}
+                  onComplete={handleSessionCompleteWithProgress}
                   sound={sound}
                 />
               ) : gameMode === 'speedtest' ? (
                 <SpeedTest
                   duration={speedTestDuration}
                   onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionComplete}
+                  onComplete={handleSessionCompleteWithProgress}
                   sound={sound}
                 />
               ) : (
                 <>
-                  {/* Карточка ежедневного челленджа */}
                   {todayChallenge && gameMode !== 'challenge' && (
                     <DailyChallengeCard
                       challenge={{
@@ -508,8 +356,8 @@ function AppContent() {
                   <TypingTrainer
                     layout={settings.layout}
                     fontSize={settings.fontSize}
-                    onSessionComplete={handleSessionComplete}
-                    onKeyInput={handleKeyInput}
+                    onSessionComplete={handleSessionCompleteWithProgress}
+                    onKeyInput={updateHeatmap}
                     sound={sound}
                     customExercises={customExercises}
                     isChallenge={gameMode === 'challenge'}
@@ -530,12 +378,8 @@ function AppContent() {
             </Suspense>
           </div>
 
-          {/* Боковая панель */}
           <div className="space-y-6">
-            {/* Виджет часов */}
             <ClockWidget />
-
-            {/* Мотивационная цитата */}
             <MotivationalQuote />
 
             {settings.showStats && (
@@ -548,74 +392,13 @@ function AppContent() {
               />
             )}
 
-            {/* Настройки */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4">Настройки</h3>
+            <SettingsPanel
+              settings={settings}
+              onSettingChange={updateSetting}
+              onShowStreakRewards={() => setShowStreakRewards(true)}
+              streak={streak.current}
+            />
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-dark-400 mb-2">
-                    Раскладка
-                  </label>
-                  <select
-                    value={settings.layout}
-                    onChange={(e) => setSettings({ ...settings, layout: e.target.value as 'qwerty' | 'jcuken' | 'dvorak' })}
-                    className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="jcuken">ЙЦУКЕН</option>
-                    <option value="qwerty">QWERTY</option>
-                    <option value="dvorak">Dvorak</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-dark-400 mb-2">
-                    Звуковая тема
-                  </label>
-                  <select
-                    value={settings.soundTheme}
-                    onChange={(e) => setSettings({ ...settings, soundTheme: e.target.value as SoundTheme })}
-                    className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="default">🔊 По умолчанию</option>
-                    <option value="piano">🎹 Пианино</option>
-                    <option value="mechanical">⌨️ Механическая</option>
-                    <option value="soft">🌸 Мягкий</option>
-                    <option value="retro">👾 Ретро</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark-400">Звук</span>
-                  <button
-                    onClick={() => setSettings({ ...settings, soundEnabled: !settings.soundEnabled })}
-                    className={`w-12 h-6 rounded-full transition-colors ${settings.soundEnabled ? 'bg-primary-600' : 'bg-dark-700'}`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${settings.soundEnabled ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-dark-400">Клавиатура</span>
-                  <button
-                    onClick={() => setSettings({ ...settings, showKeyboard: !settings.showKeyboard })}
-                    className={`w-12 h-6 rounded-full transition-colors ${settings.showKeyboard ? 'bg-primary-600' : 'bg-dark-700'}`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-transform ${settings.showKeyboard ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => setShowStreakRewards(true)}
-                  className="w-full py-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 border border-orange-500/50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <span>🔥</span>
-                  Награды за серию ({streak.current} дн.)
-                </button>
-              </div>
-            </div>
-
-            {/* Экспорт/Импорт */}
             <div className="glass rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4">Данные</h3>
               <ExportImport
@@ -632,17 +415,14 @@ function AppContent() {
         <p>FastFingers © 2026 — Тренажёр слепой печати</p>
       </footer>
 
-      {/* Индикатор онлайн/офлайн статуса */}
       <OnlineStatus />
 
-      {/* Онбординг для новых пользователей */}
       {showOnboarding && (
         <Suspense fallback={<LoadingFallback />}>
           <Onboarding onComplete={handleOnboardingComplete} />
         </Suspense>
       )}
 
-      {/* Панель достижений */}
       {showAchievements && (
         <Suspense fallback={<LoadingFallback />}>
           <AchievementsPanel
@@ -660,7 +440,6 @@ function AppContent() {
         </Suspense>
       )}
 
-      {/* Сводка сессии */}
       {showSessionSummary && currentStats && (
         <Suspense fallback={<LoadingFallback />}>
           <SessionSummary
@@ -669,13 +448,12 @@ function AppContent() {
             onClose={() => setShowSessionSummary(false)}
             onRetry={() => {
               setShowSessionSummary(false)
-              setGameMode('practice')
+              resetToPractice()
             }}
           />
         </Suspense>
       )}
 
-      {/* Награды за серию */}
       {showStreakRewards && (
         <Suspense fallback={<LoadingFallback />}>
           <StreakRewardsPanel
@@ -685,7 +463,6 @@ function AppContent() {
         </Suspense>
       )}
 
-      {/* Профиль пользователя */}
       {showProfile && (
         <Suspense fallback={<LoadingFallback />}>
           <UserProfile onClose={() => setShowProfile(false)} />
@@ -695,7 +472,178 @@ function AppContent() {
   )
 }
 
-// Главный компонент App с AuthProvider и NotificationProvider
+interface ModeButtonProps {
+  isActive: boolean
+  onClick: () => void
+  icon: string
+  label: string
+  title: string
+}
+
+const ModeButton = memo<ModeButtonProps>(function ModeButton({ isActive, onClick, icon, label, title }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+        isActive
+          ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+          : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
+      }`}
+      title={title}
+    >
+      <span className="text-lg">{icon}</span>
+      <span className="hidden sm:inline">{label}</span>
+    </button>
+  )
+})
+
+interface SpeedTestDropdownProps {
+  isActive: boolean
+  duration: SpeedTestDuration
+  onDurationChange: (duration: SpeedTestDuration) => void
+  onGameModeChange: (mode: 'speedtest') => void
+}
+
+const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdown({
+  isActive,
+  onDurationChange,
+  onGameModeChange,
+}) {
+  const durationLabels: Record<SpeedTestDuration, string> = {
+    15: '15 секунд',
+    30: '30 секунд',
+    60: '60 секунд',
+  }
+
+  const durationIcons: Record<SpeedTestDuration, string> = {
+    15: '⚡',
+    30: '⭐',
+    60: '🔥',
+  }
+
+  return (
+    <div className="relative group">
+      <button
+        className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+          isActive
+            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+            : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
+        }`}
+        onClick={() => onGameModeChange('speedtest')}
+        title="Тест скорости печати"
+      >
+        <span className="text-lg">🕐</span>
+        <span className="hidden sm:inline">Тест</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div className="absolute top-full left-0 mt-2 card p-2 hidden group-hover:block z-10 min-w-[160px] animate-scale-in">
+        {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
+          <button
+            key={d}
+            onClick={() => onDurationChange(d)}
+            className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
+          >
+            <span>{durationLabels[d]}</span>
+            <span className="text-xs text-dark-500">{durationIcons[d]}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+})
+
+interface SettingsPanelProps {
+  settings: UserSettings
+  onSettingChange: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void
+  onShowStreakRewards: () => void
+  streak: number
+}
+
+const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
+  settings,
+  onSettingChange,
+  onShowStreakRewards,
+  streak,
+}) {
+  return (
+    <div className="glass rounded-xl p-6">
+      <h3 className="text-lg font-semibold mb-4">Настройки</h3>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm text-dark-400 mb-2">Раскладка</label>
+          <select
+            value={settings.layout}
+            onChange={(e) => onSettingChange('layout', e.target.value as KeyboardLayout)}
+            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="jcuken">ЙЦУКЕН</option>
+            <option value="qwerty">QWERTY</option>
+            <option value="dvorak">Dvorak</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm text-dark-400 mb-2">Звуковая тема</label>
+          <select
+            value={settings.soundTheme}
+            onChange={(e) => onSettingChange('soundTheme', e.target.value as SoundTheme)}
+            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="default">🔊 По умолчанию</option>
+            <option value="piano">🎹 Пианино</option>
+            <option value="mechanical">⌨️ Механическая</option>
+            <option value="soft">🌸 Мягкий</option>
+            <option value="retro">👾 Ретро</option>
+          </select>
+        </div>
+
+        <Toggle
+          label="Звук"
+          checked={settings.soundEnabled}
+          onChange={(checked) => onSettingChange('soundEnabled', checked)}
+        />
+
+        <Toggle
+          label="Клавиатура"
+          checked={settings.showKeyboard}
+          onChange={(checked) => onSettingChange('showKeyboard', checked)}
+        />
+
+        <button
+          onClick={onShowStreakRewards}
+          className="w-full py-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 border border-orange-500/50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <span>🔥</span>
+          Награды за серию ({streak} дн.)
+        </button>
+      </div>
+    </div>
+  )
+})
+
+interface ToggleProps {
+  label: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}
+
+const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-dark-400">{label}</span>
+      <button
+        onClick={() => onChange(!checked)}
+        className={`w-12 h-6 rounded-full transition-colors ${checked ? 'bg-primary-600' : 'bg-dark-700'}`}
+      >
+        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-6' : 'translate-x-0.5'}`} />
+      </button>
+    </div>
+  )
+})
+
 function App() {
   return (
     <AuthProvider>
