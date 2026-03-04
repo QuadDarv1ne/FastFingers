@@ -68,14 +68,14 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       { name: '95%+', value: 0, color: '#22c55e' },
     ]
     
-    history.sessions.forEach(session => {
+    history.sessions?.forEach(session => {
       if (session.accuracy < 70) ranges[0].value++
       else if (session.accuracy < 80) ranges[1].value++
       else if (session.accuracy < 90) ranges[2].value++
       else if (session.accuracy < 95) ranges[3].value++
       else ranges[4].value++
     })
-    
+
     return ranges.filter(r => r.value > 0)
   }, [history.sessions])
 
@@ -87,10 +87,10 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       date.setDate(date.getDate() - i)
       const dateStr = date.toISOString().split('T')[0]
       const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
-      
-      const sessionsOnDay = history.sessions.filter(s => s.date.startsWith(dateStr))
+
+      const sessionsOnDay = history.sessions?.filter(s => s.date.startsWith(dateStr)) || []
       const totalTime = sessionsOnDay.reduce((sum, s) => sum + s.duration, 0)
-      
+
       last7Days.push({
         day: dayName,
         minutes: Math.round(totalTime / 60),

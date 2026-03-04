@@ -191,7 +191,7 @@ export function LearningMode({ onClose, onBack: _onBack, onStartLesson }: Learni
             /* Lessons list */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {lessons.map((lesson, index) => {
-                const isLocked = index > 0 && !lessons[index - 1].completed
+                const isLocked = index > 0 && !lessons[index - 1]?.completed
                 return (
                   <LessonCard
                     key={lesson.id}

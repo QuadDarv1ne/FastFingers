@@ -104,8 +104,10 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             style={{ paddingLeft: `${rowIndex * 12}px` }}
           >
             {row.map((key) => {
-              const { className, style, title } = keyStyles[key]
-              
+              const keyStyle = keyStyles[key]
+              if (!keyStyle) return null
+              const { className, style, title } = keyStyle
+
               return (
                 <div
                   key={key}
@@ -116,7 +118,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   {key.toUpperCase()}
                   {showHeatmap && heatmap[key.toLowerCase()]?.total && heatmap[key.toLowerCase()].total >= 3 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-dark-900 rounded-full text-[10px] flex items-center justify-center font-bold border border-dark-700">
-                      {heatmap[key.toLowerCase()].accuracy}
+                      {heatmap[key.toLowerCase()]?.accuracy}
                     </span>
                   )}
                 </div>
