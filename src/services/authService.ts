@@ -1,4 +1,5 @@
 import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
+import { supabase } from './supabase';
 
 const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
@@ -179,6 +180,42 @@ export const authService = {
       throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
     }
 
+    // Если Supabase настроен - используем его
+    if (supabase) {
+      const { data, error } = await supabase.auth.signUp({
+        email: sanitizedEmail,
+        password: credentials.password,
+        options: { data: { name: sanitizedName } },
+      });
+
+      if (error) {
+        throw { code: 'unknown', message: error.message } as AuthError;
+      }
+
+      if (data.user) {
+        const user: User = {
+          id: data.user.id,
+          email: sanitizedEmail,
+          name: sanitizedName,
+          createdAt: new Date().toISOString(),
+          stats: {
+            totalXp: 0,
+            level: 1,
+            bestWpm: 0,
+            bestAccuracy: 0,
+            totalWordsTyped: 0,
+            totalPracticeTime: 0,
+            currentStreak: 0,
+            longestStreak: 0,
+            completedChallenges: 0,
+          },
+        };
+        saveCurrentUser(user, true);
+        return user;
+      }
+    }
+
+    // Fallback на localStorage
     const users = getUsers();
 
     if (users.find(u => u.email === sanitizedEmail)) {
@@ -225,12 +262,54 @@ export const authService = {
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
+    // Если Supabase настроен - используем его
+    if (supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: sanitizedEmail,
+        password: credentials.password,
+      });
+
+      if (error) {
+        if (error.status === 401) {
+          throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
+        }
+        if (error.status === 404) {
+          throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+        }
+        throw { code: 'unknown', message: error.message } as AuthError;
+      }
+
+      if (data.user) {
+        const user: User = {
+          id: data.user.id,
+          email: sanitizedEmail,
+          name: data.user.user_metadata?.name || sanitizedEmail,
+          createdAt: data.user.created_at,
+          lastLogin: new Date().toISOString(),
+          stats: data.user.user_metadata?.stats || {
+            totalXp: 0,
+            level: 1,
+            bestWpm: 0,
+            bestAccuracy: 0,
+            totalWordsTyped: 0,
+            totalPracticeTime: 0,
+            currentStreak: 0,
+            longestStreak: 0,
+            completedChallenges: 0,
+          },
+        };
+        saveCurrentUser(user, credentials.rememberMe ?? true);
+        return user;
+      }
+    }
+
+    // Fallback на localStorage
     const lockoutTime = checkLockout(sanitizedEmail);
     if (lockoutTime) {
       const minutes = Math.ceil(lockoutTime / 60000);
-      throw { 
-        code: 'locked-out', 
-        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.` 
+      throw {
+        code: 'locked-out',
+        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.`
       } as AuthError;
     }
 
@@ -259,7 +338,10 @@ export const authService = {
   },
 
   // Выход
-  logout(): void {
+  async logout(): Promise<void> {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     removeCurrentUser();
   },
 
