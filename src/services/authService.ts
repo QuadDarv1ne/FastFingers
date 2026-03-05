@@ -350,7 +350,11 @@ export const authService = {
     users[userIndex] = { ...user, ...updates };
     saveUsers(users);
 
-    const userWithoutPassword = withoutPassword(users[userIndex]!);
+    const updatedUser = users[userIndex];
+    if (!updatedUser) {
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+    }
+    const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);
 
     return userWithoutPassword;
@@ -373,7 +377,11 @@ export const authService = {
     users[userIndex] = { ...user, stats: { ...user.stats, ...stats } };
     saveUsers(users);
 
-    const userWithoutPassword = withoutPassword(users[userIndex]!);
+    const updatedUser = users[userIndex];
+    if (!updatedUser) {
+      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+    }
+    const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);
 
     return userWithoutPassword;

@@ -51,8 +51,9 @@ function getExercisesByDifficulty(difficulty: number): Exercise[] {
 
 function getExercisesForLayout(layout: Layout): Exercise[] {
   const cacheKey = `layout:${layout}`;
-  if (exercisesCache.has(cacheKey)) {
-    return exercisesCache.get(cacheKey)!;
+  const cached = exercisesCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const filtered = exercises.filter(e => !e.layout || e.layout === layout);
@@ -305,22 +306,22 @@ export const exercises: Exercise[] = [
   },
 ];
 
-// Генерация случайного текста из упражнений
+// Генерация случайного упражнения
 export function getRandomExercise(category?: string, difficulty?: number, layout?: Layout): Exercise {
   let pool: Exercise[];
 
   if (category && difficulty && layout) {
     const cacheKey = `cat:${category}:diff:${difficulty}:layout:${layout}`;
-    if (exercisesCache.has(cacheKey)) {
-      pool = exercisesCache.get(cacheKey)!;
-    } else {
-      pool = exercises.filter(e => 
-        (e.category === category || !e.category) && 
-        e.difficulty <= difficulty && 
+    const cached = exercisesCache.get(cacheKey);
+    pool = cached ?? (() => {
+      const filtered = exercises.filter(e =>
+        (e.category === category || !e.category) &&
+        e.difficulty <= difficulty &&
         (!e.layout || e.layout === layout)
       );
-      exercisesCache.set(cacheKey, pool);
-    }
+      exercisesCache.set(cacheKey, filtered);
+      return filtered;
+    })();
   } else if (category && layout) {
     const cacheKey = `cat:${category}:layout:${layout}`;
     const cached = exercisesCache.get(cacheKey);
@@ -360,7 +361,7 @@ export function getRandomExercise(category?: string, difficulty?: number, layout
 
   if (pool.length === 0) pool = exercises;
   const randomIndex = Math.floor(Math.random() * pool.length);
-  return pool[randomIndex] ?? exercises[0]!;
+  return pool[randomIndex] ?? exercises[0] ?? exercises[0];
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {

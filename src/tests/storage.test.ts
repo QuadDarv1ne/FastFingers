@@ -52,7 +52,11 @@ describe('storage utils', () => {
     it('должен сохранять объект', () => {
       const obj = { foo: 'bar' }
       setToStorage('obj', obj)
-      expect(JSON.parse(localStorage.getItem('obj')!)).toEqual(obj)
+      const stored = localStorage.getItem('obj')
+      expect(stored).not.toBeNull()
+      if (stored) {
+        expect(JSON.parse(stored)).toEqual(obj)
+      }
     })
 
     it('должен удалять ключ при null значении', () => {

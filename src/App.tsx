@@ -155,7 +155,7 @@ function AppContent() {
 
     handleSessionComplete(stats, streak.current)
     setShowSessionSummary(true)
-  }, [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete])
+  }, [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete, streak])
 
   const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
     const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
@@ -174,7 +174,7 @@ function AppContent() {
 
   const handleImportProgress = useCallback((data: { progress: UserProgress }) => {
     setProgress(data.progress)
-  }, [])
+  }, [setProgress])
 
   if (authLoading) {
     return (

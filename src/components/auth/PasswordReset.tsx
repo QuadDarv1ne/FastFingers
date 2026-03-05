@@ -38,23 +38,23 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   }, [lastResetToken])
 
   useEffect(() => {
-    if (step !== 'confirm') return
+    if (step === 'confirm') {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current)
+            setStep('request')
+            setTimeLeft(TOKEN_EXPIRY_SECONDS)
+            setShowToken(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
 
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!)
-          setStep('request')
-          setTimeLeft(TOKEN_EXPIRY_SECONDS)
-          setShowToken(false)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current)
+      }
     }
   }, [step])
 
