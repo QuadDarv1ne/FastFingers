@@ -70,7 +70,7 @@ export function TypingSpeedChart({
       }>
       return (
         <div className="bg-dark-800 border border-dark-700 rounded-lg p-3 shadow-xl">
-          <p className="text-sm text-dark-400 mb-2">{typedPayload[0]!.payload.date}</p>
+          <p className="text-sm text-dark-400 mb-2">{typedPayload[0]?.payload.date}</p>
           {typedPayload.map((entry, index) => (
             <p key={index} className="text-sm font-semibold" style={{ color: entry.color }}>
               {entry.name}: {entry.value.toFixed(1)}

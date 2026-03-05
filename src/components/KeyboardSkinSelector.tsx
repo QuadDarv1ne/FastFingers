@@ -14,7 +14,7 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   const currentSkin = useMemo(
-    () => keyboardSkinPresets.find(t => t.value === skin) ?? keyboardSkinPresets[0]!,
+    () => keyboardSkinPresets.find(t => t.value === skin) ?? keyboardSkinPresets[0],
     [skin]
   )
 
@@ -41,7 +41,10 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
       case ' ':
         e.preventDefault()
         if (showMenu) {
-          onSkinChange(keyboardSkinPresets[focusedIndex]!.value)
+          const selected = keyboardSkinPresets[focusedIndex]
+          if (selected) {
+            onSkinChange(selected.value)
+          }
           setShowMenu(false)
         }
         break

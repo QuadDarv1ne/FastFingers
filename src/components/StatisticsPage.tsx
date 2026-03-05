@@ -49,8 +49,11 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
     history.sessions.forEach(session => {
       const date = new Date(session.date)
       const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
-      data[dayIndex]!.sessions += 1
-      data[dayIndex]!.avgWpm += session.wpm ?? 0
+      const dayData = data[dayIndex]
+      if (dayData) {
+        dayData.sessions += 1
+        dayData.avgWpm += session.wpm ?? 0
+      }
     })
 
     return data.map(d => ({
@@ -77,7 +80,10 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       else if (accuracy < 90) rangeIndex = 2
       else if (accuracy < 95) rangeIndex = 3
 
-      ranges[rangeIndex]!.value++
+      const range = ranges[rangeIndex]
+      if (range) {
+        range.value++
+      }
     })
 
     return ranges.filter(r => r.value > 0)
@@ -89,7 +95,8 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
     for (let i = 6; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]!
+      const dateStr = date.toISOString().split('T')[0]
+      if (!dateStr) continue
       const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
 
       const sessionsOnDay = history.sessions.filter(s => s.date.startsWith(dateStr))

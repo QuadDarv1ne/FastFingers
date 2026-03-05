@@ -42,7 +42,8 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]!
+    const today = new Date().toISOString().split('T')[0]
+    if (!today) return
     const dailyChallenge = generateDailyChallenge(today)
     const challengeProgress = progress[dailyChallenge?.id] || {
       completed: false,
@@ -228,7 +229,21 @@ function generateDailyChallenge(date: string): DailyChallenge {
     },
   ]
 
-  const selected = challenges[seed % challenges.length]!
+  const selected = challenges[seed % challenges.length]
+
+  if (!selected) {
+    return {
+      id: 'default',
+      date: new Date().toISOString(),
+      title: 'Ежедневное испытание',
+      description: 'Пройдите испытание дня',
+      goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
+      reward: { points: 100, badge: '🏆' },
+      difficulty: 'medium' as const,
+      completed: false,
+      progress: 0,
+    } as DailyChallenge
+  }
 
   return {
     ...selected,
