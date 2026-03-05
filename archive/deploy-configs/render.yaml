@@ -1,0 +1,22 @@
+# Render конфигурация для деплоя
+# Документация: https://render.com/docs/static-sites
+
+# Render автоматически определяет Vite проект
+# Настройки в веб-панели:
+# - Build Command: npm run build
+# - Publish Directory: dist
+# - Environment: Node
+
+# Опционально: render.yaml для Infrastructure as Code
+
+services:
+  - type: web
+    name: fastfingers
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NPM_FLAGS
+        value: --production=false

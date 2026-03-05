@@ -1,0 +1,15 @@
+# Surge конфигурация для деплоя
+# Документация: https://surge.sh/help/
+
+# Для деплоя выполните:
+# npm install -g surge
+# surge ./dist
+
+# Опционально: создайте файл CNAME для кастомного домена
+# fastfingers.app
+
+# Опционально: .surgeignore
+# node_modules
+# npm-debug.log
+# .git
+# .env
