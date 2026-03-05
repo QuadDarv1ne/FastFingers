@@ -32,9 +32,8 @@ class CloudSyncService {
       const saves = this.getAllSaves()
       saves[user.id] = save
       localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
-    } catch (e) {
-      console.error('Failed to save to cloud:', e)
-      throw e
+    } catch {
+      throw new Error('Failed to save progress')
     }
 
     // Очищаем очередь
@@ -46,8 +45,7 @@ class CloudSyncService {
     try {
       const saves = this.getAllSaves()
       return saves[userId] || null
-    } catch (e) {
-      console.error('Failed to load from cloud:', e)
+    } catch {
       return null
     }
   }
@@ -123,11 +121,9 @@ export function useAutoSync(user: User | null, stats: UserStats) {
     if (!user) return
 
     const interval = setInterval(async () => {
-      try {
-        await cloudSyncService.saveProgress(user, stats)
-      } catch (e) {
-        console.error('Auto-sync failed:', e)
-      }
+      await cloudSyncService.saveProgress(user, stats).catch(() => {
+        // Ignore sync errors
+      })
     }, SYNC_INTERVAL)
 
     return () => clearInterval(interval)
