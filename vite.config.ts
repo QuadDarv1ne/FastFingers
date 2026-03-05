@@ -5,8 +5,23 @@ import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { copyFileSync } from 'fs'
 
+// Плагин для копирования _routes.json в dist
+function copyRoutesPlugin() {
+  return {
+    name: 'copy-routes-plugin',
+    closeBundle() {
+      try {
+        copyFileSync('_routes.json', 'dist/_routes.json')
+        console.log('✓ Copied _routes.json to dist/')
+      } catch (e) {
+        console.warn('⚠ Could not copy _routes.json:', e)
+      }
+    },
+  }
+}
+
 export default defineConfig({
-  base: import.meta.env?.VITE_BASE_PATH || '/',
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [
     react(),
     VitePWA({
@@ -67,6 +82,7 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
     }),
+    copyRoutesPlugin(),
   ],
   resolve: {
     alias: {
@@ -97,10 +113,6 @@ export default defineConfig({
           'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
         },
       },
-    },
-    // Копируем _routes.json для Cloudflare Pages после сборки
-    onAfterWrite() {
-      copyFileSync('_routes.json', 'dist/_routes.json')
     },
   },
 })
