@@ -22,15 +22,15 @@ export interface KeyInfo {
 }
 
 export const FINGER_COLORS: Record<FingerZone, string> = {
-  'left-pinky': '#ef4444', // red
-  'left-ring': '#f59e0b', // amber
-  'left-middle': '#10b981', // emerald
-  'left-index': '#3b82f6', // blue
-  'right-index': '#3b82f6', // blue
-  'right-middle': '#10b981', // emerald
-  'right-ring': '#f59e0b', // amber
-  'right-pinky': '#ef4444', // red
-  thumb: '#8b5cf6', // violet
+  'left-pinky': '#ef4444',
+  'left-ring': '#f59e0b',
+  'left-middle': '#10b981',
+  'left-index': '#3b82f6',
+  'right-index': '#3b82f6',
+  'right-middle': '#10b981',
+  'right-ring': '#f59e0b',
+  'right-pinky': '#ef4444',
+  thumb: '#8b5cf6',
 }
 
 export const JCUKEN_LAYOUT: KeyInfo[] = [
