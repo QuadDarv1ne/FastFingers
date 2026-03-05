@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { copyFileSync } from 'fs'
 
 export default defineConfig({
   base: import.meta.env?.VITE_BASE_PATH || '/',
@@ -96,6 +97,10 @@ export default defineConfig({
           'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
         },
       },
+    },
+    // Копируем _routes.json для Cloudflare Pages после сборки
+    onAfterWrite() {
+      copyFileSync('_routes.json', 'dist/_routes.json')
     },
   },
 })
