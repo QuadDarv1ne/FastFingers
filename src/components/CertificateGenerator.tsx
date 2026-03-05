@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { memo, useState, useMemo } from 'react'
 import { User } from '../types/auth'
 import { generateCertificate, calculateRank, CertificateData } from '../utils/certificate'
 
@@ -16,7 +16,7 @@ interface CertificateGeneratorProps {
 type CertificateTheme = 'classic' | 'modern' | 'neon'
 type CertificateLanguage = 'ru' | 'en'
 
-export function CertificateGenerator({
+export const CertificateGenerator = memo<CertificateGeneratorProps>(function CertificateGenerator({
   user,
   wpm,
   accuracy,
@@ -240,7 +240,16 @@ export function CertificateGenerator({
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.user.id === nextProps.user.id &&
+    prevProps.wpm === nextProps.wpm &&
+    prevProps.accuracy === nextProps.accuracy &&
+    prevProps.cpm === nextProps.cpm &&
+    prevProps.testType === nextProps.testType &&
+    prevProps.onClose === nextProps.onClose
+  )
+})
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
