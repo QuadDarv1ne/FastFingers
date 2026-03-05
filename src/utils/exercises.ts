@@ -294,9 +294,9 @@ export function getRandomExercise(category?: string, difficulty?: number, layout
   }
 
   if (pool.length === 0) pool = exercises;
-  if (pool.length === 0) return exercises[0]!
+  if (pool.length === 0) return exercises[0]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
   const randomIndex = Math.floor(Math.random() * pool.length)
-  return pool[randomIndex]!
+  return pool[randomIndex]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {

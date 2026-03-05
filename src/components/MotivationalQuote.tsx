@@ -169,9 +169,9 @@ function getRandomQuote(category?: Quote['category']): Quote {
     : QUOTES
 
   const quotes = filtered.length > 0 ? filtered : QUOTES
-  if (quotes.length === 0) return QUOTES[0]!
+  if (quotes.length === 0) return QUOTES[0]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
   const randomIndex = Math.floor(Math.random() * quotes.length)
-  return quotes[randomIndex]!
+  return quotes[randomIndex]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
 }
 
 function getCategoryLabel(category: Quote['category']): string {
