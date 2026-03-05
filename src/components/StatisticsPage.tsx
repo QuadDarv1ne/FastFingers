@@ -1,4 +1,4 @@
-import { useMemo, Suspense } from 'react'
+import { memo, useMemo, Suspense } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { LoadingFallback } from './LoadingFallback'
 import {
@@ -20,7 +20,7 @@ interface StatisticsPageProps {
   onBack: () => void
 }
 
-export function StatisticsPage({ onBack }: StatisticsPageProps) {
+export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
   const { history, getStatsForPeriod } = useTypingHistory()
 
   // Данные за разные периоды
@@ -317,7 +317,9 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  return prevProps.onBack === nextProps.onBack
+})
 
 function StatCard({ title, value, icon, trend, highlight = false }: { 
   title: string
