@@ -57,10 +57,6 @@ const UserProfile = lazy(() => import('./components/auth/UserProfile').then((mod
 const NotificationBell = lazy(() => import('./components/NotificationBell').then((module) => ({ default: module.NotificationBell })))
 const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
 
-// Preload critical components
-AuthWrapper.preload()
-NotificationBell.preload()
-
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { addNotification } = useNotifications()
