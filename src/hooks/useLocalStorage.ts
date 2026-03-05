@@ -26,15 +26,14 @@ export function useLocalStorage<T>(
   // Получить начальное значение
   const readValue = useCallback((): T => {
     const item = getFromStorage<string>(key)
-    
+
     if (!item) {
       return initialValue
     }
 
     try {
       return deserialize(item)
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error)
+    } catch {
       return initialValue
     }
   }, [initialValue, key, deserialize])
@@ -54,8 +53,8 @@ export function useLocalStorage<T>(
       if (event.key === key && event.newValue) {
         try {
           setStoredValue(deserialize(event.newValue))
-        } catch (error) {
-          console.error(`Error parsing storage event for key "${key}":`, error)
+        } catch {
+          // Ignore parse errors
         }
       }
     }
@@ -79,8 +78,8 @@ export function useLocalStorage<T>(
             newValue: serialize(valueToStore),
           })
         )
-      } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error)
+      } catch {
+        // Ignore set errors
       }
     },
     [key, storedValue, serialize]
@@ -98,8 +97,8 @@ export function useLocalStorage<T>(
           newValue: null,
         })
       )
-    } catch (error) {
-      console.error(`Error removing localStorage key "${key}":`, error)
+    } catch {
+      // Ignore remove errors
     }
   }, [key, initialValue])
 

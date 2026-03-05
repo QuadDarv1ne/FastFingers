@@ -60,6 +60,7 @@ export default [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'off',
       'react-hooks/exhaustive-deps': 'warn',
+      'no-console': ['error', { allow: ['error'] }],
       ...pluginJsxA11y.configs.recommended.rules,
       'jsx-a11y/no-static-element-interactions': 'off',
       'jsx-a11y/click-events-have-key-events': 'off',

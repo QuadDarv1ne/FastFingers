@@ -72,11 +72,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setIsReady(true)
         setError(null)
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to initialize audio'
-      setError(message)
+    } catch {
       setIsReady(false)
-      console.error('Audio init error:', err)
     }
   }, [options.volume])
 
@@ -132,10 +129,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
 
       oscillator.start(ctxNow)
       oscillator.stop(ctxNow + baseConfig.duration)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Audio play failed'
-      setError(message)
-      console.warn(message, err)
+    } catch {
+      setError('Audio play failed')
     }
   }, [options.enabled, options.volume, options.theme, isReady, initAudio])
 

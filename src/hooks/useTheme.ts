@@ -38,8 +38,8 @@ export function useTheme(): UseThemeReturn {
     setThemeState(newTheme)
     try {
       localStorage.setItem('fastfingers_theme', newTheme)
-    } catch (e) {
-      console.error('Failed to save theme:', e)
+    } catch {
+      // Ignore save errors
     }
   }, [])
 
@@ -47,8 +47,8 @@ export function useTheme(): UseThemeReturn {
     setCustomColorsState(colors)
     try {
       localStorage.setItem('fastfingers_custom_colors', JSON.stringify(colors))
-    } catch (e) {
-      console.error('Failed to save custom colors:', e)
+    } catch {
+      // Ignore save errors
     }
   }, [])
 

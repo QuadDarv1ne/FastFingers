@@ -33,8 +33,7 @@ const loadNotifications = (userId: string): Notification[] => {
   try {
     const stored = localStorage.getItem(getStorageKey(userId))
     return stored ? JSON.parse(stored) : []
-  } catch (e) {
-    console.error('Failed to load notifications:', e)
+  } catch {
     return []
   }
 }
@@ -42,8 +41,8 @@ const loadNotifications = (userId: string): Notification[] => {
 const saveNotifications = (userId: string, notifications: Notification[]) => {
   try {
     localStorage.setItem(getStorageKey(userId), JSON.stringify(notifications))
-  } catch (e) {
-    console.error('Failed to save notifications:', e)
+  } catch {
+    // Ignore save errors
   }
 }
 

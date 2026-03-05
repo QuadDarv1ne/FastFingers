@@ -54,8 +54,8 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           lastBreakTime: parsed.lastBreakTime || null,
         }
       }
-    } catch (error) {
-      console.error('Error loading session timer:', error)
+    } catch {
+      // Ignore load errors
     }
 
     return {
@@ -80,8 +80,8 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           date: new Date().toISOString(),
         })
       )
-    } catch (error) {
-      console.error('Error saving session timer:', error)
+    } catch {
+      // Ignore save errors
     }
   }, [state.totalTime, state.lastBreakTime])
 
