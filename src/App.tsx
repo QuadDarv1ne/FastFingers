@@ -48,7 +48,7 @@ const LearningMode = lazy(() => import('./components/LearningMode').then(module 
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then(module => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then(module => ({ default: module.UserProfile })))
 const NotificationBell = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationBell })))
-const NotificationPanel = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationPanel })))
+const NotificationPanel = lazy(() => import('./components/NotificationPanel').then(module => ({ default: module.NotificationPanel })))
 
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
