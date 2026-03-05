@@ -47,6 +47,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     soundTheme: 'default',
     fontSize: 'medium',
     theme: 'dark',
+    keyboardSkin: 'classic',
     showKeyboard: true,
     showStats: true,
   });

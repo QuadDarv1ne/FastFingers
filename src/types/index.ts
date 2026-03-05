@@ -46,6 +46,7 @@ export interface UserSettings {
   soundTheme: SoundTheme;
   fontSize: FontSize;
   theme: Theme;
+  keyboardSkin: KeyboardSkin;
   showKeyboard: boolean;
   showStats: boolean;
 }
@@ -116,6 +117,9 @@ export interface RaceEvent {
 
 /** Звуковые темы */
 export type SoundTheme = 'default' | 'piano' | 'mechanical' | 'soft' | 'retro';
+
+/** Скины клавиатуры */
+export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai';
 
 /** Размеры шрифта */
 export type FontSize = 'small' | 'medium' | 'large';

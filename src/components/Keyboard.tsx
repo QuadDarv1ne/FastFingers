@@ -1,7 +1,8 @@
 import { memo, useMemo } from 'react'
-import { KeyboardLayout, KeyHeatmapData } from '../types'
-import { layouts, fingerColors, fingerZones } from '../utils/layouts'
+import { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
+import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
+import { getKeyboardSkin } from '../utils/keyboardSkins'
 
 interface KeyboardProps {
   layout: KeyboardLayout
@@ -9,6 +10,7 @@ interface KeyboardProps {
   heatmap?: KeyHeatmapData
   showHeatmap?: boolean
   onToggleHeatmap?: (show: boolean) => void
+  skin?: KeyboardSkin
 }
 
 export const Keyboard = memo<KeyboardProps>(function Keyboard({
@@ -16,9 +18,11 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   highlightKey = null,
   heatmap = {},
   showHeatmap = false,
-  onToggleHeatmap
+  onToggleHeatmap,
+  skin = 'classic'
 }: KeyboardProps) {
   const layoutData = layouts[layout]
+  const skinColors = getKeyboardSkin(skin)
 
   // Мемоизация вычисления подсветки и тепловой карты
   const keyStyles = useMemo(() => {
@@ -29,7 +33,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
     layoutData.rows.forEach(row => {
       row.forEach(key => {
         const finger = layoutData.keyToFinger[key]
-        const color = finger ? fingerColors[finger] : '#475569'
+        const zoneColor = finger ? skinColors.zoneColors[finger] : skinColors.keyBorder
         const isHighlighted = highlightKey === key.toLowerCase()
 
         const keyData = heatmap[key.toLowerCase()]
@@ -44,15 +48,17 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             rounded-xl text-sm font-semibold
             transition-all duration-200
             ${isHighlighted
-              ? 'bg-primary-600 text-white scale-110 shadow-xl shadow-primary-500/50 animate-pulse'
+              ? 'text-white scale-110 shadow-xl animate-pulse'
               : heatmapColor
                 ? 'text-white shadow-lg'
-                : 'bg-dark-800/70 text-dark-300 hover:bg-dark-800 border border-dark-700/50'}
+                : 'hover:bg-dark-800 border'}
           `,
           style: {
-            backgroundColor: heatmapColor || undefined,
-            borderColor: isHighlighted ? color : undefined,
-            borderWidth: isHighlighted ? '2px' : undefined,
+            backgroundColor: heatmapColor || (isHighlighted ? skinColors.highlight : skinColors.keyBg),
+            borderColor: isHighlighted ? zoneColor : skinColors.keyBorder,
+            borderWidth: isHighlighted ? '2px' : '1px',
+            color: isHighlighted ? skinColors.keyActiveText : (heatmapColor ? '#ffffff' : skinColors.keyText),
+            boxShadow: isHighlighted ? `0 0 20px ${skinColors.highlightGlow}` : undefined,
           },
           title: finger
             ? `${fingerZones[finger]}${keyData ? `\nТочность: ${keyData.accuracy}%\nОшибок: ${keyData.errors}/${keyData.total}` : ''}`
@@ -62,7 +68,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
     })
 
     return styles
-  }, [layoutData, highlightKey, heatmap, showHeatmap])
+  }, [layoutData, highlightKey, heatmap, showHeatmap, skinColors])
 
   if (!layoutData) return null
 
@@ -142,9 +148,9 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
         <div className="grid grid-cols-4 gap-2 text-xs">
           {Object.entries(fingerZones).slice(0, 4).map(([finger, label]) => (
             <div key={finger} className="flex items-center gap-2">
-              <div 
+              <div
                 className="w-3 h-3 rounded"
-                style={{ backgroundColor: fingerColors[finger] }}
+                style={{ backgroundColor: skinColors.zoneColors[finger] }}
               />
               <span className="text-dark-500">{label}</span>
             </div>
