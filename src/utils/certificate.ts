@@ -235,7 +235,7 @@ export function generateCertificate(
     })
     doc.text(`${t.date}: ${dateStr}`, 40, 192)
 
-    const certId = 'FF-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase()
+    const certId = generateCertificateId()
     doc.text(`${t.certificateId}: ${certId}`, 257, 192, { align: 'right' })
 
     // Печать
@@ -263,6 +263,10 @@ export function calculateRank(wpm: number, accuracy: number): CertificateData['r
   if (score >= 45) return 'Gold'
   if (score >= 30) return 'Silver'
   return 'Bronze'
+}
+
+function generateCertificateId(): string {
+  return 'FF-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase()
 }
 
 // Генерация сертификата для спринта
