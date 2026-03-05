@@ -1,22 +1,22 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { KeyboardLayout, SoundTheme, ThemeColor } from '../types'
+import { KeyboardLayout, SoundTheme, Theme } from '../types'
 
 interface AppState {
   // Настройки
   layout: KeyboardLayout
   soundTheme: SoundTheme
-  theme: ThemeColor
+  theme: Theme
   soundEnabled: boolean
   vibrationEnabled: boolean
-  
+
   // Действия
   setLayout: (layout: KeyboardLayout) => void
   setSoundTheme: (theme: SoundTheme) => void
-  setTheme: (theme: ThemeColor) => void
+  setTheme: (theme: Theme) => void
   setSoundEnabled: (enabled: boolean) => void
   setVibrationEnabled: (enabled: boolean) => void
-  
+
   // Сброс
   resetSettings: () => void
 }
@@ -24,7 +24,7 @@ interface AppState {
 const DEFAULT_SETTINGS = {
   layout: 'jcuken' as KeyboardLayout,
   soundTheme: 'default' as SoundTheme,
-  theme: 'dark' as ThemeColor,
+  theme: 'dark' as Theme,
   soundEnabled: true,
   vibrationEnabled: true,
 }
