@@ -2,12 +2,17 @@
  * Утилиты для генерации уникальных идентификаторов
  */
 
-let cryptoObj: Crypto | null = null
-if (typeof window !== 'undefined' && window.crypto) {
-  cryptoObj = window.crypto
-} else if (typeof globalThis !== 'undefined' && globalThis.crypto) {
-  cryptoObj = globalThis.crypto
+function getCrypto(): Crypto | null {
+  if (typeof window !== 'undefined' && window.crypto) {
+    return window.crypto
+  }
+  if (typeof globalThis !== 'undefined' && globalThis.crypto) {
+    return globalThis.crypto
+  }
+  return null
 }
+
+const cryptoObj = getCrypto()
 
 /**
  * Сгенерировать уникальный ID (UUID v4)
@@ -32,16 +37,9 @@ export function generateShortId(length = 8): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
 
-  if (cryptoObj) {
-    const randomValues = new Uint32Array(length)
-    cryptoObj.getRandomValues(randomValues)
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt((randomValues[i] ?? 0) % chars.length)
-    }
-  } else {
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
+  for (let i = 0; i < length; i++) {
+    const randomValue = cryptoObj?.getRandomValues(new Uint32Array(1))[0] ?? 0
+    result += chars.charAt(randomValue % chars.length)
   }
 
   return result
@@ -53,16 +51,9 @@ export function generateShortId(length = 8): string {
 export function generateNumericId(length = 6): string {
   let result = ''
 
-  if (cryptoObj) {
-    const randomValues = new Uint32Array(length)
-    cryptoObj.getRandomValues(randomValues)
-    for (let i = 0; i < length; i++) {
-      result += ((randomValues[i] ?? 0) % 10).toString()
-    }
-  } else {
-    for (let i = 0; i < length; i++) {
-      result += Math.floor(Math.random() * 10)
-    }
+  for (let i = 0; i < length; i++) {
+    const randomValue = cryptoObj?.getRandomValues(new Uint32Array(1))[0] ?? 0
+    result += (randomValue % 10).toString()
   }
 
   return result
