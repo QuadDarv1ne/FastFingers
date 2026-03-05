@@ -13,8 +13,6 @@ export function initSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN
 
   if (!dsn) {
-    // В режиме разработки без DSN просто логируем
-    console.warn('Sentry DSN not configured. Set VITE_SENTRY_DSN in .env file')
     return
   }
 
@@ -42,7 +40,6 @@ export function initSentry() {
     beforeSend(event, hint) {
       // Игнорируем ошибки в режиме разработки
       if (import.meta.env.DEV) {
-        console.error('[Sentry] Error captured:', event)
         return null
       }
 

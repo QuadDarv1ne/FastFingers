@@ -169,6 +169,7 @@ function getRandomQuote(category?: Quote['category']): Quote {
     : QUOTES
 
   const quotes = filtered.length > 0 ? filtered : QUOTES
+  if (quotes.length === 0) return QUOTES[0]!
   const randomIndex = Math.floor(Math.random() * quotes.length)
   return quotes[randomIndex]!
 }

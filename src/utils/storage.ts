@@ -4,9 +4,8 @@
 
 type StorageValue = string | number | boolean | object | null | undefined
 
-const handleStorageError = (operation: string, key?: string, error?: unknown) => {
-  const context = key ? `: ${key}` : ''
-  console.error(`Error ${operation}${context}`, error)
+const handleStorageError = (_operation: string, _key?: string, _error?: unknown) => {
+  // Ignore storage errors
 }
 
 /**
@@ -45,15 +44,13 @@ export function getFromStorage<T extends StorageValue>(
   defaultValue?: T
 ): T | undefined {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available, using default value')
     return defaultValue
   }
 
   try {
     const item = localStorage.getItem(key)
     return item === null ? defaultValue : (JSON.parse(item) as T)
-  } catch (error) {
-    handleStorageError('reading from localStorage', key, error)
+  } catch {
     return defaultValue
   }
 }
@@ -63,7 +60,6 @@ export function getFromStorage<T extends StorageValue>(
  */
 export function setToStorage<T extends StorageValue>(key: string, value: T): void {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available, value not saved')
     return
   }
 
@@ -71,8 +67,8 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
     value === null || value === undefined
       ? localStorage.removeItem(key)
       : localStorage.setItem(key, JSON.stringify(value))
-  } catch (error) {
-    handleStorageError('writing to localStorage', key, error)
+  } catch {
+    // Ignore write errors
   }
 }
 
@@ -92,14 +88,13 @@ export function removeFromStorage(key: string): void {
  */
 export function clearStorage(): void {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available, cannot clear')
     return
   }
 
   try {
     localStorage.clear()
-  } catch (error) {
-    handleStorageError('clearing localStorage', undefined, error)
+  } catch {
+    // Ignore clear errors
   }
 }
 
@@ -108,14 +103,12 @@ export function clearStorage(): void {
  */
 export function getStorageKeys(): string[] {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available')
     return []
   }
 
   try {
     return Object.keys(localStorage)
-  } catch (error) {
-    handleStorageError('getting storage keys', undefined, error)
+  } catch {
     return []
   }
 }
@@ -125,7 +118,6 @@ export function getStorageKeys(): string[] {
  */
 export function getStorageSize(): number {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available')
     return 0
   }
 
@@ -137,8 +129,7 @@ export function getStorageSize(): number {
       }
     }
     return totalSize
-  } catch (error) {
-    handleStorageError('calculating storage size', undefined, error)
+  } catch {
     return 0
   }
 }
