@@ -137,10 +137,11 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
         {/* Форма */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="register-name" className="block text-sm font-medium text-dark-300 mb-2">
               Имя
             </label>
             <input
+              id="register-name"
               ref={nameInputRef}
               type="text"
               value={name}
@@ -153,10 +154,11 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="register-email" className="block text-sm font-medium text-dark-300 mb-2">
               Email
             </label>
             <input
+              id="register-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -178,11 +180,12 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="register-password" className="block text-sm font-medium text-dark-300 mb-2">
               Пароль
             </label>
             <div className="relative">
               <input
+                id="register-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -246,10 +249,11 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="register-confirm-password" className="block text-sm font-medium text-dark-300 mb-2">
               Подтверждение пароля
             </label>
             <input
+              id="register-confirm-password"
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -273,13 +277,13 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               />
               <span className="text-sm text-dark-400">
                 Я принимаю{' '}
-                <a href="#" className="text-primary-400 hover:underline">
+                <button type="button" className="text-primary-400 hover:underline">
                   условия использования
-                </a>{' '}
+                </button>{' '}
                 и{' '}
-                <a href="#" className="text-primary-400 hover:underline">
+                <button type="button" className="text-primary-400 hover:underline">
                   политику конфиденциальности
-                </a>
+                </button>
               </span>
             </label>
           </div>

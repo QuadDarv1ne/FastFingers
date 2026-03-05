@@ -78,11 +78,11 @@ export function calculateConsistency(stats: TypingStats[]): number {
 export function calculateImprovementRate(stats: TypingStats[]): number {
   if (stats.length < 2) return 0
 
-  const recentStats = stats.slice(-10) // Последние 10 сессий
+  const recentStats = stats.slice(-10)
   if (recentStats.length < 2) return 0
 
-  const firstWpm = recentStats[0].wpm
-  const lastWpm = recentStats[recentStats.length - 1].wpm
+  const firstWpm = recentStats[0]!.wpm
+  const lastWpm = recentStats[recentStats.length - 1]!.wpm
 
   return (lastWpm - firstWpm) / recentStats.length
 }

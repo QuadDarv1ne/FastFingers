@@ -38,23 +38,24 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   }, [lastResetToken])
 
   useEffect(() => {
-    if (step === 'confirm') {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current)
-            setStep('request')
-            setTimeLeft(TOKEN_EXPIRY_SECONDS)
-            setShowToken(false)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+    if (step !== 'confirm') {
+      return
+    }
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          setStep('request')
+          setTimeLeft(TOKEN_EXPIRY_SECONDS)
+          setShowToken(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
 
-      return () => {
-        if (timerRef.current) clearInterval(timerRef.current)
-      }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [step])
 
@@ -216,10 +217,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         {step === 'request' && (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-email" className="block text-sm font-medium text-dark-300 mb-2">
                 Email
               </label>
               <input
+                id="reset-email"
                 ref={emailInputRef}
                 type="email"
                 value={email}
@@ -265,10 +267,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         {step === 'confirm' && (
           <form onSubmit={handleConfirmReset} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-token" className="block text-sm font-medium text-dark-300 mb-2">
                 Код из письма
               </label>
               <input
+                id="reset-token"
                 ref={tokenInputRef}
                 type="text"
                 value={token}
@@ -287,10 +290,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-new-password" className="block text-sm font-medium text-dark-300 mb-2">
                 Новый пароль
               </label>
               <input
+                id="reset-new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -313,10 +317,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-confirm-password" className="block text-sm font-medium text-dark-300 mb-2">
                 Подтверждение пароля
               </label>
               <input
+                id="reset-confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

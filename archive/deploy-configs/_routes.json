@@ -1,0 +1,8 @@
+# Cloudflare Pages конфигурация для роутинга
+# Документация: https://developers.cloudflare.com/pages/platform/serving-pages/#route-matching
+
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/assets/*", "/*.js", "/*.css", "/*.png", "/*.svg", "/*.ico", "/*.woff2"]
+}

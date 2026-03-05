@@ -1,0 +1,51 @@
+# Firebase Hosting конфигурация
+# Документация: https://firebase.google.com/docs/hosting/full-config
+
+{
+  "$schema": "https://firebase.tools/schema/hosting-config.json",
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|svg|gif|ico|webp)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      }
+    ],
+    "cache": [
+      {
+        "source": "**/*.@(js|css|png|jpg|svg|gif|ico|webp)",
+        "cache": [
+          {
+            "maxAge": "31536000",
+            "sMaxAge": "31536000"
+          }
+        ]
+      }
+    ]
+  }
+}

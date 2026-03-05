@@ -93,10 +93,11 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
         {/* Форма */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="login-email" className="block text-sm font-medium text-dark-300 mb-2">
               Email
             </label>
             <input
+              id="login-email"
               ref={emailInputRef}
               type="email"
               value={email}
@@ -119,11 +120,12 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="login-password" className="block text-sm font-medium text-dark-300 mb-2">
               Пароль
             </label>
             <div className="relative">
               <input
+                id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

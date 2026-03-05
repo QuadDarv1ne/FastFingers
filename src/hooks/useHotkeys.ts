@@ -86,10 +86,10 @@ export function useHotkeys(
   }, [enabled, ignoreInputFocus, preventDefault, stopPropagation])
 
   useEffect(() => {
-    if (enabled) {
-      window.addEventListener('keydown', handleKeyDown)
-      return () => window.removeEventListener('keydown', handleKeyDown)
-    }
+    if (!enabled) return
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [enabled, handleKeyDown])
 }
 

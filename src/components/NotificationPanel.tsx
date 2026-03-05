@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
 import type { Notification } from './NotificationBell'

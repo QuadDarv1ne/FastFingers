@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 
 interface DailyChallenge {
   id: string
@@ -29,7 +29,7 @@ const STORAGE_KEY_STREAK = 'fastfingers_streak'
 function generateDailyChallenge(date: string): DailyChallenge {
   // Используем дату как seed для генерации одинакового челленджа для всех
   const seed = date.split('-').reduce((a, b) => a + parseInt(b), 0)
-  
+
   const texts = [
     'Съешь ещё этих мягких французских булок да выпей чаю',
     'В чащах юга жил бы цитрус да но фальшивый экземпляр',
@@ -37,7 +37,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
     'Быстрая коричневая лиса перепрыгивает через ленивую собаку',
     'Съешь же ещё этих мягких французских булок да выпей чаю',
   ]
-  
+
   const difficulties = [
     { wpm: 20, acc: 90 },
     { wpm: 30, acc: 92 },
@@ -52,7 +52,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
   return {
     id: `challenge-${date}`,
     date,
-    text: texts[textIndex] ?? texts[0],
+    text: texts[textIndex]!,
     targetWpm: difficulties[diffIndex]?.wpm ?? 60,
     targetAccuracy: difficulties[diffIndex]?.acc ?? 97,
     completed: false,
@@ -62,7 +62,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
 
 // Получение текущей даты в формате YYYY-MM-DD
 function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0]
+  return new Date().toISOString().split('T')[0]!
 }
 
 export function useDailyChallenges() {
@@ -109,7 +109,7 @@ export function useDailyChallenges() {
         newDates = [today]
       } else if (lastDate === today) {
         return prev
-      } else if (lastDate === yesterdayStr || lastDate > yesterdayStr) {
+      } else if (lastDate === yesterdayStr) {
         newCurrent = prev.current + 1
         newDates = [...newDates, today]
       } else {
@@ -119,7 +119,7 @@ export function useDailyChallenges() {
 
       newLongest = Math.max(newLongest, newCurrent)
 
-      const newStreak = {
+      const newStreak: StreakData = {
         ...prev,
         current: newCurrent,
         longest: newLongest,
@@ -189,7 +189,10 @@ export function useDailyChallenges() {
   }, [challenges])
 
   // Получение текущего челленджа
-  const todayChallenge = challenges.find(c => c.date === getTodayDate())
+  const todayChallenge = useMemo(
+    () => challenges.find(c => c.date === getTodayDate()),
+    [challenges]
+  )
 
   // Статистика челленджей
   const stats = {

@@ -26,10 +26,10 @@ describe('Learning Mode', () => {
       { completed: false },
       { completed: false },
     ]
-    
-    const isSecondLocked = !lessons[0].completed
-    const isThirdLocked = !lessons[1].completed
-    
+
+    const isSecondLocked = !lessons[0]!.completed
+    const isThirdLocked = !lessons[1]!.completed
+
     expect(isSecondLocked).toBe(false)
     expect(isThirdLocked).toBe(true)
   })

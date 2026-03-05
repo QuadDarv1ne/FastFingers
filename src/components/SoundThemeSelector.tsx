@@ -23,14 +23,15 @@ const THEME_NAMES: Record<SoundTheme, string> = {
 
 export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSelectorProps) {
   const themes: SoundTheme[] = ['default', 'piano', 'mechanical', 'soft', 'retro']
+  const id = 'sound-theme-selector'
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-dark-300">
+      <label htmlFor={id} className="block text-sm font-medium text-dark-300">
         Звуковая тема
       </label>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div role="radiogroup" aria-labelledby={id} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {themes.map((themeId) => {
           const isSelected = currentTheme === themeId
 
@@ -38,6 +39,8 @@ export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSe
             <button
               key={themeId}
               onClick={() => onThemeChange(themeId)}
+              role="radio"
+              aria-checked={isSelected}
               className={`p-4 rounded-xl border text-left transition-all ${
                 isSelected
                   ? 'bg-primary-600/20 border-primary-500 ring-2 ring-primary-500/50'

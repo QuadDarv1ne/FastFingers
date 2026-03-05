@@ -17,10 +17,10 @@ export function FeedbackToast({
   duration = 3000
 }: FeedbackToastProps) {
   useEffect(() => {
-    if (isVisible && duration > 0) {
-      const timer = setTimeout(onClose, duration)
-      return () => clearTimeout(timer)
-    }
+    if (!isVisible || duration <= 0) return
+
+    const timer = setTimeout(onClose, duration)
+    return () => clearTimeout(timer)
   }, [isVisible, duration, onClose])
 
   const config = {

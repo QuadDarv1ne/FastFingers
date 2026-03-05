@@ -173,11 +173,12 @@ export function TypingTrainer({
       <div className="card">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+            <label htmlFor="category-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>📁</span>
               Категория
             </label>
             <select
+              id="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
@@ -195,13 +196,14 @@ export function TypingTrainer({
               )}
             </select>
           </div>
-          
+
           <div className="flex-1 min-w-[180px]">
-            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+            <label htmlFor="difficulty-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>🎯</span>
               Сложность
             </label>
             <select
+              id="difficulty-select"
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"

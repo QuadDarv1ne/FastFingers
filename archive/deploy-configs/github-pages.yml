@@ -1,3 +1,6 @@
+# GitHub Actions Workflow для деплоя на GitHub Pages
+# Используйте этот файл, если ваш GitHub аккаунт не заблокирован
+
 name: Deploy to GitHub Pages
 
 on:
@@ -32,6 +35,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_BASE_PATH: /FastFingers/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

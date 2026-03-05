@@ -1,3 +1,8 @@
+# GitHub Actions Workflow для деплоя на Cloudflare Pages
+# Требуется добавить секреты в GitHub:
+# - CLOUDFLARE_API_TOKEN: API токен Cloudflare
+# - CLOUDFLARE_ACCOUNT_ID: ID аккаунта Cloudflare
+
 name: Deploy to Cloudflare Pages
 
 on:

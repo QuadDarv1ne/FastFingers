@@ -52,16 +52,16 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
     },
   ], [])
 
-  const currentTheme = useMemo(() => 
-    themes.find(t => t.value === theme) || themes[0],
+  const currentTheme = useMemo(
+    () => themes.find(t => t.value === theme) ?? themes[0]!,
     [theme, themes]
   )
 
   // Обработка клавиатуры
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!showMenu) return
+    if (!showMenu) return
 
+    const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'Escape':
           e.preventDefault()
@@ -79,17 +79,15 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
         case ' ':
           e.preventDefault()
           if (showMenu) {
-            onThemeChange(themes[focusedIndex].value)
+            onThemeChange(themes[focusedIndex]!.value)
             setShowMenu(false)
           }
           break
       }
     }
 
-    if (showMenu) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
-    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [showMenu, focusedIndex, themes, onThemeChange])
 
   // Сброс фокуса при открытии меню
@@ -136,11 +134,21 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
           />
           <div
             ref={menuRef}
-            className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in"
+            tabIndex={-1}
+            className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in outline-none"
             role="menu"
             aria-orientation="vertical"
             aria-activedescendant={`theme-item-${focusedIndex}`}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                setFocusedIndex(prev => (prev + 1) % themes.length)
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                setFocusedIndex(prev => (prev - 1 + themes.length) % themes.length)
+              }
+            }}
           >
             {themes.map((t, index) => (
               <button
@@ -159,7 +167,6 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
                 } ${index === focusedIndex ? 'ring-2 ring-primary-500 ring-offset-2 ring-offset-dark-900' : ''}`}
                 role="menuitem"
                 tabIndex={index === focusedIndex ? 0 : -1}
-                aria-selected={theme === t.value}
                 type="button"
               >
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${t.gradient} flex items-center justify-center text-lg`}>

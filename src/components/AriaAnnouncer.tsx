@@ -14,11 +14,11 @@ export function AriaAnnouncer({ message = '', priority = 'polite' }: AriaAnnounc
   const [text, setText] = useState(message)
 
   useEffect(() => {
-    if (message) {
-      setText(message)
-      const timer = setTimeout(() => setText(''), 1000)
-      return () => clearTimeout(timer)
-    }
+    if (!message) return
+
+    setText(message)
+    const timer = setTimeout(() => setText(''), 1000)
+    return () => clearTimeout(timer)
   }, [message])
 
   if (!text) return null
