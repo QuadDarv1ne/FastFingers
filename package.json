@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "preview": "vite preview",
+    "preview": "npm run build && wrangler dev",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
@@ -17,7 +17,8 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",
-    "e2e:report": "playwright show-report"
+    "e2e:report": "playwright show-report",
+    "deploy": "npm run build && wrangler deploy"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -45,6 +46,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.26.0",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -74,6 +76,7 @@
     "vite": "^6.4.1",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18",
-    "workbox-window": "^7.0.0"
+    "workbox-window": "^7.0.0",
+    "wrangler": "^4.70.0"
   }
 }
