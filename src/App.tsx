@@ -4,6 +4,7 @@ import { Header } from './components/Header'
 import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
 import { ThemeToggle } from './components/ThemeToggle'
+import { KeyboardSkinSelector } from './components/KeyboardSkinSelector'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
 import { LoadingFallback } from './components/LoadingFallback'
@@ -290,7 +291,10 @@ function AppContent() {
             />
           </nav>
 
-          <ThemeToggle theme={theme} onThemeChange={setTheme} />
+          <div className="flex items-center gap-2">
+            <KeyboardSkinSelector skin={settings.keyboardSkin} onSkinChange={(skin) => updateSetting('keyboardSkin', skin)} />
+            <ThemeToggle theme={theme} onThemeChange={setTheme} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -371,6 +375,7 @@ function AppContent() {
                       heatmap={heatmap}
                       showHeatmap={showHeatmap}
                       onToggleHeatmap={setShowHeatmap}
+                      skin={settings.keyboardSkin}
                     />
                   )}
                 </>

@@ -59,6 +59,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   soundTheme: 'default',
   fontSize: 'medium',
   theme: 'dark',
+  keyboardSkin: 'classic',
   showKeyboard: true,
   showStats: true,
 }

@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
+import { User } from '../types/auth'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
+import { useAuth } from '@hooks/useAuth'
+import { CertificateGenerator } from './CertificateGenerator'
 
 interface SprintModeProps {
   onExit: () => void
@@ -16,6 +19,7 @@ const SPRINT_DURATION = 60 // секунд
 const COUNTDOWN_SECONDS = 3
 
 export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
+  const { user } = useAuth()
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean; char: string }>>([])
@@ -24,6 +28,8 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [countdown, setCountdown] = useState<number | null>(null)
+  const [showCertificate, setShowCertificate] = useState(false)
+  const [lastStats, setLastStats] = useState<TypingStats | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -34,7 +40,9 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     const errors = inputResults.filter(r => !r.isCorrect).length
 
     const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+    setLastStats(stats)
     onComplete(stats)
+    setShowCertificate(true)
   }, [inputResults, timeLeft, onComplete])
 
   // Генерация текста
@@ -344,6 +352,18 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
             Пропустить текст
           </button>
         </div>
+      )}
+
+      {/* Сертификат */}
+      {showCertificate && lastStats && user && (
+        <CertificateGenerator
+          user={user as User}
+          wpm={lastStats.wpm}
+          accuracy={lastStats.accuracy}
+          cpm={lastStats.cpm}
+          testType="sprint"
+          onClose={() => setShowCertificate(false)}
+        />
       )}
     </div>
   )
