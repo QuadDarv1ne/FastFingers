@@ -56,8 +56,7 @@ const getUsers = (): StoredUser[] => {
     const stored = localStorage.getItem(USERS_STORAGE_KEY);
     if (!stored) return [];
     return JSON.parse(stored);
-  } catch (e) {
-    console.error('[Auth] Ошибка чтения пользователей:', e);
+  } catch {
     return [];
   }
 };
@@ -65,8 +64,8 @@ const getUsers = (): StoredUser[] => {
 const saveUsers = (users: StoredUser[]) => {
   try {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  } catch (e) {
-    console.error('[Auth] Ошибка сохранения пользователей:', e);
+  } catch {
+    // Ignore save errors
   }
 };
 
