@@ -3,12 +3,11 @@ import { UserProgress } from '@/types'
 import { useToast } from '@hooks/useToast'
 
 interface ExportImportProps {
-  onClose: () => void
   progress?: UserProgress
   onImport?: (data: { progress: UserProgress }) => void
 }
 
-export function ExportImport({ onClose, progress: _progress, onImport: _onImport }: ExportImportProps) {
+export function ExportImport({ progress: _progress, onImport: _onImport }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
   const { success, error } = useToast()
 
@@ -252,6 +251,5 @@ export function ExportImport({ onClose, progress: _progress, onImport: _onImport
           </div>
         </div>
       </div>
-    </div>
   )
 }
