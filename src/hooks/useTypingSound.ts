@@ -33,7 +33,7 @@ const SOUND_CONFIGS: Record<'correct' | 'error' | 'complete' | 'click', SoundCon
   error: { frequency: 220, type: 'sawtooth', duration: 0.15, decay: 0.1 },
   complete: { frequency: 1320, type: 'sine', duration: 0.3, decay: 0.2 },
   click: { frequency: 660, type: 'triangle', duration: 0.05, decay: 0.03 },
-} as const
+}
 
 const THEME_CONFIGS: Record<SoundTheme, { baseFreq: number; waveType: OscillatorType }> = {
   default: { baseFreq: 1, waveType: 'sine' },
@@ -41,7 +41,7 @@ const THEME_CONFIGS: Record<SoundTheme, { baseFreq: number; waveType: Oscillator
   mechanical: { baseFreq: 1, waveType: 'square' },
   soft: { baseFreq: 0.8, waveType: 'sine' },
   retro: { baseFreq: 0.9, waveType: 'square' },
-} as const
+}
 
 export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundReturn {
   const audioContextRef = useRef<AudioContext | null>(null)
