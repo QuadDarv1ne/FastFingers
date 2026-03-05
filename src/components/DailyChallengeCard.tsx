@@ -224,7 +224,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
     },
   ]
 
-  const selected = challenges[seed % challenges.length]!
+  const selected = challenges[seed % challenges.length]
 
   return {
     ...selected,

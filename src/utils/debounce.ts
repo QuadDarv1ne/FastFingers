@@ -41,8 +41,12 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   let result: ReturnType<T> | null = null
 
   const invokeFunc = (_time: number) => {
-    const args = lastArgs!
+    const args = lastArgs
     const thisArg = lastThis
+
+    if (!args) {
+      return result
+    }
 
     lastArgs = lastThis = null
     result = func.apply(thisArg, args) as ReturnType<T>
@@ -127,8 +131,12 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
   let lastCallTime = 0
 
   const invokeFunc = (time: number) => {
-    const args = lastArgs!
+    const args = lastArgs
     const thisArg = lastThis
+
+    if (!args) {
+      return result
+    }
 
     lastArgs = lastThis = null
     lastCallTime = time

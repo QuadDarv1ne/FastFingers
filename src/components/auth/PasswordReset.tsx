@@ -42,7 +42,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!)
+            if (timerRef.current) clearInterval(timerRef.current)
             setStep('request')
             setTimeLeft(TOKEN_EXPIRY_SECONDS)
             setShowToken(false)

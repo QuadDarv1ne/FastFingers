@@ -56,9 +56,13 @@ describe('useLocalStorageState', () => {
     })
 
     expect(result.current[0]).toEqual({ count: 5, name: 'updated' })
-    expect(JSON.parse(localStorage.getItem('test-key')!)).toEqual({
-      count: 5,
-      name: 'updated',
-    })
+    const stored = localStorage.getItem('test-key')
+    expect(stored).not.toBeNull()
+    if (stored) {
+      expect(JSON.parse(stored)).toEqual({
+        count: 5,
+        name: 'updated',
+      })
+    }
   })
 })
