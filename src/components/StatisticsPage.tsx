@@ -1,19 +1,20 @@
-import { useMemo, lazy, Suspense } from 'react'
+import { useMemo, Suspense } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { LoadingFallback } from './LoadingFallback'
-
-const BarChart = lazy(() => import('recharts').then(module => ({ default: module.BarChart })))
-const Bar = lazy(() => import('recharts').then(module => ({ default: module.Bar })))
-const AreaChart = lazy(() => import('recharts').then(module => ({ default: module.AreaChart })))
-const Area = lazy(() => import('recharts').then(module => ({ default: module.Area })))
-const XAxis = lazy(() => import('recharts').then(module => ({ default: module.XAxis })))
-const YAxis = lazy(() => import('recharts').then(module => ({ default: module.YAxis })))
-const CartesianGrid = lazy(() => import('recharts').then(module => ({ default: module.CartesianGrid })))
-const Tooltip = lazy(() => import('recharts').then(module => ({ default: module.Tooltip })))
-const ResponsiveContainer = lazy(() => import('recharts').then(module => ({ default: module.ResponsiveContainer })))
-const PieChart = lazy(() => import('recharts').then(module => ({ default: module.PieChart })))
-const Pie = lazy(() => import('recharts').then(module => ({ default: module.Pie })))
-const Cell = lazy(() => import('recharts').then(module => ({ default: module.Cell })))
+import {
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts'
 
 interface StatisticsPageProps {
   onBack: () => void
