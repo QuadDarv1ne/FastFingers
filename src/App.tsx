@@ -17,7 +17,13 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
-import { TypingStats as TypingStatsType, SoundTheme, UserProgress, KeyboardLayout, UserSettings } from './types'
+import {
+  TypingStats as TypingStatsType,
+  SoundTheme,
+  UserProgress,
+  KeyboardLayout,
+  UserSettings,
+} from './types'
 import type { CustomExercise } from './components/CustomExerciseEditor'
 
 import { useGameMode, type SpeedTestDuration } from './hooks/useGameMode'
@@ -31,25 +37,29 @@ import { useHotkeys } from './hooks/useHotkeys'
 import { calculateSessionXp } from './utils/stats'
 import { calculateStreakXpBonus } from '@utils/streakBonus'
 
-const SprintMode = lazy(() => import('./components/SprintMode').then(module => ({ default: module.SprintMode })))
-const SpeedTest = lazy(() => import('./components/SpeedTest').then(module => ({ default: module.SpeedTest })))
-const ReactionGame = lazy(() => import('./components/ReactionGame').then(module => ({ default: module.ReactionGame })))
-const TrainingHistory = lazy(() => import('./components/TrainingHistory').then(module => ({ default: module.TrainingHistory })))
-const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then(module => ({ default: module.WeeklyProgress })))
-const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then(module => ({ default: module.DailyChallengeCard })))
-const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then(module => ({ default: module.CustomExerciseEditor })))
-const ExportImport = lazy(() => import('./components/ExportImport').then(module => ({ default: module.ExportImport })))
-const TypingTips = lazy(() => import('./components/TypingTips').then(module => ({ default: module.TypingTips })))
-const Onboarding = lazy(() => import('./components/Onboarding').then(module => ({ default: module.Onboarding })))
-const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then(module => ({ default: module.AchievementsPanel })))
-const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then(module => ({ default: module.StreakRewardsPanel })))
-const SessionSummary = lazy(() => import('./components/SessionSummary').then(module => ({ default: module.SessionSummary })))
-const StatisticsPage = lazy(() => import('./components/StatisticsPage').then(module => ({ default: module.StatisticsPage })))
-const LearningMode = lazy(() => import('./components/LearningMode').then(module => ({ default: module.LearningMode })))
-const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then(module => ({ default: module.AuthWrapper })))
-const UserProfile = lazy(() => import('./components/auth/UserProfile').then(module => ({ default: module.UserProfile })))
-const NotificationBell = lazy(() => import('./components/NotificationBell').then(module => ({ default: module.NotificationBell })))
-const NotificationPanel = lazy(() => import('./components/NotificationPanel').then(module => ({ default: module.NotificationPanel })))
+const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
+const SpeedTest = lazy(() => import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest })))
+const ReactionGame = lazy(() => import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame })))
+const TrainingHistory = lazy(() => import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory })))
+const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress })))
+const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then((module) => ({ default: module.DailyChallengeCard })))
+const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then((module) => ({ default: module.CustomExerciseEditor })))
+const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
+const TypingTips = lazy(() => import('./components/TypingTips').then((module) => ({ default: module.TypingTips })))
+const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
+const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
+const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
+const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
+const StatisticsPage = lazy(() => import('./components/StatisticsPage').then((module) => ({ default: module.StatisticsPage })))
+const LearningMode = lazy(() => import('./components/LearningMode').then((module) => ({ default: module.LearningMode })))
+const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
+const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
+const NotificationBell = lazy(() => import('./components/NotificationBell').then((module) => ({ default: module.NotificationBell })))
+const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
+
+// Preload critical components
+AuthWrapper.preload()
+NotificationBell.preload()
 
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -97,7 +107,7 @@ function AppContent() {
     onLevelUp: (newLevel) => {
       addNotification(createLevelUpNotification(newLevel))
       triggerConfetti({ type: 'levelup', duration: 4000 })
-    }
+    },
   })
 
   const { customExercises, addExercise } = useCustomExercises()
@@ -105,25 +115,34 @@ function AppContent() {
   const sound = useTypingSound({
     enabled: settings.soundEnabled,
     volume: settings.soundVolume,
-    theme: settings.soundTheme
+    theme: settings.soundTheme,
   })
 
   const { addSession } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, setTheme } = useTheme()
 
-  useHotkeys({
-    'ctrl+1': () => { setGameMode('practice'); setView('main') },
-    'ctrl+2': () => { setGameMode('sprint'); setView('main') },
-    'ctrl+3': () => setView('statistics'),
-    'ctrl+4': () => setView('learning'),
-    'ctrl+5': () => setView('tips'),
-    'ctrl+p': () => setShowProfile(true),
-    'ctrl+n': () => {
-      const button = document.querySelector('[data-action="new-exercise"]') as HTMLElement
-      button?.click()
+  useHotkeys(
+    {
+      'ctrl+1': () => {
+        setGameMode('practice')
+        setView('main')
+      },
+      'ctrl+2': () => {
+        setGameMode('sprint')
+        setView('main')
+      },
+      'ctrl+3': () => setView('statistics'),
+      'ctrl+4': () => setView('learning'),
+      'ctrl+5': () => setView('tips'),
+      'ctrl+p': () => setShowProfile(true),
+      'ctrl+n': () => {
+        const button = document.querySelector('[data-action="new-exercise"]') as HTMLElement
+        button?.click()
+      },
     },
-  }, { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile })
+    { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile }
+  )
 
   useEffect(() => {
     const handleStartChallenge = (e: Event) => {
@@ -141,49 +160,72 @@ function AppContent() {
     setShowOnboarding(false)
   }, [])
 
-  const handleSessionCompleteWithProgress = useCallback((stats: TypingStatsType) => {
-    const xp = calculateSessionXp(stats)
-    const streakBonus = calculateStreakXpBonus(streak.current)
-    const totalXp = xp + streakBonus
-    setLastSessionXp(totalXp)
+  const handleSessionCompleteWithProgress = useCallback(
+    (stats: TypingStatsType) => {
+      const xp = calculateSessionXp(stats)
+      const streakBonus = calculateStreakXpBonus(streak.current)
+      const totalXp = xp + streakBonus
+      setLastSessionXp(totalXp)
 
-    addSession(stats, totalXp)
+      addSession(stats, totalXp)
 
-    if (activeChallenge && todayChallenge) {
-      completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
-      setActiveChallenge(null)
-    }
+      if (activeChallenge && todayChallenge) {
+        completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
+        setActiveChallenge(null)
+      }
 
-    handleSessionComplete(stats, streak.current)
-    setShowSessionSummary(true)
-  }, [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete, streak])
+      handleSessionComplete(stats, streak.current)
+      setShowSessionSummary(true)
+    },
+    [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete, streak]
+  )
 
   const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
     const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
     setLastSessionXp(xp)
   }, [])
 
-  const handleSaveCustomExercise = useCallback((exercise: CustomExercise) => {
-    addExercise({
-      ...exercise,
-      description: 'Пользовательское упражнение',
-      focusKeys: [],
-    })
-    setView('main')
-    setGameMode('practice')
-  }, [addExercise, setView, setGameMode])
+  const handleSaveCustomExercise = useCallback(
+    (exercise: CustomExercise) => {
+      addExercise({
+        ...exercise,
+        description: 'Пользовательское упражнение',
+        focusKeys: [],
+      })
+      setView('main')
+      setGameMode('practice')
+    },
+    [addExercise, setView, setGameMode]
+  )
 
-  const handleImportProgress = useCallback((data: { progress: UserProgress }) => {
-    setProgress(data.progress)
-  }, [setProgress])
+  const handleImportProgress = useCallback(
+    (data: { progress: UserProgress }) => {
+      setProgress(data.progress)
+    },
+    [setProgress]
+  )
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-dark-900 flex items-center justify-center" role="alert" aria-busy="true">
+      <div
+        className="min-h-screen bg-dark-900 flex items-center justify-center"
+        role="alert"
+        aria-busy="true"
+      >
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
+              />
             </svg>
           </div>
           <p className="text-dark-400">Загрузка...</p>
@@ -229,14 +271,20 @@ function AppContent() {
           <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label="Режимы тренировки">
             <ModeButton
               isActive={gameMode === 'practice' && view === 'main'}
-              onClick={() => { setGameMode('practice'); setView('main') }}
+              onClick={() => {
+                setGameMode('practice')
+                setView('main')
+              }}
               icon="📝"
               label="Практика"
               title="Свободная практика печати"
             />
             <ModeButton
               isActive={gameMode === 'sprint'}
-              onClick={() => { setGameMode('sprint'); setView('main') }}
+              onClick={() => {
+                setGameMode('sprint')
+                setView('main')
+              }}
               icon="⚡"
               label="Спринт"
               title="60 секунд на максимальную скорость"
@@ -292,7 +340,10 @@ function AppContent() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <KeyboardSkinSelector skin={settings.keyboardSkin} onSkinChange={(skin) => updateSetting('keyboardSkin', skin)} />
+            <KeyboardSkinSelector
+              skin={settings.keyboardSkin}
+              onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
+            />
             <ThemeToggle theme={theme} onThemeChange={setTheme} />
           </div>
         </div>
@@ -365,7 +416,9 @@ function AppContent() {
                     sound={sound}
                     customExercises={customExercises}
                     isChallenge={gameMode === 'challenge'}
-                    challengeText={gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined}
+                    challengeText={
+                      gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined
+                    }
                   />
 
                   {settings.showKeyboard && (
@@ -405,10 +458,7 @@ function AppContent() {
             />
 
             <div className="glass rounded-xl p-6">
-              <ExportImport
-                progress={progress}
-                onImport={handleImportProgress}
-              />
+              <ExportImport progress={progress} onImport={handleImportProgress} />
             </div>
           </div>
         </div>
@@ -483,7 +533,13 @@ interface ModeButtonProps {
   title: string
 }
 
-const ModeButton = memo<ModeButtonProps>(function ModeButton({ isActive, onClick, icon, label, title }) {
+const ModeButton = memo<ModeButtonProps>(function ModeButton({
+  isActive,
+  onClick,
+  icon,
+  label,
+  title,
+}) {
   return (
     <button
       onClick={onClick}
@@ -576,7 +632,9 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="layout-select" className="block text-sm text-dark-400 mb-2">Раскладка</label>
+          <label htmlFor="layout-select" className="block text-sm text-dark-400 mb-2">
+            Раскладка
+          </label>
           <select
             id="layout-select"
             value={settings.layout}
@@ -590,7 +648,9 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
         </div>
 
         <div>
-          <label htmlFor="sound-theme-select" className="block text-sm text-dark-400 mb-2">Звуковая тема</label>
+          <label htmlFor="sound-theme-select" className="block text-sm text-dark-400 mb-2">
+            Звуковая тема
+          </label>
           <select
             id="sound-theme-select"
             value={settings.soundTheme}
@@ -643,7 +703,9 @@ const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
         onClick={() => onChange(!checked)}
         className={`w-12 h-6 rounded-full transition-colors ${checked ? 'bg-primary-600' : 'bg-dark-700'}`}
       >
-        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-6' : 'translate-x-0.5'}`} />
+        <div
+          className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-6' : 'translate-x-0.5'}`}
+        />
       </button>
     </div>
   )
