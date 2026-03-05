@@ -199,19 +199,3 @@ export function calculateStreakBonus(streak: number): number {
   if (streak < 30) return 1.5;
   return 2.0;
 }
-
-export function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffSecs < 60) return 'только что';
-  if (diffMins < 60) return `${diffMins} мин. назад`;
-  if (diffHours < 24) return `${diffHours} ч. назад`;
-  if (diffDays < 7) return `${diffDays} дн. назад`;
-
-  return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-}
