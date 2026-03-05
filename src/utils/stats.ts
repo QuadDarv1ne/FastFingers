@@ -1,7 +1,6 @@
 import { TypingStats, KeyHeatmapData } from '../types';
 
-const statsCache = new Map<string, TypingStats>();
-const formatCache = new Map<string, string>();
+export type KeyHeatmap = KeyHeatmapData;
 
 export function calculateStats(
   correctChars: number,
@@ -9,13 +8,6 @@ export function calculateStats(
   errors: number,
   timeElapsed: number
 ): TypingStats {
-  const cacheKey = `${correctChars}:${totalChars}:${errors}:${timeElapsed.toFixed(1)}`;
-
-  const cached = statsCache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
   const timeInMinutes = timeElapsed / 60;
 
   const cpm = timeInMinutes > 0 ? Math.round(correctChars / timeInMinutes) : 0;
@@ -24,7 +16,7 @@ export function calculateStats(
     ? Math.round((correctChars / totalChars) * 100)
     : 100;
 
-  const result: TypingStats = {
+  return {
     wpm,
     cpm,
     accuracy,
@@ -33,64 +25,20 @@ export function calculateStats(
     totalChars,
     timeElapsed,
   };
-
-  if (statsCache.size > 100) {
-    statsCache.clear();
-  }
-  statsCache.set(cacheKey, result);
-
-  return result;
 }
 
-export function clearStatsCache(): void {
-  statsCache.clear();
-  formatCache.clear();
-}
-
-/**
- * Форматирование числа с разделителями тысяч
- */
 export function formatNumber(num: number): string {
-  const cacheKey = `num:${num}`;
-  const cached = formatCache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  const result = num.toLocaleString('ru-RU');
-
-  if (formatCache.size > 200) {
-    formatCache.clear();
-  }
-  formatCache.set(cacheKey, result);
-
-  return result;
+  return num.toLocaleString('ru-RU');
 }
 
-/**
- * Форматирование времени (секунды -> ММ:СС или ЧЧ:ММ:СС)
- */
 export function formatTime(seconds: number): string {
-  const cacheKey = `time:${seconds}`;
-  const cached = formatCache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
 
-  const result = hours > 0
+  return hours > 0
     ? `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-  if (formatCache.size > 200) {
-    formatCache.clear();
-  }
-  formatCache.set(cacheKey, result);
-
-  return result;
 }
 
 /**
@@ -134,11 +82,6 @@ export function calculateLevelProgress(xp: number): number {
   return Math.min(100, Math.max(0, progress));
 }
 
-/**
- * Расчёт XP за сессию печати
- * @param stats - Статистика сессии
- * @returns Количество опыта за сессию
- */
 export function calculateSessionXp(stats: TypingStats): number {
   const XP_PER_10_SECONDS = 1;
   const XP_PERFECT_ACCURACY = 50;
@@ -158,35 +101,22 @@ export function calculateSessionXp(stats: TypingStats): number {
   const WPM_MEDIUM = 40;
   const WPM_LOW = 20;
 
-  let xp = 0;
+  let xp = Math.floor(stats.timeElapsed / 10) * XP_PER_10_SECONDS;
 
-  // Базовый XP за время (1 XP за каждые 10 секунд)
-  xp += Math.floor(stats.timeElapsed / 10) * XP_PER_10_SECONDS;
-
-  // Бонус за точность
   if (stats.accuracy >= ACCURACY_PERFECT) xp += XP_PERFECT_ACCURACY;
   else if (stats.accuracy >= ACCURACY_GREAT) xp += XP_GREAT_ACCURACY;
   else if (stats.accuracy >= ACCURACY_GOOD) xp += XP_GOOD_ACCURACY;
   else if (stats.accuracy >= ACCURACY_DECENT) xp += XP_DECENT_ACCURACY;
 
-  // Бонус за WPM
   if (stats.wpm >= WPM_HIGH) xp += XP_HIGH_WPM;
   else if (stats.wpm >= WPM_MEDIUM) xp += XP_MEDIUM_WPM;
   else if (stats.wpm >= WPM_LOW) xp += XP_LOW_WPM;
 
-  // Штраф за ошибки
   xp -= stats.errors * PENALTY_PER_ERROR;
 
   return Math.max(0, xp);
 }
 
-/**
- * Проверка достижения
- * @param achievementId - ID достижения
- * @param progress - Текущий прогресс пользователя
- * @param stats - Статистика текущей сессии
- * @returns true, если достижение разблокировано
- */
 export function checkAchievement(
   achievementId: string,
   progress: { bestWpm: number; bestAccuracy: number; totalWordsTyped: number },
@@ -201,22 +131,9 @@ export function checkAchievement(
     'marathon': (p) => p.totalWordsTyped >= 10000,
   };
 
-  const achievement = achievements[achievementId];
-  return achievement?.(progress, stats) ?? false;
+  return achievements[achievementId]?.(progress, stats) ?? false;
 }
 
-/**
- * Тепловая карта ошибок по клавишам
- */
-export type KeyHeatmap = KeyHeatmapData;
-
-/**
- * Обновление тепловой карты для клавиши
- * @param heatmap - Текущая тепловая карта
- * @param key - Клавиша для обновления
- * @param isCorrect - Был ли ввод правильным
- * @returns Обновлённая тепловая карта
- */
 export function updateKeyHeatmap(
   heatmap: KeyHeatmap,
   key: string,
@@ -237,61 +154,44 @@ export function updateKeyHeatmap(
   return heatmap;
 }
 
-/**
- * Получение цвета для тепловой карты на основе точности
- * @param accuracy - Точность в процентах (0-100)
- * @returns HEX цвет для отображения
- */
 export function getHeatmapColor(accuracy: number): string {
-  if (accuracy >= 95) return '#22c55e'; // зелёный
-  if (accuracy >= 85) return '#84cc16'; // светло-зелёный
-  if (accuracy >= 75) return '#eab308'; // жёлтый
-  if (accuracy >= 60) return '#f97316'; // оранжевый
-  return '#ef4444'; // красный
+  if (accuracy >= 95) return '#22c55e';
+  if (accuracy >= 85) return '#84cc16';
+  if (accuracy >= 75) return '#eab308';
+  if (accuracy >= 60) return '#f97316';
+  return '#ef4444';
 }
 
-/**
- * Расчёт серии (streak) дней активности
- * @param dates - Массив дат активности (timestamp)
- * @returns Количество дней серии
- */
 export function calculateStreak(dates: number[]): number {
   if (dates.length === 0) return 0;
-  
+
   const uniqueDates = [...new Set(dates.map(d => new Date(d).toDateString()))];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   let streak = 0;
   let currentDate = new Date(today);
-  
-  // Проверяем, была ли активность сегодня или вчера
+
   const hasToday = uniqueDates.some(d => new Date(d).toDateString() === today.toDateString());
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   const hasYesterday = uniqueDates.some(d => new Date(d).toDateString() === yesterday.toDateString());
-  
+
   if (!hasToday && !hasYesterday) return 0;
-  
-  // Считаем серию
+
   while (true) {
     const dateStr = currentDate.toDateString();
     const hasActivity = uniqueDates.some(d => new Date(d).toDateString() === dateStr);
-    
+
     if (!hasActivity) break;
-    
+
     streak++;
     currentDate.setDate(currentDate.getDate() - 1);
   }
-  
+
   return streak;
 }
 
-/**
- * Расчёт бонуса за серию
- * @param streak - Текущая серия дней
- * @returns Множитель бонуса (1.0 - без бонуса, до 2.0 - максимальный)
- */
 export function calculateStreakBonus(streak: number): number {
   if (streak < 3) return 1.0;
   if (streak < 7) return 1.1;
@@ -300,11 +200,6 @@ export function calculateStreakBonus(streak: number): number {
   return 2.0;
 }
 
-/**
- * Получение относительного времени
- * @param date - Дата для форматирования
- * @returns Строка с относительным временем
- */
 export function formatRelativeTime(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -312,11 +207,11 @@ export function formatRelativeTime(date: Date): string {
   const diffMins = Math.floor(diffSecs / 60);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
-  
+
   if (diffSecs < 60) return 'только что';
   if (diffMins < 60) return `${diffMins} мин. назад`;
   if (diffHours < 24) return `${diffHours} ч. назад`;
   if (diffDays < 7) return `${diffDays} дн. назад`;
-  
+
   return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 }
