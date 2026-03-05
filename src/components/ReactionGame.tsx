@@ -35,9 +35,12 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   // Генерация случайной позиции
   const getRandomPosition = useCallback(() => {
     const rowIndex = Math.floor(Math.random() * KEY_ROWS.length)
-    const row = KEY_ROWS[rowIndex]!
+    const row = KEY_ROWS[rowIndex]
+    if (!row) return { key: 'a', x: 0, y: 0, id: targetIdRef.current++ }
     const keyIndex = Math.floor(Math.random() * row.length)
-    const key = row[keyIndex]!
+    const key = row[keyIndex]
+
+    if (!key) return { key: 'a', x: 0, y: 0, id: targetIdRef.current++ }
 
     return {
       key,
@@ -126,7 +129,10 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       const targetIndex = targets.findIndex(t => t.key === key)
 
       if (targetIndex !== -1) {
-        handleTargetClick(targets[targetIndex]!.id)
+        const target = targets[targetIndex]
+        if (target) {
+          handleTargetClick(target.id)
+        }
       }
     }
 

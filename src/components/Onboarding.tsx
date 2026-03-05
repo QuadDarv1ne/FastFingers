@@ -55,7 +55,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }
   }
 
-  const step = steps[currentStep]!
+  const step = steps[currentStep]
   const progress = ((currentStep + 1) / steps.length) * 100
 
   if (!step) return null

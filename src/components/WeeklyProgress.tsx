@@ -17,9 +17,10 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]!
+      const dateStr = date.toISOString().split('T')[0]
+      if (!dateStr) continue
       const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
-      const dayName = days[dayIndex]!
+      const dayName = days[dayIndex] ?? '??'
 
       const sessionsOnDay = history.sessions.filter(s =>
         s.date.startsWith(dateStr)

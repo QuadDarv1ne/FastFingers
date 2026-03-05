@@ -78,13 +78,15 @@ export function useApi<T = unknown>(
 
     // Проверка кэша
     if (isCached() && !isRefetch) {
-      const cachedData = cacheRef.current!.data
-      setState(prev => ({
-        ...prev,
-        data: cachedData,
-        isLoading: false,
-        isRefetching: false,
-      }))
+      const cachedData = cacheRef.current?.data
+      if (cachedData) {
+        setState(prev => ({
+          ...prev,
+          data: cachedData,
+          isLoading: false,
+          isRefetching: false,
+        }))
+      }
       return
     }
 

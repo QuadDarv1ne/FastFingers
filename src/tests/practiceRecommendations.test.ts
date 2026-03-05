@@ -12,7 +12,7 @@ describe('Practice Recommendations Utils', () => {
       const recommendations = generatePracticeRecommendations([], {}, 0, 0)
 
       expect(recommendations.length).toBeGreaterThan(0)
-      expect(recommendations[0]!.category).toBe('general')
+      expect(recommendations[0]?.category).toBe('general')
     })
 
     it('should recommend speed improvement for low WPM', () => {
@@ -132,7 +132,7 @@ describe('Practice Recommendations Utils', () => {
       )
 
       // Первая рекомендация должна быть высокого приоритета
-      expect(recommendations[0]!.priority).toBe('high')
+      expect(recommendations[0]?.priority).toBe('high')
     })
   })
 

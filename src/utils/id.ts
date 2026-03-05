@@ -36,7 +36,7 @@ export function generateShortId(length = 8): string {
     const randomValues = new Uint32Array(length)
     cryptoObj.getRandomValues(randomValues)
     for (let i = 0; i < length; i++) {
-      result += chars.charAt(randomValues[i]! % chars.length)
+      result += chars.charAt((randomValues[i] ?? 0) % chars.length)
     }
   } else {
     for (let i = 0; i < length; i++) {
@@ -57,7 +57,7 @@ export function generateNumericId(length = 6): string {
     const randomValues = new Uint32Array(length)
     cryptoObj.getRandomValues(randomValues)
     for (let i = 0; i < length; i++) {
-      result += (randomValues[i]! % 10).toString()
+      result += ((randomValues[i] ?? 0) % 10).toString()
     }
   } else {
     for (let i = 0; i < length; i++) {
@@ -99,7 +99,7 @@ export function getInitials(name: string, maxLength = 2): string {
   const names = name.trim().split(/\s+/)
   return names
     .slice(0, maxLength)
-    .map(n => n[0]!.toUpperCase())
+    .map(n => n[0]?.toUpperCase() ?? '')
     .join('')
 }
 
@@ -120,7 +120,12 @@ export function extractTimestampFromId(id: string): number | null {
   const parts = id.split('-')
   if (parts.length !== 5) return null
 
-  const timestampHex = parts[2]!.substring(1) + parts[1]! + parts[0]!
+  const part0 = parts[0]
+  const part1 = parts[1]
+  const part2 = parts[2]
+  if (!part0 || !part1 || !part2) return null
+
+  const timestampHex = part2.substring(1) + part1 + part0
   const timestamp = parseInt(timestampHex, 16)
 
   if (isNaN(timestamp)) return null

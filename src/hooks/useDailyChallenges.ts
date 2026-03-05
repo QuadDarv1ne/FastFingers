@@ -49,12 +49,15 @@ function generateDailyChallenge(date: string): DailyChallenge {
   const textIndex = seed % texts.length
   const diffIndex = (seed + date.length) % difficulties.length
 
+  const text = texts[textIndex]
+  const difficulty = difficulties[diffIndex]
+
   return {
     id: `challenge-${date}`,
     date,
-    text: texts[textIndex]!,
-    targetWpm: difficulties[diffIndex]?.wpm ?? 60,
-    targetAccuracy: difficulties[diffIndex]?.acc ?? 97,
+    text: text ?? texts[0] ?? 'Стандартное испытание',
+    targetWpm: difficulty?.wpm ?? 60,
+    targetAccuracy: difficulty?.acc ?? 97,
     completed: false,
     xpReward: 100 + (diffIndex * 50),
   }
@@ -62,7 +65,9 @@ function generateDailyChallenge(date: string): DailyChallenge {
 
 // Получение текущей даты в формате YYYY-MM-DD
 function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0]!
+  const date = new Date().toISOString().split('T')[0]
+  if (!date) return new Date().toISOString().split('T')[0] ?? ''
+  return date
 }
 
 export function useDailyChallenges() {

@@ -53,7 +53,7 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
   ], [])
 
   const currentTheme = useMemo(
-    () => themes.find(t => t.value === theme) ?? themes[0]!,
+    () => themes.find(t => t.value === theme) ?? themes[0],
     [theme, themes]
   )
 
@@ -79,7 +79,10 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
         case ' ':
           e.preventDefault()
           if (showMenu) {
-            onThemeChange(themes[focusedIndex]!.value)
+            const selected = themes[focusedIndex]
+            if (selected) {
+              onThemeChange(selected.value)
+            }
             setShowMenu(false)
           }
           break
@@ -96,6 +99,8 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
       setFocusedIndex(themes.findIndex(t => t.value === theme))
     }
   }, [showMenu, theme, themes])
+
+  if (!currentTheme) return null
 
   return (
     <div className="relative">
