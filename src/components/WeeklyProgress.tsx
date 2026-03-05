@@ -20,7 +20,7 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       const dateStr = date.toISOString().split('T')[0]
       const dayName = days[date.getDay() === 0 ? 6 : date.getDay() - 1]
 
-      const sessionsOnDay = history.sessions.filter(s => 
+      const sessionsOnDay = history.sessions.filter(s =>
         s.date.startsWith(dateStr)
       )
 
@@ -28,7 +28,7 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       const avgWpm = sessionsOnDay.length > 0
         ? Math.round(sessionsOnDay.reduce((sum, s) => sum + s.wpm, 0) / sessionsOnDay.length)
         : 0
-      const totalTime = sessionsOnDay.reduce((sum, s) => sum + s.duration, 0)
+      const totalTime = sessionsOnDay.reduce((sum, s) => sum + (s.duration ?? 0), 0)
 
       result.push({
         date: dateStr,

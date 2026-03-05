@@ -45,16 +45,16 @@ function generateDailyChallenge(date: string): DailyChallenge {
     { wpm: 50, acc: 95 },
     { wpm: 60, acc: 97 },
   ]
-  
+
   const textIndex = seed % texts.length
   const diffIndex = (seed + date.length) % difficulties.length
-  
+
   return {
     id: `challenge-${date}`,
     date,
-    text: texts[textIndex],
-    targetWpm: difficulties[diffIndex].wpm,
-    targetAccuracy: difficulties[diffIndex].acc,
+    text: texts[textIndex] ?? texts[0],
+    targetWpm: difficulties[diffIndex]?.wpm ?? 60,
+    targetAccuracy: difficulties[diffIndex]?.acc ?? 97,
     completed: false,
     xpReward: 100 + (diffIndex * 50),
   }

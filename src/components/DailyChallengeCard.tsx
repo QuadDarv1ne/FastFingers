@@ -44,7 +44,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
     const dailyChallenge = generateDailyChallenge(today)
-    const challengeProgress = progress[dailyChallenge.id] || {
+    const challengeProgress = progress[dailyChallenge?.id] || {
       completed: false,
       progress: 0,
     }
@@ -61,7 +61,8 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
 
   if (!activeChallenge) return null
 
-  const progressPercent = Math.min((activeChallenge.progress / activeChallenge.goal.target) * 100, 100)
+  const target = activeChallenge.goal?.target ?? 100
+  const progressPercent = Math.min((activeChallenge.progress / target) * 100, 100)
 
   const difficultyColors = {
     easy: 'from-green-600 to-green-500',

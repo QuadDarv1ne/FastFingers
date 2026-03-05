@@ -44,14 +44,14 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
   const activityByDay = useMemo(() => {
     const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
     const data = days.map(day => ({ day, sessions: 0, avgWpm: 0 }))
-    
+
     history.sessions.forEach(session => {
       const date = new Date(session.date)
       const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
       data[dayIndex].sessions += 1
-      data[dayIndex].avgWpm += session.wpm
+      data[dayIndex].avgWpm += session.wpm ?? 0
     })
-    
+
     return data.map(d => ({
       ...d,
       avgWpm: d.sessions > 0 ? Math.round(d.avgWpm / d.sessions) : 0,
@@ -67,12 +67,13 @@ export function StatisticsPage({ onBack }: StatisticsPageProps) {
       { name: '90-95%', value: 0, color: '#84cc16' },
       { name: '95%+', value: 0, color: '#22c55e' },
     ]
-    
-    history.sessions?.forEach(session => {
-      if (session.accuracy < 70) ranges[0].value++
-      else if (session.accuracy < 80) ranges[1].value++
-      else if (session.accuracy < 90) ranges[2].value++
-      else if (session.accuracy < 95) ranges[3].value++
+
+    history.sessions.forEach(session => {
+      const accuracy = session.accuracy ?? 0
+      if (accuracy < 70) ranges[0].value++
+      else if (accuracy < 80) ranges[1].value++
+      else if (accuracy < 90) ranges[2].value++
+      else if (accuracy < 95) ranges[3].value++
       else ranges[4].value++
     })
 
