@@ -5,8 +5,44 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Статические файлы - не редиректить
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
+# PWA и манифест
+[[redirects]]
+  from = "/manifest.webmanifest"
+  to = "/manifest.webmanifest"
+  status = 200
+
+[[redirects]]
+  from = "/sw.js"
+  to = "/sw.js"
+  status = 200
+
+[[redirects]]
+  from = "/registerSW.js"
+  to = "/registerSW.js"
+  status = 200
+
+# SPA fallback - только для маршрутов без файлов
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
+
+# Заголовки для JavaScript файлов
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Заголовки для CSS файлов
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
