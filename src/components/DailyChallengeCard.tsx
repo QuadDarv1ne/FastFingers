@@ -42,7 +42,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     const dailyChallenge = generateDailyChallenge(today)
     const challengeProgress = progress[dailyChallenge?.id] || {
       completed: false,
@@ -228,11 +228,11 @@ function generateDailyChallenge(date: string): DailyChallenge {
     },
   ]
 
-  const selected = challenges[seed % challenges.length]
+  const selected = challenges[seed % challenges.length]!
 
   return {
     ...selected,
     completed: false,
     progress: 0,
-  }
+  } as DailyChallenge
 }

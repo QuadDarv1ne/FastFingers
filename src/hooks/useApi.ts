@@ -78,7 +78,7 @@ export function useApi<T = unknown>(
 
     // Проверка кэша
     if (isCached() && !isRefetch) {
-      const cachedData = cacheRef.current?.data
+      const cachedData = cacheRef.current!.data
       setState(prev => ({
         ...prev,
         data: cachedData,

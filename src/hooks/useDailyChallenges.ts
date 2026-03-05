@@ -52,7 +52,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
   return {
     id: `challenge-${date}`,
     date,
-    text: texts[textIndex] ?? texts[0],
+    text: texts[textIndex]!,
     targetWpm: difficulties[diffIndex]?.wpm ?? 60,
     targetAccuracy: difficulties[diffIndex]?.acc ?? 97,
     completed: false,
@@ -62,7 +62,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
 
 // Получение текущей даты в формате YYYY-MM-DD
 function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0]
+  return new Date().toISOString().split('T')[0]!
 }
 
 export function useDailyChallenges() {
