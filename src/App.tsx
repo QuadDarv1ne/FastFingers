@@ -405,9 +405,7 @@ function AppContent() {
             />
 
             <div className="glass rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4">Данные</h3>
               <ExportImport
-                onClose={() => {}}
                 progress={progress}
                 onImport={handleImportProgress}
               />
