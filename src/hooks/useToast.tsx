@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { generateId } from '../utils/id'
 import { Toast, ToastType, ToastAction } from '../components/Toast'
 
@@ -9,10 +9,20 @@ interface ToastOptions {
   action?: ToastAction
 }
 
+interface UseToastReturn {
+  toasts: Toast[]
+  success: (options: ToastOptions) => string
+  error: (options: ToastOptions) => string
+  warning: (options: ToastOptions) => string
+  info: (options: ToastOptions) => string
+  dismiss: (id: string) => void
+  dismissAll: () => void
+}
+
 /**
  * Хук для управления Toast уведомлениями
  */
-export function useToast(defaultDuration: number = 5000) {
+export function useToast(defaultDuration: number = 5000): UseToastReturn {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const dismiss = useCallback((id: string) => {
@@ -35,7 +45,6 @@ export function useToast(defaultDuration: number = 5000) {
 
       setToasts(prev => [...prev, toast])
 
-      // Авто-закрытие
       if (toastDuration > 0) {
         setTimeout(() => {
           dismiss(id)
@@ -71,13 +80,16 @@ export function useToast(defaultDuration: number = 5000) {
     setToasts([])
   }, [])
 
-  return {
-    toasts,
-    success,
-    error,
-    warning,
-    info,
-    dismiss,
-    dismissAll,
-  }
+  return useMemo(
+    () => ({
+      toasts,
+      success,
+      error,
+      warning,
+      info,
+      dismiss,
+      dismissAll,
+    }),
+    [toasts, success, error, warning, info, dismiss, dismissAll]
+  )
 }
