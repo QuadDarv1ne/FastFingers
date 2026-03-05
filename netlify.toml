@@ -5,44 +5,8 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Исключения для статики — обслуживать напрямую
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*.js"
-  to = "/:splat.js"
-  status = 200
-
-[[redirects]]
-  from = "/*.css"
-  to = "/:splat.css"
-  status = 200
-
-[[redirects]]
-  from = "/*.svg"
-  to = "/:splat.svg"
-  status = 200
-
-[[redirects]]
-  from = "/*.png"
-  to = "/:splat.png"
-  status = 200
-
-[[redirects]]
-  from = "/*.jpg"
-  to = "/:splat.jpg"
-  status = 200
-
-[[redirects]]
-  from = "/*.webmanifest"
-  to = "/:splat.webmanifest"
-  status = 200
-
-# SPA роутинг — только для HTML путей
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
