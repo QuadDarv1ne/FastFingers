@@ -42,9 +42,9 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]!
+    const today = new Date().toISOString().split('T')[0]
     const dailyChallenge = generateDailyChallenge(today)
-    const challengeProgress = progress[dailyChallenge.id] || {
+    const challengeProgress = progress[dailyChallenge?.id] || {
       completed: false,
       progress: 0,
     }
@@ -59,9 +59,10 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   // Используем challengeProp если он передан (из App), иначе используем локальное состояние
   const activeChallenge = challengeProp ?? localChallenge
 
+  const target = activeChallenge?.goal?.target ?? 100
   const progressPercent = useMemo(
-    () => Math.min((activeChallenge!.progress / activeChallenge!.goal.target) * 100, 100),
-    [activeChallenge]
+    () => (activeChallenge ? Math.min((activeChallenge.progress / target) * 100, 100) : 0),
+    [activeChallenge, target]
   )
 
   if (!activeChallenge) return null

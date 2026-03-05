@@ -52,9 +52,9 @@ function generateDailyChallenge(date: string): DailyChallenge {
   return {
     id: `challenge-${date}`,
     date,
-    text: texts[textIndex]!,
-    targetWpm: difficulties[diffIndex]!.wpm,
-    targetAccuracy: difficulties[diffIndex]!.acc,
+    text: texts[textIndex] ?? texts[0],
+    targetWpm: difficulties[diffIndex]?.wpm ?? 60,
+    targetAccuracy: difficulties[diffIndex]?.acc ?? 97,
     completed: false,
     xpReward: 100 + (diffIndex * 50),
   }
@@ -62,7 +62,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
 
 // Получение текущей даты в формате YYYY-MM-DD
 function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0]!
+  return new Date().toISOString().split('T')[0]
 }
 
 export function useDailyChallenges() {
@@ -98,7 +98,7 @@ export function useDailyChallenges() {
       const lastDate = prev.lastPracticeDate
       const yesterday = new Date()
       yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]!
+      const yesterdayStr = yesterday.toISOString().split('T')[0]
 
       let newCurrent = prev.current
       let newLongest = prev.longest

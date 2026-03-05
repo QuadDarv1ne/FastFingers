@@ -29,7 +29,7 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       const avgWpm = sessionsOnDay.length > 0
         ? Math.round(sessionsOnDay.reduce((sum, s) => sum + s.wpm, 0) / sessionsOnDay.length)
         : 0
-      const totalTime = sessionsOnDay.reduce((sum, s) => sum + s.duration, 0)
+      const totalTime = sessionsOnDay.reduce((sum, s) => sum + (s.duration ?? 0), 0)
 
       result.push({
         date: dateStr,
