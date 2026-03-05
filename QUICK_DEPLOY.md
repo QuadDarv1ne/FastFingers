@@ -27,29 +27,44 @@ wrangler pages deploy dist --project-name=fastfingers
 
 ---
 
-## Вариант 2: GitHub Pages
+## Вариант 2: GitHub Pages ⭐
 
-### Шаг 1: Включите GitHub Pages
+### Настройка GitHub Actions
 
-1. Откройте репозиторий на GitHub
-2. Перейдите в **Settings → Pages**
-3. В разделе **Source** выберите **GitHub Actions**
-4. Сохраните
-
-### Шаг 2: Задеплойте
+1. Убедитесь, что файл `.github/workflows/deploy.yml` существует
+2. Закоммитьте и запушьте изменения:
 
 ```bash
 git add .
-git commit -m "Add GitHub Pages deployment workflow"
+git commit -m "Настроить GitHub Actions деплой"
 git push origin main
 ```
 
-GitHub Actions автоматически соберёт и задеплоит проект.
+3. Откройте репозиторий на GitHub
+4. Перейдите в **Settings → Pages**
+5. В разделе **Source** выберите **GitHub Actions**
+6. Сохраните
+
+GitHub Actions автоматически соберёт и задеплоит проект при каждом пуше.
 
 ✅ Сайт будет доступен по адресу: `https://<username>.github.io/FastFingers/`
 
-⚠️ **Важно:** Для GitHub Pages приложение будет доступно в подпапке `/FastFingers/`.
-Если имя репозитория другое, обновите workflow файл.
+⚠️ **Важно:** Workflow автоматически использует имя репозитория для base path.
+
+### 🔒 Защита ветки main (обязательно)
+
+Для защиты от случайных изменений:
+
+1. Откройте **Settings → Branches**
+2. Нажмите **"Add branch protection rule"**
+3. Введите `main` в поле "Branch name pattern"
+4. Включите опции:
+   - ✅ **Require a pull request before merging**
+   - ✅ **Require status checks to pass before merging** → выберите `build`
+   - ✅ **Do not allow bypassing the above settings**
+5. Нажмите **Create**
+
+Это предотвратит force push и случайные удаления ветки.
 
 ---
 
