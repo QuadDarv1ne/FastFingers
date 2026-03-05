@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { TypingStats, KeyHeatmapData } from '@/types'
 import { analyzeTypingProgress, TypingAnalytics } from '@utils/analytics'
 
@@ -11,7 +11,7 @@ interface AdvancedAnalyticsProps {
 /**
  * Компонент расширенной аналитики прогресса
  */
-export function AdvancedAnalytics({
+export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedAnalytics({
   recentStats,
   heatmap,
   onClose,
@@ -267,4 +267,9 @@ export function AdvancedAnalytics({
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.recentStats.length === nextProps.recentStats.length &&
+    prevProps.onClose === nextProps.onClose
+  )
+})
