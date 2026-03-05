@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { KeyboardLayout, TypingStats, KeyInputResult, Exercise } from '../types'
 import { getRandomExercise, generatePracticeText } from '../utils/exercises'
@@ -18,7 +18,7 @@ interface TypingTrainerProps {
   challengeText?: string
 }
 
-export function TypingTrainer({ 
+export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({ 
   fontSize, 
   onSessionComplete,
   onKeyInput,
@@ -388,4 +388,11 @@ export function TypingTrainer({
       )}
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.fontSize === nextProps.fontSize &&
+    prevProps.isChallenge === nextProps.isChallenge &&
+    prevProps.challengeText === nextProps.challengeText &&
+    prevProps.layout === nextProps.layout
+  )
+})

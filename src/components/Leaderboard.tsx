@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { memo, useState, useMemo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
 export interface LeaderboardEntry {
@@ -21,7 +21,7 @@ interface LeaderboardProps {
 type SortBy = 'wpm' | 'accuracy' | 'level' | 'words' | 'streak'
 type TimeFilter = 'today' | 'week' | 'month' | 'all'
 
-export function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
+export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
   const [entries] = useLocalStorageState<LeaderboardEntry[]>('fastfingers_leaderboard', [])
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
@@ -213,7 +213,10 @@ export function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  return prevProps.onClose === nextProps.onClose &&
+    prevProps.currentUser?.id === nextProps.currentUser?.id
+})
 
 function TopCard({
   entry,
