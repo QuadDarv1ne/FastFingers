@@ -92,8 +92,8 @@ export function useDailyChallenges() {
       if (storedStreak) {
         setStreak(JSON.parse(storedStreak))
       }
-    } catch (e) {
-      console.error('Failed to load challenges:', e)
+    } catch {
+      // Ignore load errors
     }
   }, [])
 
@@ -134,8 +134,8 @@ export function useDailyChallenges() {
 
       try {
         localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(newStreak))
-      } catch (e) {
-        console.error('Failed to save streak:', e)
+      } catch {
+        // Ignore save errors
       }
 
       return newStreak
@@ -187,8 +187,8 @@ export function useDailyChallenges() {
     if (challenges.length > 0) {
       try {
         localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges))
-      } catch (e) {
-        console.error('Failed to save challenges:', e)
+      } catch {
+        // Ignore save errors
       }
     }
   }, [challenges])

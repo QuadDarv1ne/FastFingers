@@ -12,8 +12,7 @@ export function useLocalStorageState<T>(
     try {
       const item = localStorage.getItem(key)
       return item ? JSON.parse(item) : defaultValue
-    } catch (error) {
-      console.error(`Error loading ${key} from localStorage:`, error)
+    } catch {
       return defaultValue
     }
   })
@@ -21,8 +20,8 @@ export function useLocalStorageState<T>(
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(state))
-    } catch (error) {
-      console.error(`Error saving ${key} to localStorage:`, error)
+    } catch {
+      // Ignore save errors
     }
   }, [key, state])
 
@@ -30,8 +29,8 @@ export function useLocalStorageState<T>(
     try {
       localStorage.removeItem(key)
       setState(defaultValue)
-    } catch (error) {
-      console.error(`Error removing ${key} from localStorage:`, error)
+    } catch {
+      // Ignore remove errors
     }
   }, [key, defaultValue])
 
