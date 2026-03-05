@@ -37,69 +37,29 @@ import { useHotkeys } from './hooks/useHotkeys'
 import { calculateSessionXp } from './utils/stats'
 import { calculateStreakXpBonus } from '@utils/streakBonus'
 
-const SprintMode = lazy(() =>
-  import('./components/SprintMode').then((module) => ({ default: module.SprintMode }))
-)
-const SpeedTest = lazy(() =>
-  import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest }))
-)
-const ReactionGame = lazy(() =>
-  import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame }))
-)
-const TrainingHistory = lazy(() =>
-  import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory }))
-)
-const WeeklyProgress = lazy(() =>
-  import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress }))
-)
-const DailyChallengeCard = lazy(() =>
-  import('./components/DailyChallengeCard').then((module) => ({
-    default: module.DailyChallengeCard,
-  }))
-)
-const CustomExerciseEditor = lazy(() =>
-  import('./components/CustomExerciseEditor').then((module) => ({
-    default: module.CustomExerciseEditor,
-  }))
-)
-const ExportImport = lazy(() =>
-  import('./components/ExportImport').then((module) => ({ default: module.ExportImport }))
-)
-const TypingTips = lazy(() =>
-  import('./components/TypingTips').then((module) => ({ default: module.TypingTips }))
-)
-const Onboarding = lazy(() =>
-  import('./components/Onboarding').then((module) => ({ default: module.Onboarding }))
-)
-const AchievementsPanel = lazy(() =>
-  import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel }))
-)
-const StreakRewardsPanel = lazy(() =>
-  import('./components/StreakRewardsPanel').then((module) => ({
-    default: module.StreakRewardsPanel,
-  }))
-)
-const SessionSummary = lazy(() =>
-  import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary }))
-)
-const StatisticsPage = lazy(() =>
-  import('./components/StatisticsPage').then((module) => ({ default: module.StatisticsPage }))
-)
-const LearningMode = lazy(() =>
-  import('./components/LearningMode').then((module) => ({ default: module.LearningMode }))
-)
-const AuthWrapper = lazy(() =>
-  import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper }))
-)
-const UserProfile = lazy(() =>
-  import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile }))
-)
-const NotificationBell = lazy(() =>
-  import('./components/NotificationBell').then((module) => ({ default: module.NotificationBell }))
-)
-const NotificationPanel = lazy(() =>
-  import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel }))
-)
+const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
+const SpeedTest = lazy(() => import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest })))
+const ReactionGame = lazy(() => import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame })))
+const TrainingHistory = lazy(() => import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory })))
+const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress })))
+const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then((module) => ({ default: module.DailyChallengeCard })))
+const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then((module) => ({ default: module.CustomExerciseEditor })))
+const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
+const TypingTips = lazy(() => import('./components/TypingTips').then((module) => ({ default: module.TypingTips })))
+const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
+const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
+const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
+const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
+const StatisticsPage = lazy(() => import('./components/StatisticsPage').then((module) => ({ default: module.StatisticsPage })))
+const LearningMode = lazy(() => import('./components/LearningMode').then((module) => ({ default: module.LearningMode })))
+const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
+const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
+const NotificationBell = lazy(() => import('./components/NotificationBell').then((module) => ({ default: module.NotificationBell })))
+const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
+
+// Preload critical components
+AuthWrapper.preload()
+NotificationBell.preload()
 
 function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
