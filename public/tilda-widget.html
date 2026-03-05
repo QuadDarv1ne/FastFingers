@@ -6,7 +6,7 @@
   <title>FastFingers — Тренажёр слепой печати</title>
   <style>
     /* ===== Базовые стили ===== */
-    * {
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -25,6 +25,8 @@
       --success: #22c55e;
       --error: #ef4444;
       --border: #2a2a4a;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      --transition: all 0.2s ease;
     }
 
     body {
@@ -33,6 +35,9 @@
       color: var(--text-primary);
       min-height: 100vh;
       padding: 20px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .widget-container {
@@ -47,11 +52,13 @@
       border-radius: 16px;
       padding: 24px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
     }
 
     .card:hover {
       border-color: var(--primary);
+      box-shadow: 0 6px 24px rgba(124, 58, 237, 0.15);
     }
 
     /* ===== Заголовки ===== */
@@ -76,8 +83,8 @@
     /* ===== Статистика ===== */
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
       margin-bottom: 20px;
     }
 
@@ -86,21 +93,29 @@
       border-radius: 12px;
       padding: 16px;
       text-align: center;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
     }
 
     .stat-value {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--primary-light);
       line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     /* ===== Область текста ===== */
@@ -114,18 +129,20 @@
       min-height: 180px;
       position: relative;
       cursor: text;
-      transition: border-color 0.2s;
+      transition: var(--transition);
+      border: 1px solid var(--border);
     }
 
-    .text-display:hover {
+    .text-display:hover, .text-display:focus-within {
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
     }
 
     .char {
       position: relative;
       padding: 2px 1px;
       border-radius: 3px;
-      transition: all 0.15s;
+      transition: all 0.1s;
     }
 
     .char.correct {
@@ -135,12 +152,14 @@
     .char.incorrect {
       color: var(--error);
       background: rgba(239, 68, 68, 0.2);
+      text-decoration: underline wavy var(--error);
     }
 
     .char.current {
       background: var(--primary);
       color: white;
       animation: pulse 1s infinite;
+      border-radius: 4px;
     }
 
     .char.current::after {
@@ -160,7 +179,7 @@
 
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      50% { transform: scale(1.02); }
     }
 
     @keyframes blink {
@@ -173,6 +192,8 @@
       position: absolute;
       opacity: 0;
       pointer-events: none;
+      width: 1px;
+      height: 1px;
     }
 
     /* ===== Контролы ===== */
@@ -185,16 +206,17 @@
 
     .control-group {
       flex: 1;
-      min-width: 150px;
+      min-width: 140px;
     }
 
     label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
       margin-bottom: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     select, button {
@@ -207,11 +229,13 @@
       background: var(--bg-secondary);
       color: var(--text-primary);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: var(--transition);
+      font-family: inherit;
     }
 
     select:hover, button:hover {
       border-color: var(--primary);
+      background: var(--bg-card);
     }
 
     select:focus, button:focus {
@@ -231,6 +255,10 @@
       box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
     }
 
+    button:active {
+      transform: translateY(0);
+    }
+
     /* ===== Прогресс бар ===== */
     .progress-container {
       margin-top: 20px;
@@ -242,6 +270,7 @@
       font-size: 13px;
       color: var(--text-muted);
       margin-bottom: 8px;
+      font-weight: 500;
     }
 
     .progress-bar {
@@ -262,6 +291,7 @@
     .keyboard {
       margin-top: 20px;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     .keyboard-row {
@@ -272,25 +302,26 @@
     }
 
     .key {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-secondary);
-      transition: all 0.15s;
+      transition: all 0.1s;
+      text-transform: uppercase;
     }
 
     .key.active {
       background: var(--primary);
       color: white;
       border-color: var(--primary-light);
-      transform: scale(1.1);
+      transform: scale(1.05);
       box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
     }
 
@@ -307,7 +338,7 @@
     }
 
     .key-space {
-      width: 280px;
+      width: 260px;
     }
 
     /* ===== Уведомления ===== */
@@ -318,14 +349,15 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       gap: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow);
       transform: translateX(400px);
       transition: transform 0.3s ease;
       z-index: 1000;
+      max-width: 320px;
     }
 
     .notification.show {
@@ -341,7 +373,7 @@
     }
 
     /* ===== Адаптивность ===== */
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       body {
         padding: 12px;
       }
@@ -360,17 +392,34 @@
       }
 
       .key {
-        width: 36px;
-        height: 38px;
-        font-size: 12px;
+        width: 34px;
+        height: 36px;
+        font-size: 11px;
       }
 
       .key-space {
-        width: 200px;
+        width: 180px;
       }
 
       .stat-value {
-        font-size: 24px;
+        font-size: 22px;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .stat-card {
+        padding: 12px 8px;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .control-group {
+        min-width: 100%;
       }
     }
 
@@ -378,7 +427,7 @@
     .completion-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(15, 15, 26, 0.95);
+      background: rgba(15, 15, 26, 0.98);
       backdrop-filter: blur(8px);
       border-radius: 16px;
       display: flex;
@@ -386,7 +435,8 @@
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s ease;
+      z-index: 10;
     }
 
     .completion-overlay.show {
@@ -397,11 +447,18 @@
     .completion-content {
       text-align: center;
       padding: 40px;
+      max-width: 400px;
     }
 
     .completion-icon {
       font-size: 64px;
       margin-bottom: 16px;
+      animation: bounce 0.6s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
 
     .completion-title {
@@ -417,63 +474,87 @@
     .completion-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 12px;
       margin: 24px 0;
     }
 
     .completion-stat {
       background: var(--bg-secondary);
-      padding: 16px;
-      border-radius: 12px;
+      padding: 14px;
+      border-radius: 10px;
     }
 
     .completion-stat-value {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--primary-light);
     }
 
     .completion-stat-label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ===== Доступность ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ===== Фокус для клавиатуры ===== */
+    .text-display:focus-within {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
-  <div class="widget-container">
+  <div class="widget-container" role="application" aria-label="Тренажёр слепой печати">
     <h1>⌨️ FastFingers</h1>
     <p class="subtitle">Тренажёр слепой десятипальцевой печати</p>
 
     <!-- Статистика -->
-    <div class="stats-row">
+    <div class="stats-row" role="region" aria-label="Статистика печати">
       <div class="stat-card">
-        <div class="stat-value" id="wpm">0</div>
+        <div class="stat-value" id="wpm" aria-label="Слов в минуту">0</div>
         <div class="stat-label">WPM</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="cpm">0</div>
+        <div class="stat-value" id="cpm" aria-label="Символов в минуту">0</div>
         <div class="stat-label">CPM</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="accuracy">100</div>
+        <div class="stat-value" id="accuracy" aria-label="Точность">100</div>
         <div class="stat-label">Точность %</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="errors">0</div>
+        <div class="stat-value" id="errors" aria-label="Ошибки">0</div>
         <div class="stat-label">Ошибки</div>
       </div>
     </div>
 
     <!-- Область печати -->
-    <div class="card">
-      <div class="text-display" id="text-display" onclick="focusInput()">
+    <div class="card" role="region" aria-label="Область печати">
+      <div 
+        class="text-display" 
+        id="text-display" 
+        onclick="focusInput()"
+        tabindex="0"
+        role="textbox"
+        aria-label="Текст для печати"
+        aria-live="polite"
+      >
         <div id="text-content"></div>
-        
+
         <!-- Экран завершения -->
-        <div class="completion-overlay" id="completion-overlay">
+        <div class="completion-overlay" id="completion-overlay" role="dialog" aria-modal="true" aria-label="Упражнение завершено">
           <div class="completion-content">
-            <div class="completion-icon">🎉</div>
+            <div class="completion-icon" aria-hidden="true">🎉</div>
             <div class="completion-title">Отлично!</div>
             <p style="color: var(--text-secondary); margin: 8px 0 24px;">Упражнение завершено</p>
             <div class="completion-stats">
@@ -503,16 +584,16 @@
           <span>Прогресс</span>
           <span id="progress-percent">0%</span>
         </div>
-        <div class="progress-bar">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
           <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
         </div>
       </div>
 
       <!-- Контролы -->
-      <div class="controls">
+      <div class="controls" role="group" aria-label="Настройки упражнения">
         <div class="control-group">
           <label for="category-select">Категория</label>
-          <select id="category-select" onchange="changeCategory(this.value)">
+          <select id="category-select" onchange="changeCategory(this.value)" aria-label="Выберите категорию">
             <option value="all">🎲 Случайные слова</option>
             <option value="basic">⌨️ Основной ряд</option>
             <option value="upper">⬆️ Верхний ряд</option>
@@ -523,7 +604,7 @@
         </div>
         <div class="control-group">
           <label for="difficulty-select">Сложность</label>
-          <select id="difficulty-select" onchange="changeDifficulty(this.value)">
+          <select id="difficulty-select" onchange="changeDifficulty(this.value)" aria-label="Выберите сложность">
             <option value="1">⭐ Очень легко</option>
             <option value="3">⭐⭐ Легко</option>
             <option value="5" selected>⭐⭐⭐ Средне</option>
@@ -532,7 +613,7 @@
           </select>
         </div>
         <div class="control-group" style="display: flex; align-items: flex-end;">
-          <button class="primary" onclick="initExercise()" title="Новое упражнение">
+          <button class="primary" onclick="initExercise()" title="Новое упражнение" aria-label="Новое упражнение">
             🔄 Новое
           </button>
         </div>
@@ -540,29 +621,39 @@
     </div>
 
     <!-- Виртуальная клавиатура -->
-    <div class="card keyboard">
+    <div class="card keyboard" role="region" aria-label="Виртуальная клавиатура">
       <div id="keyboard-container"></div>
     </div>
   </div>
 
   <!-- Скрытый инпут для захвата ввода -->
-  <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <input 
+    type="text" 
+    id="hidden-input" 
+    autocomplete="off" 
+    autocorrect="off" 
+    autocapitalize="off" 
+    spellcheck="false"
+    aria-hidden="true"
+  >
 
   <!-- Уведомления -->
-  <div class="notification" id="notification">
-    <span id="notification-icon">✓</span>
+  <div class="notification" id="notification" role="alert" aria-live="polite">
+    <span id="notification-icon" aria-hidden="true">✓</span>
     <span id="notification-text">Готово!</span>
   </div>
 
   <script>
+    'use strict';
+
     // ===== Данные =====
-    const WORDS = {
+    const WORDS = Object.freeze({
       easy: ['он', 'она', 'оно', 'мы', 'вы', 'они', 'там', 'тут', 'вот', 'как', 'так', 'где', 'кто', 'что', 'мир', 'дом', 'лес', 'кот', 'год', 'рот', 'нос', 'лёд', 'мёд', 'сон', 'дым'],
       medium: ['привет', 'работа', 'книга', 'письмо', 'экран', 'окно', 'дверь', 'стол', 'стул', 'ручка', 'бумага', 'карта', 'город', 'река', 'море', 'поле', 'гора', 'луна', 'звезда', 'птица'],
       hard: ['программирование', 'клавиатура', 'монитор', 'интернет', 'телефон', 'камера', 'музыка', 'картина', 'история', 'победа', 'удача', 'здоровье', 'счастье', 'свобода', 'правосудие']
-    };
+    });
 
-    const EXERCISES = {
+    const EXERCISES = Object.freeze({
       basic: [
         'авып авып авып авып авып авып авып авып авып авып',
         'орлд орлд орлд орлд орлд орлд орлд орлд орлд орлд',
@@ -589,13 +680,34 @@
         'Съешь ещё этих мягких французских булок, да выпей чаю.',
         'В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!'
       ]
-    };
+    });
 
-    const KEYBOARD_LAYOUT = [
+    const KEYBOARD_LAYOUT = Object.freeze([
       ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ'],
       ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э', 'ё'],
       ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '.']
-    ];
+    ]);
+
+    // ===== DOM элементы =====
+    const elements = {
+      wpm: null,
+      cpm: null,
+      accuracy: null,
+      errors: null,
+      textContent: null,
+      completionOverlay: null,
+      finalWpm: null,
+      finalAccuracy: null,
+      finalTime: null,
+      progressPercent: null,
+      progressFill: null,
+      progressBar: null,
+      hiddenInput: null,
+      notification: null,
+      notificationIcon: null,
+      notificationText: null,
+      keys: []
+    };
 
     // ===== Состояние =====
     let state = {
@@ -611,10 +723,32 @@
       difficulty: 5
     };
 
+    // ===== Инициализация DOM =====
+    function initElements() {
+      elements.wpm = document.getElementById('wpm');
+      elements.cpm = document.getElementById('cpm');
+      elements.accuracy = document.getElementById('accuracy');
+      elements.errors = document.getElementById('errors');
+      elements.textContent = document.getElementById('text-content');
+      elements.completionOverlay = document.getElementById('completion-overlay');
+      elements.finalWpm = document.getElementById('final-wpm');
+      elements.finalAccuracy = document.getElementById('final-accuracy');
+      elements.finalTime = document.getElementById('final-time');
+      elements.progressPercent = document.getElementById('progress-percent');
+      elements.progressFill = document.getElementById('progress-fill');
+      elements.progressBar = document.querySelector('.progress-bar');
+      elements.hiddenInput = document.getElementById('hidden-input');
+      elements.notification = document.getElementById('notification');
+      elements.notificationIcon = document.getElementById('notification-icon');
+      elements.notificationText = document.getElementById('notification-text');
+    }
+
     // ===== Инициализация клавиатуры =====
     function initKeyboard() {
       const container = document.getElementById('keyboard-container');
-      container.innerHTML = '';
+      if (!container) return;
+
+      const fragment = document.createDocumentFragment();
 
       KEYBOARD_LAYOUT.forEach((row, rowIndex) => {
         const rowDiv = document.createElement('div');
@@ -627,9 +761,10 @@
           keyDiv.dataset.key = key;
           keyDiv.textContent = key.toUpperCase();
           rowDiv.appendChild(keyDiv);
+          elements.keys.push(keyDiv);
         });
 
-        container.appendChild(rowDiv);
+        fragment.appendChild(rowDiv);
       });
 
       // Пробел
@@ -640,20 +775,24 @@
       spaceKey.dataset.key = ' ';
       spaceKey.textContent = 'ПРОБЕЛ';
       spaceRow.appendChild(spaceKey);
-      container.appendChild(spaceRow);
+      fragment.appendChild(spaceRow);
+      elements.keys.push(spaceKey);
+
+      container.appendChild(fragment);
     }
 
     // ===== Генерация текста =====
     function generateText() {
       if (state.category === 'all') {
         const allWords = [...WORDS.easy, ...WORDS.medium, ...WORDS.hard];
-        return Array.from({ length: 15 }, () => 
+        const length = 12 + Math.floor(state.difficulty / 2);
+        return Array.from({ length }, () =>
           allWords[Math.floor(Math.random() * allWords.length)]
         ).join(' ');
       }
 
       const exercises = EXERCISES[state.category];
-      if (exercises) {
+      if (exercises && exercises.length > 0) {
         return exercises[Math.floor(Math.random() * exercises.length)];
       }
 
@@ -661,36 +800,44 @@
                     state.difficulty <= 6 ? [...WORDS.easy, ...WORDS.medium] :
                     [...WORDS.easy, ...WORDS.medium, ...WORDS.hard];
 
-      return Array.from({ length: 12 }, () => 
+      return Array.from({ length: 12 }, () =>
         words[Math.floor(Math.random() * words.length)]
       ).join(' ');
     }
 
     // ===== Отображение текста =====
     function renderText() {
-      const content = document.getElementById('text-content');
-      content.innerHTML = '';
+      if (!elements.textContent) return;
 
-      state.text.split('').forEach((char, index) => {
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < state.text.length; i++) {
         const span = document.createElement('span');
         span.className = 'char';
+        const char = state.text[i];
 
-        if (index < state.currentIndex) {
-          span.classList.add('correct'); // Упрощённо - всё зелёное
-        } else if (index === state.currentIndex && !state.isComplete) {
+        if (i < state.currentIndex) {
+          const result = state.results[i];
+          span.classList.add(result?.isCorrect ? 'correct' : 'incorrect');
+        } else if (i === state.currentIndex && !state.isComplete) {
           span.classList.add('current');
         } else {
           span.classList.add('pending');
         }
 
         span.textContent = char === ' ' ? '␣' : char;
-        content.appendChild(span);
-      });
+        fragment.appendChild(span);
+      }
+
+      elements.textContent.innerHTML = '';
+      elements.textContent.appendChild(fragment);
     }
 
     // ===== Фокус инпута =====
     function focusInput() {
-      document.getElementById('hidden-input').focus();
+      if (elements.hiddenInput && !state.isComplete) {
+        elements.hiddenInput.focus();
+      }
     }
 
     // ===== Инициализация упражнения =====
@@ -703,20 +850,26 @@
       state.correctChars = 0;
       state.totalChars = 0;
       state.errors = 0;
+      state.results = [];
 
       // Сброс статистики
-      document.getElementById('wpm').textContent = '0';
-      document.getElementById('cpm').textContent = '0';
-      document.getElementById('accuracy').textContent = '100';
-      document.getElementById('errors').textContent = '0';
-      document.getElementById('progress-percent').textContent = '0%';
-      document.getElementById('progress-fill').style.width = '0%';
+      if (elements.wpm) elements.wpm.textContent = '0';
+      if (elements.cpm) elements.cpm.textContent = '0';
+      if (elements.accuracy) elements.accuracy.textContent = '100';
+      if (elements.errors) elements.errors.textContent = '0';
+      if (elements.progressPercent) elements.progressPercent.textContent = '0%';
+      if (elements.progressFill) elements.progressFill.style.width = '0%';
+      if (elements.progressBar) {
+        elements.progressBar.setAttribute('aria-valuenow', '0');
+      }
 
       // Скрытие оверлея
-      document.getElementById('completion-overlay').classList.remove('show');
+      if (elements.completionOverlay) {
+        elements.completionOverlay.classList.remove('show');
+      }
 
       // Сброс клавиатуры
-      document.querySelectorAll('.key').forEach(key => {
+      elements.keys.forEach(key => {
         key.classList.remove('active', 'correct', 'error');
       });
 
@@ -726,21 +879,21 @@
 
     // ===== Расчёт статистики =====
     function calculateStats() {
-      if (!state.startTime) return;
+      if (!state.startTime) return null;
 
       const timeElapsed = (Date.now() - state.startTime) / 1000;
       const timeInMinutes = timeElapsed / 60;
 
       const wpm = timeInMinutes > 0 ? Math.round(state.correctChars / 5 / timeInMinutes) : 0;
       const cpm = timeInMinutes > 0 ? Math.round(state.correctChars / timeInMinutes) : 0;
-      const accuracy = state.totalChars > 0 
-        ? Math.round((state.correctChars / state.totalChars) * 100) 
+      const accuracy = state.totalChars > 0
+        ? Math.round((state.correctChars / state.totalChars) * 100)
         : 100;
 
-      document.getElementById('wpm').textContent = wpm;
-      document.getElementById('cpm').textContent = cpm;
-      document.getElementById('accuracy').textContent = accuracy;
-      document.getElementById('errors').textContent = state.errors;
+      if (elements.wpm) elements.wpm.textContent = wpm;
+      if (elements.cpm) elements.cpm.textContent = cpm;
+      if (elements.accuracy) elements.accuracy.textContent = accuracy;
+      if (elements.errors) elements.errors.textContent = state.errors;
 
       return { wpm, cpm, accuracy, timeElapsed };
     }
@@ -748,23 +901,28 @@
     // ===== Обновление прогресса =====
     function updateProgress() {
       const percent = Math.round((state.currentIndex / state.text.length) * 100);
-      document.getElementById('progress-percent').textContent = `${percent}%`;
-      document.getElementById('progress-fill').style.width = `${percent}%`;
+      if (elements.progressPercent) elements.progressPercent.textContent = `${percent}%`;
+      if (elements.progressFill) elements.progressFill.style.width = `${percent}%`;
+      if (elements.progressBar) {
+        elements.progressBar.setAttribute('aria-valuenow', percent);
+      }
     }
 
     // ===== Подсветка клавиш =====
     function highlightKey(key, isCorrect) {
-      const keyElement = document.querySelector(`.key[data-key="${key.toLowerCase()}"]`);
-      if (keyElement) {
-        keyElement.classList.add('active');
+      const keyElement = elements.keys.find(k => k.dataset.key === key.toLowerCase());
+      if (!keyElement) return;
+
+      keyElement.classList.add('active');
+
+      setTimeout(() => {
+        keyElement.classList.remove('active');
+        keyElement.classList.add(isCorrect ? 'correct' : 'error');
+
         setTimeout(() => {
-          keyElement.classList.remove('active');
-          keyElement.classList.add(isCorrect ? 'correct' : 'error');
-          setTimeout(() => {
-            keyElement.classList.remove('correct', 'error');
-          }, 300);
-        }, 100);
-      }
+          keyElement.classList.remove('correct', 'error');
+        }, 200);
+      }, 80);
     }
 
     // ===== Обработка ввода =====
@@ -774,7 +932,7 @@
       const input = e.target;
       const value = input.value;
 
-      if (!value) return;
+      if (!value || !state.text[state.currentIndex]) return;
 
       // Старт таймера при первом вводе
       if (!state.startTime) {
@@ -783,31 +941,29 @@
 
       const newChar = value[value.length - 1];
       const expectedChar = state.text[state.currentIndex];
+      const isCorrect = newChar === expectedChar;
 
-      if (expectedChar) {
-        const isCorrect = newChar === expectedChar;
+      if (isCorrect) {
+        state.correctChars++;
+      } else {
+        state.errors++;
+      }
 
-        if (isCorrect) {
-          state.correctChars++;
-        } else {
-          state.errors++;
-        }
+      state.totalChars++;
+      state.results[state.currentIndex] = { isCorrect, char: newChar };
+      state.currentIndex++;
 
-        state.totalChars++;
-        state.currentIndex++;
+      // Подсветка клавиши
+      highlightKey(expectedChar, isCorrect);
 
-        // Подсветка клавиши
-        highlightKey(expectedChar, isCorrect);
+      // Обновление UI
+      renderText();
+      updateProgress();
+      calculateStats();
 
-        // Обновление UI
-        renderText();
-        updateProgress();
-        calculateStats();
-
-        // Проверка завершения
-        if (state.currentIndex >= state.text.length) {
-          completeExercise();
-        }
+      // Проверка завершения
+      if (state.currentIndex >= state.text.length) {
+        completeExercise();
       }
 
       // Очистка инпута
@@ -820,30 +976,40 @@
 
       const stats = calculateStats();
 
-      // Показ финальной статистики
-      document.getElementById('final-wpm').textContent = stats.wpm;
-      document.getElementById('final-accuracy').textContent = stats.accuracy;
-      document.getElementById('final-time').textContent = `${Math.round(stats.timeElapsed)}с`;
+      if (stats) {
+        if (elements.finalWpm) elements.finalWpm.textContent = stats.wpm;
+        if (elements.finalAccuracy) elements.finalAccuracy.textContent = stats.accuracy;
+        if (elements.finalTime) elements.finalTime.textContent = `${Math.round(stats.timeElapsed)}с`;
+      }
 
-      // Оверлей
-      document.getElementById('completion-overlay').classList.add('show');
+      if (elements.completionOverlay) {
+        elements.completionOverlay.classList.add('show');
+      }
 
-      // Уведомление
       showNotification('Упражнение завершено! 🎉', 'success');
     }
 
     // ===== Уведомления =====
+    let notificationTimeout = null;
+
     function showNotification(text, type = 'success') {
-      const notification = document.getElementById('notification');
-      const icon = document.getElementById('notification-icon');
-      const textEl = document.getElementById('notification-text');
+      if (!elements.notification) return;
 
-      icon.textContent = type === 'success' ? '✓' : '✕';
-      textEl.textContent = text;
-      notification.className = `notification ${type} show`;
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+      }
 
-      setTimeout(() => {
-        notification.classList.remove('show');
+      if (elements.notificationIcon) {
+        elements.notificationIcon.textContent = type === 'success' ? '✓' : '✕';
+      }
+      if (elements.notificationText) {
+        elements.notificationText.textContent = text;
+      }
+
+      elements.notification.className = `notification ${type} show`;
+
+      notificationTimeout = setTimeout(() => {
+        elements.notification.classList.remove('show');
       }, 3000);
     }
 
@@ -855,14 +1021,14 @@
 
     // ===== Изменение сложности =====
     function changeDifficulty(value) {
-      state.difficulty = parseInt(value);
+      state.difficulty = parseInt(value, 10);
       initExercise();
     }
 
     // ===== Обработка клавиш =====
-    document.addEventListener('keydown', (e) => {
+    function handleKeydown(e) {
       // Фокус при любой клавише
-      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && !e.isComposing) {
         focusInput();
       }
 
@@ -876,21 +1042,46 @@
         showNotification('Упражнение пропущено', 'error');
         initExercise();
       }
-    });
 
-    // ===== Захват ввода =====
-    document.getElementById('hidden-input').addEventListener('input', handleInput);
+      // Tab - фокус на контролы
+      if (e.key === 'Tab') {
+        elements.hiddenInput.blur();
+      }
+    }
 
     // ===== Инициализация =====
-    initKeyboard();
-    initExercise();
+    function init() {
+      initElements();
+      initKeyboard();
+      initExercise();
 
-    // ===== Фокус при клике =====
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('select') && !e.target.closest('button')) {
-        focusInput();
-      }
-    });
+      // Слушатели событий
+      elements.hiddenInput.addEventListener('input', handleInput, { passive: true });
+      document.addEventListener('keydown', handleKeydown, { passive: true });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('select') && !e.target.closest('button') && !state.isComplete) {
+          focusInput();
+        }
+      }, { passive: true });
+
+      // Обработка потери фокуса
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && !state.isComplete) {
+          state.isPaused = true;
+        } else if (!document.hidden && !state.isComplete) {
+          state.isPaused = false;
+          focusInput();
+        }
+      });
+    }
+
+    // Запуск после загрузки DOM
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>
