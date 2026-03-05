@@ -35,36 +35,31 @@ interface UseTypingHistoryReturn {
 const STORAGE_KEY = 'fastfingers_history'
 const MAX_SESSIONS = 100
 
+function loadHistory(): HistoryData {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) return JSON.parse(stored)
+  } catch {
+    // Ignore load errors
+  }
+  return { sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 }
+}
+
+function saveHistory(history: HistoryData): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
+  } catch {
+    // Ignore save errors
+  }
+}
+
 export function useTypingHistory(): UseTypingHistoryReturn {
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [history, setHistory] = useState<HistoryData>({
-    sessions: [],
-    heatmap: {},
-    totalSessions: 0,
-    totalTime: 0,
-  })
+  const [error] = useState<string | null>(null)
+  const [history, setHistory] = useState<HistoryData>(loadHistory)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        setHistory(JSON.parse(stored))
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load history')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  const saveHistory = useCallback((newHistory: HistoryData) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory))
-      setError(null)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save history')
-    }
+    setIsLoading(false)
   }, [])
 
   const addSession = useCallback((stats: TypingStats, xp: number) => {
@@ -86,11 +81,10 @@ export function useTypingHistory(): UseTypingHistoryReturn {
         totalSessions: prev.totalSessions + 1,
         totalTime: prev.totalTime + Math.floor(stats.timeElapsed / 60),
       }
-
       saveHistory(newHistory)
       return newHistory
     })
-  }, [saveHistory])
+  }, [])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
     setHistory(prev => {
@@ -99,12 +93,11 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       saveHistory(newHistory)
       return newHistory
     })
-  }, [saveHistory])
+  }, [])
 
   const clearHistory = useCallback(() => {
     setHistory({ sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 })
     localStorage.removeItem(STORAGE_KEY)
-    setError(null)
   }, [])
 
   const getStatsForPeriod = useCallback((days: number) => {
