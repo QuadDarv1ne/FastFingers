@@ -41,10 +41,13 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Завершение упражнения
   const handleComplete = useCallback((results: KeyInputResult[]) => {
+    if (!startTime) return
+    
     const correctChars = results.filter(r => r.isCorrect).length
-    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
+    const errors = results.filter(r => !r.isCorrect).length
+    const timeElapsed = (Date.now() - startTime) / 1000
 
-    const stats = calculateStats(correctChars, results.length, results.filter(r => !r.isCorrect).length, timeElapsed)
+    const stats = calculateStats(correctChars, results.length, errors, timeElapsed)
 
     setIsComplete(true)
     onSessionComplete(stats)
@@ -88,7 +91,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
 
-    if (isPaused) return
+    if (isPaused || isComplete) return
 
     // Начало отсчёта времени при первом вводе
     if (!startTime && value) {
@@ -97,46 +100,46 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
     const newChar = value[value.length - 1]
 
-    if (newChar) {
-      setCurrentIndex(prevIndex => {
-        const expectedChar = text[prevIndex]
-        const isCorrect = newChar === expectedChar
+    if (!newChar) return
 
-        // Звуковой эффект
-        if (sound && expectedChar) {
-          isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+    setCurrentIndex(prevIndex => {
+      const expectedChar = text[prevIndex]
+      if (!expectedChar) return prevIndex
+      
+      const isCorrect = newChar === expectedChar
+
+      // Звуковой эффект
+      if (sound) {
+        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+      }
+
+      // Callback для тепловой карты
+      onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+
+      const result: KeyInputResult = {
+        isCorrect,
+        char: newChar,
+        expectedChar,
+        timestamp: Date.now(),
+      }
+
+      setInputResults(prev => {
+        const newResults = [...prev, result]
+
+        // Проверка завершения
+        if (prevIndex >= text.length - 1) {
+          handleComplete(newResults)
         }
 
-        // Callback для тепловой карты
-        if (expectedChar) {
-          onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
-        }
-
-        const result: KeyInputResult = {
-          isCorrect,
-          char: newChar,
-          expectedChar: expectedChar || '',
-          timestamp: Date.now(),
-        }
-
-        setInputResults(prev => {
-          const newResults = [...prev, result]
-          
-          // Проверка завершения
-          if (prevIndex >= text.length - 1) {
-            handleComplete(newResults)
-          }
-          
-          return newResults
-        })
-
-        return prevIndex + 1
+        return newResults
       })
-    }
+
+      return prevIndex + 1
+    })
 
     // Очищаем инпут, но сохраняем историю
     e.currentTarget.value = ''
-  }, [text, startTime, isPaused, sound, onKeyInput, handleComplete])
+  }, [text, startTime, isPaused, isComplete, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = useCallback(() => {

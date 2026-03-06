@@ -53,6 +53,16 @@ function saveHistory(history: HistoryData): void {
   }
 }
 
+// Debounced save для оптимизации
+let saveTimeout: NodeJS.Timeout | null = null
+const debouncedSaveHistory = (history: HistoryData) => {
+  if (saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(() => {
+    saveHistory(history)
+    saveTimeout = null
+  }, 500)
+}
+
 export function useTypingHistory(): UseTypingHistoryReturn {
   const [isLoading, setIsLoading] = useState(true)
   const [error] = useState<string | null>(null)
@@ -81,7 +91,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
         totalSessions: prev.totalSessions + 1,
         totalTime: prev.totalTime + Math.floor(stats.timeElapsed / 60),
       }
-      saveHistory(newHistory)
+      debouncedSaveHistory(newHistory)
       return newHistory
     })
   }, [])
@@ -90,7 +100,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     setHistory(prev => {
       const newHeatmap = updateKeyHeatmap({ ...prev.heatmap }, key, isCorrect)
       const newHistory = { ...prev, heatmap: newHeatmap }
-      saveHistory(newHistory)
+      debouncedSaveHistory(newHistory)
       return newHistory
     })
   }, [])
