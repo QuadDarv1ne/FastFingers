@@ -74,6 +74,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       }
     } catch {
       setIsReady(false)
+      setError('Audio initialisation failed')
     }
   }, [options.volume])
 
@@ -108,7 +109,9 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
 
       const ctx = audioContextRef.current
       if (ctx.state === 'suspended') {
-        ctx.resume()
+        ctx.resume().catch(() => {
+          setError('Audio context resume failed')
+        })
       }
 
       const baseConfig = SOUND_CONFIGS[soundName]
