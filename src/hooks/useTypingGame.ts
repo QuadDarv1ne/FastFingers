@@ -75,8 +75,8 @@ export function useTypingGame({
 
   useEffect(() => {
     generateNewText()
-    const timer = setTimeout(() => inputRef.current?.focus(), 100)
-    return () => clearTimeout(timer)
+    // Убрали авто-фокус при монтировании - он вызывает нежелательный скролл
+    // Фокус устанавливается при первом взаимодействии пользователя
   }, [generateNewText])
 
   // Таймер для timed режима
@@ -187,7 +187,7 @@ export function useTypingGame({
   }, [generateNewText])
 
   const focusInput = useCallback(() => {
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }, [])
 
   return {
@@ -208,7 +208,7 @@ export function useTypingGame({
     handleStart: () => {
       setIsActive(true)
       setStartTime(Date.now())
-      inputRef.current?.focus()
+      inputRef.current?.focus({ preventScroll: true })
     },
     reset,
     focusInput,

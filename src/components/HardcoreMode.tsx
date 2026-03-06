@@ -90,8 +90,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
   useEffect(() => {
     generateNewText()
-    const timer = setTimeout(() => inputRef.current?.focus(), 100)
-    return () => clearTimeout(timer)
+    // Убрали авто-фокус при монтировании - он вызывает нежелательный скролл
   }, [generateNewText])
 
   // Старт с обратным отсчётом
@@ -104,7 +103,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         if (prev === null || prev <= 1) {
           clearInterval(countdownInterval)
           setIsActive(true)
-          inputRef.current?.focus()
+          inputRef.current?.focus({ preventScroll: true })
           return null
         }
         return prev - 1
@@ -213,7 +212,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const handleSkip = useCallback(() => {
     setStreak(0)
     generateNewText()
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }, [generateNewText])
 
   // Прогресс текста
@@ -318,7 +317,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       {/* Область ввода */}
       <div
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => inputRef.current?.focus({ preventScroll: true })}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
         <input

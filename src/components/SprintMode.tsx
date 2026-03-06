@@ -80,7 +80,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   // Пропуск
   const handleSkipWrapper = useCallback(() => {
     handleSkip()
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }, [handleSkip, inputRef])
 
   // Прогресс времени
@@ -180,7 +180,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
 
       {/* Область ввода */}
       <div
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => inputRef.current?.focus({ preventScroll: true })}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4"
       >
         <input

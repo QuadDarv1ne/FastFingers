@@ -45,8 +45,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
   useEffect(() => {
     generateNewText()
-    const timer = setTimeout(() => inputRef.current?.focus(), 100)
-    return () => clearTimeout(timer)
+    // Убрали авто-фокус при монтировании - он вызывает нежелательный скролл
   }, [generateNewText])
 
   // Таймер
@@ -75,7 +74,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Старт при первом нажатии
   const handleStart = () => {
     setIsActive(true)
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }
 
   // Обработка ввода
@@ -125,7 +124,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Пропуск текста
   const handleSkip = () => {
     generateNewText()
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }
 
   // Прогресс времени
@@ -192,7 +191,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
       {/* Область ввода */}
       <div
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => inputRef.current?.focus({ preventScroll: true })}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4"
       >
         <input

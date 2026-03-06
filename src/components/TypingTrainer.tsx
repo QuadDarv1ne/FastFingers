@@ -77,10 +77,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     setIsComplete(false)
     setIsPaused(false)
 
-    requestAnimationFrame(() => {
-      inputRef.current?.focus()
-      inputRef.current?.select()
-    })
+    // Убрали фокус при инициализации - он вызывает нежелательный скролл
+    // Фокус устанавливается по клику пользователя или нажатию Enter
   }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
 
   useEffect(() => {
@@ -154,7 +152,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   }, { enabled: !isPaused })
 
   useHotkey('enter', () => {
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }, { enabled: true })
 
   // Размер шрифта (мемоизация)
@@ -252,7 +250,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           type="text"
           className="opacity-0 absolute pointer-events-none"
           onInput={handleInput}
-          onBlur={() => !isComplete && setTimeout(() => inputRef.current?.focus(), 100)}
+          onBlur={() => !isComplete && setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)}
           disabled={isComplete}
           aria-label="Поле ввода для печати"
         />
