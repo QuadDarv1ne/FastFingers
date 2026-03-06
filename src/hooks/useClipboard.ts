@@ -18,9 +18,9 @@ interface UseClipboardReturn {
  * @example
  * ```tsx
  * const { copied, copy, reset } = useClipboard({ timeout: 2000 })
- * 
+ *
  * <button onClick={() => copy('Текст для копирования')}>
- *   {copied ? 'Скопировано!' : 'Копировать'}
+ *   {copied ? 'Скопировано' : 'Копировать'}
  * </button>
  * ```
  */

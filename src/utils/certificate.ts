@@ -4,7 +4,7 @@ import { User } from '../types/auth'
 
 export interface CertificateData {
   user: User
-  testType: '15s' | '30s' | '60s' | '120s' | 'sprint'
+  testType: '15s' | '30s' | '60s' | '120s' | 'sprint' | 'hardcore'
   wpm: number
   accuracy: number
   cpm: number
@@ -174,6 +174,7 @@ export function generateCertificate(
       '60s': language === 'ru' ? '60 секунд' : '60 Seconds',
       '120s': language === 'ru' ? '120 секунд' : '120 Seconds',
       'sprint': language === 'ru' ? 'Спринт' : 'Sprint',
+      'hardcore': language === 'ru' ? 'Без ошибок' : 'Hardcore',
     }
 
     doc.text(testTypeLabels[data.testType], 148.5, 126, { align: 'center' })

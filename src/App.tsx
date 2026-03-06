@@ -40,6 +40,7 @@ import { calculateStreakXpBonus } from '@utils/streakBonus'
 const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
 const SpeedTest = lazy(() => import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest })))
 const ReactionGame = lazy(() => import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame })))
+const HardcoreMode = lazy(() => import('./components/HardcoreMode').then((module) => ({ default: module.HardcoreMode })))
 const TrainingHistory = lazy(() => import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory })))
 const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress })))
 const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then((module) => ({ default: module.DailyChallengeCard })))
@@ -126,6 +127,10 @@ function AppContent() {
       },
       'ctrl+2': () => {
         setGameMode('sprint')
+        setView('main')
+      },
+      'ctrl+6': () => {
+        setGameMode('hardcore')
         setView('main')
       },
       'ctrl+3': () => setView('statistics'),
@@ -285,6 +290,16 @@ function AppContent() {
               label="Спринт"
               title="60 секунд на максимальную скорость"
             />
+            <ModeButton
+              isActive={gameMode === 'hardcore'}
+              onClick={() => {
+                setGameMode('hardcore')
+                setView('main')
+              }}
+              icon="💀"
+              label="Хардкор"
+              title="Режим без ошибок - любая ошибка завершает сессию"
+            />
             <SpeedTestDropdown
               isActive={gameMode === 'speedtest'}
               duration={speedTestDuration}
@@ -373,6 +388,12 @@ function AppContent() {
                 />
               ) : gameMode === 'sprint' ? (
                 <SprintMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionCompleteWithProgress}
+                  sound={sound}
+                />
+              ) : gameMode === 'hardcore' ? (
+                <HardcoreMode
                   onExit={() => setGameMode('practice')}
                   onComplete={handleSessionCompleteWithProgress}
                   sound={sound}

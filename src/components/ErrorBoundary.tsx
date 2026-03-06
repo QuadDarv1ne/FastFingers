@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
 
-            <h1 className="text-xl font-semibold mb-2">Упс! Что-то пошло не так</h1>
+            <h1 className="text-xl font-semibold mb-2">Упс. Что-то пошло не так</h1>
             <p className="text-dark-400 mb-6">
               Произошла непредвиденная ошибка. Попробуйте обновить страницу или повторить попытку.
             </p>

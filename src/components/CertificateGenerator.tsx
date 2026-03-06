@@ -7,7 +7,7 @@ interface CertificateGeneratorProps {
   wpm: number
   accuracy: number
   cpm: number
-  testType: '15s' | '30s' | '60s' | '120s' | 'sprint'
+  testType: '15s' | '30s' | '60s' | '120s' | 'sprint' | 'hardcore'
   level?: number
   streak?: number
   onClose: () => void

@@ -293,7 +293,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 <span className="text-5xl">🎉</span>
               </motion.div>
               
-              <h3 className="text-3xl font-bold mb-6">Игра завершена!</h3>
+              <h3 className="text-3xl font-bold mb-6">Игра завершена</h3>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-dark-800 rounded-lg p-4">

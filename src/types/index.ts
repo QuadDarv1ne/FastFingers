@@ -14,7 +14,16 @@ export interface KeyboardLayoutData {
   keyToFinger: Record<string, string>;
 }
 
-/** Статистика печати */
+/** Данные о нажатии клавиши для расширенной статистики */
+export interface KeystrokeData {
+  key: string;
+  timestamp: number;
+  isCorrect: boolean;
+  finger: string;
+  hand: 'left' | 'right';
+}
+
+/** Расширенная статистика печати с новыми метриками */
 export interface TypingStats {
   wpm: number;
   cpm: number;
@@ -23,6 +32,33 @@ export interface TypingStats {
   correctChars: number;
   totalChars: number;
   timeElapsed: number;
+  // Новые метрики
+  rhythmScore?: number; // Отклонение интервала между нажатиями (0-100)
+  fingerBalance?: { left: number; right: number }; // Сравнение скорости левой/правой руки
+  errorRecoveryTime?: number; // Время исправления ошибки (мс)
+  sessionEfficiency?: number; // (Правильные символы / время) × точность
+}
+
+/** Данные для расчёта Learning Velocity (прирост WPM за неделю) */
+export interface WeeklyProgress {
+  week: string;
+  avgWpm: number;
+  sessions: number;
+}
+
+/** Данные для анализа оттока (Funnel Analysis) */
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  percentage: number;
+}
+
+/** Данные для корреляционного анализа */
+export interface TimeOfDayPerformance {
+  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+  avgWpm: number;
+  avgAccuracy: number;
+  sessions: number;
 }
 
 /** Прогресс пользователя */

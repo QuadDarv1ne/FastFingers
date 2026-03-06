@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-export type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
+export type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction' | 'hardcore'
 export type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
 export type SpeedTestDuration = 15 | 30 | 60
 

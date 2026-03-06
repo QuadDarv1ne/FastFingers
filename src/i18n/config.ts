@@ -200,12 +200,12 @@ const resources = {
       'auth.sendResetLink': 'Отправить ссылку',
 
       // Уведомления
-      'notification.levelUp': 'Уровень повышен!',
-      'notification.achievement': 'Достижение разблокировано!',
-      'notification.challenge': 'Челлендж выполнен!',
-      'notification.streak': 'Серия продолжается!',
-      'notification.newDay': 'Новый день!',
-      'notification.dailyReward': 'Ежедневная награда!',
+      'notification.levelUp': 'Уровень повышен',
+      'notification.achievement': 'Достижение разблокировано',
+      'notification.challenge': 'Челлендж выполнен',
+      'notification.streak': 'Серия продолжается',
+      'notification.newDay': 'Новый день',
+      'notification.dailyReward': 'Ежедневная награда',
 
       // Ошибки
       'error.invalidEmail': 'Неверный формат email',
@@ -327,12 +327,12 @@ const resources = {
       'auth.sendResetLink': 'Send reset link',
 
       // Notifications
-      'notification.levelUp': 'Level Up!',
-      'notification.achievement': 'Achievement Unlocked!',
-      'notification.challenge': 'Challenge Completed!',
-      'notification.streak': 'Streak Continued!',
-      'notification.newDay': 'New Day!',
-      'notification.dailyReward': 'Daily Reward!',
+      'notification.levelUp': 'Level Up',
+      'notification.achievement': 'Achievement Unlocked',
+      'notification.challenge': 'Challenge Completed',
+      'notification.streak': 'Streak Continued',
+      'notification.newDay': 'New Day',
+      'notification.dailyReward': 'Daily Reward',
 
       // Errors
       'error.invalidEmail': 'Invalid email format',

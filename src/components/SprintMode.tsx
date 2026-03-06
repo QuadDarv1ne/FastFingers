@@ -186,7 +186,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
               transition={{ duration: 0.3 }}
               className="text-9xl font-bold text-primary-400"
             >
-              {countdown || 'GO!'}
+              {countdown || 'GO'}
             </motion.div>
           </motion.div>
         )}
@@ -329,7 +329,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              <h3 className="text-2xl font-bold mb-2">Спринт завершён!</h3>
+              <h3 className="text-2xl font-bold mb-2">Спринт завершён</h3>
               <p className="text-dark-400 mb-4">WPM: <span className="text-primary-400 font-bold">{wpm}</span></p>
               <button
                 onClick={onExit}

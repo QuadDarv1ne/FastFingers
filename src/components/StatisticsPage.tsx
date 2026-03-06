@@ -1,6 +1,5 @@
-import { memo, useMemo, Suspense } from 'react'
+import { memo, useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
-import { LoadingFallback } from './LoadingFallback'
 import {
   BarChart,
   Bar,
@@ -157,32 +156,53 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         </div>
 
         {/* Графики */}
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📊 Расширенная аналитика</h2>
+
+        {/* Новые метрики и визуализации - временно отключено для исправления ошибок типов */}
+        {/* <div className="grid grid-cols-1 gap-6 mb-8">
+          <SpiderChart
+            stats={latestSessionData.stats}
+            keystrokes={latestSessionData.keystrokes}
+          />
+          <PredictionCurve
+            sessions={sessionsWithTimestamp}
+            targetWpm={60}
+          />
+        </div> */}
+
+        {/* Дополнительные графики в сетке */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <FunnelAnalysis sessions={sessionsWithTimestamp} />
+          <CorrelationMatrix sessions={sessionsWithTimestamp} />
+        </div> */}
+
+        {/* Существующие графики */}
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📈 Детальная статистика</h2>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* График WPM */}
           <div className="glass rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4">Прогресс скорости (WPM)</h3>
             <div className="h-64">
               {wpmTrendData.length > 0 ? (
-                <Suspense fallback={<LoadingFallback />}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={wpmTrendData}>
-                      <defs>
-                        <linearGradient id="wpmGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="index" stroke="#64748b" fontSize={12} />
-                      <YAxis stroke="#64748b" fontSize={12} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                        labelStyle={{ color: '#94a3b8' }}
-                      />
-                      <Area type="monotone" dataKey="wpm" stroke="#8b5cf6" fillOpacity={1} fill="url(#wpmGradient)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </Suspense>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={wpmTrendData}>
+                    <defs>
+                      <linearGradient id="wpmGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="index" stroke="#64748b" fontSize={12} />
+                    <YAxis stroke="#64748b" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
+                      labelStyle={{ color: '#94a3b8' }}
+                    />
+                    <Area type="monotone" dataKey="wpm" stroke="#8b5cf6" fillOpacity={1} fill="url(#wpmGradient)" />
+                  </AreaChart>
+                </ResponsiveContainer>
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
@@ -196,29 +216,27 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
             <h3 className="text-lg font-semibold mb-4">Распределение точности</h3>
             <div className="h-64">
               {accuracyDistribution.length > 0 ? (
-                <Suspense fallback={<LoadingFallback />}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={accuracyDistribution}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {accuracyDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </Suspense>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={accuracyDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {accuracyDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
