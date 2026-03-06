@@ -124,11 +124,12 @@ export function PredictionCurve({
 
       {/* Выбор цели */}
       <div className="mb-6">
-        <label className="text-sm text-dark-400 mb-2 block">
+        <label htmlFor="targetWpmSlider" className="text-sm text-dark-400 mb-2 block">
           Целевой WPM:
         </label>
         <div className="flex items-center gap-4">
           <input
+            id="targetWpmSlider"
             type="range"
             min="20"
             max="150"
