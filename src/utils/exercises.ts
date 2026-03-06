@@ -1,4 +1,5 @@
 import { Exercise } from '../types';
+import { practiceTexts, PracticeText, TextCategory, getRandomText as getPracticeText } from '../data/practiceTexts';
 
 type Layout = 'qwerty' | 'jcuken' | 'dvorak';
 
@@ -341,11 +342,37 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
 } = {}): string {
   const { unique = false, separator = ' ' } = options
   let words = getWordsByDifficulty(difficulty)
-  
+
   if (unique) {
     words = [...words].sort(() => Math.random() - 0.5)
     return words.slice(0, Math.min(wordCount, words.length)).join(separator)
   }
-  
+
   return Array.from({ length: wordCount }, () => words[Math.floor(Math.random() * words.length)]).join(separator)
+}
+
+// === Интеграция с базой текстов ===
+export function getPracticeTextsByCategory(category: TextCategory): PracticeText[] {
+  return practiceTexts.filter(t => t.category === category)
+}
+
+export function getPracticeTextsByDifficulty(difficulty: number): PracticeText[] {
+  return practiceTexts.filter(t => t.difficulty === difficulty)
+}
+
+export function getRandomPracticeText(category?: TextCategory, difficulty?: number): string {
+  const text = getPracticeText(category, difficulty)
+  return text?.text || generatePracticeText(20, difficulty || 5)
+}
+
+export function getAllTextCategories(): TextCategory[] {
+  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology']
+}
+
+export function getTextDifficultyLevels(): number[] {
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9]
+}
+
+export function getPracticeTextById(id: string): PracticeText | null {
+  return practiceTexts.find(t => t.id === id) || null
 }
