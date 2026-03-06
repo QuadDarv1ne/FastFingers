@@ -1,12 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { User } from '../types/auth'
-import { generatePracticeText } from '../utils/exercises'
-import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
+import { useTypingGame } from '@hooks/useTypingGame'
 import { CertificateGenerator } from './CertificateGenerator'
 
 interface SprintModeProps {
@@ -15,90 +14,55 @@ interface SprintModeProps {
   sound?: ReturnType<typeof useTypingSound>
 }
 
-const SPRINT_DURATION = 60 // секунд
+const SPRINT_DURATION = 60
 const COUNTDOWN_SECONDS = 3
 
 export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const { user } = useAuth()
-  const [text, setText] = useState('')
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean; char: string }>>([])
-  const [timeLeft, setTimeLeft] = useState(SPRINT_DURATION)
-  const [isActive, setIsActive] = useState(false)
-  const [wpm, setWpm] = useState(0)
-  const [accuracy, setAccuracy] = useState(100)
   const [countdown, setCountdown] = useState<number | null>(null)
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  // Завершение
-  const handleFinish = useCallback(() => {
-    const correct = inputResults.filter(r => r.isCorrect).length
-    const timeElapsed = SPRINT_DURATION - timeLeft
-    const errors = inputResults.filter(r => !r.isCorrect).length
-
-    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
-    setLastStats(stats)
-    onComplete(stats)
-    setShowCertificate(true)
-  }, [inputResults, timeLeft, onComplete])
-
-  // Генерация текста
-  const generateNewText = useCallback(() => {
-    const newText = generatePracticeText(50, 5)
-    setText(newText)
-    setCurrentIndex(0)
-    setInputResults([])
-  }, [])
-
-  useEffect(() => {
-    generateNewText()
-    // Автофокус после монтирования
-    const timer = setTimeout(() => inputRef.current?.focus(), 100)
-    return () => clearTimeout(timer)
-  }, [generateNewText])
-
-  // Таймер
-  useEffect(() => {
-    let interval: number | null = null
-
-    if (isActive && timeLeft > 0) {
-      interval = window.setInterval(() => {
-        setTimeLeft(time => {
-          if (time <= 1) {
-            setIsActive(false)
-            handleFinish()
-            return 0
-          }
-          return time - 1
-        })
-      }, 1000)
-    }
-
-    return () => {
-      if (interval) window.clearInterval(interval)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive, handleFinish])
+  const {
+    text,
+    currentIndex,
+    inputResults,
+    isActive,
+    wpm,
+    accuracy,
+    timeLeft,
+    inputRef,
+    handleInput,
+    handleSkip,
+    handleStart: startGame,
+  } = useTypingGame({
+    initialWordCount: 50,
+    initialDifficulty: 5,
+    mode: 'timed',
+    duration: SPRINT_DURATION,
+    onComplete: (stats) => {
+      setLastStats(stats)
+      onComplete(stats)
+      setShowCertificate(true)
+    },
+    sound,
+  })
 
   // Старт спринта с обратным отсчётом
   const handleStart = useCallback(() => {
     setCountdown(COUNTDOWN_SECONDS)
-    
+
     const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev === null || prev <= 1) {
           clearInterval(countdownInterval)
-          setIsActive(true)
-          inputRef.current?.focus()
+          startGame()
           return null
         }
         return prev - 1
       })
     }, 1000)
-  }, [])
+  }, [startGame])
 
   // Горячие клавиши
   useHotkey('escape', () => {
@@ -113,56 +77,11 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     }
   }, { enabled: true })
 
-  // Обработка ввода
-  const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!isActive && timeLeft === SPRINT_DURATION) {
-      handleStart()
-    }
-
-    const value = e.currentTarget.value
-    const newChar = value[value.length - 1]
-
-    if (newChar && currentIndex < text.length) {
-      const expectedChar = text[currentIndex]
-      const isCorrect = newChar === expectedChar
-
-      // Звук
-      if (sound) {
-        isCorrect ? sound.playCorrect() : sound.playError()
-      }
-
-      setInputResults(prev => [...prev, { isCorrect, char: newChar }])
-      setCurrentIndex(prev => prev + 1)
-
-      // Если текст закончился, генерируем новый
-      if (currentIndex >= text.length - 5) {
-        generateNewText()
-      }
-    }
-
-    e.currentTarget.value = ''
-  }, [isActive, timeLeft, text, currentIndex, sound, generateNewText, handleStart])
-
-  // Подсчёт статистики в реальном времени
-  useEffect(() => {
-    if (inputResults.length > 0) {
-      const correct = inputResults.filter(r => r.isCorrect).length
-      const timeElapsed = SPRINT_DURATION - timeLeft
-      const timeInMinutes = timeElapsed / 60
-      
-      const newWpm = timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0
-      const newAccuracy = Math.round((correct / inputResults.length) * 100)
-      
-      setWpm(newWpm)
-      setAccuracy(newAccuracy)
-    }
-  }, [inputResults, timeLeft])
-
   // Пропуск
-  const handleSkip = () => {
-    generateNewText()
+  const handleSkipWrapper = useCallback(() => {
+    handleSkip()
     inputRef.current?.focus()
-  }
+  }, [handleSkip, inputRef])
 
   // Прогресс времени
   const timeProgress = ((SPRINT_DURATION - timeLeft) / SPRINT_DURATION) * 100
@@ -346,7 +265,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
       {isActive && (
         <div className="flex justify-center">
           <button
-            onClick={handleSkip}
+            onClick={handleSkipWrapper}
             className="px-4 py-2 text-dark-400 hover:text-white transition-colors text-sm"
           >
             Пропустить текст
