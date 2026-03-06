@@ -144,9 +144,11 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
                 border: '1px solid #374151',
                 borderRadius: '8px',
               }}
-              formatter={(value: number, name: string, props: unknown) => {
+              formatter={(value, name, props) => {
                 const typedProps = props as { payload: { count: number } }
-                return [`${value}% (${typedProps.payload.count})`, name]
+                const val = value ?? 0
+                const nm = name ?? 'Unknown'
+                return [`${val}% (${typedProps.payload.count})`, nm]
               }}
               labelStyle={{ color: '#9CA3AF' }}
             />
@@ -159,7 +161,7 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
                 position="right"
                 fill="#9CA3AF"
                 style={{ fontSize: '12px' }}
-                formatter={(value: number | undefined) => `${value ?? 0}%`}
+                formatter={(val) => `${val ?? 0}%`}
               />
             </Bar>
           </BarChart>

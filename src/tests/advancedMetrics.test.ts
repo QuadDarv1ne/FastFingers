@@ -170,19 +170,18 @@ describe('Новые метрики статистики', () => {
     })
 
     it('должен правильно группировать сессии по времени суток', () => {
-      // Используем локальное время вместо UTC
       const sessions = [
-        { wpm: 50, accuracy: 90, errors: 2, correctChars: 100, totalChars: 110, timeElapsed: 60, timestamp: new Date('2024-01-01T10:00:00').toISOString() }, // morning (10:00)
-        { wpm: 60, accuracy: 95, errors: 1, correctChars: 120, totalChars: 125, timeElapsed: 60, timestamp: new Date('2024-01-01T15:00:00').toISOString() }, // afternoon (15:00)
-        { wpm: 55, accuracy: 92, errors: 3, correctChars: 110, totalChars: 120, timeElapsed: 60, timestamp: new Date('2024-01-01T20:00:00').toISOString() }, // evening (20:00)
-        { wpm: 45, accuracy: 88, errors: 4, correctChars: 90, totalChars: 100, timeElapsed: 60, timestamp: new Date('2024-01-02T02:00:00').toISOString() }, // night (02:00)
+        { wpm: 50, accuracy: 90, errors: 2, correctChars: 100, totalChars: 110, timeElapsed: 60, cpm: 250, timestamp: new Date('2024-01-01T10:00:00').toISOString() },
+        { wpm: 60, accuracy: 95, errors: 1, correctChars: 120, totalChars: 125, timeElapsed: 60, cpm: 300, timestamp: new Date('2024-01-01T15:00:00').toISOString() },
+        { wpm: 55, accuracy: 92, errors: 3, correctChars: 110, totalChars: 120, timeElapsed: 60, cpm: 275, timestamp: new Date('2024-01-01T20:00:00').toISOString() },
+        { wpm: 45, accuracy: 88, errors: 4, correctChars: 90, totalChars: 100, timeElapsed: 60, cpm: 225, timestamp: new Date('2024-01-02T02:00:00').toISOString() },
       ]
       const result = analyzeTimeOfDayPerformance(sessions)
       expect(result).toHaveLength(4)
-      
+
       const morning = result.find(r => r.timeOfDay === 'morning')
       const afternoon = result.find(r => r.timeOfDay === 'afternoon')
-      
+
       expect(morning?.sessions).toBeGreaterThan(0)
       expect(afternoon?.sessions).toBeGreaterThan(0)
     })
@@ -195,14 +194,14 @@ describe('Новые метрики статистики', () => {
 
     it('должен правильно рассчитывать воронку', () => {
       const sessions = [
-        { wpm: 50, accuracy: 90, errors: 2, correctChars: 100, totalChars: 110, timeElapsed: 100, timestamp: '2024-01-01T08:00:00Z' },
-        { wpm: 60, accuracy: 95, errors: 1, correctChars: 120, totalChars: 125, timeElapsed: 50, timestamp: '2024-01-01T14:00:00Z' },
-        { wpm: 55, accuracy: 92, errors: 3, correctChars: 110, totalChars: 120, timeElapsed: 80, timestamp: '2024-01-01T19:00:00Z' },
+        { wpm: 50, accuracy: 90, errors: 2, correctChars: 100, totalChars: 110, timeElapsed: 100, cpm: 250, timestamp: '2024-01-01T08:00:00Z' },
+        { wpm: 60, accuracy: 95, errors: 1, correctChars: 120, totalChars: 125, timeElapsed: 50, cpm: 300, timestamp: '2024-01-01T14:00:00Z' },
+        { wpm: 55, accuracy: 92, errors: 3, correctChars: 110, totalChars: 120, timeElapsed: 80, cpm: 275, timestamp: '2024-01-01T19:00:00Z' },
       ]
       const result = analyzeFunnel(sessions, { started: 0, completed50: 30, completed80: 60, completed100: 90, highAccuracy: 90 })
       expect(result).toHaveLength(5)
-      expect(result[0].count).toBe(3) // Начали
-      expect(result[0].percentage).toBe(100)
+      expect(result[0]?.count).toBe(3)
+      expect(result[0]?.percentage).toBe(100)
     })
   })
 

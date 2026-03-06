@@ -38,31 +38,28 @@ export function PredictionCurve({
     sessions.forEach(session => {
       const date = new Date(session.timestamp)
       const weekStart = new Date(date)
-      weekStart.setDate(date.getDate() - date.getDay()) // Начало недели (воскресенье)
-      const weekKey = weekStart.toISOString().split('T')[0]
+      weekStart.setDate(date.getDate() - date.getDay())
+      const weekKey = (weekStart.toISOString().split('T')[0] || new Date().toISOString().split('T')[0]) as string
 
       if (!weeklyMap.has(weekKey)) {
         weeklyMap.set(weekKey, [])
       }
-      weeklyMap.get(weekKey)!.push({ wpm: session.wpm, count: 1 })
+      const weekData = weeklyMap.get(weekKey)
+      if (weekData) {
+        weekData.push({ wpm: session.wpm, count: 1 })
+      }
     })
 
-    // Преобразование в формат WeeklyProgress
     const weekly: WeeklyProgress[] = Array.from(weeklyMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([week, data]) => ({
-        week,
-        avgWpm: Math.round(
-          data.reduce((sum, d) => sum + d.wpm, 0) / data.length
-        ),
-        sessions: data.length,
-      }))
+      .map(([week, data]) => {
+        const avg = data.length > 0 ? Math.round(data.reduce((sum, d) => sum + d.wpm, 0) / data.length) : 0
+        return { week: week || '', avgWpm: avg, sessions: data.length }
+      }) as WeeklyProgress[]
 
-    // Расчёт Learning Velocity
     const velocity = calculateLearningVelocity(weekly)
-
-    // Текущий WPM (средний за последнюю неделю)
-    const currentWpm = weekly.length > 0 ? weekly[weekly.length - 1].avgWpm : 0
+    const lastWeekData = weekly.length > 0 ? weekly[weekly.length - 1] : undefined
+    const currentWpm = lastWeekData?.avgWpm ?? 0
 
     // Прогноз достижения цели
     const pred = predictGoalAchievement(currentWpm, customTarget, velocity)
@@ -87,9 +84,9 @@ export function PredictionCurve({
 
     // Прогнозируемые данные
     if (pred.achievable && pred.weeks > 0 && velocity > 0) {
-      const weeksToPredict = Math.min(Math.ceil(pred.weeks), 12) // Максимум 12 недель вперёд
-      const lastWeekDate =
-        weekly.length > 0 ? new Date(weekly[weekly.length - 1].week) : new Date()
+      const weeksToPredict = Math.min(Math.ceil(pred.weeks), 12)
+      const lastWeek = weekly.length > 0 ? weekly[weekly.length - 1] : null
+      const lastWeekDate = lastWeek?.week ? new Date(lastWeek.week) : new Date()
 
       for (let i = 1; i <= weeksToPredict; i++) {
         const futureDate = new Date(lastWeekDate)
@@ -151,7 +148,7 @@ export function PredictionCurve({
         <div className="p-4 bg-dark-800/50 rounded-xl">
           <p className="text-xs text-dark-400 mb-1">Текущий WPM</p>
           <p className="text-2xl font-bold text-gradient">
-            {weeklyData.length > 0 ? weeklyData[weeklyData.length - 1].avgWpm : 0}
+            {weeklyData.length > 0 ? weeklyData[weeklyData.length - 1]?.avgWpm ?? 0 : 0}
           </p>
         </div>
         <div className="p-4 bg-dark-800/50 rounded-xl">
@@ -316,7 +313,8 @@ export function PredictionCurve({
   )
 }
 
-function formatWeek(isoString: string): string {
+function formatWeek(isoString: string | undefined): string {
+  if (!isoString) return ''
   const date = new Date(isoString)
   const now = new Date()
   const isCurrentWeek =
