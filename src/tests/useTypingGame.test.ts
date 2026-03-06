@@ -1,22 +1,27 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTypingGame } from '@hooks/useTypingGame'
 import * as exercises from '@utils/exercises'
 
 vi.mock('@utils/exercises', () => ({
-  generatePracticeText: vi.fn().mockReturnValue('test text'),
+  generatePracticeText: vi.fn().mockReturnValue('test text for typing'),
 }))
 
 describe('useTypingGame', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('должен инициализировать текст при монтировании', () => {
     const { result } = renderHook(() => useTypingGame())
 
     expect(exercises.generatePracticeText).toHaveBeenCalledWith(30, 5)
-    expect(result.current.text).toBe('test text')
+    expect(result.current.text).toBe('test text for typing')
     expect(result.current.currentIndex).toBe(0)
     expect(result.current.inputResults).toEqual([])
   })
@@ -27,6 +32,29 @@ describe('useTypingGame', () => {
     expect(exercises.generatePracticeText).toHaveBeenCalledWith(50, 7)
   })
 
+  it('должен работать в timed режиме с таймером', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'timed', duration: 30 }))
+
+    expect(result.current.timeLeft).toBe(30)
+    expect(result.current.isActive).toBe(false)
+  })
+
+  it('должен запускать таймер при isActive', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'timed', duration: 10 }))
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    expect(result.current.isActive).toBe(true)
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    expect(result.current.timeLeft).toBeLessThan(10)
+  })
+
   it('должен сбрасывать состояние при reset', () => {
     const { result } = renderHook(() => useTypingGame())
 
@@ -34,7 +62,7 @@ describe('useTypingGame', () => {
       result.current.reset()
     })
 
-    expect(result.current.text).toBe('test text')
+    expect(result.current.text).toBe('test text for typing')
     expect(result.current.currentIndex).toBe(0)
   })
 
@@ -56,6 +84,16 @@ describe('useTypingGame', () => {
 
     act(() => {
       result.current.handleSkip()
+    })
+
+    expect(exercises.generatePracticeText).toHaveBeenCalledTimes(2)
+  })
+
+  it('должен экспортировать generateNewText', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.generateNewText()
     })
 
     expect(exercises.generatePracticeText).toHaveBeenCalledTimes(2)

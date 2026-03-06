@@ -10,6 +10,8 @@ interface UseTypingGameOptions {
   onComplete?: (stats: TypingStats) => void
   sound?: ReturnType<typeof useTypingSound>
   onKeyInput?: (key: string, isCorrect: boolean) => void
+  mode?: 'practice' | 'timed'
+  duration?: number
 }
 
 interface UseTypingGameReturn {
@@ -19,15 +21,18 @@ interface UseTypingGameReturn {
   startTime: number | null
   isComplete: boolean
   isPaused: boolean
+  isActive: boolean
   wpm: number
   accuracy: number
   errors: number
+  timeLeft: number
   inputRef: React.RefObject<HTMLInputElement>
   handleInput: (e: React.FormEvent<HTMLInputElement>) => void
   handleSkip: () => void
   handleStart: () => void
   reset: () => void
   focusInput: () => void
+  generateNewText: () => void
 }
 
 export function useTypingGame({
@@ -36,6 +41,8 @@ export function useTypingGame({
   onComplete,
   sound,
   onKeyInput,
+  mode = 'practice',
+  duration = 60,
 }: UseTypingGameOptions = {}): UseTypingGameReturn {
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -43,6 +50,8 @@ export function useTypingGame({
   const [startTime, setStartTime] = useState<number | null>(null)
   const [isComplete, setIsComplete] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
+  const [isActive, setIsActive] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(duration)
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [errors, setErrors] = useState(0)
@@ -57,10 +66,12 @@ export function useTypingGame({
     setStartTime(null)
     setIsComplete(false)
     setIsPaused(false)
+    setIsActive(false)
+    setTimeLeft(duration)
     setWpm(0)
     setAccuracy(100)
     setErrors(0)
-  }, [initialWordCount, initialDifficulty])
+  }, [initialWordCount, initialDifficulty, duration])
 
   useEffect(() => {
     generateNewText()
@@ -68,15 +79,33 @@ export function useTypingGame({
     return () => clearTimeout(timer)
   }, [generateNewText])
 
+  // Таймер для timed режима
+  useEffect(() => {
+    if (mode !== 'timed' || !isActive || timeLeft <= 0) return
+
+    const interval = window.setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIsActive(false)
+          setIsComplete(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => window.clearInterval(interval)
+  }, [mode, isActive, timeLeft])
+
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {
-      if (!startTime) return
+      if (!startTime && mode !== 'timed') return
 
+      const elapsed = mode === 'timed' ? duration - timeLeft : (Date.now() - (startTime || 0)) / 1000
       const correctChars = results.filter(r => r.isCorrect).length
       const errorCount = results.filter(r => !r.isCorrect).length
-      const timeElapsed = (Date.now() - startTime) / 1000
 
-      const stats = calculateStats(correctChars, results.length, errorCount, timeElapsed)
+      const stats = calculateStats(correctChars, results.length, errorCount, elapsed)
 
       setIsComplete(true)
       setWpm(stats.wpm)
@@ -84,7 +113,7 @@ export function useTypingGame({
       setErrors(errorCount)
       onComplete?.(stats)
     },
-    [startTime, onComplete]
+    [startTime, onComplete, mode, duration, timeLeft]
   )
 
   const handleInput = useCallback(
@@ -92,6 +121,11 @@ export function useTypingGame({
       const value = e.currentTarget.value
 
       if (isPaused || isComplete) return
+
+      // Авто-старт в timed режиме
+      if (mode === 'timed' && !isActive && timeLeft === duration) {
+        setIsActive(true)
+      }
 
       if (!startTime && value) {
         setStartTime(Date.now())
@@ -123,7 +157,13 @@ export function useTypingGame({
         setInputResults(prev => {
           const newResults = [...prev, result]
 
-          if (prevIndex >= text.length - 1) {
+          // Авто-генерация нового текста когда дошли до конца
+          if (prevIndex >= text.length - 5) {
+            generateNewText()
+          }
+
+          // Завершение в practice режиме
+          if (mode === 'practice' && prevIndex >= text.length - 1) {
             handleComplete(newResults)
           }
 
@@ -135,18 +175,12 @@ export function useTypingGame({
 
       e.currentTarget.value = ''
     },
-    [text, startTime, isPaused, isComplete, sound, onKeyInput, handleComplete]
+    [text, startTime, isPaused, isComplete, mode, isActive, timeLeft, duration, sound, onKeyInput, generateNewText, handleComplete]
   )
 
   const handleSkip = useCallback(() => {
     generateNewText()
   }, [generateNewText])
-
-  const handleStart = useCallback(() => {
-    setStartTime(Date.now())
-    setIsPaused(false)
-    inputRef.current?.focus()
-  }, [])
 
   const reset = useCallback(() => {
     generateNewText()
@@ -163,14 +197,21 @@ export function useTypingGame({
     startTime,
     isComplete,
     isPaused,
+    isActive,
     wpm,
     accuracy,
     errors,
+    timeLeft,
     inputRef,
     handleInput,
     handleSkip,
-    handleStart,
+    handleStart: () => {
+      setIsActive(true)
+      setStartTime(Date.now())
+      inputRef.current?.focus()
+    },
     reset,
     focusInput,
+    generateNewText,
   }
 }
