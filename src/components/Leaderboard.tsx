@@ -70,6 +70,14 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
     return index >= 0 ? index + 1 : null
   }, [filteredAndSorted, currentUser])
 
+  const currentUserPercentile = useMemo(() => {
+    if (!currentUser || filteredAndSorted.length === 0) return null
+    const betterThan = filteredAndSorted.filter(e => 
+      e.wpm < currentUser.wpm || (e.wpm === currentUser.wpm && e.accuracy < currentUser.accuracy)
+    ).length
+    return Math.round((betterThan / filteredAndSorted.length) * 100)
+  }, [filteredAndSorted, currentUser])
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -146,7 +154,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
           {/* Текущий пользователь */}
           {currentUser && currentUserRank && (
             <div className="card p-4 border-2 border-primary-500/50 bg-primary-500/10">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="text-2xl font-bold text-primary-400">
                     #{currentUserRank}
@@ -158,11 +166,32 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-dark-400">До топ-10</p>
-                  <p className="font-semibold text-primary-400">
-                    {currentUserRank <= 10 ? '✅ В топе!' : `${currentUserRank - 10} мест`}
-                  </p>
+                <div className="flex gap-4">
+                  <div className="text-right">
+                    <p className="text-sm text-dark-400">До топ-10</p>
+                    <p className="font-semibold text-primary-400">
+                      {currentUserRank <= 10 ? '✅ В топе!' : `${currentUserRank - 10} мест`}
+                    </p>
+                  </div>
+                  {currentUserPercentile !== null && (
+                    <div className="text-right">
+                      <p className="text-sm text-dark-400">Рейтинг</p>
+                      <p className="font-semibold text-primary-400">
+                        Вы быстрее {currentUserPercentile}% пользователей
+                      </p>
+                      <div className="mt-1 w-32 h-2 bg-dark-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary-600 to-primary-400 transition-all"
+                          style={{ width: `${currentUserPercentile}%` }}
+                          role="progressbar"
+                          aria-valuenow={currentUserPercentile}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`Вы быстрее ${currentUserPercentile} процентов пользователей`}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
