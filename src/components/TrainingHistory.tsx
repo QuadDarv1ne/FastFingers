@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
+import { formatDurationLong } from '../utils/format'
 
 interface TrainingHistoryProps {
   onBack: () => void
@@ -52,9 +53,9 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
           value={history.totalSessions.toString()} 
           icon="📊"
         />
-        <StatCard 
-          label="Время тренировок" 
-          value={`${formatTime(history.totalTime)}`} 
+        <StatCard
+          label="Время тренировок"
+          value={formatDurationLong(history.totalTime)}
           icon="⏱️"
         />
         <StatCard 
@@ -279,11 +280,4 @@ function PeriodCard({
       </div>
     </div>
   )
-}
-
-function formatTime(minutes: number): string {
-  if (minutes < 60) return `${minutes} мин`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${hours}ч ${mins}м`
 }

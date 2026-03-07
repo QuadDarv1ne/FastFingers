@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { formatDurationLong } from '../utils/format'
 
 export interface SessionTimerOptions {
   breakInterval?: number // Интервал для напоминания о перерыве (в секундах)
@@ -168,20 +169,6 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
     skipBreak,
     breakInterval,
     breakDuration,
-    formatTime: (seconds: number) => formatTime(seconds),
+    formatTime: formatDurationLong,
   }
-}
-
-/**
- * Форматирование времени в читаемый формат
- */
-function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
 }

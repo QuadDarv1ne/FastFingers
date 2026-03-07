@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { UserProgress, TypingStats as TypingStatsType } from '../types'
-import { formatTime } from '../utils/stats'
+import { formatDuration } from '../utils/number'
 
 interface StatsProps {
   progress: UserProgress
@@ -39,7 +39,7 @@ export const Stats = memo(function Stats({ progress, currentStats, onViewHistory
           <div className="mt-4 pt-4 border-t border-dark-700/50 grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-dark-400 mb-1">Время</p>
-              <p className="text-lg font-semibold text-dark-300">{formatTime(currentStats.timeElapsed)}</p>
+              <p className="text-lg font-semibold text-dark-300">{formatDuration(currentStats.timeElapsed)}</p>
             </div>
             <div>
               <p className="text-xs text-dark-400 mb-1">Символы</p>

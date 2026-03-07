@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatDuration } from '../utils/number'
 import './CountdownTimer.css'
 
 interface CountdownTimerProps {
-  duration: number // секунды
+  duration: number
   onComplete?: () => void
   onTick?: (remaining: number) => void
   paused?: boolean
@@ -19,18 +20,15 @@ export function CountdownTimer({
   const [remaining, setRemaining] = useState(duration)
   const [isRunning, setIsRunning] = useState(!paused)
 
-  // Сброс таймера
   const reset = useCallback(() => {
     setRemaining(duration)
     setIsRunning(!paused)
   }, [duration, paused])
 
-  // Пауза/продолжение
   const togglePause = useCallback(() => {
     setIsRunning(prev => !prev)
   }, [])
 
-  // Обновление таймера
   useEffect(() => {
     if (!isRunning || remaining <= 0) return
 
@@ -38,13 +36,13 @@ export function CountdownTimer({
       setRemaining(prev => {
         const newRemaining = prev - 1
         onTick?.(newRemaining)
-        
+
         if (newRemaining <= 0) {
           clearInterval(interval)
           onComplete?.()
           return 0
         }
-        
+
         return newRemaining
       })
     }, 1000)
@@ -52,19 +50,10 @@ export function CountdownTimer({
     return () => clearInterval(interval)
   }, [isRunning, remaining, onComplete, onTick])
 
-  // Сброс при изменении duration
   useEffect(() => {
     reset()
   }, [duration, reset])
 
-  // Форматирование времени
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-
-  // Прогресс
   const progress = ((duration - remaining) / duration) * 100
 
   return (
@@ -73,7 +62,7 @@ export function CountdownTimer({
       
       <div className="countdown-timer__display">
         <span className={`countdown-timer__time ${remaining <= 10 ? 'countdown-timer__time--warning' : ''}`}>
-          {formatTime(remaining)}
+          {formatDuration(remaining)}
         </span>
         
         <button
