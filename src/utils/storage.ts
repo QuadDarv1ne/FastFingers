@@ -123,8 +123,10 @@ export function getStorageSize(): number {
 
   try {
     let totalSize = 0
-    for (const key in localStorage) {
-      if (localStorage.hasOwnProperty(key)) {
+    const keys = Object.keys(localStorage)
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      if (key && localStorage.hasOwnProperty(key)) {
         totalSize += (key.length + localStorage[key].length) * 2
       }
     }

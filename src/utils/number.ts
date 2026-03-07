@@ -56,28 +56,20 @@ export function formatBytes(bytes: number, decimals = 2): string {
   const sizes = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ', 'ПБ']
 
   const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const value = bytes / Math.pow(k, i)
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  return `${parseFloat(value.toFixed(dm))} ${sizes[i]}`
 }
 
-/**
- * Округлить число до указанного количества знаков
- */
-export function roundTo(num: number, decimals: number = 0): number {
+export function roundTo(num: number, decimals = 0): number {
   const factor = Math.pow(10, decimals)
   return Math.round(num * factor) / factor
 }
 
-/**
- * Ограничить число в диапазоне
- */
 export function clamp(num: number, min: number, max: number): number {
   return Math.min(Math.max(num, min), max)
 }
 
-/**
- * Проверить, является ли число в диапазоне
- */
 export function isInRange(num: number, min: number, max: number): boolean {
   return num >= min && num <= max
 }
