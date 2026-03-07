@@ -6,7 +6,6 @@ import { initReactI18next, useTranslation } from 'react-i18next'
 // ============================================
 
 export type TranslationKey =
-  // Навигация
   | 'nav.practice'
   | 'nav.sprint'
   | 'nav.test'
@@ -16,7 +15,8 @@ export type TranslationKey =
   | 'nav.game'
   | 'nav.learning'
   | 'nav.statistics'
-  // Общие
+  | 'nav.history'
+  | 'nav.reaction'
   | 'common.wpm'
   | 'common.cpm'
   | 'common.accuracy'
@@ -31,13 +31,12 @@ export type TranslationKey =
   | 'common.best'
   | 'common.current'
   | 'common.total'
-  // Статусы
+  | 'common.speed'
   | 'status.completed'
   | 'status.failed'
   | 'status.inProgress'
   | 'status.locked'
   | 'status.available'
-  // Действия
   | 'action.start'
   | 'action.restart'
   | 'action.continue'
@@ -56,7 +55,8 @@ export type TranslationKey =
   | 'action.previous'
   | 'action.submit'
   | 'action.loading'
-  // Аутентификация
+  | 'action.exit'
+  | 'action.retry'
   | 'auth.login'
   | 'auth.register'
   | 'auth.logout'
@@ -71,14 +71,12 @@ export type TranslationKey =
   | 'auth.changePassword'
   | 'auth.resetPassword'
   | 'auth.sendResetLink'
-  // Уведомления
   | 'notification.levelUp'
   | 'notification.achievement'
   | 'notification.challenge'
   | 'notification.streak'
   | 'notification.newDay'
   | 'notification.dailyReward'
-  // Ошибки
   | 'error.invalidEmail'
   | 'error.weakPassword'
   | 'error.emailInUse'
@@ -90,7 +88,6 @@ export type TranslationKey =
   | 'error.required'
   | 'error.tooShort'
   | 'error.tooLong'
-  // Упражнения
   | 'exercise.mainRow'
   | 'exercise.topRow'
   | 'exercise.bottomRow'
@@ -98,19 +95,19 @@ export type TranslationKey =
   | 'exercise.sentences'
   | 'exercise.code'
   | 'exercise.custom'
-  // Режимы
   | 'mode.practice'
   | 'mode.sprint'
   | 'mode.speedtest'
   | 'mode.challenge'
   | 'mode.game'
-  // Статистика
+  | 'mode.hardcore'
+  | 'mode.reaction'
   | 'stats.title'
   | 'stats.history'
   | 'stats.progress'
   | 'stats.achievements'
   | 'stats.leaderboard'
-  // Разное
+  | 'stats.session'
   | 'misc.theme'
   | 'misc.sound'
   | 'misc.keyboard'
@@ -119,6 +116,8 @@ export type TranslationKey =
   | 'misc.profile'
   | 'misc.help'
   | 'misc.about'
+  | 'misc.footer'
+  | 'misc.copyright'
 
 export type SupportedLanguage = 'ru' | 'en'
 
@@ -129,7 +128,6 @@ export type SupportedLanguage = 'ru' | 'en'
 const resources = {
   ru: {
     translation: {
-      // Навигация
       'nav.practice': 'Практика',
       'nav.sprint': 'Спринт',
       'nav.test': 'Тест',
@@ -139,8 +137,8 @@ const resources = {
       'nav.game': 'Игра',
       'nav.learning': 'Обучение',
       'nav.statistics': 'Статистика',
-
-      // Общие
+      'nav.history': 'История',
+      'nav.reaction': 'Реакция',
       'common.wpm': 'WPM',
       'common.cpm': 'CPM',
       'common.accuracy': 'Точность',
@@ -155,15 +153,12 @@ const resources = {
       'common.best': 'Лучший',
       'common.current': 'Текущий',
       'common.total': 'Всего',
-
-      // Статусы
+      'common.speed': 'Скорость',
       'status.completed': 'Выполнено',
       'status.failed': 'Не выполнено',
       'status.inProgress': 'В процессе',
       'status.locked': 'Заблокировано',
       'status.available': 'Доступно',
-
-      // Действия
       'action.start': 'Начать',
       'action.restart': 'Начать заново',
       'action.continue': 'Продолжить',
@@ -182,8 +177,8 @@ const resources = {
       'action.previous': 'Назад',
       'action.submit': 'Отправить',
       'action.loading': 'Загрузка...',
-
-      // Аутентификация
+      'action.exit': 'Выйти',
+      'action.retry': 'Повторить',
       'auth.login': 'Войти',
       'auth.register': 'Зарегистрироваться',
       'auth.logout': 'Выйти',
@@ -198,16 +193,12 @@ const resources = {
       'auth.changePassword': 'Изменить пароль',
       'auth.resetPassword': 'Сброс пароля',
       'auth.sendResetLink': 'Отправить ссылку',
-
-      // Уведомления
       'notification.levelUp': 'Уровень повышен',
       'notification.achievement': 'Достижение разблокировано',
       'notification.challenge': 'Челлендж выполнен',
       'notification.streak': 'Серия продолжается',
       'notification.newDay': 'Новый день',
       'notification.dailyReward': 'Ежедневная награда',
-
-      // Ошибки
       'error.invalidEmail': 'Неверный формат email',
       'error.weakPassword': 'Пароль должен содержать минимум 8 символов',
       'error.emailInUse': 'Этот email уже зарегистрирован',
@@ -219,8 +210,6 @@ const resources = {
       'error.required': 'Обязательное поле',
       'error.tooShort': 'Слишком короткое значение',
       'error.tooLong': 'Слишком длинное значение',
-
-      // Упражнения
       'exercise.mainRow': 'Основной ряд',
       'exercise.topRow': 'Верхний ряд',
       'exercise.bottomRow': 'Нижний ряд',
@@ -228,22 +217,19 @@ const resources = {
       'exercise.sentences': 'Предложения',
       'exercise.code': 'Код',
       'exercise.custom': 'Пользовательское',
-
-      // Режимы
       'mode.practice': 'Практика',
       'mode.sprint': 'Спринт',
       'mode.speedtest': 'Тест скорости',
       'mode.challenge': 'Челлендж',
       'mode.game': 'Игра',
-
-      // Статистика
+      'mode.hardcore': 'Хардкор',
+      'mode.reaction': 'Реакция',
       'stats.title': 'Статистика',
       'stats.history': 'История',
       'stats.progress': 'Прогресс',
       'stats.achievements': 'Достижения',
       'stats.leaderboard': 'Таблица лидеров',
-
-      // Разное
+      'stats.session': 'Сессия',
       'misc.theme': 'Тема',
       'misc.sound': 'Звук',
       'misc.keyboard': 'Клавиатура',
@@ -252,11 +238,12 @@ const resources = {
       'misc.profile': 'Профиль',
       'misc.help': 'Помощь',
       'misc.about': 'О приложении',
+      'misc.footer': 'FastFingers — Тренажёр слепой печати',
+      'misc.copyright': '© 2026 FastFingers',
     }
   },
   en: {
     translation: {
-      // Navigation
       'nav.practice': 'Practice',
       'nav.sprint': 'Sprint',
       'nav.test': 'Test',
@@ -266,8 +253,8 @@ const resources = {
       'nav.game': 'Game',
       'nav.learning': 'Learning',
       'nav.statistics': 'Statistics',
-
-      // Common
+      'nav.history': 'History',
+      'nav.reaction': 'Reaction',
       'common.wpm': 'WPM',
       'common.cpm': 'CPM',
       'common.accuracy': 'Accuracy',
@@ -282,15 +269,12 @@ const resources = {
       'common.best': 'Best',
       'common.current': 'Current',
       'common.total': 'Total',
-
-      // Statuses
+      'common.speed': 'Speed',
       'status.completed': 'Completed',
       'status.failed': 'Failed',
       'status.inProgress': 'In Progress',
       'status.locked': 'Locked',
       'status.available': 'Available',
-
-      // Actions
       'action.start': 'Start',
       'action.restart': 'Restart',
       'action.continue': 'Continue',
@@ -309,8 +293,8 @@ const resources = {
       'action.previous': 'Previous',
       'action.submit': 'Submit',
       'action.loading': 'Loading...',
-
-      // Authentication
+      'action.exit': 'Exit',
+      'action.retry': 'Retry',
       'auth.login': 'Login',
       'auth.register': 'Register',
       'auth.logout': 'Logout',
@@ -325,16 +309,12 @@ const resources = {
       'auth.changePassword': 'Change password',
       'auth.resetPassword': 'Reset password',
       'auth.sendResetLink': 'Send reset link',
-
-      // Notifications
       'notification.levelUp': 'Level Up',
       'notification.achievement': 'Achievement Unlocked',
       'notification.challenge': 'Challenge Completed',
       'notification.streak': 'Streak Continued',
       'notification.newDay': 'New Day',
       'notification.dailyReward': 'Daily Reward',
-
-      // Errors
       'error.invalidEmail': 'Invalid email format',
       'error.weakPassword': 'Password must be at least 8 characters',
       'error.emailInUse': 'This email is already registered',
@@ -346,8 +326,6 @@ const resources = {
       'error.required': 'Required field',
       'error.tooShort': 'Value is too short',
       'error.tooLong': 'Value is too long',
-
-      // Exercises
       'exercise.mainRow': 'Home Row',
       'exercise.topRow': 'Top Row',
       'exercise.bottomRow': 'Bottom Row',
@@ -355,22 +333,19 @@ const resources = {
       'exercise.sentences': 'Sentences',
       'exercise.code': 'Code',
       'exercise.custom': 'Custom',
-
-      // Modes
       'mode.practice': 'Practice',
       'mode.sprint': 'Sprint',
       'mode.speedtest': 'Speed Test',
       'mode.challenge': 'Challenge',
       'mode.game': 'Game',
-
-      // Statistics
+      'mode.hardcore': 'Hardcore',
+      'mode.reaction': 'Reaction',
       'stats.title': 'Statistics',
       'stats.history': 'History',
       'stats.progress': 'Progress',
       'stats.achievements': 'Achievements',
       'stats.leaderboard': 'Leaderboard',
-
-      // Misc
+      'stats.session': 'Session',
       'misc.theme': 'Theme',
       'misc.sound': 'Sound',
       'misc.keyboard': 'Keyboard',
@@ -379,6 +354,8 @@ const resources = {
       'misc.profile': 'Profile',
       'misc.help': 'Help',
       'misc.about': 'About',
+      'misc.footer': 'FastFingers — Touch Typing Trainer',
+      'misc.copyright': '© 2026 FastFingers',
     }
   }
 }

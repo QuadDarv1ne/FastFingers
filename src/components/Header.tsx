@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 interface HeaderProps {
   level: number
@@ -67,6 +68,8 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
                 <span className="text-xl">👤</span>
               </button>
             )}
+
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
