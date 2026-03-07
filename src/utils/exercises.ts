@@ -332,8 +332,7 @@ export function getRandomExercise(category?: string, difficulty?: number, layout
   if (pool.length === 0) pool = exercises
   if (pool.length === 0) return exercises[0]!
   const randomIndex = Math.floor(Math.random() * pool.length)
-  const exercise = pool[randomIndex]
-  return exercise!
+  return pool[randomIndex]!
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {
@@ -399,18 +398,13 @@ export function getRandomExercises(count: number, category?: string, difficulty?
 
   if (pool.length === 0) pool = exercises
   const shuffled: Exercise[] = []
-  const indices = pool.map((_, i) => i)
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = indices[i]!
-    indices[i] = indices[j]!
-    indices[j] = temp
-  }
-  const limit = Math.min(count, indices.length)
-  for (let i = 0; i < limit; i++) {
-    const idx = indices[i]!
-    const exercise = pool[idx]
+  const indices: number[] = pool.map((_, i) => i)
+  // Fisher-Yates shuffle
+  while (indices.length > 0 && shuffled.length < count) {
+    const randomIdx = Math.floor(Math.random() * indices.length)
+    const exercise = pool[randomIdx]
     if (exercise) shuffled.push(exercise)
+    indices.splice(randomIdx, 1)
   }
   return shuffled
 }
