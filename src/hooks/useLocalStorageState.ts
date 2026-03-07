@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 
-/**
- * Хук для синхронизации состояния с localStorage
- * Автоматически сохраняет и загружает данные
- */
 export function useLocalStorageState<T>(
   key: string,
   defaultValue: T
@@ -36,3 +32,5 @@ export function useLocalStorageState<T>(
 
   return [state, setState, remove]
 }
+
+export default useLocalStorageState

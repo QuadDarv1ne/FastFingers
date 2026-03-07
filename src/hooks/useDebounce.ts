@@ -12,9 +12,6 @@ interface UseDebounceReturn<T> {
   flush: () => void
 }
 
-/**
- * Хук для debouncing значений с расширенными возможностями
- */
 export function useDebounce<T>(
   value: T,
   options: UseDebounceOptions = {}
@@ -33,10 +30,7 @@ export function useDebounce<T>(
     }
 
     setIsPending(true)
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
     timeoutRef.current = setTimeout(() => {
       setDebouncedValue(value)
@@ -44,9 +38,7 @@ export function useDebounce<T>(
     }, delay)
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [value, delay, immediate])
 
@@ -69,4 +61,4 @@ export function useDebounce<T>(
   return { debouncedValue, isPending, cancel, flush }
 }
 
-export { useDebounce as default }
+export default useDebounce
