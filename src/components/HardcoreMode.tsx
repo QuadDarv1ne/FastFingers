@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react'
+import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
@@ -16,6 +16,8 @@ interface HardcoreModeProps {
 }
 
 const COUNTDOWN_SECONDS = 3
+const TEXT_LENGTH = 30
+const TEXT_DIFFICULTY = 5
 
 interface HardcoreRecord {
   id: string
@@ -24,6 +26,16 @@ interface HardcoreRecord {
   wpm: number
   accuracy: number
   created_at: string
+}
+
+// Вынесено наружу для избежания пересоздания
+const calculateCorrectCount = (results: Array<{ isCorrect: boolean }>): number => {
+  let count = 0
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i]
+    if (result && result.isCorrect) count++
+  }
+  return count
 }
 
 export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
@@ -44,12 +56,11 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const [bestStreak, setBestStreak] = useState(0)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
   const [isLoadingRecords, setIsLoadingRecords] = useState(true)
-  const [wpm, setWpm] = useState(0)
-  const [accuracy, setAccuracy] = useState(100)
 
   const inputRef = useRef<HTMLInputElement>(null)
+  const textLengthRef = useRef(0)
 
-  // Загрузка рекордов
+  // Загрузка рекордов — с retry логикой
   useEffect(() => {
     const loadRecords = async () => {
       if (!user || !supabase) {
@@ -58,20 +69,38 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       }
 
       try {
-        const { data, error } = await supabase
-          .from('hardcore_records')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('streak', { ascending: false })
-          .limit(10)
+        let retries = 3
+        let lastError: Error | null = null
 
-        if (error) throw error
-        setRecords(data || [])
-        if (data && data.length > 0) {
-          setBestStreak(data[0].streak)
+        while (retries > 0) {
+          const { data, error } = await supabase
+            .from('hardcore_records')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('streak', { ascending: false })
+            .limit(10)
+
+          if (!error) {
+            setRecords(data || [])
+            if (data && data.length > 0) {
+              const firstRecord = data[0]
+              if (firstRecord) {
+                setBestStreak(firstRecord.streak)
+              }
+            }
+            break
+          }
+
+          lastError = error as Error
+          retries--
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
+          }
         }
-      } catch (error) {
-        console.error('Error loading hardcore records:', error)
+
+        if (retries === 0) {
+          console.error('Error loading hardcore records after retries:', lastError)
+        }
       } finally {
         setIsLoadingRecords(false)
       }
@@ -80,17 +109,17 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     loadRecords()
   }, [user])
 
-  // Генерация текста
+  // Генерация текста — оптимизировано
   const generateNewText = useCallback(() => {
-    const newText = generatePracticeText(30, 5)
+    const newText = generatePracticeText(TEXT_LENGTH, TEXT_DIFFICULTY)
     setText(newText)
     setCurrentIndex(0)
     setInputResults([])
+    textLengthRef.current = newText.length
   }, [])
 
   useEffect(() => {
     generateNewText()
-    // Убрали авто-фокус при монтировании - он вызывает нежелательный скролл
   }, [generateNewText])
 
   // Старт с обратным отсчётом
@@ -111,27 +140,34 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     }, 1000)
   }, [])
 
-  // Завершение при ошибке
+  // Завершение при ошибке — оптимизировано
   const handleMistake = useCallback(async () => {
     setIsActive(false)
 
-    const correct = inputResults.filter(r => r.isCorrect).length
+    const correct = calculateCorrectCount(inputResults)
     const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const errors = inputResults.filter(r => !r.isCorrect).length + 1 // +1 за текущую ошибку
+    const errors = inputResults.length + 1 - correct + 1
 
     const stats = calculateStats(correct, inputResults.length + 1, errors, timeElapsed)
     setLastStats(stats)
     onComplete(stats)
 
-    // Сохранение рекорда
+    // Сохранение рекорда с retry
     if (user && streak > 0 && supabase) {
       try {
-        await supabase.from('hardcore_records').insert({
-          user_id: user.id,
-          streak,
-          wpm: stats.wpm,
-          accuracy: stats.accuracy,
-        })
+        let retries = 3
+        while (retries > 0) {
+          const { error } = await supabase.from('hardcore_records').insert({
+            user_id: user.id,
+            streak,
+            wpm: stats.wpm,
+            accuracy: stats.accuracy,
+          })
+
+          if (!error) break
+          retries--
+          if (retries > 0) await new Promise(resolve => setTimeout(resolve, 500))
+        }
       } catch (error) {
         console.error('Error saving hardcore record:', error)
       }
@@ -140,59 +176,57 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     setShowCertificate(true)
   }, [inputResults, startTime, onComplete, user, streak])
 
-  // Обработка ввода
+  // Обработка ввода — оптимизировано
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!isActive) {
+    if (!isActive && countdown === null) {
       handleStart()
+      return
     }
 
     const value = e.currentTarget.value
     const newChar = value[value.length - 1]
+    if (!newChar) return
 
-    if (newChar && currentIndex < text.length) {
+    if (currentIndex < textLengthRef.current) {
       const expectedChar = text[currentIndex]
       const isCorrect = newChar === expectedChar
 
       if (!isCorrect) {
-        // МГНОВЕННОЕ ЗАВЕРШЕНИЕ ПРИ ОШИБКЕ
-        if (sound) {
-          sound.playError()
-        }
+        if (sound) sound.playError()
         handleMistake()
         return
       }
 
-      // Правильное нажатие
-      if (sound) {
-        sound.playCorrect(expectedChar.toLowerCase())
-      }
+      if (sound) sound.playCorrect(expectedChar.toLowerCase())
 
       setStreak(prev => prev + 1)
       setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
       setCurrentIndex(prev => prev + 1)
 
-      // Если текст закончился, генерируем новый
-      if (currentIndex >= text.length - 5) {
+      if (currentIndex >= textLengthRef.current - 5) {
         generateNewText()
       }
     }
 
     e.currentTarget.value = ''
-  }, [isActive, text, currentIndex, sound, generateNewText, handleStart, handleMistake])
+  }, [isActive, countdown, text, currentIndex, sound, generateNewText, handleStart, handleMistake])
 
-  // Подсчёт статистики в реальном времени
-  useEffect(() => {
-    if (inputResults.length > 0 && startTime) {
-      const correct = inputResults.filter(r => r.isCorrect).length
-      const timeElapsed = (Date.now() - startTime) / 1000
-      const timeInMinutes = timeElapsed / 60
-
-      const newWpm = timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0
-      const newAccuracy = Math.round((correct / inputResults.length) * 100)
-
-      setWpm(newWpm)
-      setAccuracy(newAccuracy)
+  // Подсчёт статистики в реальном времени — оптимизировано
+  const { wpm, accuracy } = useMemo(() => {
+    if (inputResults.length === 0 || !startTime) {
+      return { wpm: 0, accuracy: 0 }
     }
+
+    const correct = calculateCorrectCount(inputResults)
+    const timeElapsed = (Date.now() - startTime) / 1000
+    const timeInMinutes = timeElapsed / 60
+
+    const newWpm = timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0
+    const newAccuracy = inputResults.length > 0 
+      ? Math.round((correct / inputResults.length) * 100) 
+      : 0
+
+    return { wpm: newWpm, accuracy: newAccuracy }
   }, [inputResults, startTime])
 
   // Горячие клавиши
@@ -325,7 +359,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           type="text"
           className="opacity-0 absolute"
           onInput={handleInput}
-          disabled={!isActive && timeLeft === 0}
+          disabled={!isActive}
           aria-label="Поле ввода режима без ошибок"
         />
 
@@ -461,6 +495,3 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     </div>
   )
 })
-
-// Временная переменная для совместимости
-const timeLeft = 0

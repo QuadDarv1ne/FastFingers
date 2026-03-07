@@ -18,8 +18,33 @@ interface TypingTrainerProps {
   challengeText?: string
 }
 
-export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({ 
-  fontSize, 
+// Вынесено наружу для избежания пересоздания функций
+const FONT_SIZE_MAP = {
+  small: 'text-lg',
+  medium: 'text-xl',
+  large: 'text-2xl',
+} as const
+
+const CATEGORY_OPTIONS = [
+  { value: 'all', label: '🎲 Случайные слова' },
+  { value: 'basic', label: '⌨️ Основной ряд' },
+  { value: 'upper', label: '⬆️ Верхний ряд' },
+  { value: 'lower', label: '⬇️ Нижний ряд' },
+  { value: 'words', label: '📝 Слова' },
+  { value: 'sentences', label: '📄 Предложения' },
+  { value: 'code', label: '💻 Код' },
+] as const
+
+const DIFFICULTY_OPTIONS = [
+  { value: 1, label: '⭐ Очень легко' },
+  { value: 3, label: '⭐⭐ Легко' },
+  { value: 5, label: '⭐⭐⭐ Средне' },
+  { value: 7, label: '⭐⭐⭐⭐ Сложно' },
+  { value: 9, label: '⭐⭐⭐⭐⭐ Очень сложно' },
+] as const
+
+export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
+  fontSize,
   onSessionComplete,
   onKeyInput,
   sound,
@@ -32,19 +57,27 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const [inputResults, setInputResults] = useState<KeyInputResult[]>([])
   const [startTime, setStartTime] = useState<number | null>(null)
   const [isComplete, setIsComplete] = useState(false)
-  const [isPaused, setIsPaused] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<number>(5)
-  
+
   const inputRef = useRef<HTMLInputElement>(null)
   const textContainerRef = useRef<HTMLDivElement>(null)
+  const textLengthRef = useRef(0)
 
-  // Завершение упражнения
+  // Завершение упражнения — оптимизировано
   const handleComplete = useCallback((results: KeyInputResult[]) => {
     if (!startTime) return
-    
-    const correctChars = results.filter(r => r.isCorrect).length
-    const errors = results.filter(r => !r.isCorrect).length
+
+    let correctChars = 0
+    let errors = 0
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i]
+      if (result && result.isCorrect) {
+        correctChars++
+      } else {
+        errors++
+      }
+    }
     const timeElapsed = (Date.now() - startTime) / 1000
 
     const stats = calculateStats(correctChars, results.length, errors, timeElapsed)
@@ -53,19 +86,19 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     onSessionComplete(stats)
   }, [startTime, onSessionComplete])
 
-  // Инициализация упражнения
+  // Инициализация упражнения — оптимизировано
   const initExercise = useCallback(() => {
     let exerciseText: string
 
-    // Если режим челленджа - используем текст челленджа
     if (isChallenge && challengeText) {
       exerciseText = challengeText
     } else if (selectedCategory === 'custom' && customExercises.length > 0) {
       const randomIndex = Math.floor(Math.random() * customExercises.length)
-      exerciseText = customExercises[randomIndex]?.text || ''
+      const exercise = customExercises[randomIndex]
+      exerciseText = exercise ? exercise.text : ''
     } else if (selectedCategory !== 'all') {
       const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
-      exerciseText = exercise?.text || ''
+      exerciseText = exercise ? exercise.text : ''
     } else {
       exerciseText = generatePracticeText(20, selectedDifficulty)
     }
@@ -75,43 +108,36 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     setInputResults([])
     setStartTime(null)
     setIsComplete(false)
-    setIsPaused(false)
-
-    // Убрали фокус при инициализации - он вызывает нежелательный скролл
-    // Фокус устанавливается по клику пользователя или нажатию Enter
+    textLengthRef.current = exerciseText.length
   }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
 
   useEffect(() => {
     initExercise()
   }, [initExercise])
 
-  // Обработка ввода
+  // Обработка ввода — оптимизировано с использованием refs
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
 
-    if (isPaused || isComplete) return
+    if (isComplete) return
 
-    // Начало отсчёта времени при первом вводе
     if (!startTime && value) {
       setStartTime(Date.now())
     }
 
     const newChar = value[value.length - 1]
-
     if (!newChar) return
 
     setCurrentIndex(prevIndex => {
       const expectedChar = text[prevIndex]
       if (!expectedChar) return prevIndex
-      
+
       const isCorrect = newChar === expectedChar
 
-      // Звуковой эффект
       if (sound) {
         isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
       }
 
-      // Callback для тепловой карты
       onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
 
       const result: KeyInputResult = {
@@ -123,21 +149,17 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       setInputResults(prev => {
         const newResults = [...prev, result]
-
-        // Проверка завершения
-        if (prevIndex >= text.length - 1) {
+        if (prevIndex >= textLengthRef.current - 1) {
           handleComplete(newResults)
         }
-
         return newResults
       })
 
       return prevIndex + 1
     })
 
-    // Очищаем инпут, но сохраняем историю
     e.currentTarget.value = ''
-  }, [text, startTime, isPaused, isComplete, sound, onKeyInput, handleComplete])
+  }, [text, startTime, isComplete, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = useCallback(() => {
@@ -149,29 +171,47 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     if (!isChallenge) {
       handleSkip()
     }
-  }, { enabled: !isPaused })
+  }, { enabled: !isChallenge })
 
   useHotkey('enter', () => {
     inputRef.current?.focus({ preventScroll: true })
   }, { enabled: true })
 
   // Размер шрифта (мемоизация)
-  const fontSizeClass = useMemo(() => ({
-    small: 'text-lg',
-    medium: 'text-xl',
-    large: 'text-2xl',
-  }[fontSize]), [fontSize])
+  const fontSizeClass = useMemo(() => FONT_SIZE_MAP[fontSize], [fontSize])
 
   // Текущая клавиша для подсветки (мемоизация)
-  const currentKey = useMemo(() => 
+  const currentKey = useMemo(() =>
     text[currentIndex]?.toLowerCase() || '',
     [text, currentIndex]
   )
 
+  // Опции категории с мемоизацией
+  const categoryOptions = useMemo(() => {
+    const options: Array<{ value: string; label: string }> = [...CATEGORY_OPTIONS]
+    if (customExercises.length > 0) {
+      options.push({ value: 'custom', label: `✏️ Мои упражнения (${customExercises.length})` })
+    }
+    return options
+  }, [customExercises.length])
+
+  // Рендеринг символов текста (мемоизация)
+  const renderedChars = useMemo(() => {
+    return text.split('').map((char, index) => {
+      let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
+      if (index < currentIndex) {
+        status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
+      } else if (index === currentIndex && !isComplete) {
+        status = 'current'
+      }
+      return <TypingChar key={index} char={char} status={status} />
+    })
+  }, [text, currentIndex, inputResults, isComplete])
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="region" aria-label="Тренажёр печати">
       {/* Выбор режима */}
-      <div className="card">
+      <div className="card" role="group" aria-label="Настройки упражнения">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
             <label htmlFor="category-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
@@ -184,17 +224,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
               disabled={isChallenge}
+              aria-disabled={isChallenge}
             >
-              <option value="all">🎲 Случайные слова</option>
-              <option value="basic">⌨️ Основной ряд</option>
-              <option value="upper">⬆️ Верхний ряд</option>
-              <option value="lower">⬇️ Нижний ряд</option>
-              <option value="words">📝 Слова</option>
-              <option value="sentences">📄 Предложения</option>
-              <option value="code">💻 Код</option>
-              {customExercises.length > 0 && (
-                <option value="custom">✏️ Мои упражнения ({customExercises.length})</option>
-              )}
+              {categoryOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
 
@@ -208,21 +242,21 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
+              aria-label="Выберите сложность"
             >
-              <option value={1}>⭐ Очень легко</option>
-              <option value={3}>⭐⭐ Легко</option>
-              <option value={5}>⭐⭐⭐ Средне</option>
-              <option value={7}>⭐⭐⭐⭐ Сложно</option>
-              <option value={9}>⭐⭐⭐⭐⭐ Очень сложно</option>
+              {DIFFICULTY_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
-          
+
           <button
             onClick={initExercise}
             className="px-6 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
             title="Сгенерировать новое упражнение"
+            aria-label="Новое упражнение"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span className="hidden sm:inline">Новое</span>
@@ -234,17 +268,20 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       <div
         ref={textContainerRef}
         className="card cursor-text min-h-[250px] relative group hover:border-primary-500/30 transition-all"
+        role="textbox"
+        aria-readonly="true"
+        aria-label="Область текста для печати"
       >
         {/* Подсказка о фокусе */}
         {!isComplete && (
           <div className="absolute top-4 right-4 text-xs text-dark-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
             </svg>
             Кликните или нажмите Enter
           </div>
         )}
-        
+
         <input
           ref={inputRef}
           type="text"
@@ -253,24 +290,18 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           onBlur={() => !isComplete && setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)}
           disabled={isComplete}
           aria-label="Поле ввода для печати"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
         />
-        
-        <div className={`font-mono leading-relaxed ${fontSizeClass} break-words select-none`}>
-          {text.split('').map((char, index) => {
-            let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-            
-            if (index < currentIndex) {
-              status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-            } else if (index === currentIndex && !isComplete) {
-              status = 'current'
-            }
-            
-            return <TypingChar key={index} char={char} status={status} />
-          })}
+
+        <div className={`font-mono leading-relaxed ${fontSizeClass} break-words select-none`} aria-live="polite">
+          {renderedChars}
         </div>
         
         {/* Индикатор прогресса */}
-        <div className="mt-8 space-y-2">
+        <div className="mt-8 space-y-2" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс упражнения">
           <div className="flex items-center justify-between text-sm">
             <span className="text-dark-400 font-medium">Прогресс</span>
             <span className="text-primary-400 font-bold">{Math.round((currentIndex / text.length) * 100)}%</span>
@@ -286,38 +317,40 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             </div>
             <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-right">
               {currentIndex} / {text.length}
-          </span>
+            </span>
           </div>
         </div>
-        
+
         {/* Кнопки управления */}
         <div className="flex justify-between items-center mt-6 pt-6 border-t border-dark-700/50">
           <button
             onClick={handleSkip}
             className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
             title="Пропустить это упражнение"
+            aria-label="Пропустить упражнение"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
             </svg>
             Пропустить
           </button>
-          
+
           {isComplete && (
             <motion.button
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               onClick={initExercise}
               className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
+              aria-label="Продолжить следующее упражнение"
             >
               Продолжить
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </motion.button>
           )}
         </div>
-        
+
         {/* Экран завершения */}
         <AnimatePresence>
           {isComplete && (
@@ -326,6 +359,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="completion-title"
             >
               <div className="text-center px-6">
                 <motion.div
@@ -334,11 +370,12 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                   transition={{ type: 'spring', delay: 0.1, duration: 0.6 }}
                   className="w-24 h-24 bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow-success"
                 >
-                  <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </motion.div>
-                <motion.h3 
+                <motion.h3
+                  id="completion-title"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
@@ -346,7 +383,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                 >
                   Отлично! 🎉
                 </motion.h3>
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
@@ -360,9 +397,10 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                   transition={{ delay: 0.5 }}
                   onClick={initExercise}
                   className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2 mx-auto"
+                  aria-label="Следующее упражнение"
                 >
                   Следующее упражнение
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </motion.button>
@@ -374,10 +412,12 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       {/* Подсказка по текущей клавише */}
       {currentKey && !isComplete && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="card text-center"
+          aria-live="polite"
+          aria-atomic="true"
         >
           <div className="flex items-center justify-center gap-3">
             <span className="text-sm text-dark-400 font-medium">Следующая клавиша:</span>
