@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
+import { useAppTranslation } from '../i18n/config'
 
 export interface Notification {
   id: string
@@ -17,6 +18,7 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
+  const { t } = useAppTranslation()
   const [notifications, setNotifications] = useLocalStorageState<Notification[]>(
     'fastfingers_notifications',
     []
@@ -41,7 +43,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
   }
 
   const clearAll = () => {
-    if (confirm('Удалить все уведомления?')) {
+    if (confirm(t('action.delete') + '?')) {
       setNotifications([])
     }
   }
@@ -72,13 +74,16 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
       <button
         onClick={handleOpen}
         className="relative w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-all flex items-center justify-center"
-        aria-label="Уведомления"
+        aria-label={t('notification.levelUp')}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
       >
         <svg
           className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -90,7 +95,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
 
         {/* Badge */}
         {showBadge && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse" aria-label={`${unreadCount} непрочитанных`}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -102,15 +107,16 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
           <div
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
+            aria-hidden="true"
           />
-          <div className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden" role="dialog" aria-label={t('notification.levelUp')}>
             {/* Header */}
             <div className="p-4 border-b border-dark-700 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">Уведомления</h3>
+                <h3 className="font-semibold text-lg">{t('notification.levelUp')}</h3>
                 {unreadCount > 0 && (
                   <p className="text-xs text-dark-400">
-                    {unreadCount} непрочитанных
+                    {unreadCount} {t('common.words')}
                   </p>
                 )}
               </div>
@@ -120,14 +126,16 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                     <button
                       onClick={markAllAsRead}
                       className="text-xs px-3 py-1 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
-                      title="Отметить все как прочитанные"
+                      title={t('action.confirm')}
+                      aria-label={t('action.confirm')}
                     >
                       ✓
                     </button>
                     <button
                       onClick={clearAll}
                       className="text-xs px-3 py-1 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
-                      title="Очистить все"
+                      title={t('action.delete')}
+                      aria-label={t('action.delete')}
                     >
                       🗑️
                     </button>
@@ -137,25 +145,27 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
             </div>
 
             {/* Notifications list */}
-            <div className="overflow-y-auto max-h-[500px]">
+            <div className="overflow-y-auto max-h-[500px]" role="list" aria-label={t('notification.levelUp')}>
               {sortedNotifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="text-4xl mb-2">🔔</div>
-                  <p className="text-dark-400">Нет уведомлений</p>
+                  <div className="text-4xl mb-2" aria-hidden="true">🔔</div>
+                  <p className="text-dark-400">{t('action.loading')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-dark-700">
                   {sortedNotifications.map(notification => (
-                    <div
+                    <button
                       key={notification.id}
-                      className={`p-4 hover:bg-dark-800/50 transition-colors cursor-pointer ${
+                      className={`w-full p-4 hover:bg-dark-800/50 transition-colors text-left ${
                         !notification.read ? 'bg-dark-800/30' : ''
                       }`}
                       onClick={() => markAsRead(notification.id)}
+                      aria-label={notification.title}
                     >
                       <div className="flex items-start gap-3">
                         <div
                           className={`text-2xl ${getNotificationColor(notification.type)}`}
+                          aria-hidden="true"
                         >
                           {notification.icon}
                         </div>
@@ -165,7 +175,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                               {notification.title}
                             </h4>
                             {!notification.read && (
-                              <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
+                              <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" aria-label="непрочитано" />
                             )}
                           </div>
                           <p className="text-sm text-dark-400 mt-1">
@@ -176,7 +186,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                           </p>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
