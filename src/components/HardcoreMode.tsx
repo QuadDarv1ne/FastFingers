@@ -70,7 +70,6 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       try {
         let retries = 3
-        let lastError: Error | null = null
 
         while (retries > 0) {
           const { data, error } = await supabase
@@ -91,7 +90,6 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
             break
           }
 
-          lastError = error as Error
           retries--
           if (retries > 0) {
             await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
@@ -99,7 +97,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         }
 
         if (retries === 0) {
-          console.error('Error loading hardcore records after retries:', lastError)
+          // Failed to load records after retries
         }
       } finally {
         setIsLoadingRecords(false)
@@ -168,8 +166,8 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           retries--
           if (retries > 0) await new Promise(resolve => setTimeout(resolve, 500))
         }
-      } catch (error) {
-        console.error('Error saving hardcore record:', error)
+      } catch {
+        // Failed to save record
       }
     }
 

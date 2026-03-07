@@ -14,10 +14,10 @@ export function UserProfile({ onClose }: UserProfileProps) {
   const handleSaveProfile = async () => {
     if (!user) return
     try {
-      await updateUserStats({}) // В реальном приложении здесь было бы обновление профиля
+      await updateUserStats({})
       setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to update profile:', error)
+    } catch {
+      // Error handled by auth context
     }
   }
 

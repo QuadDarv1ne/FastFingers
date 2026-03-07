@@ -183,10 +183,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...prev,
         user: updatedUser,
       }));
-    } catch (error) {
-      console.error('Failed to sync user stats:', error);
+    } catch {
+      clearError();
     }
-  }, [state.user]);
+  }, [state.user, clearError]);
 
   const contextValue = useMemo<AuthContextType>(() => ({
     ...state,

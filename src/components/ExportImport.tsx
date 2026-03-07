@@ -45,9 +45,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
       URL.revokeObjectURL(url)
 
       success({ title: 'Данные успешно экспортированы' })
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Export failed'
-      console.error('Export error:', message)
+    } catch {
       error({ title: 'Ошибка при экспорте данных' })
     }
   }
@@ -85,9 +83,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         setTimeout(() => {
           window.location.reload()
         }, 1000)
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Import failed'
-        console.error('Import error:', message)
+      } catch {
         error({ title: 'Ошибка при импорте данных' })
         setImporting(false)
       }
@@ -129,9 +125,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
       setTimeout(() => {
         window.location.reload()
       }, 1000)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Clear data failed'
-      console.error('Clear data error:', message)
+    } catch {
       error({ title: 'Ошибка при удалении данных' })
     }
   }

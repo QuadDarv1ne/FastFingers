@@ -52,8 +52,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         download: true,
         theme,
       })
-    } catch (error) {
-      console.error('Error generating certificate:', error)
+    } catch {
+      // Error handled silently
     } finally {
       setIsGenerating(false)
     }
@@ -79,8 +79,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         // Fallback - скачивание
         await handleDownload()
       }
-    } catch (error) {
-      console.error('Error sharing certificate:', error)
+    } catch {
       await handleDownload()
     }
   }
