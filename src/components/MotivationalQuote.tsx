@@ -1,85 +1,86 @@
 import { useState, useEffect } from 'react'
+import { useAppTranslation } from '../i18n/config'
 
 interface Quote {
-  text: string
-  author: string
+  textKey: string
+  authorKey: string
   category: 'motivation' | 'practice' | 'success' | 'learning'
 }
 
 const QUOTES: Quote[] = [
   {
-    text: 'Практика делает совершенным. Каждое нажатие клавиши приближает вас к мастерству.',
-    author: 'FastFingers',
+    textKey: 'quote.practice1',
+    authorKey: 'quote.fastfingers',
     category: 'practice',
   },
   {
-    text: 'Скорость приходит с точностью. Сначала научитесь печатать правильно.',
-    author: 'FastFingers',
+    textKey: 'quote.learning1',
+    authorKey: 'quote.fastfingers',
     category: 'learning',
   },
   {
-    text: 'Не сравнивайте себя с другими. Сравнивайте себя с собой вчерашним.',
-    author: 'FastFingers',
+    textKey: 'quote.motivation1',
+    authorKey: 'quote.fastfingers',
     category: 'motivation',
   },
   {
-    text: 'Каждая ошибка - это возможность научиться чему-то новому.',
-    author: 'FastFingers',
+    textKey: 'quote.learning2',
+    authorKey: 'quote.fastfingers',
     category: 'learning',
   },
   {
-    text: 'Постоянство важнее интенсивности. 10 минут каждый день лучше, чем час раз в неделю.',
-    author: 'FastFingers',
+    textKey: 'quote.practice2',
+    authorKey: 'quote.fastfingers',
     category: 'practice',
   },
   {
-    text: 'Успех - это сумма маленьких усилий, повторяемых день за днём.',
-    author: 'Роберт Кольер',
+    textKey: 'quote.success1',
+    authorKey: 'quote.collier',
     category: 'success',
   },
   {
-    text: 'Единственный способ делать великую работу - любить то, что вы делаете.',
-    author: 'Стив Джобс',
+    textKey: 'quote.motivation2',
+    authorKey: 'quote.jobs',
     category: 'motivation',
   },
   {
-    text: 'Мастерство - это не пункт назначения, это путешествие.',
-    author: 'FastFingers',
+    textKey: 'quote.learning3',
+    authorKey: 'quote.fastfingers',
     category: 'learning',
   },
   {
-    text: 'Ваши пальцы знают больше, чем вы думаете. Доверьтесь мышечной памяти.',
-    author: 'FastFingers',
+    textKey: 'quote.practice3',
+    authorKey: 'quote.fastfingers',
     category: 'practice',
   },
   {
-    text: 'Не бойтесь ошибаться. Бойтесь не пробовать.',
-    author: 'FastFingers',
+    textKey: 'quote.motivation3',
+    authorKey: 'quote.fastfingers',
     category: 'motivation',
   },
   {
-    text: 'Скорость без точности - это просто быстрые ошибки.',
-    author: 'FastFingers',
+    textKey: 'quote.learning4',
+    authorKey: 'quote.fastfingers',
     category: 'learning',
   },
   {
-    text: 'Каждый эксперт когда-то был новичком. Продолжайте практиковаться.',
-    author: 'FastFingers',
+    textKey: 'quote.motivation4',
+    authorKey: 'quote.fastfingers',
     category: 'motivation',
   },
   {
-    text: 'Ритм важнее скорости. Найдите свой темп и придерживайтесь его.',
-    author: 'FastFingers',
+    textKey: 'quote.practice4',
+    authorKey: 'quote.fastfingers',
     category: 'practice',
   },
   {
-    text: 'Прогресс может быть медленным, но он всегда заметен при постоянстве.',
-    author: 'FastFingers',
+    textKey: 'quote.success2',
+    authorKey: 'quote.fastfingers',
     category: 'success',
   },
   {
-    text: 'Не смотрите на клавиатуру. Доверьтесь своим пальцам.',
-    author: 'FastFingers',
+    textKey: 'quote.learning5',
+    authorKey: 'quote.fastfingers',
     category: 'learning',
   },
 ]
@@ -95,6 +96,7 @@ export function MotivationalQuote({
   autoChange = false,
   changeInterval = 30000,
 }: MotivationalQuoteProps) {
+  const { t } = useAppTranslation()
   const [currentQuote, setCurrentQuote] = useState<Quote>(() => getRandomQuote(category))
 
   useEffect(() => {
@@ -112,27 +114,29 @@ export function MotivationalQuote({
   }
 
   return (
-    <div className="card p-6 relative overflow-hidden">
+    <div className="card p-6 relative overflow-hidden" role="complementary" aria-label={t('notification.achievement')}>
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 text-6xl opacity-10 select-none">
+      <div className="absolute top-0 right-0 text-6xl opacity-10 select-none" aria-hidden="true">
         💭
       </div>
 
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-sm font-semibold text-dark-400 uppercase tracking-wide">
-            Мотивация дня
+            {t('notification.achievement')}
           </h3>
           <button
             onClick={handleNewQuote}
             className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-all flex items-center justify-center group"
-            title="Новая цитата"
+            title={t('action.restart')}
+            aria-label={t('action.restart')}
           >
             <svg
               className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -146,13 +150,13 @@ export function MotivationalQuote({
 
         <blockquote className="mb-4">
           <p className="text-lg leading-relaxed italic text-white">
-            &ldquo;{currentQuote.text}&rdquo;
+            &ldquo;{t(currentQuote.textKey)}&rdquo;
           </p>
         </blockquote>
 
         <div className="flex items-center justify-between">
           <cite className="text-sm text-dark-400 not-italic">
-            — {currentQuote.author}
+            — {t(currentQuote.authorKey)}
           </cite>
           <span className="text-xs px-3 py-1 bg-dark-800 rounded-full text-dark-400">
             {getCategoryLabel(currentQuote.category)}
@@ -169,13 +173,14 @@ function getRandomQuote(category?: Quote['category']): Quote {
     : QUOTES
 
   const quotes = filtered.length > 0 ? filtered : QUOTES
-  if (quotes.length === 0) return QUOTES[0]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  const firstQuote = quotes[0] ?? QUOTES[0]
+  if (!firstQuote) throw new Error('No quotes available')
   const randomIndex = Math.floor(Math.random() * quotes.length)
-  return quotes[randomIndex]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  return quotes[randomIndex] ?? firstQuote
 }
 
 function getCategoryLabel(category: Quote['category']): string {
-  const labels = {
+  const labels: Record<Quote['category'], string> = {
     motivation: 'Мотивация',
     practice: 'Практика',
     success: 'Успех',

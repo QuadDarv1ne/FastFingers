@@ -142,6 +142,24 @@ export type TranslationKey =
   | 'tip.eyesDesc'
   | 'tip.progress'
   | 'tip.progressDesc'
+  | 'quote.practice1'
+  | 'quote.practice2'
+  | 'quote.practice3'
+  | 'quote.practice4'
+  | 'quote.learning1'
+  | 'quote.learning2'
+  | 'quote.learning3'
+  | 'quote.learning4'
+  | 'quote.learning5'
+  | 'quote.motivation1'
+  | 'quote.motivation2'
+  | 'quote.motivation3'
+  | 'quote.motivation4'
+  | 'quote.success1'
+  | 'quote.success2'
+  | 'quote.fastfingers'
+  | 'quote.collier'
+  | 'quote.jobs'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he'
 
@@ -288,6 +306,24 @@ const resources = {
       'tip.eyesDesc': 'Каждые 20 минут смотрите на объект в 6 метрах в течение 20 секунд. Это правило 20-20-20.',
       'tip.progress': 'Отмечайте прогресс',
       'tip.progressDesc': 'Радуйтесь каждому достижению! Даже небольшой прогресс — это шаг к мастерству.',
+      'quote.practice1': 'Практика делает совершенным. Каждое нажатие клавиши приближает вас к мастерству.',
+      'quote.practice2': 'Постоянство важнее интенсивности. 10 минут каждый день лучше, чем час раз в неделю.',
+      'quote.practice3': 'Ваши пальцы знают больше, чем вы думаете. Доверьтесь мышечной памяти.',
+      'quote.practice4': 'Ритм важнее скорости. Найдите свой темп и придерживайтесь его.',
+      'quote.learning1': 'Скорость приходит с точностью. Сначала научитесь печатать правильно.',
+      'quote.learning2': 'Каждая ошибка - это возможность научиться чему-то новому.',
+      'quote.learning3': 'Мастерство - это не пункт назначения, это путешествие.',
+      'quote.learning4': 'Скорость без точности - это просто быстрые ошибки.',
+      'quote.learning5': 'Не смотрите на клавиатуру. Доверьтесь своим пальцам.',
+      'quote.motivation1': 'Не сравнивайте себя с другими. Сравнивайте себя с собой вчерашним.',
+      'quote.motivation2': 'Единственный способ делать великую работу - любить то, что вы делаете.',
+      'quote.motivation3': 'Не бойтесь ошибаться. Бойтесь не пробовать.',
+      'quote.motivation4': 'Каждый эксперт когда-то был новичком. Продолжайте практиковаться.',
+      'quote.success1': 'Успех - это сумма маленьких усилий, повторяемых день за днём.',
+      'quote.success2': 'Прогресс может быть медленным, но он всегда заметен при постоянстве.',
+      'quote.fastfingers': 'FastFingers',
+      'quote.collier': 'Роберт Кольер',
+      'quote.jobs': 'Стив Джобс',
     }
   },
   en: {
@@ -428,6 +464,24 @@ const resources = {
       'tip.eyesDesc': 'Every 20 minutes look at an object 6 meters away for 20 seconds. The 20-20-20 rule.',
       'tip.progress': 'Track Progress',
       'tip.progressDesc': 'Celebrate every achievement! Even small progress is a step to mastery.',
+      'quote.practice1': 'Practice makes perfect. Every keystroke brings you closer to mastery.',
+      'quote.practice2': 'Consistency is more important than intensity. 10 minutes daily is better than an hour once a week.',
+      'quote.practice3': 'Your fingers know more than you think. Trust your muscle memory.',
+      'quote.practice4': 'Rhythm is more important than speed. Find your tempo and stick to it.',
+      'quote.learning1': 'Speed comes with accuracy. First learn to type correctly.',
+      'quote.learning2': 'Every mistake is an opportunity to learn something new.',
+      'quote.learning3': 'Mastery is not a destination, it is a journey.',
+      'quote.learning4': 'Speed without accuracy is just fast mistakes.',
+      'quote.learning5': 'Dont look at the keyboard. Trust your fingers.',
+      'quote.motivation1': 'Dont compare yourself to others. Compare yourself to who you were yesterday.',
+      'quote.motivation2': 'The only way to do great work is to love what you do.',
+      'quote.motivation3': 'Dont be afraid to make mistakes. Be afraid not to try.',
+      'quote.motivation4': 'Every expert was once a beginner. Keep practicing.',
+      'quote.success1': 'Success is the sum of small efforts, repeated day in and day out.',
+      'quote.success2': 'Progress may be slow, but it is always noticeable with consistency.',
+      'quote.fastfingers': 'FastFingers',
+      'quote.collier': 'Robert Collier',
+      'quote.jobs': 'Steve Jobs',
     }
   },
   zh: {
@@ -568,6 +622,24 @@ const resources = {
       'tip.eyesDesc': '每 20 分钟看 6 米外物体 20 秒。20-20-20 法则。',
       'tip.progress': '记录进步',
       'tip.progressDesc': '庆祝每个成就！即使小进步也是迈向精通的一步。',
+      'quote.practice1': '熟能生巧。每次按键都让你更接近精通。',
+      'quote.practice2': '坚持比强度更重要。每天 10 分钟胜过每周 2 小时。',
+      'quote.practice3': '你的手指知道的比你想象的多。相信肌肉记忆。',
+      'quote.practice4': '节奏比速度更重要。找到你的节奏并坚持。',
+      'quote.learning1': '速度伴随准确而来。先学会正确打字。',
+      'quote.learning2': '每个错误都是学习新东西的机会。',
+      'quote.learning3': '精通不是终点，而是旅程。',
+      'quote.learning4': '没有准确的速度只是快速犯错。',
+      'quote.learning5': '不要看键盘。相信你的手指。',
+      'quote.motivation1': '不要和别人比较。和昨天的自己比较。',
+      'quote.motivation2': '做伟大工作的唯一方法是热爱你所做的。',
+      'quote.motivation3': '不要害怕犯错。害怕不尝试。',
+      'quote.motivation4': '每个专家都曾是初学者。继续练习。',
+      'quote.success1': '成功是小努力的总和，日复一日重复。',
+      'quote.success2': '进步可能缓慢，但坚持总会 noticeable。',
+      'quote.fastfingers': 'FastFingers',
+      'quote.collier': '罗伯特·科利尔',
+      'quote.jobs': '史蒂夫·乔布斯',
     }
   },
   he: {
@@ -708,6 +780,24 @@ const resources = {
       'tip.eyesDesc': 'כל 20 דקות הסתכלו על עצם במרחק 6 מטר למשך 20 שניות. כלל 20-20-20.',
       'tip.progress': 'מעקב התקדמות',
       'tip.progressDesc': 'חגגו כל הישג! אפילו התקדמות קטנה היא צעד למastery.',
+      'quote.practice1': 'תרגול עושה מושלם. כל הקשה מקרבת אותך למastery.',
+      'quote.practice2': 'עקביות חשובה יותר מעוצמה. 10 דקות כל יום עדיף על שעתיים פעם בשבוע.',
+      'quote.practice3': 'האצבעות שלך יודעות יותר ממה שאתה חושב. תסמוך על הזיכרון השרירי.',
+      'quote.practice4': 'קצב חשוב יותר ממהירות. מצא את הטמפו שלך והיצמד אליו.',
+      'quote.learning1': 'מהירות באה עם דיוק. קודם כל ללמוד להקליד נכון.',
+      'quote.learning2': 'כל טעות היא הזדמנות ללמוד משהו חדש.',
+      'quote.learning3': 'מastery היא לא יעד, היא מסע.',
+      'quote.learning4': 'מהירות ללא דיוק היא פשוט טעויות מהירות.',
+      'quote.learning5': 'אל תסתכל על המקלדת. תסמוך על האצבעות שלך.',
+      'quote.motivation1': 'אל תשווה את עצמך לאחרים. תשווה את עצמך למי שהיית אתמול.',
+      'quote.motivation2': 'הדרך היחידה לעשות עבודה גדולה היא לאהוב את מה שאתה עושה.',
+      'quote.motivation3': 'אל תפחד לטעות. תפחד לא לנסות.',
+      'quote.motivation4': 'כל מומחה היה פעם מתחיל. המשך לתרגל.',
+      'quote.success1': 'הצלחה היא סכום של מאמצים קטנים, חוזרים יום אחרי יום.',
+      'quote.success2': 'התקדמות עשויה להיות איטית, אבל היא תמיד מורגשת עם עקביות.',
+      'quote.fastfingers': 'FastFingers',
+      'quote.collier': 'רוברט קולייר',
+      'quote.jobs': 'סטיב ג׳ובס',
     }
   }
 }
