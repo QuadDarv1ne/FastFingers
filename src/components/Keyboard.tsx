@@ -3,6 +3,7 @@ import { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
 import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
 import { getKeyboardSkin } from '../utils/keyboardSkins'
+import { useAppTranslation } from '../i18n/config'
 
 interface KeyboardProps {
   layout: KeyboardLayout
@@ -21,6 +22,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   onToggleHeatmap,
   skin = 'classic'
 }: KeyboardProps) {
+  const { t } = useAppTranslation()
   const layoutData = layouts[layout]
   const skinColors = getKeyboardSkin(skin)
 
@@ -61,28 +63,28 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             boxShadow: isHighlighted ? `0 0 20px ${skinColors.highlightGlow}` : undefined,
           },
           title: finger
-            ? `${fingerZones[finger]}${keyData ? `\nТочность: ${keyData.accuracy}%\nОшибок: ${keyData.errors}/${keyData.total}` : ''}`
+            ? `${fingerZones[finger]}${keyData ? `\n${t('common.accuracy')}: ${keyData.accuracy}%\n${t('common.errors')}: ${keyData.errors}/${keyData.total}` : ''}`
             : ''
         }
       })
     })
 
     return styles
-  }, [layoutData, highlightKey, heatmap, showHeatmap, skinColors])
+  }, [layoutData, highlightKey, heatmap, showHeatmap, skinColors, t])
 
   if (!layoutData) return null
 
   return (
-    <div className="card">
+    <div className="card" role="region" aria-label={t('misc.keyboard')}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-dark-200">Виртуальная клавиатура</h3>
+            <h3 className="text-sm font-semibold text-dark-200">{t('misc.keyboard')}</h3>
             <p className="text-xs text-dark-500">{layoutData.name}</p>
           </div>
         </div>
@@ -93,21 +95,24 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
               checked={showHeatmap}
               onChange={(e) => onToggleHeatmap?.(e.target.checked)}
               className="rounded bg-dark-800 border-dark-700 text-primary-600 focus:ring-primary-500"
+              aria-label="Переключить тепловую карту"
             />
             <span className={`text-sm font-medium ${showHeatmap ? 'text-white' : 'text-dark-400'}`}>
-              🔥 Тепловая карта
+              🔥 {t('misc.theme')}
             </span>
           </label>
         )}
       </div>
       
-      <div className="space-y-2 select-none">
+      <div className="space-y-2 select-none" role="group" aria-label="Раскладка клавиатуры">
         {/* Ряды клавиш */}
         {layoutData.rows.map((row, rowIndex) => (
           <div
             key={rowIndex}
             className="flex justify-center gap-1.5"
             style={{ paddingLeft: `${rowIndex * 12}px` }}
+            role="row"
+            aria-label={`Ряд ${rowIndex + 1}`}
           >
             {row.map((key) => {
               const keyStyle = keyStyles[key]
@@ -121,6 +126,9 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   className={className}
                   style={style}
                   title={title}
+                  role="button"
+                  aria-label={`Клавиша ${key.toUpperCase()}`}
+                  aria-pressed={highlightKey === key.toLowerCase()}
                 >
                   {key.toUpperCase()}
                   {showHeatmap && heatmapData?.total && heatmapData.total >= 3 && (
@@ -133,25 +141,28 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             })}
           </div>
         ))}
-        
+
         {/* Пробел */}
         <div className="flex justify-center mt-3">
           <div
             className="w-64 h-9 bg-dark-800 rounded-lg flex items-center justify-center text-xs text-dark-500"
+            role="button"
+            aria-label="Клавиша пробел"
           >
-            ПРОБЕЛ
+            {t('common.chars').charAt(0)}
           </div>
         </div>
       </div>
       
       {/* Легенда пальцев */}
-      <div className="mt-4 pt-4 border-t border-dark-700">
+      <div className="mt-4 pt-4 border-t border-dark-700" role="region" aria-label="Легенда пальцев">
         <div className="grid grid-cols-4 gap-2 text-xs">
           {Object.entries(fingerZones).slice(0, 4).map(([finger, label]) => (
             <div key={finger} className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded"
                 style={{ backgroundColor: skinColors.zoneColors[finger] }}
+                aria-hidden="true"
               />
               <span className="text-dark-500">{label}</span>
             </div>
