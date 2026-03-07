@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { ThemeColor } from '../utils/themes'
+import { useAppTranslation } from '../i18n/config'
 
 interface ThemeToggleProps {
   theme: ThemeColor
@@ -7,50 +8,50 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
+  const { t } = useAppTranslation()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Мемоизация массива тем для стабильности зависимостей
   const themes = useMemo(() => [
     {
       value: 'dark' as ThemeColor,
-      label: 'Тёмная',
+      label: t('misc.theme') + ' 1',
       icon: '🌙',
       gradient: 'from-gray-900 to-gray-700'
     },
     {
       value: 'light' as ThemeColor,
-      label: 'Светлая',
+      label: t('misc.theme') + ' 2',
       icon: '☀️',
       gradient: 'from-gray-100 to-white'
     },
     {
       value: 'purple' as ThemeColor,
-      label: 'Фиолетовая',
+      label: t('misc.theme') + ' 3',
       icon: '💜',
       gradient: 'from-purple-900 to-purple-600'
     },
     {
       value: 'blue' as ThemeColor,
-      label: 'Синяя',
+      label: t('misc.theme') + ' 4',
       icon: '💙',
       gradient: 'from-blue-900 to-blue-600'
     },
     {
       value: 'orange' as ThemeColor,
-      label: 'Оранжевая',
+      label: t('misc.theme') + ' 5',
       icon: '🧡',
       gradient: 'from-orange-900 to-orange-600'
     },
     {
       value: 'custom' as ThemeColor,
-      label: 'Настраиваемая',
+      label: t('misc.theme') + ' 6',
       icon: '🎨',
       gradient: 'from-pink-900 to-yellow-600'
     },
-  ], [])
+  ], [t])
 
   const currentTheme = useMemo(
     () => themes.find(t => t.value === theme) ?? themes[0],
@@ -112,8 +113,8 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
           setShowMenu(!showMenu)
         }}
         className="flex items-center gap-2 px-4 py-2 glass rounded-xl hover:bg-dark-800/50 transition-colors"
-        title="Выбрать тему"
-        aria-label="Выбрать тему"
+        title={t('misc.theme')}
+        aria-label={t('misc.theme')}
         aria-expanded={showMenu}
         aria-haspopup="menu"
         type="button"
@@ -125,6 +126,7 @@ export function ThemeToggle({ theme, onThemeChange }: ThemeToggleProps) {
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
