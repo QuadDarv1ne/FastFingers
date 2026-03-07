@@ -5,8 +5,6 @@ interface ConfettiOptions {
   duration?: number
 }
 
-type ConfettiParams = Parameters<typeof confetti>[0]
-
 const COLORS = {
   default: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ffffff'],
   achievement: ['#ffd700', '#ffec8b', '#ffffff', '#ffa500'],
@@ -53,41 +51,20 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
   const end = Date.now() + duration
   const colors = COLORS[type]
 
-  const baseParams: ConfettiParams = {
-    ...CONFETTI_CONFIG.base,
-    colors,
-  }
-
-  confetti(baseParams)
+  confetti({ ...CONFETTI_CONFIG.base, colors })
 
   const sideConfetti = () => {
-    confetti({
-      ...CONFETTI_CONFIG.side,
-      origin: { x: 0, y: CONFETTI_CONFIG.side.origin.y },
-      colors,
-    })
-    confetti({
-      ...CONFETTI_CONFIG.side,
-      origin: { x: 1, y: CONFETTI_CONFIG.side.origin.y },
-      colors,
-    })
+    confetti({ ...CONFETTI_CONFIG.side, origin: { x: 0, y: 0.6 }, colors })
+    confetti({ ...CONFETTI_CONFIG.side, origin: { x: 1, y: 0.6 }, colors })
   }
 
-  SIDE_SHOT_DELAYS.forEach(delay => setTimeout(() => sideConfetti(), delay))
+  for (let i = 0; i < SIDE_SHOT_DELAYS.length; i++) {
+    setTimeout(sideConfetti, SIDE_SHOT_DELAYS[i])
+  }
 
   const frame = () => {
-    confetti({
-      ...CONFETTI_CONFIG.continuous,
-      angle: 60,
-      origin: { x: 0 },
-      colors,
-    })
-    confetti({
-      ...CONFETTI_CONFIG.continuous,
-      angle: 120,
-      origin: { x: 1 },
-      colors,
-    })
+    confetti({ ...CONFETTI_CONFIG.continuous, angle: 60, origin: { x: 0 }, colors })
+    confetti({ ...CONFETTI_CONFIG.continuous, angle: 120, origin: { x: 1 }, colors })
 
     if (Date.now() < end) {
       requestAnimationFrame(frame)
@@ -99,12 +76,13 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
 export function triggerConfettiRain(duration = 5000) {
   const end = Date.now() + duration
   const colors = COLORS.default
+  const rainConfig = CONFETTI_CONFIG.rain
 
   const frame = () => {
     confetti({
-      ...CONFETTI_CONFIG.rain,
-      origin: { x: Math.random(), y: CONFETTI_CONFIG.rain.origin.y },
-      scalar: Math.random() * (CONFETTI_CONFIG.rain.scalarMax - CONFETTI_CONFIG.rain.scalarMin) + CONFETTI_CONFIG.rain.scalarMin,
+      ...rainConfig,
+      origin: { x: Math.random(), y: rainConfig.origin.y },
+      scalar: Math.random() * (rainConfig.scalarMax - rainConfig.scalarMin) + rainConfig.scalarMin,
       colors,
     })
 
@@ -116,9 +94,5 @@ export function triggerConfettiRain(duration = 5000) {
 }
 
 export function triggerConfettiAt(x: number, y: number) {
-  confetti({
-    ...CONFETTI_CONFIG.burst,
-    origin: { x, y },
-    colors: COLORS.default,
-  })
+  confetti({ ...CONFETTI_CONFIG.burst, origin: { x, y }, colors: COLORS.default })
 }
