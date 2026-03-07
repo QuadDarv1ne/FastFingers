@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { KeyboardSkin } from '../types'
 import { keyboardSkinPresets, getKeyboardSkin } from '../utils/keyboardSkins'
+import { useAppTranslation } from '../i18n/config'
 
 interface KeyboardSkinSelectorProps {
   skin: KeyboardSkin
@@ -8,6 +9,7 @@ interface KeyboardSkinSelectorProps {
 }
 
 export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelectorProps) {
+  const { t } = useAppTranslation()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -73,18 +75,19 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
           setShowMenu(!showMenu)
         }}
         className="flex items-center gap-2 px-4 py-2 glass rounded-xl hover:bg-dark-800/50 transition-colors"
-        title="Выбрать скин клавиатуры"
-        aria-label="Выбрать скин клавиатуры"
+        title={t('misc.keyboard')}
+        aria-label={t('misc.keyboard')}
         aria-expanded={showMenu}
         aria-haspopup="menu"
         type="button"
       >
-        <div 
+        <div
           className="w-6 h-6 rounded-lg flex items-center justify-center text-sm"
-          style={{ 
+          style={{
             background: currentSkinColors.spacebarGradient,
             border: `1px solid ${currentSkinColors.keyBorder}`
           }}
+          aria-hidden="true"
         >
           ⌨️
         </div>
@@ -94,6 +97,7 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -125,9 +129,9 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
             }}
           >
             <div className="px-3 py-2 border-b border-dark-700 mb-2">
-              <p className="text-xs font-semibold text-dark-300">🎨 Скины клавиатуры</p>
+              <p className="text-xs font-semibold text-dark-300">🎨 {t('misc.keyboard')}</p>
             </div>
-            
+
             {keyboardSkinPresets.map((preset, index) => {
               const presetColors = getKeyboardSkin(preset.value)
               return (
@@ -150,23 +154,24 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
                   type="button"
                 >
                   {/* Превью скина */}
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ 
+                    style={{
                       background: presetColors.spacebarGradient,
                       border: `1px solid ${presetColors.keyBorder}`
                     }}
+                    aria-hidden="true"
                   >
                     {preset.icon}
                   </div>
-                  
+
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium">{preset.label}</p>
                     <p className="text-xs text-dark-400">{preset.description}</p>
                   </div>
-                  
+
                   {skin === preset.value && (
-                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
