@@ -330,9 +330,10 @@ export function getRandomExercise(category?: string, difficulty?: number, layout
   }
 
   if (pool.length === 0) pool = exercises
-  if (pool.length === 0) return exercises[0]!
+  const firstExercise = pool[0] ?? exercises[0]
+  if (!firstExercise) throw new Error('No exercises available')
   const randomIndex = Math.floor(Math.random() * pool.length)
-  return pool[randomIndex]!
+  return pool[randomIndex] ?? firstExercise
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {
