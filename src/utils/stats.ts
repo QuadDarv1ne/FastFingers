@@ -6,8 +6,12 @@ import {
   FunnelStage,
   TimeOfDayPerformance,
 } from '../types'
+import { formatNumber, formatDuration } from './number'
 
 export type KeyHeatmap = KeyHeatmapData
+
+// Экспорт для обратной совместимости
+export { formatNumber, formatDuration as formatTime }
 
 // Константы для calculateSessionXp
 const XP_PER_10_SECONDS = 1
@@ -53,28 +57,10 @@ export function calculateStats(
   }
 }
 
-export function formatNumber(num: number): string {
-  return num.toLocaleString('ru-RU');
-}
-
-export function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-
-  return hours > 0
-    ? `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
 /**
  * Форматирование WPM для отображения
- * @param wpm - Слов в минуту
- * @returns Строковое представление WPM
  */
-export function formatWPM(wpm: number): string {
-  return wpm.toString();
-}
+export const formatWPM = (wpm: number): string => wpm.toString()
 
 /**
  * Расчёт уровня пользователя на основе XP

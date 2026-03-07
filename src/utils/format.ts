@@ -1,3 +1,5 @@
+import { formatDuration } from './number'
+
 const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: 'numeric',
   month: 'long',
@@ -12,11 +14,7 @@ const DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
   minute: '2-digit',
 }
 
-export function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-}
+export { formatDuration }
 
 export function formatDurationLong(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
