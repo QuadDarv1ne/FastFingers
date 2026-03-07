@@ -1,34 +1,63 @@
 # FastFingers — План улучшений
 
+## ✅ Выполнено (Completed)
+
+### Обработка ошибок и устойчивость
+- [x] Error Boundary для lazy-компонентов (LazyBoundary.tsx)
+- [x] Retry-логика для Supabase (fetchWithRetry в supabase.ts)
+- [x] Offline-режим (useOfflineSync hook)
+
+### Производительность
+- [x] Мемоизация тяжелых вычислений (stats.ts — calculateRhythmScore, calculateFingerBalance, calculateErrorRecoveryTime, analyzeTimeOfDayPerformance, analyzeFunnel)
+- [x] Code splitting (vite.config.ts — auth-vendor, utils-vendor)
+
+### Доступность (a11y)
+- [x] ARIA-атрибуты для 15+ компонентов (TypingTrainer, Keyboard, Stats, Header, SprintMode, NotificationBell, ThemeToggle, KeyboardSkinSelector, ClockWidget, OnlineStatus, MotivationalQuote, LoadingFallback, Skeleton, TrainingHistory)
+- [x] Keyboard navigation для меню (ThemeToggle, KeyboardSkinSelector)
+- [x] Screen reader announcements (aria-live, aria-atomic)
+
+### Функциональность
+- [x] Экспорт статистики в CSV (useExport hook, export.ts, TrainingHistory интеграция)
+
+### UI/UX
+- [x] Skeleton loaders (Skeleton.tsx, SkeletonList.tsx, LoadingFallback.tsx)
+- [x] Анимация shimmer для skeleton
+
+### i18n
+- [x] 4 языка: RU, EN, ZH, HE
+- [x] 200+ переводных ключей
+- [x] RTL поддержка для иврита
+- [x] LanguageSwitcher компонент
+
+### Тестирование
+- [x] Тесты для Skeleton (4 теста)
+- [x] Тесты для export utils (7 тестов)
+- [x] 321 тест всего
+
+---
+
 ## 🔴 Критические (High Priority)
 
 ### 1. Обработка ошибок и устойчивость
-- [ ] Добавить Error Boundary для всех ленивых компонентов
-- [ ] Retry-логика для failed запросов к Supabase
 - [ ] Fallback UI при недоступности бэкенда
-- [ ] Offline-режим с синхронизацией при подключении
 - [ ] Обработка edge cases в useTypingGame (пустой текст, null значения)
 
 ### 2. Производительность
-- [ ] Code splitting для тяжелых компонентов (StatisticsPage, AdvancedAnalytics)
 - [ ] Virtual scrolling для длинных списков (TrainingHistory, Leaderboard)
-- [ ] Мемоизация тяжелых вычислений (calculateRhythmScore, calculateFingerBalance)
 - [ ] Lazy loading для графиков Recharts
 - [ ] Оптимизация re-renders в TypingTrainer (React.memo, useMemo)
+- [ ] Bundle size оптимизация (~300KB gzipped → <250KB)
 
 ### 3. Доступность (a11y)
-- [ ] ARIA-атрибуты для всех интерактивных элементов
-- [ ] Keyboard navigation для всех модальных окон
-- [ ] Screen reader announcements для ошибок и успехов
 - [ ] Focus management в модальных окнах
 - [ ] Контрастность цветов для WCAG AA
+- [ ] ARIA для оставшихся компонентов (CertificateGenerator, AdvancedAnalytics)
 
 ---
 
 ## 🟡 Важные (Medium Priority)
 
 ### 4. Функциональность
-- [ ] Экспорт статистики в CSV/Excel
 - [ ] Сравнение результатов с другими пользователями
 - [ ] Персонализированные рекомендации упражнений
 - [ ] Адаптивная сложность (auto-adjust на основе точности)
@@ -38,14 +67,13 @@
 
 ### 5. UI/UX
 - [ ] Анимации переходов между режимами
-- [ ] Skeleton loaders вместо спиннеров
 - [ ] Toast-уведомления для всех действий
 - [ ] Тултипы с горячими клавишами
 - [ ] Адаптивная верстка для мобильных (mobile-first)
 - [ ] Тёмная/светлая тема с авто-переключением
 
 ### 6. Тестирование
-- [ ] E2E тесты для критических путей (Playwright)
+- [ ] E2E тесты для критических путей (Playwright уже настроен)
 - [ ] Integration тесты для hooks
 - [ ] Coverage > 80% для utils и hooks
 - [ ] Performance тесты (Lighthouse CI)
@@ -56,8 +84,7 @@
 ## 🟢 Желательные (Low Priority)
 
 ### 7. Расширения
-- [ ] Мультиязычность (i18n для всех UI текстов)
-- [ ] Пользовательские темы клавиатуры
+- [ ] Пользовательские темы клавиатуры (расширение KeyboardSkinSelector)
 - [ ] Кастомные звуковые пакеты (загрузка своих звуков)
 - [ ] Интеграция с Discord/GitHub для авторизации
 - [ ] WebSocket для live-лидербордов
@@ -83,12 +110,13 @@
 
 | Метрика | Текущее | Цель |
 |---------|---------|------|
-| Test Coverage | ~70% | 85% |
+| Test Coverage | ~75% | 85% |
 | Lighthouse Performance | 90 | 95+ |
-| Lighthouse Accessibility | 85 | 100 |
+| Lighthouse Accessibility | 90+ | 100 |
 | Bundle Size (gzipped) | ~300KB | <250KB |
 | First Contentful Paint | <1.5s | <1s |
 | Time to Interactive | <3s | <2s |
+| i18n Languages | 4 | 6+ |
 
 ---
 
@@ -96,9 +124,16 @@
 
 ### Технические долги
 1. **useTypingSound** — проверить утечки памяти при частых play/stop
-2. **HardcoreMode** — большая компонента, нужно разбить
-3. **App.tsx** — 700+ строк, вынести логику режимов в хуки
+2. **HardcoreMode** — большая компонента (496 строк), нужно разбить
+3. **App.tsx** — 742 строки, вынести логику режимов в хуки
 4. **exercises.ts** — вынести тексты в отдельный JSON/DB
+5. **exercises.ts** — остались 2 non-null assertion warning (строки 333, 335)
+
+### Новые наблюдения (2026-03-07)
+1. **Skeleton loaders** — работают хорошо, можно добавить больше вариантов (table, chart)
+2. **CSV экспорт** — готов к использованию, можно расширить до Excel (xlsx)
+3. **i18n** — структура хорошая, легко добавлять новые языки
+4. **ARIA** — большинство компонентов теперь доступны, остались сложные (CertificateGenerator)
 
 ### Идеи для экспериментов
 - [ ] Web Speech API для голосовых подсказок
@@ -118,12 +153,22 @@
 
 ## 🎯 Следующий спринт (1-2 недели)
 
-1. Исправить все 🔴 критические проблемы
-2. Добавить virtual scrolling для TrainingHistory
-3. Покрыть тестами useTypingGame hooks (>90%)
-4. Оптимизировать bundle size (tree-shaking)
-5. Добавить skeleton loaders
+### Приоритет 1 — Производительность
+1. Virtual scrolling для TrainingHistory
+2. Bundle size оптимизация (tree-shaking, code splitting)
+3. Lazy loading для Recharts
+
+### Приоритет 2 — Доступность
+1. Focus management в модальных окнах
+2. ARIA для CertificateGenerator
+3. Contrast check для всех цветов
+
+### Приоритет 3 — Тестирование
+1. E2E тесты (Playwright) для основных путей
+2. Coverage >80% для hooks
+3. Accessibility тесты (axe-core)
 
 ---
 
-*Последнее обновление: 2026-03-06*
+*Последнее обновление: 2026-03-07*
+*Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export)*
