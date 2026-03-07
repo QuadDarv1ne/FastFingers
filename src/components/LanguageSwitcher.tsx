@@ -9,6 +9,8 @@ interface LanguageSwitcherProps {
 const LANGUAGES: { code: SupportedLanguage; label: string; flag: string }[] = [
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'he', label: 'עברית', flag: '🇮🇱' },
 ]
 
 export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
