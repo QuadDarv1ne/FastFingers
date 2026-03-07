@@ -118,6 +118,30 @@ export type TranslationKey =
   | 'misc.about'
   | 'misc.footer'
   | 'misc.copyright'
+  | 'tip.posture'
+  | 'tip.postureDesc'
+  | 'tip.hands'
+  | 'tip.handsDesc'
+  | 'tip.home'
+  | 'tip.homeDesc'
+  | 'tip.zones'
+  | 'tip.zonesDesc'
+  | 'tip.look'
+  | 'tip.lookDesc'
+  | 'tip.accuracy'
+  | 'tip.accuracyDesc'
+  | 'tip.regular'
+  | 'tip.regularDesc'
+  | 'tip.games'
+  | 'tip.gamesDesc'
+  | 'tip.breaks'
+  | 'tip.breaksDesc'
+  | 'tip.exercise'
+  | 'tip.exerciseDesc'
+  | 'tip.eyes'
+  | 'tip.eyesDesc'
+  | 'tip.progress'
+  | 'tip.progressDesc'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he'
 
@@ -240,6 +264,30 @@ const resources = {
       'misc.about': 'О приложении',
       'misc.footer': 'FastFingers — Тренажёр слепой печати',
       'misc.copyright': '© 2026 FastFingers',
+      'tip.posture': 'Правильная осанка',
+      'tip.postureDesc': 'Сидите прямо, спина прижата к спинке стула. Расстояние от глаз до монитора — 50-70 см.',
+      'tip.hands': 'Положение рук',
+      'tip.handsDesc': 'Локти под углом 90°, запястья не провисают. Используйте подставку для запястий при необходимости.',
+      'tip.home': 'Домашняя позиция',
+      'tip.homeDesc': 'Левая рука: мизинец на А, безымянный на В, средний на Ы, указательный на Ф. Правая: указательный на О, средний на Р, безымянный на Л, мизинец на Д.',
+      'tip.zones': 'Зоны пальцев',
+      'tip.zonesDesc': 'Каждый палец отвечает за определённые клавиши. Указательные пальцы — самые активные, обслуживают по 4 клавиши.',
+      'tip.look': 'Не смотрите на клавиатуру',
+      'tip.lookDesc': 'Главное правило слепой печати! Если нужно — накройте руки лёгкой тканью.',
+      'tip.accuracy': 'Сначала точность',
+      'tip.accuracyDesc': 'Не гонитесь за скоростью. Сосредоточьтесь на правильной технике и отсутствии ошибок. Скорость придёт сама.',
+      'tip.regular': 'Регулярные занятия',
+      'tip.regularDesc': 'Лучше 15 минут каждый день, чем 2 часа раз в неделю. Поддерживайте серию дней!',
+      'tip.games': 'Играйте в игры',
+      'tip.gamesDesc': 'Используйте режим спринта и челленджи для разнообразия тренировки.',
+      'tip.breaks': 'Делайте перерывы',
+      'tip.breaksDesc': 'Каждые 25-30 минут делайте 5-минутный перерыв. Встаньте, потянитесь, разомните кисти.',
+      'tip.exercise': 'Упражнения для кистей',
+      'tip.exerciseDesc': 'Вращайте кистями, сжимайте-разжимайте кулаки. Это предотвратит туннельный синдром.',
+      'tip.eyes': 'Гимнастика для глаз',
+      'tip.eyesDesc': 'Каждые 20 минут смотрите на объект в 6 метрах в течение 20 секунд. Это правило 20-20-20.',
+      'tip.progress': 'Отмечайте прогресс',
+      'tip.progressDesc': 'Радуйтесь каждому достижению! Даже небольшой прогресс — это шаг к мастерству.',
     }
   },
   en: {
@@ -356,6 +404,30 @@ const resources = {
       'misc.about': 'About',
       'misc.footer': 'FastFingers — Touch Typing Trainer',
       'misc.copyright': '© 2026 FastFingers',
+      'tip.posture': 'Posture',
+      'tip.postureDesc': 'Sit up straight, back against the chair. Keep 50-70cm distance from eyes to monitor.',
+      'tip.hands': 'Hand Position',
+      'tip.handsDesc': 'Elbows at 90°, wrists not sagging. Use wrist rests if needed.',
+      'tip.home': 'Home Position',
+      'tip.homeDesc': 'Left hand: pinky on A, ring on S, middle on D, index on F. Right: index on J, middle on K, ring on L, pinky on ;',
+      'tip.zones': 'Finger Zones',
+      'tip.zonesDesc': 'Each finger is responsible for certain keys. Index fingers are most active, serving 4 keys each.',
+      'tip.look': 'Dont Look',
+      'tip.lookDesc': 'Golden rule of touch typing! If needed, cover your hands with a light cloth.',
+      'tip.accuracy': 'Accuracy First',
+      'tip.accuracyDesc': 'Dont rush for speed. Focus on proper technique and no errors. Speed will come naturally.',
+      'tip.regular': 'Regular Practice',
+      'tip.regularDesc': 'Better 15 minutes daily than 2 hours once a week. Maintain your streak!',
+      'tip.games': 'Play Games',
+      'tip.gamesDesc': 'Use sprint mode and challenges for training variety.',
+      'tip.breaks': 'Take Breaks',
+      'tip.breaksDesc': 'Every 25-30 minutes take a 5-minute break. Stand up, stretch, warm up your wrists.',
+      'tip.exercise': 'Hand Exercises',
+      'tip.exerciseDesc': 'Rotate wrists, clench-unclench fists. This prevents carpal tunnel syndrome.',
+      'tip.eyes': 'Eye Gym',
+      'tip.eyesDesc': 'Every 20 minutes look at an object 6 meters away for 20 seconds. The 20-20-20 rule.',
+      'tip.progress': 'Track Progress',
+      'tip.progressDesc': 'Celebrate every achievement! Even small progress is a step to mastery.',
     }
   },
   zh: {
@@ -472,6 +544,30 @@ const resources = {
       'misc.about': '关于',
       'misc.footer': 'FastFingers — 打字训练器',
       'misc.copyright': '© 2026 FastFingers',
+      'tip.posture': '姿势',
+      'tip.postureDesc': '坐直，背部靠在椅背上。眼睛与显示器距离 50-70 厘米。',
+      'tip.hands': '手部位置',
+      'tip.handsDesc': '肘部呈 90°，手腕不下垂。必要时使用腕托。',
+      'tip.home': '基准键位',
+      'tip.homeDesc': '左手：小指 A，无名指 S，中指 D，食指 F。右手：食指 J，中指 K，无名指 L，小指；',
+      'tip.zones': '手指区域',
+      'tip.zonesDesc': '每个手指负责特定按键。食指最活跃，各负责 4 个键。',
+      'tip.look': '不看键盘',
+      'tip.lookDesc': '盲打黄金法则！必要时用轻布盖住双手。',
+      'tip.accuracy': '准确优先',
+      'tip.accuracyDesc': '不要追求速度。专注于正确技术和无错误。速度会自然提升。',
+      'tip.regular': '规律练习',
+      'tip.regularDesc': '每天 15 分钟胜过每周 2 小时。保持连续练习！',
+      'tip.games': '游戏模式',
+      'tip.gamesDesc': '使用冲刺模式和挑战增加训练多样性。',
+      'tip.breaks': '休息',
+      'tip.breaksDesc': '每 25-30 分钟休息 5 分钟。站起来，伸展，活动手腕。',
+      'tip.exercise': '手部运动',
+      'tip.exerciseDesc': '转动手腕，握拳松拳。预防腕管综合征。',
+      'tip.eyes': '眼保健操',
+      'tip.eyesDesc': '每 20 分钟看 6 米外物体 20 秒。20-20-20 法则。',
+      'tip.progress': '记录进步',
+      'tip.progressDesc': '庆祝每个成就！即使小进步也是迈向精通的一步。',
     }
   },
   he: {
@@ -588,6 +684,30 @@ const resources = {
       'misc.about': 'אודות',
       'misc.footer': 'FastFingers — מאמן הקלדה עיוורת',
       'misc.copyright': '© 2026 FastFingers',
+      'tip.posture': 'יציבה',
+      'tip.postureDesc': 'שבו זקוף, גב צמוד למשענת הכיסא. שמרו על מרחק 50-70 ס״מ מהעיניים למסך.',
+      'tip.hands': 'מיקום ידיים',
+      'tip.handsDesc': 'מרפקים בזווית 90°, מפרקים לא שמוטים. השתמשו במשענות מפרק אם צריך.',
+      'tip.home': 'עמדת בית',
+      'tip.homeDesc': 'יד שמאל: זרת על A, קמיצה על S, אמה על D, אצבע על F. ימין: אצבע על J, אמה על K, קמיצה על L, זרת על ;',
+      'tip.zones': 'אזורי אצבעות',
+      'tip.zonesDesc': 'כל אצבע אחראית על מקשים מסוימים. אצבעות המורה הכי פעילות, כל אחת משרתת 4 מקשים.',
+      'tip.look': 'אל תסתכלו',
+      'tip.lookDesc': 'כלל הזהב של הקלדה עיוורת! אם צריך, כסו את הידיים בבד קל.',
+      'tip.accuracy': 'דיוק קודם',
+      'tip.accuracyDesc': 'אל תרדפו אחרי מהירות. התמקדו בטכניקה נכונה וללא שגיאות. המהירות תבוא לבד.',
+      'tip.regular': 'תרגול קבוע',
+      'tip.regularDesc': 'עדיף 15 דקות כל יום מאשר שעתיים פעם בשבוע. שמרו על רצף!',
+      'tip.games': 'משחקים',
+      'tip.gamesDesc': 'השתמשו במצב ספרינט ואתגרים לגיוון האימון.',
+      'tip.breaks': 'הפסקות',
+      'tip.breaksDesc': 'כל 25-30 דקות קחו הפסקה של 5 דקות. קומו, הימתחו, חממו מפרקים.',
+      'tip.exercise': 'תרגילי ידיים',
+      'tip.exerciseDesc': 'סובבו מפרקים, כווצו-שחררו אגרופים. זה מונע תסמונת המנהרה.',
+      'tip.eyes': 'התעמלות עיניים',
+      'tip.eyesDesc': 'כל 20 דקות הסתכלו על עצם במרחק 6 מטר למשך 20 שניות. כלל 20-20-20.',
+      'tip.progress': 'מעקב התקדמות',
+      'tip.progressDesc': 'חגגו כל הישג! אפילו התקדמות קטנה היא צעד למastery.',
     }
   }
 }

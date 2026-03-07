@@ -1,84 +1,85 @@
 import { useState } from 'react'
+import { useAppTranslation } from '../i18n/config'
 
 interface Tip {
   icon: string
-  title: string
-  description: string
+  titleKey: string
+  descriptionKey: string
   category: 'posture' | 'technique' | 'practice' | 'health'
 }
 
 const tips: Tip[] = [
   {
     icon: '🪑',
-    title: 'Правильная осанка',
-    description: 'Сидите прямо, спина прижата к спинке стула. Расстояние от глаз до монитора — 50-70 см.',
+    titleKey: 'tip.posture',
+    descriptionKey: 'tip.postureDesc',
     category: 'posture',
   },
   {
     icon: '👐',
-    title: 'Положение рук',
-    description: 'Локти под углом 90°, запястья не провисают. Используйте подставку для запястий при необходимости.',
+    titleKey: 'tip.hands',
+    descriptionKey: 'tip.handsDesc',
     category: 'posture',
   },
   {
     icon: '🎯',
-    title: 'Домашняя позиция',
-    description: 'Левая рука: мизинец на А, безымянный на В, средний на Ы, указательный на Ф. Правая: указательный на О, средний на Р, безымянный на Л, мизинец на Д.',
+    titleKey: 'tip.home',
+    descriptionKey: 'tip.homeDesc',
     category: 'technique',
   },
   {
     icon: '👆',
-    title: 'Зоны пальцев',
-    description: 'Каждый палец отвечает за определённые клавиши. Указательные пальцы — самые активные, обслуживают по 4 клавиши.',
+    titleKey: 'tip.zones',
+    descriptionKey: 'tip.zonesDesc',
     category: 'technique',
   },
   {
     icon: '👀',
-    title: 'Не смотрите на клавиатуру',
-    description: 'Главное правило слепой печати! Если нужно — накройте руки лёгкой тканью.',
+    titleKey: 'tip.look',
+    descriptionKey: 'tip.lookDesc',
     category: 'technique',
   },
   {
     icon: '🐢',
-    title: 'Сначала точность, потом скорость',
-    description: 'Не гонитесь за скоростью. Сосредоточьтесь на правильной технике и отсутствии ошибок. Скорость придёт сама.',
+    titleKey: 'tip.accuracy',
+    descriptionKey: 'tip.accuracyDesc',
     category: 'practice',
   },
   {
     icon: '⏰',
-    title: 'Регулярные занятия',
-    description: 'Лучше 15 минут каждый день, чем 2 часа раз в неделю. Поддерживайте серию дней!',
+    titleKey: 'tip.regular',
+    descriptionKey: 'tip.regularDesc',
     category: 'practice',
   },
   {
     icon: '🎮',
-    title: 'Играйте в игры',
-    description: 'Используйте режим спринта и челленджи для разнообразия тренировки.',
+    titleKey: 'tip.games',
+    descriptionKey: 'tip.gamesDesc',
     category: 'practice',
   },
   {
     icon: '🧘',
-    title: 'Делайте перерывы',
-    description: 'Каждые 25-30 минут делайте 5-минутный перерыв. Встаньте, потянитесь, разомните кисти.',
+    titleKey: 'tip.breaks',
+    descriptionKey: 'tip.breaksDesc',
     category: 'health',
   },
   {
     icon: '💪',
-    title: 'Упражнения для кистей',
-    description: 'Вращайте кистями, сжимайте-разжимайте кулаки. Это предотвратит туннельный синдром.',
+    titleKey: 'tip.exercise',
+    descriptionKey: 'tip.exerciseDesc',
     category: 'health',
   },
   {
     icon: '👁️',
-    title: 'Гимнастика для глаз',
-    description: 'Каждые 20 минут смотрите на объект в 6 метрах в течение 20 секунд. Это правило 20-20-20.',
+    titleKey: 'tip.eyes',
+    descriptionKey: 'tip.eyesDesc',
     category: 'health',
   },
   {
     icon: '🎉',
-    title: 'Отмечайте прогресс',
-    description: 'Радуйтесь каждому достижению! Даже небольшой прогресс — это шаг к мастерству.',
-    category: 'practice',
+    titleKey: 'tip.progress',
+    descriptionKey: 'tip.progressDesc',
+    category: 'health',
   },
 ]
 
@@ -91,23 +92,24 @@ const categories = [
 ]
 
 export function TypingTips() {
+  const { t } = useAppTranslation()
   const [selectedCategory, setSelectedCategory] = useState('all')
 
-  const filteredTips = selectedCategory === 'all' 
-    ? tips 
+  const filteredTips = selectedCategory === 'all'
+    ? tips
     : tips.filter(tip => tip.category === selectedCategory)
 
   return (
-    <div className="glass rounded-xl p-6">
+    <div className="glass rounded-xl p-6" role="region" aria-label={t('nav.tips')}>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold">💡 Советы по печати</h2>
+          <h2 className="text-xl font-bold">💡 {t('nav.tips')}</h2>
           <p className="text-sm text-dark-400">Правила и рекомендации для быстрого обучения</p>
         </div>
       </div>
 
       {/* Категории */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Категории советов">
         {categories.map(cat => (
           <button
             key={cat.id}
@@ -117,25 +119,27 @@ export function TypingTips() {
                 ? 'bg-primary-600 text-white'
                 : 'bg-dark-800 text-dark-400 hover:text-white'
             }`}
+            aria-pressed={selectedCategory === cat.id}
           >
-            <span>{cat.icon}</span>
+            <span aria-hidden="true">{cat.icon}</span>
             <span className="hidden sm:inline">{cat.label}</span>
           </button>
         ))}
       </div>
 
       {/* Советы */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" role="list">
         {filteredTips.map((tip, index) => (
           <div
             key={index}
             className="bg-dark-800/50 rounded-lg p-4 hover:bg-dark-800 transition-colors"
+            role="listitem"
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl">{tip.icon}</span>
+              <span className="text-2xl" aria-hidden="true">{tip.icon}</span>
               <div>
-                <h3 className="font-medium mb-1">{tip.title}</h3>
-                <p className="text-sm text-dark-400 leading-relaxed">{tip.description}</p>
+                <h3 className="font-medium mb-1">{t(tip.titleKey)}</h3>
+                <p className="text-sm text-dark-400 leading-relaxed">{t(tip.descriptionKey)}</p>
               </div>
             </div>
           </div>
@@ -145,8 +149,7 @@ export function TypingTips() {
       {/* Подсказка */}
       <div className="mt-6 p-4 bg-primary-600/10 border border-primary-600/20 rounded-lg">
         <p className="text-sm text-primary-300">
-          <strong>💡 Помните:</strong> Регулярность важнее длительности тренировок. 
-          15 минут ежедневной практики дадут лучший результат, чем часы раз в неделю!
+          <strong>💡 {t('misc.about')}:</strong> {t('tip.regular')} {t('tip.regularDesc')}
         </p>
       </div>
     </div>
