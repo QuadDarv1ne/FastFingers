@@ -105,16 +105,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
+          'react-vendor': ['react', 'react-dom', 'react-is'],
           'charts-vendor': ['recharts'],
-          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable', 'html2canvas'],
           'i18n-vendor': ['i18next', 'react-i18next'],
           'animations-vendor': ['framer-motion'],
           'confetti-vendor': ['canvas-confetti'],
           'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+          'auth-vendor': ['@supabase/supabase-js'],
         },
       },
     },
     chunkSizeWarningLimit: 600,
+    minify: 'esbuild',
+    cssMinify: true,
   },
 })
