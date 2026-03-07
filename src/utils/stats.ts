@@ -213,21 +213,11 @@ export function calculateRhythmScore(keystrokes: KeystrokeData[]): number {
 
   if (intervals.length === 0) return 100
 
-  let sum = 0
-  for (let i = 0; i < intervals.length; i++) {
-    const interval = intervals[i]
-    if (interval !== undefined) sum += interval
-  }
+  const sum = intervals.reduce((acc, v) => acc + v, 0)
   const avgInterval = sum / intervals.length
   if (avgInterval === 0) return 100
 
-  let varianceSum = 0
-  for (let i = 0; i < intervals.length; i++) {
-    const interval = intervals[i]
-    if (interval !== undefined) {
-      varianceSum += Math.pow(interval - avgInterval, 2)
-    }
-  }
+  const varianceSum = intervals.reduce((acc, v) => acc + Math.pow(v - avgInterval, 2), 0)
   const variance = varianceSum / intervals.length
 
   const stdDev = Math.sqrt(variance)
@@ -240,16 +230,10 @@ export function calculateRhythmScore(keystrokes: KeystrokeData[]): number {
 export function calculateFingerBalance(keystrokes: KeystrokeData[]): { left: number; right: number } {
   if (keystrokes.length === 0) return { left: 50, right: 50 }
 
-  let leftCount = 0
-  let rightCount = 0
-
-  for (let i = 0; i < keystrokes.length; i++) {
-    const keystroke = keystrokes[i]
-    if (keystroke && keystroke.hand === 'left') leftCount++
-    else rightCount++
-  }
-
+  const leftCount = keystrokes.filter(k => k?.hand === 'left').length
+  const rightCount = keystrokes.length - leftCount
   const total = leftCount + rightCount
+
   return {
     left: Math.round((leftCount / total) * 100),
     right: Math.round((rightCount / total) * 100),
@@ -262,23 +246,21 @@ export function calculateFingerBalance(keystrokes: KeystrokeData[]): { left: num
  * @returns Среднее время исправления ошибки в мс
  */
 export function calculateErrorRecoveryTime(keystrokes: KeystrokeData[]): number {
-  const errorIndices: number[] = []
-  for (let i = 0; i < keystrokes.length; i++) {
-    const keystroke = keystrokes[i]
-    if (keystroke && !keystroke.isCorrect) errorIndices.push(i)
-  }
+  const errorIndices = keystrokes
+    .map((k, i) => (k && !k.isCorrect ? i : -1))
+    .filter(i => i !== -1)
 
   if (errorIndices.length === 0) return 0
 
   const recoveryTimes: number[] = []
 
-  for (let i = 0; i < errorIndices.length; i++) {
-    const errorIndex = errorIndices[i]
-    if (errorIndex === undefined) continue
+  for (const errorIndex of errorIndices) {
+    const error = keystrokes[errorIndex]
+    if (!error) continue
+
     for (let j = errorIndex + 1; j < keystrokes.length; j++) {
       const curr = keystrokes[j]
-      const error = keystrokes[errorIndex]
-      if (curr && curr.isCorrect && error) {
+      if (curr && curr.isCorrect) {
         recoveryTimes.push(curr.timestamp - error.timestamp)
         break
       }
@@ -287,13 +269,8 @@ export function calculateErrorRecoveryTime(keystrokes: KeystrokeData[]): number 
 
   if (recoveryTimes.length === 0) return 0
 
-  let sum = 0
-  for (let i = 0; i < recoveryTimes.length; i++) {
-    const time = recoveryTimes[i]
-    if (time !== undefined) sum += time
-  }
-  const avgRecoveryTime = sum / recoveryTimes.length
-  return Math.round(avgRecoveryTime)
+  const sum = recoveryTimes.reduce((acc, v) => acc + v, 0)
+  return Math.round(sum / recoveryTimes.length)
 }
 
 export function calculateSessionEfficiency(stats: TypingStats): number {
@@ -324,57 +301,37 @@ export function calculateLearningVelocity(weeklyData: WeeklyProgress[]): number 
 export function analyzeTimeOfDayPerformance(
   sessions: (TypingStats & { timestamp: string })[]
 ): TimeOfDayPerformance[] {
-  const morningData: { wpm: number; accuracy: number }[] = []
-  const afternoonData: { wpm: number; accuracy: number }[] = []
-  const eveningData: { wpm: number; accuracy: number }[] = []
-  const nightData: { wpm: number; accuracy: number }[] = []
+  const morning: { wpm: number; accuracy: number }[] = []
+  const afternoon: { wpm: number; accuracy: number }[] = []
+  const evening: { wpm: number; accuracy: number }[] = []
+  const night: { wpm: number; accuracy: number }[] = []
 
-  for (let i = 0; i < sessions.length; i++) {
-    const session = sessions[i]
+  for (const session of sessions) {
     if (!session) continue
 
     const hour = new Date(session.timestamp).getHours()
-    let timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night'
 
-    if (hour >= 5 && hour < 12) timeOfDay = 'morning'
-    else if (hour >= 12 && hour < 17) timeOfDay = 'afternoon'
-    else if (hour >= 17 && hour < 22) timeOfDay = 'evening'
-    else timeOfDay = 'night'
-
-    const data = { wpm: session.wpm, accuracy: session.accuracy }
-    if (timeOfDay === 'morning') morningData.push(data)
-    else if (timeOfDay === 'afternoon') afternoonData.push(data)
-    else if (timeOfDay === 'evening') eveningData.push(data)
-    else nightData.push(data)
+    if (hour >= 5 && hour < 12) morning.push({ wpm: session.wpm, accuracy: session.accuracy })
+    else if (hour >= 12 && hour < 17) afternoon.push({ wpm: session.wpm, accuracy: session.accuracy })
+    else if (hour >= 17 && hour < 22) evening.push({ wpm: session.wpm, accuracy: session.accuracy })
+    else night.push({ wpm: session.wpm, accuracy: session.accuracy })
   }
 
-  const calcAvg = (data: { wpm: number; accuracy: number }[]) => {
+  const calcAvg = (data: { wpm: number; accuracy: number }[]): { avgWpm: number; avgAccuracy: number } => {
     if (data.length === 0) return { avgWpm: 0, avgAccuracy: 0 }
-    let wpmSum = 0
-    let accSum = 0
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i]
-      if (item) {
-        wpmSum += item.wpm
-        accSum += item.accuracy
-      }
-    }
+    const wpmSum = data.reduce((acc, v) => acc + v.wpm, 0)
+    const accSum = data.reduce((acc, v) => acc + v.accuracy, 0)
     return {
       avgWpm: Math.round(wpmSum / data.length),
       avgAccuracy: Math.round(accSum / data.length),
     }
   }
 
-  const morning = calcAvg(morningData)
-  const afternoon = calcAvg(afternoonData)
-  const evening = calcAvg(eveningData)
-  const night = calcAvg(nightData)
-
   return [
-    { timeOfDay: 'morning', avgWpm: morning.avgWpm, avgAccuracy: morning.avgAccuracy, sessions: morningData.length },
-    { timeOfDay: 'afternoon', avgWpm: afternoon.avgWpm, avgAccuracy: afternoon.avgAccuracy, sessions: afternoonData.length },
-    { timeOfDay: 'evening', avgWpm: evening.avgWpm, avgAccuracy: evening.avgAccuracy, sessions: eveningData.length },
-    { timeOfDay: 'night', avgWpm: night.avgWpm, avgAccuracy: night.avgAccuracy, sessions: nightData.length },
+    { timeOfDay: 'morning', ...calcAvg(morning), sessions: morning.length },
+    { timeOfDay: 'afternoon', ...calcAvg(afternoon), sessions: afternoon.length },
+    { timeOfDay: 'evening', ...calcAvg(evening), sessions: evening.length },
+    { timeOfDay: 'night', ...calcAvg(night), sessions: night.length },
   ]
 }
 
@@ -397,26 +354,25 @@ export function analyzeFunnel(
   const total = sessions.length
   if (total === 0) return []
 
-  let completed50 = 0
-  let completed80 = 0
-  let completed100 = 0
-  let highAccuracy = 0
-
-  for (let i = 0; i < sessions.length; i++) {
-    const s = sessions[i]
-    if (!s) continue
-    if (s.timeElapsed >= thresholds.completed50) completed50++
-    if (s.timeElapsed >= thresholds.completed80) completed80++
-    if (s.timeElapsed >= thresholds.completed100) completed100++
-    if (s.accuracy >= thresholds.highAccuracy) highAccuracy++
-  }
+  const counts = sessions.reduce(
+    (acc, s) => {
+      if (!s) return acc
+      return {
+        completed50: acc.completed50 + (s.timeElapsed >= thresholds.completed50 ? 1 : 0),
+        completed80: acc.completed80 + (s.timeElapsed >= thresholds.completed80 ? 1 : 0),
+        completed100: acc.completed100 + (s.timeElapsed >= thresholds.completed100 ? 1 : 0),
+        highAccuracy: acc.highAccuracy + (s.accuracy >= thresholds.highAccuracy ? 1 : 0),
+      }
+    },
+    { completed50: 0, completed80: 0, completed100: 0, highAccuracy: 0 }
+  )
 
   return [
     { stage: 'Начали тренировку', count: total, percentage: 100 },
-    { stage: '50% сессии', count: completed50, percentage: Math.round((completed50 / total) * 100) },
-    { stage: '80% сессии', count: completed80, percentage: Math.round((completed80 / total) * 100) },
-    { stage: '100% сессии', count: completed100, percentage: Math.round((completed100 / total) * 100) },
-    { stage: 'Высокая точность', count: highAccuracy, percentage: Math.round((highAccuracy / total) * 100) },
+    { stage: '50% сессии', count: counts.completed50, percentage: Math.round((counts.completed50 / total) * 100) },
+    { stage: '80% сессии', count: counts.completed80, percentage: Math.round((counts.completed80 / total) * 100) },
+    { stage: '100% сессии', count: counts.completed100, percentage: Math.round((counts.completed100 / total) * 100) },
+    { stage: 'Высокая точность', count: counts.highAccuracy, percentage: Math.round((counts.highAccuracy / total) * 100) },
   ]
 }
 
