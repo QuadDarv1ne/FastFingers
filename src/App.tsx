@@ -18,7 +18,6 @@ import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
 import {
-  TypingStats as TypingStatsType,
   SoundTheme,
   UserProgress,
   KeyboardLayout,
@@ -34,8 +33,7 @@ import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useTheme } from './hooks/useTheme'
 import { useHotkeys } from './hooks/useHotkeys'
-import { calculateSessionXp } from './utils/stats'
-import { calculateStreakXpBonus } from '@utils/streakBonus'
+import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
 
 const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
@@ -121,6 +119,17 @@ function AppContent() {
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, setTheme } = useTheme()
 
+  const { handleSessionCompleteWithProgress, handleReactionGameComplete } = useSessionHandlers({
+    addSession,
+    activeChallenge,
+    todayChallenge: todayChallenge || null,
+    completeChallenge,
+    handleSessionComplete,
+    streak,
+    setLastSessionXp,
+    setShowSessionSummary,
+  })
+
   useHotkeys(
     {
       'ctrl+1': () => {
@@ -161,31 +170,6 @@ function AppContent() {
   const handleOnboardingComplete = useCallback(() => {
     localStorage.setItem('fastfingers_onboarding_seen', 'true')
     setShowOnboarding(false)
-  }, [])
-
-  const handleSessionCompleteWithProgress = useCallback(
-    (stats: TypingStatsType) => {
-      const xp = calculateSessionXp(stats)
-      const streakBonus = calculateStreakXpBonus(streak.current)
-      const totalXp = xp + streakBonus
-      setLastSessionXp(totalXp)
-
-      addSession(stats, totalXp)
-
-      if (activeChallenge && todayChallenge) {
-        completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
-        setActiveChallenge(null)
-      }
-
-      handleSessionComplete(stats, streak.current)
-      setShowSessionSummary(true)
-    },
-    [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete, streak]
-  )
-
-  const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
-    const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
-    setLastSessionXp(xp)
   }, [])
 
   const handleSaveCustomExercise = useCallback(
