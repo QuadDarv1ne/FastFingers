@@ -451,7 +451,7 @@ export function getRandomPracticeText(category?: TextCategory, difficulty?: numb
 }
 
 export function getAllTextCategories(): TextCategory[] {
-  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology']
+  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology', 'movies', 'news', 'philosophy', 'business']
 }
 
 export function getTextDifficultyLevels(): number[] {

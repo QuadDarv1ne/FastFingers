@@ -7,7 +7,6 @@ const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1000
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // eslint-disable-next-line no-console
   console.warn('Supabase credentials not configured. Some features may be unavailable.')
 }
 

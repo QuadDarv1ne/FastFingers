@@ -7,6 +7,25 @@ interface ExportImportProps {
   onImport?: (data: { progress: UserProgress }) => void
 }
 
+const CURRENT_VERSION = '1.0'
+
+interface BackupData {
+  version: string
+  exportedAt: string
+  data: Record<string, string>
+}
+
+function validateBackupData(data: unknown): data is BackupData {
+  if (!data || typeof data !== 'object') return false
+  const obj = data as Record<string, unknown>
+  return (
+    typeof obj.version === 'string' &&
+    typeof obj.exportedAt === 'string' &&
+    typeof obj.data === 'object' &&
+    obj.data !== null
+  )
+}
+
 export function ExportImport({ progress: _progress, onImport: _onImport }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
   const { success, error } = useToast()
@@ -26,8 +45,8 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         }
       }
 
-      const exportData = {
-        version: '1.0',
+      const exportData: BackupData = {
+        version: CURRENT_VERSION,
         exportedAt: new Date().toISOString(),
         data,
       }
@@ -62,8 +81,21 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         const content = e.target?.result as string
         const importData = JSON.parse(content)
 
-        if (!importData.version || !importData.data) {
-          throw new Error('Invalid backup file format')
+        // Validate backup data structure
+        if (!validateBackupData(importData)) {
+          throw new Error('Неверный формат файла резервной копии')
+        }
+
+        // Check version compatibility
+        if (importData.version !== CURRENT_VERSION) {
+          const confirmed = confirm(
+            `Версия файла (${importData.version}) отличается от текущей (${CURRENT_VERSION}). ` +
+            'Возможны проблемы совместимости. Продолжить?'
+          )
+          if (!confirmed) {
+            setImporting(false)
+            return
+          }
         }
 
         // Confirm before overwriting

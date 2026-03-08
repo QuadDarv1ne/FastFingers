@@ -7,13 +7,17 @@ export interface PracticeText {
   source?: string
 }
 
-export type TextCategory = 
+export type TextCategory =
   | 'literature'
   | 'code'
   | 'quotes'
   | 'proverbs'
   | 'science'
   | 'technology'
+  | 'movies'
+  | 'news'
+  | 'philosophy'
+  | 'business'
 
 export const practiceTexts: PracticeText[] = [
   // === ЛИТЕРАТУРА ===
@@ -245,6 +249,174 @@ export const practiceTexts: PracticeText[] = [
     title: 'Нейронные сети',
     text: 'Глубокое обучение — класс методов машинного обучения, основанный на использовании многослойных искусственных нейронных сетей.',
   },
+
+  // === ФИЛЬМЫ И СЕРИАЛЫ ===
+  {
+    id: 'movie-1',
+    category: 'movies',
+    difficulty: 2,
+    title: 'Крёстный отец',
+    text: 'Я сделаю ему предложение, от которого он не сможет отказаться.',
+    source: 'Крёстный отец, 1972'
+  },
+  {
+    id: 'movie-2',
+    category: 'movies',
+    difficulty: 3,
+    title: 'Звёздные войны',
+    text: 'Да пребудет с тобой Сила.',
+    source: 'Звёздные войны, 1977'
+  },
+  {
+    id: 'movie-3',
+    category: 'movies',
+    difficulty: 4,
+    title: 'Бойцовский клуб',
+    text: 'Первое правило бойцовского клуба: никому не говорить о бойцовском клубе.',
+    source: 'Бойцовский клуб, 1999'
+  },
+  {
+    id: 'movie-4',
+    category: 'movies',
+    difficulty: 5,
+    title: 'Матрица',
+    text: 'Добро пожаловать в реальный мир. Ты принимаешь синюю таблетку — и сказке конец.',
+    source: 'Матрица, 1999'
+  },
+  {
+    id: 'movie-5',
+    category: 'movies',
+    difficulty: 6,
+    title: 'Интерстеллар',
+    text: 'Мы привыкли думать, что время неизменно. Но время может растягиваться и сжиматься.',
+    source: 'Интерстеллар, 2014'
+  },
+  {
+    id: 'movie-6',
+    category: 'movies',
+    difficulty: 7,
+    title: 'Начало',
+    text: 'Семя идеи — это самый живучий паразит. Однажды идея укоренилась в мозге, её практически невозможно удалить.',
+    source: 'Начало, 2010'
+  },
+
+  // === НОВОСТИ ===
+  {
+    id: 'news-1',
+    category: 'news',
+    difficulty: 3,
+    title: 'Технологии',
+    text: 'Крупнейшие технологические компании представили новые смартфоны с улучшенными камерами и искусственным интеллектом.',
+  },
+  {
+    id: 'news-2',
+    category: 'news',
+    difficulty: 4,
+    title: 'Экономика',
+    text: 'Центральный банк принял решение сохранить ключевую ставку на прежнем уровне для стабилизации инфляции.',
+  },
+  {
+    id: 'news-3',
+    category: 'news',
+    difficulty: 5,
+    title: 'Наука',
+    text: 'Учёные обнаружили новую экзопланету в зоне обитаемости, где可能存在 жидкая вода и условия для жизни.',
+  },
+  {
+    id: 'news-4',
+    category: 'news',
+    difficulty: 6,
+    title: 'Космос',
+    text: 'Космическое агентство успешно запустило новую миссию по исследованию Марса. Аппарат доставит образцы грунта на Землю.',
+  },
+  {
+    id: 'news-5',
+    category: 'news',
+    difficulty: 7,
+    title: 'Климат',
+    text: 'Международный саммит по климату принял решение об ускорении перехода на возобновляемые источники энергии к 2030 году.',
+  },
+
+  // === ФИЛОСОФИЯ ===
+  {
+    id: 'phil-1',
+    category: 'philosophy',
+    difficulty: 4,
+    title: 'Сократ',
+    text: 'Я знаю, что ничего не знаю.',
+    source: 'Апология Сократа'
+  },
+  {
+    id: 'phil-2',
+    category: 'philosophy',
+    difficulty: 5,
+    title: 'Рене Декарт',
+    text: 'Я мыслю, следовательно, существую.',
+    source: 'Размышления о первой философии'
+  },
+  {
+    id: 'phil-3',
+    category: 'philosophy',
+    difficulty: 6,
+    title: 'Иммануил Кант',
+    text: 'Имей мужество пользоваться собственным умом — вот девиз просвещения.',
+    source: 'Ответ на вопрос: Что такое просвещение?'
+  },
+  {
+    id: 'phil-4',
+    category: 'philosophy',
+    difficulty: 7,
+    title: 'Аристотель',
+    text: 'Счастье — это смысл и цель жизни, конечная цель человеческого существования.',
+    source: 'Никомахова этика'
+  },
+  {
+    id: 'phil-5',
+    category: 'philosophy',
+    difficulty: 8,
+    title: 'Фридрих Ницше',
+    text: 'Бог умер! Но его тень ещё долго будет лежать в пещерах. Мы, люди, должны стать богами, чтобы сделать это достойным.',
+    source: 'Весёлая наука'
+  },
+
+  // === БИЗНЕС ===
+  {
+    id: 'biz-1',
+    category: 'business',
+    difficulty: 3,
+    title: 'Предпринимательство',
+    text: 'Успешный бизнес начинается с решения проблемы клиента.',
+  },
+  {
+    id: 'biz-2',
+    category: 'business',
+    difficulty: 4,
+    title: 'Инвестиции',
+    text: 'Диверсификация — единственный бесплатный обед в финансах.',
+    source: 'Уоррен Баффетт'
+  },
+  {
+    id: 'biz-3',
+    category: 'business',
+    difficulty: 5,
+    title: 'Маркетинг',
+    text: 'Контент — король, но дистрибуция — королева.',
+  },
+  {
+    id: 'biz-4',
+    category: 'business',
+    difficulty: 6,
+    title: 'Лидерство',
+    text: 'Лидерство — это не о том, чтобы быть лучшим. Это о том, чтобы делать других лучше.',
+  },
+  {
+    id: 'biz-5',
+    category: 'business',
+    difficulty: 7,
+    title: 'Стратегия',
+    text: 'Стратегия без тактики — это самый медленный путь к победе. Тактика без стратегии — это просто суета перед поражением.',
+    source: 'Сунь-цзы'
+  },
 ]
 
 export function getTextsByCategory(category: TextCategory): PracticeText[] {
@@ -264,7 +436,7 @@ export function getRandomText(category?: TextCategory, difficulty?: number): Pra
 }
 
 export function getAllCategories(): TextCategory[] {
-  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology']
+  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology', 'movies', 'news', 'philosophy', 'business']
 }
 
 export function getDifficultyLevels(): number[] {
