@@ -107,7 +107,8 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
           'charts-vendor': ['recharts'],
-          'pdf-vendor': ['jspdf', 'jspdf-autotable', 'html2canvas'],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'html2canvas-vendor': ['html2canvas'],
           'i18n-vendor': ['i18next', 'react-i18next'],
           'animations-vendor': ['framer-motion'],
           'confetti-vendor': ['canvas-confetti'],
@@ -116,7 +117,7 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 500,
     minify: 'esbuild',
     cssMinify: true,
   },
