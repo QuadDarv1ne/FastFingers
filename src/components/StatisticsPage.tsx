@@ -13,7 +13,7 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts'
+} from './LazyRecharts'
 
 interface StatisticsPageProps {
   onBack: () => void
