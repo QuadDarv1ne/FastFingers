@@ -9,6 +9,16 @@ import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
 import { useHotkey } from '../hooks/useHotkeys'
 
+const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div className="bg-dark-800/50 rounded-xl p-4 text-center">
+      <div className="text-2xl mb-1">{icon}</div>
+      <div className="text-xs text-dark-400 mb-1">{label}</div>
+      <div className="text-xl font-bold text-white">{value}</div>
+    </div>
+  )
+})
+
 interface HardcoreModeProps {
   onExit: () => void
   onComplete: (stats: TypingStats) => void
@@ -144,6 +154,27 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
   const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
 
+  const renderedChars = useMemo(() => {
+    return text.split('').map((char, index) => {
+      let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
+      if (index < currentIndex) status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
+      else if (index === currentIndex && isActive) status = 'current'
+      return (
+        <span
+          key={index}
+          className={`px-0.5 rounded ${
+            status === 'correct' ? 'bg-green-500/20 text-green-400' :
+            status === 'incorrect' ? 'bg-red-500/20 text-red-400' :
+            status === 'current' ? 'bg-primary-500/30 text-primary-300 animate-pulse' :
+            'text-dark-500'
+          }`}
+        >
+          {char === ' ' ? '␣' : char}
+        </span>
+      )
+    })
+  }, [text, currentIndex, inputResults, isActive])
+
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden border-red-500/20">
       <AnimatePresence>
@@ -205,24 +236,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       >
         <input ref={inputRef} type="text" className="opacity-0 absolute" onInput={handleInput} disabled={!isActive} aria-label="Поле ввода режима без ошибок" />
         <div className="font-mono text-lg leading-relaxed break-words">
-          {text.split('').map((char, index) => {
-            let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-            if (index < currentIndex) status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-            else if (index === currentIndex && isActive) status = 'current'
-            return (
-              <span
-                key={index}
-                className={`px-0.5 rounded ${
-                  status === 'correct' ? 'bg-green-500/20 text-green-400' :
-                  status === 'incorrect' ? 'bg-red-500/20 text-red-400' :
-                  status === 'current' ? 'bg-primary-500/30 text-primary-300 animate-pulse' :
-                  'text-dark-500'
-                }`}
-              >
-                {char === ' ' ? '␣' : char}
-              </span>
-            )
-          })}
+          {renderedChars}
         </div>
       </div>
 
@@ -274,13 +288,3 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     </div>
   )
 })
-
-function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
-  return (
-    <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className="text-xs text-dark-400 mb-1">{label}</div>
-      <div className="text-xl font-bold text-white">{value}</div>
-    </div>
-  )
-}
