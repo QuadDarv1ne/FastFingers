@@ -1,23 +1,19 @@
-import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react'
+import { useState, useEffect, useCallback, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
-import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
-import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
 import { supabase } from '../services/supabase'
 import { CertificateGenerator } from './CertificateGenerator'
+import { useHardcoreMode } from '@hooks/useHardcoreMode'
+import { useHotkey } from '../hooks/useHotkeys'
 
 interface HardcoreModeProps {
   onExit: () => void
   onComplete: (stats: TypingStats) => void
   sound?: ReturnType<typeof useTypingSound>
 }
-
-const COUNTDOWN_SECONDS = 3
-const TEXT_LENGTH = 30
-const TEXT_DIFFICULTY = 5
 
 interface HardcoreRecord {
   id: string
@@ -28,14 +24,12 @@ interface HardcoreRecord {
   created_at: string
 }
 
-// Вынесено наружу для избежания пересоздания
-const calculateCorrectCount = (results: Array<{ isCorrect: boolean }>): number => {
-  let count = 0
-  for (let i = 0; i < results.length; i++) {
-    const result = results[i]
-    if (result && result.isCorrect) count++
-  }
-  return count
+interface UserWithMetadata {
+  id: string
+  name: string
+  email: string
+  createdAt: string
+  stats: any
 }
 
 export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
@@ -44,23 +38,26 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   sound,
 }: HardcoreModeProps) {
   const { user } = useAuth()
-  const [text, setText] = useState('')
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean; char: string }>>([])
-  const [isActive, setIsActive] = useState(false)
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
-  const [startTime, setStartTime] = useState<number | null>(null)
-  const [streak, setStreak] = useState(0)
-  const [bestStreak, setBestStreak] = useState(0)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
   const [isLoadingRecords, setIsLoadingRecords] = useState(true)
+  const [bestStreak, setBestStreak] = useState(0)
 
-  const inputRef = useRef<HTMLInputElement>(null)
-  const textLengthRef = useRef(0)
+  const {
+    text,
+    currentIndex,
+    inputResults,
+    isActive,
+    countdown,
+    streak,
+    startTime,
+    inputRef,
+    handleInput,
+    handleStart,
+    resetGame,
+  } = useHardcoreMode({ onComplete, sound, setBestStreak })
 
-  // Загрузка рекордов — с retry логикой
   useEffect(() => {
     const loadRecords = async () => {
       if (!user || !supabase) {
@@ -70,7 +67,6 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       try {
         let retries = 3
-
         while (retries > 0) {
           const { data, error } = await supabase
             .from('hardcore_records')
@@ -83,21 +79,12 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
             setRecords(data || [])
             if (data && data.length > 0) {
               const firstRecord = data[0]
-              if (firstRecord) {
-                setBestStreak(firstRecord.streak)
-              }
+              if (firstRecord) setBestStreak(firstRecord.streak)
             }
             break
           }
-
           retries--
-          if (retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
-          }
-        }
-
-        if (retries === 0) {
-          // Failed to load records after retries
+          if (retries > 0) await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
         }
       } finally {
         setIsLoadingRecords(false)
@@ -107,152 +94,58 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     loadRecords()
   }, [user])
 
-  // Генерация текста — оптимизировано
-  const generateNewText = useCallback(() => {
-    const newText = generatePracticeText(TEXT_LENGTH, TEXT_DIFFICULTY)
-    setText(newText)
-    setCurrentIndex(0)
-    setInputResults([])
-    textLengthRef.current = newText.length
-  }, [])
-
   useEffect(() => {
-    generateNewText()
-  }, [generateNewText])
+    if (!isActive && inputResults.length > 0 && startTime && user && streak > 0 && supabase) {
+      const correct = inputResults.filter(r => r.isCorrect).length
+      const timeElapsed = (Date.now() - startTime) / 1000
+      const errors = inputResults.length - correct
+      const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+      
+      setLastStats(stats)
+      onComplete(stats)
 
-  // Старт с обратным отсчётом
-  const handleStart = useCallback(() => {
-    setCountdown(COUNTDOWN_SECONDS)
-    setStartTime(Date.now())
-
-    const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          setIsActive(true)
-          inputRef.current?.focus({ preventScroll: true })
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [])
-
-  // Завершение при ошибке — оптимизировано
-  const handleMistake = useCallback(async () => {
-    setIsActive(false)
-
-    const correct = calculateCorrectCount(inputResults)
-    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const errors = inputResults.length + 1 - correct + 1
-
-    const stats = calculateStats(correct, inputResults.length + 1, errors, timeElapsed)
-    setLastStats(stats)
-    onComplete(stats)
-
-    // Сохранение рекорда с retry
-    if (user && streak > 0 && supabase) {
-      try {
+      const saveRecord = async () => {
         let retries = 3
         while (retries > 0) {
-          const { error } = await supabase.from('hardcore_records').insert({
+          const { error } = await (supabase as any).from('hardcore_records').insert({
             user_id: user.id,
             streak,
             wpm: stats.wpm,
             accuracy: stats.accuracy,
           })
-
           if (!error) break
           retries--
           if (retries > 0) await new Promise(resolve => setTimeout(resolve, 500))
         }
-      } catch {
-        // Failed to save record
-      }
-    }
-
-    setShowCertificate(true)
-  }, [inputResults, startTime, onComplete, user, streak])
-
-  // Обработка ввода — оптимизировано
-  const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!isActive && countdown === null) {
-      handleStart()
-      return
-    }
-
-    const value = e.currentTarget.value
-    const newChar = value[value.length - 1]
-    if (!newChar) return
-
-    if (currentIndex < textLengthRef.current) {
-      const expectedChar = text[currentIndex]
-      const isCorrect = newChar === expectedChar
-
-      if (!isCorrect) {
-        if (sound) sound.playError()
-        handleMistake()
-        return
       }
 
-      if (sound) sound.playCorrect(expectedChar.toLowerCase())
-
-      setStreak(prev => prev + 1)
-      setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
-      setCurrentIndex(prev => prev + 1)
-
-      if (currentIndex >= textLengthRef.current - 5) {
-        generateNewText()
-      }
+      saveRecord().catch(() => {})
+      setShowCertificate(true)
     }
+  }, [isActive, inputResults, startTime, user, streak, onComplete])
 
-    e.currentTarget.value = ''
-  }, [isActive, countdown, text, currentIndex, sound, generateNewText, handleStart, handleMistake])
-
-  // Подсчёт статистики в реальном времени — оптимизировано
   const { wpm, accuracy } = useMemo(() => {
-    if (inputResults.length === 0 || !startTime) {
-      return { wpm: 0, accuracy: 0 }
+    if (inputResults.length === 0 || !startTime) return { wpm: 0, accuracy: 0 }
+    const correct = inputResults.filter(r => r.isCorrect).length
+    const timeInMinutes = (Date.now() - startTime) / 60000
+    return {
+      wpm: timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0,
+      accuracy: inputResults.length > 0 ? Math.round((correct / inputResults.length) * 100) : 0,
     }
-
-    const correct = calculateCorrectCount(inputResults)
-    const timeElapsed = (Date.now() - startTime) / 1000
-    const timeInMinutes = timeElapsed / 60
-
-    const newWpm = timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0
-    const newAccuracy = inputResults.length > 0 
-      ? Math.round((correct / inputResults.length) * 100) 
-      : 0
-
-    return { wpm: newWpm, accuracy: newAccuracy }
   }, [inputResults, startTime])
 
-  // Горячие клавиши
-  useHotkey('escape', () => {
-    if (countdown === null && !isActive) {
-      onExit()
-    }
-  }, { enabled: true })
+  useHotkey('escape', () => { if (countdown === null && !isActive) onExit() }, { enabled: true })
+  useHotkey('r', () => { if (countdown === null && !isActive) handleStart() }, { enabled: true })
 
-  useHotkey('r', () => {
-    if (countdown === null && !isActive) {
-      handleStart()
-    }
-  }, { enabled: true })
-
-  // Пропуск текста (без штрафа, но сбрасывает серию)
   const handleSkip = useCallback(() => {
-    setStreak(0)
-    generateNewText()
+    resetGame()
     inputRef.current?.focus({ preventScroll: true })
-  }, [generateNewText])
+  }, [resetGame, inputRef])
 
-  // Прогресс текста
-  const textProgress = (currentIndex / text.length) * 100
+  const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden border-red-500/20">
-      {/* Overlay с обратным отсчётом */}
       <AnimatePresence>
         {countdown !== null && (
           <motion.div
@@ -275,229 +168,119 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         )}
       </AnimatePresence>
 
-      {/* Заголовок */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            <span>💀</span>
-            Без ошибок
+            <span>💀</span> Без ошибок
           </h2>
           <p className="text-sm text-dark-400">Любая ошибка завершает сессию</p>
         </div>
-
-        <div className="flex items-center gap-2">
-          {!isActive && countdown === null && (
-            <button
-              onClick={handleStart}
-              className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold transition-all"
-            >
-              Старт (R)
-            </button>
-          )}
-          <button
-            onClick={onExit}
-            className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-            title="Выйти (Escape)"
-          >
-            <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        {!isActive && countdown === null && (
+          <button onClick={handleStart} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold transition-all">
+            Старт (R)
           </button>
-        </div>
+        )}
       </div>
 
-      {/* Статистика в реальном времени */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-dark-800 rounded-lg p-4 text-center border border-red-500/20">
-          <p className="text-sm text-dark-400">Серия</p>
-          <p className="text-3xl font-bold text-red-400">{streak}</p>
-        </div>
-        <div className="bg-dark-800 rounded-lg p-4 text-center">
-          <p className="text-sm text-dark-400">WPM</p>
-          <p className="text-3xl font-bold text-primary-400">{wpm}</p>
-        </div>
-        <div className="bg-dark-800 rounded-lg p-4 text-center">
-          <p className="text-sm text-dark-400">Точность</p>
-          <p className={`text-3xl font-bold ${accuracy >= 95 ? 'text-success' : accuracy >= 80 ? 'text-yellow-400' : 'text-error'}`}>
-            {accuracy}%
-          </p>
-        </div>
-        <div className="bg-dark-800 rounded-lg p-4 text-center">
-          <p className="text-sm text-dark-400">Рекорд</p>
-          <p className="text-3xl font-bold text-yellow-400">{bestStreak}</p>
-        </div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <StatCard label="Серия" value={streak.toString()} icon="🔥" />
+        <StatCard label="WPM" value={wpm.toString()} icon="⚡" />
+        <StatCard label="Точность" value={`${accuracy}%`} icon="🎯" />
       </div>
 
-      {/* Индикатор серии */}
-      {streak > 0 && (
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="mb-6 p-4 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-xl border border-red-500/30"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-dark-300">🔥 Текущая серия:</span>
-            <span className="text-2xl font-bold text-red-400">{streak}</span>
-          </div>
-          {streak >= 50 && (
-            <p className="text-xs text-red-300 mt-2">
-              {streak >= 200 ? '👑 Легендарно' : streak >= 100 ? '🏆 Эпично' : '⚡ Потрясающе'}
-            </p>
-          )}
-        </motion.div>
+      {bestStreak > 0 && (
+        <div className="mb-4 p-3 bg-dark-800/50 rounded-lg flex items-center justify-between">
+          <span className="text-sm text-dark-400">Лучшая серия</span>
+          <span className="text-lg font-bold text-primary-400">{bestStreak} 🔥</span>
+        </div>
       )}
 
-      {/* Область ввода */}
       <div
         onClick={() => inputRef.current?.focus({ preventScroll: true })}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            inputRef.current?.focus({ preventScroll: true })
-          }
-        }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.focus({ preventScroll: true }) }}
         role="button"
         tabIndex={0}
         aria-label="Область ввода текста. Нажмите для фокуса"
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
-        <input
-          ref={inputRef}
-          type="text"
-          className="opacity-0 absolute"
-          onInput={handleInput}
-          disabled={!isActive}
-          aria-label="Поле ввода режима без ошибок"
-        />
-
+        <input ref={inputRef} type="text" className="opacity-0 absolute" onInput={handleInput} disabled={!isActive} aria-label="Поле ввода режима без ошибок" />
         <div className="font-mono text-lg leading-relaxed break-words">
           {text.split('').map((char, index) => {
             let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-
-            if (index < currentIndex) {
-              status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-            } else if (index === currentIndex && isActive) {
-              status = 'current'
-            }
-
+            if (index < currentIndex) status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
+            else if (index === currentIndex && isActive) status = 'current'
             return (
               <span
                 key={index}
-                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded transition-all duration-100 ${
-                  status === 'correct' ? 'bg-green-500/20 text-green-500' :
-                  status === 'incorrect' ? 'bg-red-500/20 text-red-500' :
-                  status === 'current' ? 'bg-red-500/30 text-red-500 border-2 border-red-500 animate-pulse' :
+                className={`px-0.5 rounded ${
+                  status === 'correct' ? 'bg-green-500/20 text-green-400' :
+                  status === 'incorrect' ? 'bg-red-500/20 text-red-400' :
+                  status === 'current' ? 'bg-primary-500/30 text-primary-300 animate-pulse' :
                   'text-dark-500'
                 }`}
               >
-                {char}
+                {char === ' ' ? '␣' : char}
               </span>
             )
           })}
         </div>
+      </div>
 
-        {/* Оверлей старта */}
-        {!isActive && countdown === null && inputResults.length === 0 && (
-          <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
-            <div className="text-center">
-              <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <p className="text-lg text-dark-300 mb-4">Одна ошибка = конец игры</p>
-              <button
-                onClick={handleStart}
-                className="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
-              >
-                Начать хардкор
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Прогресс текста */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-dark-400">Прогресс</span>
-            <span className="text-red-400 font-bold">{Math.round(textProgress)}%</span>
-          </div>
-          <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-red-600 to-orange-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${textProgress * 100}%` }}
-              transition={{ duration: 0.2 }}
-            />
-          </div>
+      <div className="mb-6" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс">
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="text-dark-400">Прогресс</span>
+          <span className="text-primary-400 font-bold">{Math.round(textProgress)}%</span>
+        </div>
+        <div className="h-3 bg-dark-800 rounded-full overflow-hidden">
+          <motion.div className="h-full bg-gradient-to-r from-red-600 via-red-500 to-red-400" initial={{ width: 0 }} animate={{ width: `${textProgress}%` }} transition={{ duration: 0.2 }} />
         </div>
       </div>
 
-      {/* Кнопки управления */}
-      {isActive && (
-        <div className="flex justify-between items-center">
-          <button
-            onClick={handleSkip}
-            className="px-4 py-2 text-dark-400 hover:text-white transition-colors text-sm flex items-center gap-2"
-            title="Пропустить текст (сбрасывает серию)"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-            Пропустить (сброс серии)
-          </button>
-          <span className="text-xs text-dark-500">
-            Символов: {currentIndex} / {text.length}
-          </span>
-        </div>
-      )}
+      <div className="flex justify-between items-center">
+        <button onClick={handleSkip} className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2" aria-label="Пропустить">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+          Пропустить
+        </button>
+        <button onClick={onExit} className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-all">Выйти</button>
+      </div>
 
-      {/* Таблица рекордов */}
-      <div className="mt-8 p-6 bg-dark-800/50 rounded-xl border border-dark-700">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <span>🏆</span>
-          Ваши рекорды
-        </h3>
-        
-        {isLoadingRecords ? (
-          <p className="text-dark-400 text-sm">Загрузка...</p>
-        ) : records.length === 0 ? (
-          <p className="text-dark-400 text-sm">Пока нет рекордов. Начните игру</p>
-        ) : (
-          <div className="space-y-2">
-            {records.slice(0, 5).map((record, index) => (
-              <div
-                key={record.id}
-                className="flex items-center justify-between p-3 bg-dark-700/50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`text-lg font-bold ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-400' : 'text-dark-500'}`}>
-                    {index + 1}
-                  </span>
-                  <span className="text-red-400 font-semibold">{record.streak} серия</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-dark-400">
-                  <span>{record.wpm} WPM</span>
-                  <span>{record.accuracy}%</span>
-                  <span className="text-dark-500">
-                    {new Date(record.created_at).toLocaleDateString('ru-RU')}
-                  </span>
-                </div>
+      {isLoadingRecords && <div className="mt-6 text-center text-dark-400 text-sm">Загрузка рекордов...</div>}
+      
+      {!isLoadingRecords && records.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-3 text-dark-300">🏆 Ваши рекорды</h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {records.slice(0, 5).map((record, i) => (
+              <div key={record.id} className="flex items-center justify-between p-3 bg-dark-800/30 rounded-lg">
+                <span className="text-sm text-dark-400">#{i + 1}</span>
+                <span className="font-bold text-primary-400">{record.streak} 🔥</span>
+                <span className="text-xs text-dark-500">{record.wpm} WPM</span>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Сертификат */}
       {showCertificate && lastStats && user && (
         <CertificateGenerator
-          user={user}
+          user={user as unknown as UserWithMetadata}
           wpm={lastStats.wpm}
           accuracy={lastStats.accuracy}
           cpm={lastStats.cpm}
           testType="hardcore"
-          streak={streak}
           onClose={() => setShowCertificate(false)}
         />
       )}
     </div>
   )
 })
+
+function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div className="bg-dark-800/50 rounded-xl p-4 text-center">
+      <div className="text-2xl mb-1">{icon}</div>
+      <div className="text-xs text-dark-400 mb-1">{label}</div>
+      <div className="text-xl font-bold text-white">{value}</div>
+    </div>
+  )
+}
