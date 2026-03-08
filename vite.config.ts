@@ -117,6 +117,7 @@ export default defineConfig({
           'typing-core': ['./src/components/TypingTrainer', './src/hooks/useTypingGame', './src/hooks/useTypingSound'],
           'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],
           'ui-components': ['./src/components/Keyboard', './src/components/Stats', './src/components/Header'],
+          'utils-vendor': ['lodash-es', 'date-fns'],
         },
       },
     },
