@@ -1,4 +1,5 @@
-import { Exercise } from '../types';
+import { Exercise } from '../types'
+import { practiceTexts, PracticeText, TextCategory, getRandomText } from '../data/practiceTexts'
 
 type Layout = 'qwerty' | 'jcuken' | 'dvorak';
 
@@ -268,65 +269,145 @@ export const exercises: Exercise[] = [
 ];
 
 export function getRandomExercise(category?: string, difficulty?: number, layout?: Layout): Exercise {
-  let pool = exercises;
+  let pool = exercises
 
   if (category && difficulty && layout) {
-    pool = exercises.filter(e =>
-      (e.category === category || !e.category) &&
-      e.difficulty <= difficulty &&
-      (!e.layout || e.layout === layout)
-    );
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (e.category === category || !e.category) && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (category && layout) {
-    pool = exercises.filter(e =>
-      (e.category === category || !e.category) &&
-      (!e.layout || e.layout === layout)
-    );
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (e.category === category || !e.category) && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (category && difficulty) {
-    pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.category === category && e.difficulty <= difficulty) {
+        pool.push(e)
+      }
+    }
   } else if (category) {
-    pool = exercises.filter(e => e.category === category);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.category === category) {
+        pool.push(e)
+      }
+    }
   } else if (difficulty && layout) {
-    pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (difficulty) {
-    pool = exercises.filter(e => e.difficulty <= difficulty);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.difficulty <= difficulty) {
+        pool.push(e)
+      }
+    }
   } else if (layout) {
-    pool = exercises.filter(e => !e.layout || e.layout === layout);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   }
 
-  if (pool.length === 0) pool = exercises;
-  if (pool.length === 0) return exercises[0]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  if (pool.length === 0) pool = exercises
+  const firstExercise = pool[0] ?? exercises[0]
+  if (!firstExercise) throw new Error('No exercises available')
   const randomIndex = Math.floor(Math.random() * pool.length)
-  return pool[randomIndex]! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+  return pool[randomIndex] ?? firstExercise
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {
-  let pool = exercises;
+  let pool = exercises
 
   if (category && difficulty && layout) {
-    pool = exercises.filter(e =>
-      (e.category === category || !e.category) &&
-      e.difficulty <= difficulty &&
-      (!e.layout || e.layout === layout)
-    );
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (e.category === category || !e.category) && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (category && layout) {
-    pool = exercises.filter(e =>
-      (e.category === category || !e.category) &&
-      (!e.layout || e.layout === layout)
-    );
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (e.category === category || !e.category) && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (category && difficulty) {
-    pool = exercises.filter(e => e.category === category && e.difficulty <= difficulty);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.category === category && e.difficulty <= difficulty) {
+        pool.push(e)
+      }
+    }
   } else if (category) {
-    pool = exercises.filter(e => e.category === category);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.category === category) {
+        pool.push(e)
+      }
+    }
   } else if (difficulty && layout) {
-    pool = exercises.filter(e => e.difficulty <= difficulty && (!e.layout || e.layout === layout));
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   } else if (difficulty) {
-    pool = exercises.filter(e => e.difficulty <= difficulty);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && e.difficulty <= difficulty) {
+        pool.push(e)
+      }
+    }
   } else if (layout) {
-    pool = exercises.filter(e => !e.layout || e.layout === layout);
+    pool = []
+    for (let i = 0; i < exercises.length; i++) {
+      const e = exercises[i]
+      if (e && (!e.layout || e.layout === layout)) {
+        pool.push(e)
+      }
+    }
   }
 
-  if (pool.length === 0) pool = exercises;
-  return [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(count, pool.length));
+  if (pool.length === 0) pool = exercises
+  const shuffled: Exercise[] = []
+  const indices: number[] = pool.map((_, i) => i)
+  // Fisher-Yates shuffle
+  while (indices.length > 0 && shuffled.length < count) {
+    const randomIdx = Math.floor(Math.random() * indices.length)
+    const exercise = pool[randomIdx]
+    if (exercise) shuffled.push(exercise)
+    indices.splice(randomIdx, 1)
+  }
+  return shuffled
 }
 
 const getWordsByDifficulty = (difficulty: number): readonly string[] => {
@@ -341,11 +422,42 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
 } = {}): string {
   const { unique = false, separator = ' ' } = options
   let words = getWordsByDifficulty(difficulty)
-  
+
   if (unique) {
     words = [...words].sort(() => Math.random() - 0.5)
     return words.slice(0, Math.min(wordCount, words.length)).join(separator)
   }
-  
-  return Array.from({ length: wordCount }, () => words[Math.floor(Math.random() * words.length)]).join(separator)
+
+  const result: string[] = []
+  for (let i = 0; i < wordCount; i++) {
+    const word = words[Math.floor(Math.random() * words.length)]
+    if (word) result.push(word)
+  }
+  return result.join(separator)
+}
+
+// === Интеграция с базой текстов ===
+export function getPracticeTextsByCategory(category: TextCategory): PracticeText[] {
+  return practiceTexts.filter(t => t.category === category)
+}
+
+export function getPracticeTextsByDifficulty(difficulty: number): PracticeText[] {
+  return practiceTexts.filter(t => t.difficulty === difficulty)
+}
+
+export function getRandomPracticeText(category?: TextCategory, difficulty?: number): string {
+  const text = getRandomText(category, difficulty)
+  return text?.text ?? generatePracticeText(20, difficulty ?? 5)
+}
+
+export function getAllTextCategories(): TextCategory[] {
+  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology', 'movies', 'news', 'philosophy', 'business']
+}
+
+export function getTextDifficultyLevels(): number[] {
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9]
+}
+
+export function getPracticeTextById(id: string): PracticeText | null {
+  return practiceTexts.find(t => t.id === id) || null
 }

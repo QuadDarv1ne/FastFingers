@@ -45,8 +45,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
   useEffect(() => {
     generateNewText()
-    const timer = setTimeout(() => inputRef.current?.focus(), 100)
-    return () => clearTimeout(timer)
+    // Убрали авто-фокус при монтировании - он вызывает нежелательный скролл
   }, [generateNewText])
 
   // Таймер
@@ -75,7 +74,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Старт при первом нажатии
   const handleStart = () => {
     setIsActive(true)
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }
 
   // Обработка ввода
@@ -125,7 +124,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Пропуск текста
   const handleSkip = () => {
     generateNewText()
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }
 
   // Прогресс времени
@@ -192,7 +191,15 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
       {/* Область ввода */}
       <div
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => inputRef.current?.focus({ preventScroll: true })}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            inputRef.current?.focus({ preventScroll: true })
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Область ввода текста. Нажмите для фокуса"
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4"
       >
         <input
@@ -267,7 +274,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              <h3 className="text-2xl font-bold mb-2">Тест завершён!</h3>
+              <h3 className="text-2xl font-bold mb-2">Тест завершён</h3>
               <div className="grid grid-cols-2 gap-4 mb-6 max-w-xs mx-auto">
                 <div className="bg-dark-800 rounded-lg p-3">
                   <p className="text-sm text-dark-400">WPM</p>

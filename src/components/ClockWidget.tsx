@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAppTranslation } from '../i18n/config'
 
 interface ClockWidgetProps {
   showSeconds?: boolean
@@ -6,6 +7,7 @@ interface ClockWidgetProps {
 }
 
 export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidgetProps) {
+  const { t } = useAppTranslation()
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {
@@ -47,9 +49,9 @@ export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidge
   }
 
   return (
-    <div className="card p-4">
+    <div className="card p-4" role="timer" aria-label={t('common.time')}>
       <div className="text-center">
-        <div className="text-3xl font-bold font-mono mb-1">{formatTime(time)}</div>
+        <div className="text-3xl font-bold font-mono mb-1" aria-live="polite" aria-atomic="true">{formatTime(time)}</div>
         <div className="text-sm text-dark-400">{formatDate(time)}</div>
       </div>
     </div>

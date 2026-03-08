@@ -5,7 +5,7 @@ import { Keyboard } from '../components/Keyboard'
 describe('Keyboard', () => {
   it('должен рендерить клавиатуру', () => {
     render(<Keyboard layout="jcuken" />)
-    expect(screen.getByText('Виртуальная клавиатура')).toBeInTheDocument()
+    expect(screen.getByText('Клавиатура')).toBeInTheDocument()
   })
 
   it('должен показывать название раскладки', () => {

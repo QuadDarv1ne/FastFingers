@@ -264,3 +264,13 @@ export function useDebounce<T extends (...args: unknown[]) => unknown>(
 ): T {
   return debounce(func, delay) as T
 }
+
+/**
+ * Throttle для React хуков
+ */
+export function useThrottle<T extends (...args: unknown[]) => unknown>(
+  func: T,
+  limit: number
+): T {
+  return throttle(func, limit) as T
+}

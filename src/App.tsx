@@ -18,7 +18,6 @@ import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
 import {
-  TypingStats as TypingStatsType,
   SoundTheme,
   UserProgress,
   KeyboardLayout,
@@ -34,12 +33,13 @@ import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useTheme } from './hooks/useTheme'
 import { useHotkeys } from './hooks/useHotkeys'
-import { calculateSessionXp } from './utils/stats'
-import { calculateStreakXpBonus } from '@utils/streakBonus'
+import { useSessionHandlers } from '@hooks/useSessionHandlers'
+import { useAppTranslation } from './i18n/config'
 
 const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
 const SpeedTest = lazy(() => import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest })))
 const ReactionGame = lazy(() => import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame })))
+const HardcoreMode = lazy(() => import('./components/HardcoreMode').then((module) => ({ default: module.HardcoreMode })))
 const TrainingHistory = lazy(() => import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory })))
 const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress })))
 const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then((module) => ({ default: module.DailyChallengeCard })))
@@ -58,6 +58,7 @@ const NotificationBell = lazy(() => import('./components/NotificationBell').then
 const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
 
 function AppContent() {
+  const { t } = useAppTranslation()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { addNotification } = useNotifications()
 
@@ -118,6 +119,17 @@ function AppContent() {
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, setTheme } = useTheme()
 
+  const { handleSessionCompleteWithProgress, handleReactionGameComplete } = useSessionHandlers({
+    addSession,
+    activeChallenge,
+    todayChallenge: todayChallenge || null,
+    completeChallenge,
+    handleSessionComplete,
+    streak,
+    setLastSessionXp,
+    setShowSessionSummary,
+  })
+
   useHotkeys(
     {
       'ctrl+1': () => {
@@ -126,6 +138,10 @@ function AppContent() {
       },
       'ctrl+2': () => {
         setGameMode('sprint')
+        setView('main')
+      },
+      'ctrl+6': () => {
+        setGameMode('hardcore')
         setView('main')
       },
       'ctrl+3': () => setView('statistics'),
@@ -154,31 +170,6 @@ function AppContent() {
   const handleOnboardingComplete = useCallback(() => {
     localStorage.setItem('fastfingers_onboarding_seen', 'true')
     setShowOnboarding(false)
-  }, [])
-
-  const handleSessionCompleteWithProgress = useCallback(
-    (stats: TypingStatsType) => {
-      const xp = calculateSessionXp(stats)
-      const streakBonus = calculateStreakXpBonus(streak.current)
-      const totalXp = xp + streakBonus
-      setLastSessionXp(totalXp)
-
-      addSession(stats, totalXp)
-
-      if (activeChallenge && todayChallenge) {
-        completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
-        setActiveChallenge(null)
-      }
-
-      handleSessionComplete(stats, streak.current)
-      setShowSessionSummary(true)
-    },
-    [addSession, activeChallenge, todayChallenge, completeChallenge, handleSessionComplete, streak]
-  )
-
-  const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
-    const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
-    setLastSessionXp(xp)
   }, [])
 
   const handleSaveCustomExercise = useCallback(
@@ -224,7 +215,7 @@ function AppContent() {
               />
             </svg>
           </div>
-          <p className="text-dark-400">Загрузка...</p>
+          <p className="text-dark-400">{t('action.loading')}</p>
         </div>
       </div>
     )
@@ -264,7 +255,7 @@ function AppContent() {
 
       <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label="Режимы тренировки">
+          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label={t('stats.history')}>
             <ModeButton
               isActive={gameMode === 'practice' && view === 'main'}
               onClick={() => {
@@ -272,8 +263,8 @@ function AppContent() {
                 setView('main')
               }}
               icon="📝"
-              label="Практика"
-              title="Свободная практика печати"
+              label={t('nav.practice')}
+              title={t('mode.practice')}
             />
             <ModeButton
               isActive={gameMode === 'sprint'}
@@ -282,8 +273,18 @@ function AppContent() {
                 setView('main')
               }}
               icon="⚡"
-              label="Спринт"
+              label={t('nav.sprint')}
               title="60 секунд на максимальную скорость"
+            />
+            <ModeButton
+              isActive={gameMode === 'hardcore'}
+              onClick={() => {
+                setGameMode('hardcore')
+                setView('main')
+              }}
+              icon="💀"
+              label={t('mode.hardcore')}
+              title="Режим без ошибок - любая ошибка завершает сессию"
             />
             <SpeedTestDropdown
               isActive={gameMode === 'speedtest'}
@@ -295,43 +296,43 @@ function AppContent() {
               isActive={view === 'custom-exercise'}
               onClick={() => setView('custom-exercise')}
               icon="✏️"
-              label="Своё"
-              title="Создать своё упражнение"
+              label={t('nav.custom')}
+              title={t('exercise.custom')}
             />
             <ModeButton
               isActive={view === 'tips'}
               onClick={() => setView('tips')}
               icon="💡"
-              label="Советы"
-              title="Советы по слепой печати"
+              label={t('nav.tips')}
+              title={t('nav.tips')}
             />
             <ModeButton
               isActive={view === 'weekly'}
               onClick={() => setView('weekly')}
               icon="📈"
-              label="Неделя"
-              title="Прогресс за неделю"
+              label={t('nav.week')}
+              title={t('stats.progress')}
             />
             <ModeButton
               isActive={view === 'statistics'}
               onClick={() => setView('statistics')}
               icon="📊"
-              label="Статистика"
-              title="Детальная статистика"
+              label={t('nav.statistics')}
+              title={t('stats.title')}
             />
             <ModeButton
               isActive={view === 'learning'}
               onClick={() => setView('learning')}
               icon="📚"
-              label="Обучение"
-              title="Режим обучения"
+              label={t('nav.learning')}
+              title={t('nav.learning')}
             />
             <ModeButton
               isActive={gameMode === 'reaction'}
               onClick={() => setGameMode('reaction')}
               icon="🎮"
-              label="Игра"
-              title="Игра на реакцию"
+              label={t('nav.reaction')}
+              title={t('mode.game')}
             />
           </nav>
 
@@ -373,6 +374,12 @@ function AppContent() {
                 />
               ) : gameMode === 'sprint' ? (
                 <SprintMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionCompleteWithProgress}
+                  sound={sound}
+                />
+              ) : gameMode === 'hardcore' ? (
+                <HardcoreMode
                   onExit={() => setGameMode('practice')}
                   onComplete={handleSessionCompleteWithProgress}
                   sound={sound}
@@ -460,8 +467,8 @@ function AppContent() {
         </div>
       </main>
 
-      <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm">
-        <p>FastFingers © 2026 — Тренажёр слепой печати</p>
+      <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm" role="contentinfo">
+        <p>{t('misc.footer')}</p>
       </footer>
 
       <OnlineStatus />
@@ -622,20 +629,22 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
   onShowStreakRewards,
   streak,
 }) {
+  const { t } = useAppTranslation()
   return (
     <div className="glass rounded-xl p-6">
-      <h3 className="text-lg font-semibold mb-4">Настройки</h3>
+      <h3 className="text-lg font-semibold mb-4">{t('misc.settings')}</h3>
 
       <div className="space-y-4">
         <div>
           <label htmlFor="layout-select" className="block text-sm text-dark-400 mb-2">
-            Раскладка
+            {t('misc.keyboard')}
           </label>
           <select
             id="layout-select"
             value={settings.layout}
             onChange={(e) => onSettingChange('layout', e.target.value as KeyboardLayout)}
             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            aria-label={t('misc.keyboard')}
           >
             <option value="jcuken">ЙЦУКЕН</option>
             <option value="qwerty">QWERTY</option>
@@ -645,15 +654,16 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
 
         <div>
           <label htmlFor="sound-theme-select" className="block text-sm text-dark-400 mb-2">
-            Звуковая тема
+            {t('misc.sound')}
           </label>
           <select
             id="sound-theme-select"
             value={settings.soundTheme}
             onChange={(e) => onSettingChange('soundTheme', e.target.value as SoundTheme)}
             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            aria-label={t('misc.sound')}
           >
-            <option value="default">🔊 По умолчанию</option>
+            <option value="default">🔊 {t('misc.theme')}</option>
             <option value="piano">🎹 Пианино</option>
             <option value="mechanical">⌨️ Механическая</option>
             <option value="soft">🌸 Мягкий</option>
@@ -662,13 +672,13 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
         </div>
 
         <Toggle
-          label="Звук"
+          label={t('misc.sound')}
           checked={settings.soundEnabled}
           onChange={(checked) => onSettingChange('soundEnabled', checked)}
         />
 
         <Toggle
-          label="Клавиатура"
+          label={t('misc.keyboard')}
           checked={settings.showKeyboard}
           onChange={(checked) => onSettingChange('showKeyboard', checked)}
         />
@@ -676,9 +686,10 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
         <button
           onClick={onShowStreakRewards}
           className="w-full py-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 border border-orange-500/50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          aria-label={t('notification.streak')}
         >
-          <span>🔥</span>
-          Награды за серию ({streak} дн.)
+          <span aria-hidden="true">🔥</span>
+          {t('notification.streak')} ({streak} {t('common.days')})
         </button>
       </div>
     </div>

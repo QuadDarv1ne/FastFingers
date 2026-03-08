@@ -34,7 +34,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс! Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
     expect(screen.getByText('Попробовать снова')).toBeInTheDocument()
     expect(screen.getByText('Обновить страницу')).toBeInTheDocument()
   })
@@ -80,12 +80,12 @@ describe('ErrorBoundary', () => {
     )
 
     // ErrorBoundary перехватывает ошибку
-    expect(screen.getByText('Упс! Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
 
     // Клик по кнопке "Попробовать снова" должен сбросить состояние
     fireEvent.click(screen.getByText('Попробовать снова'))
 
     // Компонент снова попытается рендериться и снова упадёт
-    expect(screen.getByText('Упс! Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
   })
 })

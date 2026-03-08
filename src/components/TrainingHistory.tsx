@@ -1,5 +1,8 @@
 import { useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
+import { useExport } from '../hooks/useExport'
+import { formatDurationLong } from '../utils/format'
+import type { ExportData } from '../utils/export'
 
 interface TrainingHistoryProps {
   onBack: () => void
@@ -7,6 +10,7 @@ interface TrainingHistoryProps {
 
 export function TrainingHistory({ onBack }: TrainingHistoryProps) {
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
+  const { exportDataToCSV, isExporting } = useExport({ filename: 'fastfingers_history.csv' })
 
   // Статистика за разные периоды
   const stats24h = useMemo(() => getStatsForPeriod(1), [getStatsForPeriod])
@@ -25,6 +29,18 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
   // Максимальный WPM для масштаба графика
   const maxWpm = Math.max(...wpmData.map(d => d.wpm), 1)
 
+  // Данные для экспорта
+  const exportData: ExportData[] = useMemo(() => history.sessions.map(s => ({
+    date: s.date,
+    wpm: s.wpm,
+    cpm: s.cpm,
+    accuracy: s.accuracy,
+    errors: s.errors,
+    timeElapsed: s.duration,
+    correctChars: Math.round((s.accuracy / 100) * s.cpm * s.duration / 60),
+    totalChars: s.cpm * s.duration / 60,
+  })), [history.sessions])
+
   return (
     <div className="glass rounded-xl p-6">
       {/* Заголовок */}
@@ -33,16 +49,34 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
           <h2 className="text-2xl font-bold text-gradient">История тренировок</h2>
           <p className="text-sm text-dark-400">Ваш прогресс и достижения</p>
         </div>
-        
-        <button
-          onClick={onBack}
-          className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-          title="Назад"
-        >
-          <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportDataToCSV(exportData)}
+            disabled={isExporting || history.sessions.length === 0}
+            className="px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            title="Экспорт в CSV"
+          >
+            {isExporting ? (
+              <span className="animate-pulse">📥</span>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            )}
+            {isExporting ? '...' : 'CSV'}
+          </button>
+
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
+            title="Назад"
+          >
+            <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Общая статистика */}
@@ -52,9 +86,9 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
           value={history.totalSessions.toString()} 
           icon="📊"
         />
-        <StatCard 
-          label="Время тренировок" 
-          value={`${formatTime(history.totalTime)}`} 
+        <StatCard
+          label="Время тренировок"
+          value={formatDurationLong(history.totalTime)}
           icon="⏱️"
         />
         <StatCard 
@@ -279,11 +313,4 @@ function PeriodCard({
       </div>
     </div>
   )
-}
-
-function formatTime(minutes: number): string {
-  if (minutes < 60) return `${minutes} мин`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${hours}ч ${mins}м`
 }

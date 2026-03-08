@@ -4,6 +4,7 @@ import App from './App.tsx'
 import { AppErrorBoundary } from './components/AppErrorBoundary.tsx'
 import { Providers } from './contexts/Providers.tsx'
 import { initSentry } from './utils/sentry'
+import './i18n/config'
 import './index.css'
 
 initSentry()

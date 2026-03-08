@@ -50,10 +50,10 @@ export function SessionSummary({
             </motion.div>
             
             <h2 className="text-2xl font-bold mb-2">
-              {levelUp ? 'Уровень повышен!' : 'Тренировка завершена!'}
+              {levelUp ? 'Уровень повышен' : 'Тренировка завершена'}
             </h2>
             {levelUp && (
-              <p className="text-primary-400">Продолжайте в том же духе!</p>
+              <p className="text-primary-400">Продолжайте в том же духе</p>
             )}
           </div>
 

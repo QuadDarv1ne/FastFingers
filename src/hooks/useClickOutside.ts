@@ -13,9 +13,6 @@ const DEFAULT_OPTIONS: Required<ClickOptions> = {
   touchEvent: 'touchstart',
 }
 
-/**
- * Хук для отслеживания кликов вне элемента
- */
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   handler: Handler,
@@ -41,9 +38,6 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   }, [ref, handler, mouseEvent, touchEvent])
 }
 
-/**
- * Хук для отслеживания кликов внутри элемента
- */
 export function useClickInside<T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   handler: Handler,
@@ -68,3 +62,5 @@ export function useClickInside<T extends HTMLElement = HTMLElement>(
     }
   }, [ref, handler, mouseEvent, touchEvent])
 }
+
+export default useClickOutside

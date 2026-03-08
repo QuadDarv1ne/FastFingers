@@ -7,12 +7,8 @@ interface UseIdleDetectionOptions {
   events?: string[]
 }
 
-/**
- * Хук для определения неактивности пользователя
- * Полезен для автосохранения, паузы таймеров и т.д.
- */
 export function useIdleDetection({
-  timeout = 60000, // 1 минута по умолчанию
+  timeout = 60000,
   onIdle,
   onActive,
   events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'],
@@ -37,10 +33,8 @@ export function useIdleDetection({
       }, timeout)
     }
 
-    // Инициализация таймера
     handleActivity()
 
-    // Добавление слушателей событий
     events.forEach(event => {
       window.addEventListener(event, handleActivity)
     })
@@ -57,3 +51,5 @@ export function useIdleDetection({
 
   return isIdle
 }
+
+export default useIdleDetection

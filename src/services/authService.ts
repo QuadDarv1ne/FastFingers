@@ -137,7 +137,7 @@ const cleanupExpiredTokens = () => {
       localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
     }
   } catch {
-    // Игнорируем ошибки
+    // Ignore errors
   }
 };
 
@@ -150,7 +150,7 @@ const cleanupOldAttempts = () => {
       localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(recentAttempts));
     }
   } catch {
-    // Игнорируем ошибки
+    // Ignore errors
   }
 };
 
@@ -180,7 +180,6 @@ export const authService = {
       throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
     }
 
-    // Если Supabase настроен - используем его
     if (supabase) {
       const { data, error } = await supabase.auth.signUp({
         email: sanitizedEmail,
@@ -215,7 +214,6 @@ export const authService = {
       }
     }
 
-    // Fallback на localStorage
     const users = getUsers();
 
     if (users.find(u => u.email === sanitizedEmail)) {
@@ -262,7 +260,6 @@ export const authService = {
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
-    // Если Supabase настроен - используем его
     if (supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
@@ -303,7 +300,6 @@ export const authService = {
       }
     }
 
-    // Fallback на localStorage
     const lockoutTime = checkLockout(sanitizedEmail);
     if (lockoutTime) {
       const minutes = Math.ceil(lockoutTime / 60000);
@@ -337,7 +333,6 @@ export const authService = {
     return userWithoutPassword;
   },
 
-  // Выход
   async logout(): Promise<void> {
     if (supabase) {
       await supabase.auth.signOut();
@@ -345,12 +340,10 @@ export const authService = {
     removeCurrentUser();
   },
 
-  // Проверка текущего пользователя
   getCurrentUser(): User | null {
     return getCurrentUserFromStorage();
   },
 
-  // Запрос на сброс пароля
   async requestPasswordReset(request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> {
     await delay(REGISTRATION_DELAY_MS);
 
@@ -372,11 +365,9 @@ export const authService = {
     tokens.push({ email: request.email, token, expiresAt });
     localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
 
-    // Возвращаем токен для отображения в UI (в реальном приложении отправляется на email)
     return { token, expiresAt };
   },
 
-  // Подтверждение сброса пароля
   async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<void> {
     await delay(REGISTRATION_DELAY_MS);
 
@@ -405,7 +396,7 @@ export const authService = {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
 
-    const user = users[userIndex]
+    const user = users[userIndex];
     if (!user) {
       throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
     }
@@ -416,7 +407,6 @@ export const authService = {
     localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
   },
 
-  // Обновление профиля
   async updateProfile(userId: string, updates: Partial<Pick<User, 'name' | 'avatar'>>): Promise<User> {
     await delay(PROFILE_UPDATE_DELAY_MS);
 
@@ -445,7 +435,6 @@ export const authService = {
     return userWithoutPassword;
   },
 
-  // Синхронизация статистики пользователя
   async syncUserStats(userId: string, stats: Partial<User['stats']>): Promise<User> {
     const users = getUsers();
     const userIndex = users.findIndex(u => u.id === userId);

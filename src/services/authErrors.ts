@@ -65,6 +65,7 @@ export function isValidPassword(password: string): boolean {
 export function checkPasswordStrength(password: string): {
   score: number
   feedback: string[]
+  estimatedCrackTime?: string
 } {
   const feedback: string[] = []
   let score = 0
@@ -90,5 +91,17 @@ export function checkPasswordStrength(password: string): {
     feedback.push('Специальный символ')
   }
 
-  return { score, feedback }
+  // Оценка времени взлома
+  const entropy = password.length * Math.log2(94)
+  const guessesPerSecond = 1e10
+  const secondsToCrack = Math.pow(2, entropy) / guessesPerSecond
+  
+  let estimatedCrackTime: string | undefined
+  if (secondsToCrack < 60) estimatedCrackTime = 'мгновенно'
+  else if (secondsToCrack < 3600) estimatedCrackTime = `${Math.round(secondsToCrack / 60)} мин`
+  else if (secondsToCrack < 86400) estimatedCrackTime = `${Math.round(secondsToCrack / 3600)} ч`
+  else if (secondsToCrack < 31536000) estimatedCrackTime = `${Math.round(secondsToCrack / 86400)} дн`
+  else estimatedCrackTime = '> 1 года'
+
+  return { score, feedback, estimatedCrackTime }
 }

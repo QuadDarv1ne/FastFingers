@@ -26,10 +26,10 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
   if (combo === 0 && !showBreak) return null
 
   const getComboLevel = () => {
-    if (combo >= 100) return { level: 'legendary', color: 'from-yellow-500 to-orange-500', label: 'ЛЕГЕНДА!' }
-    if (combo >= 50) return { level: 'epic', color: 'from-purple-500 to-pink-500', label: 'ЭПИК!' }
-    if (combo >= 25) return { level: 'great', color: 'from-blue-500 to-cyan-500', label: 'ОТЛИЧНО!' }
-    if (combo >= 10) return { level: 'good', color: 'from-green-500 to-emerald-500', label: 'ХОРОШО!' }
+    if (combo >= 100) return { level: 'legendary', color: 'from-yellow-500 to-orange-500', label: 'ЛЕГЕНДА' }
+    if (combo >= 50) return { level: 'epic', color: 'from-purple-500 to-pink-500', label: 'ЭПИК' }
+    if (combo >= 25) return { level: 'great', color: 'from-blue-500 to-cyan-500', label: 'ОТЛИЧНО' }
+    if (combo >= 10) return { level: 'good', color: 'from-green-500 to-emerald-500', label: 'ХОРОШО' }
     return { level: 'normal', color: 'from-gray-500 to-gray-600', label: 'КОМБО' }
   }
 
@@ -43,7 +43,7 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
           <div className="card p-4 bg-red-500/20 border-2 border-red-500">
             <div className="text-center">
               <div className="text-3xl mb-2">💔</div>
-              <p className="text-sm font-bold text-red-400">КОМБО ПРЕРВАНО!</p>
+              <p className="text-sm font-bold text-red-400">КОМБО ПРЕРВАНО</p>
               <p className="text-xs text-dark-400 mt-1">
                 Было: {prevCombo}
               </p>

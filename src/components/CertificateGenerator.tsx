@@ -1,13 +1,14 @@
-import { memo, useState, useMemo } from 'react'
+import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { User } from '../types/auth'
 import { generateCertificate, calculateRank, CertificateData } from '../utils/certificate'
+import { useFocusTrap } from '@hooks/useFocusTrap'
 
 interface CertificateGeneratorProps {
   user: User
   wpm: number
   accuracy: number
   cpm: number
-  testType: '15s' | '30s' | '60s' | '120s' | 'sprint'
+  testType: '15s' | '30s' | '60s' | '120s' | 'sprint' | 'hardcore'
   level?: number
   streak?: number
   onClose: () => void
@@ -29,6 +30,17 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   const [theme, setTheme] = useState<CertificateTheme>('classic')
   const [language, setLanguage] = useState<CertificateLanguage>('ru')
   const [isGenerating, setIsGenerating] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(containerRef, true)
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose])
 
   const rank = useMemo(() => calculateRank(wpm, accuracy), [wpm, accuracy])
 
@@ -52,8 +64,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         download: true,
         theme,
       })
-    } catch (error) {
-      console.error('Error generating certificate:', error)
+    } catch {
+      // Error handled silently
     } finally {
       setIsGenerating(false)
     }
@@ -79,8 +91,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         // Fallback - скачивание
         await handleDownload()
       }
-    } catch (error) {
-      console.error('Error sharing certificate:', error)
+    } catch {
       await handleDownload()
     }
   }
@@ -104,12 +115,18 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   }
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="certificate-title"
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
+    >
       <div className="glass rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto">
         {/* Заголовок */}
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 id="certificate-title" className="text-2xl font-bold flex items-center gap-2">
               <span>📜</span>
               Сертификат достижения
             </h2>

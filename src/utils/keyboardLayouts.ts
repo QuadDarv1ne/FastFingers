@@ -1,8 +1,3 @@
-/**
- * Расширенные данные о раскладках клавиатуры
- * Включает информацию о зонах ответственности пальцев
- */
-
 export type FingerZone =
   | 'left-pinky'
   | 'left-ring'
@@ -152,31 +147,36 @@ export const QWERTY_LAYOUT: KeyInfo[] = [
   { key: ' ', finger: 'thumb', row: 5, difficulty: 'easy' },
 ]
 
-/**
- * Получить информацию о клавише
- */
 export function getKeyInfo(
   key: string,
   layout: 'qwerty' | 'jcuken' | 'dvorak'
 ): KeyInfo | undefined {
   const layoutData = layout === 'jcuken' ? JCUKEN_LAYOUT : QWERTY_LAYOUT
-  return layoutData.find(k => k.key.toLowerCase() === key.toLowerCase())
+  const lowerKey = key.toLowerCase()
+  for (let i = 0; i < layoutData.length; i++) {
+    const item = layoutData[i]
+    if (item && item.key.toLowerCase() === lowerKey) {
+      return item
+    }
+  }
+  return undefined
 }
 
-/**
- * Получить все клавиши для определённого пальца
- */
 export function getKeysForFinger(
   finger: FingerZone,
   layout: 'qwerty' | 'jcuken' | 'dvorak'
 ): string[] {
   const layoutData = layout === 'jcuken' ? JCUKEN_LAYOUT : QWERTY_LAYOUT
-  return layoutData.filter(k => k.finger === finger).map(k => k.key)
+  const result: string[] = []
+  for (let i = 0; i < layoutData.length; i++) {
+    const k = layoutData[i]
+    if (k && k.finger === finger) {
+      result.push(k.key)
+    }
+  }
+  return result
 }
 
-/**
- * Получить цвет для клавиши на основе зоны пальца
- */
 export function getKeyColor(
   key: string,
   layout: 'qwerty' | 'jcuken' | 'dvorak'

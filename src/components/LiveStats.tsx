@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { formatDuration } from '../utils/number'
 
 interface LiveStatsProps {
   wpm: number
@@ -30,12 +31,6 @@ export function LiveStats({
     }
     setPrevWpm(wpm)
   }, [wpm, prevWpm])
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
 
   const getAccuracyColor = (acc: number): string => {
     if (acc >= 95) return 'text-green-400'
@@ -83,7 +78,7 @@ export function LiveStats({
       {/* Time */}
       <StatCard
         label="Время"
-        value={formatTime(timeElapsed)}
+        value={formatDuration(timeElapsed)}
         unit=""
         color="text-blue-400"
         icon="⏱️"

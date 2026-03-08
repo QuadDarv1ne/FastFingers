@@ -8,11 +8,11 @@ describe('Motivational Quotes', () => {
 
   it('should have valid quote structure', () => {
     QUOTES.forEach(quote => {
-      expect(quote).toHaveProperty('text')
-      expect(quote).toHaveProperty('author')
+      expect(quote).toHaveProperty('textKey')
+      expect(quote).toHaveProperty('authorKey')
       expect(quote).toHaveProperty('category')
-      expect(quote.text.length).toBeGreaterThan(0)
-      expect(quote.author.length).toBeGreaterThan(0)
+      expect(quote.textKey.length).toBeGreaterThan(0)
+      expect(quote.authorKey.length).toBeGreaterThan(0)
     })
   })
 
@@ -31,15 +31,10 @@ describe('Motivational Quotes', () => {
     })
   })
 
-  it('should have non-empty text', () => {
+  it('should have valid translation keys', () => {
     QUOTES.forEach(quote => {
-      expect(quote.text.trim().length).toBeGreaterThan(10)
-    })
-  })
-
-  it('should have proper punctuation', () => {
-    QUOTES.forEach(quote => {
-      expect(quote.text).toMatch(/[.!?]$/)
+      expect(quote.textKey.startsWith('quote.')).toBe(true)
+      expect(quote.authorKey.startsWith('quote.')).toBe(true)
     })
   })
 })

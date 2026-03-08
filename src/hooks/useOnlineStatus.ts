@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
 
-/**
- * Хук для отслеживания статуса сетевого подключения
- */
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
   const [lastOffline, setLastOffline] = useState<Date | null>(null)
@@ -35,3 +32,5 @@ export function useOnlineStatus() {
     isOffline: !isOnline,
   }
 }
+
+export default useOnlineStatus

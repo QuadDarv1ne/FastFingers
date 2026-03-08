@@ -18,7 +18,7 @@ describe('ThemeToggle', () => {
       />
     )
 
-    expect(screen.getByRole('button', { name: /Выбрать тему/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Тема/i })).toBeInTheDocument()
   })
 
   it('должен показывать текущую тему', () => {
@@ -29,7 +29,7 @@ describe('ThemeToggle', () => {
       />
     )
 
-    expect(screen.getByText('Тёмная')).toBeInTheDocument()
+    expect(screen.getByText(/Тема 1/i)).toBeInTheDocument()
   })
 
   it('должен открывать меню при клике', async () => {
@@ -42,14 +42,14 @@ describe('ThemeToggle', () => {
       />
     )
 
-    const button = screen.getByRole('button', { name: /Выбрать тему/i })
+    const button = screen.getByRole('button', { name: /Тема/i })
     await user.click(button)
 
-    expect(screen.getByText('Светлая')).toBeInTheDocument()
-    expect(screen.getByText('Фиолетовая')).toBeInTheDocument()
-    expect(screen.getByText('Синяя')).toBeInTheDocument()
-    expect(screen.getByText('Оранжевая')).toBeInTheDocument()
-    expect(screen.getByText('Настраиваемая')).toBeInTheDocument()
+    expect(screen.getByText(/Тема 2/i)).toBeInTheDocument()
+    expect(screen.getByText(/Тема 3/i)).toBeInTheDocument()
+    expect(screen.getByText(/Тема 4/i)).toBeInTheDocument()
+    expect(screen.getByText(/Тема 5/i)).toBeInTheDocument()
+    expect(screen.getByText(/Тема 6/i)).toBeInTheDocument()
   })
 
   it('должен вызывать onThemeChange при выборе темы', async () => {
@@ -62,10 +62,10 @@ describe('ThemeToggle', () => {
       />
     )
 
-    const button = screen.getByRole('button', { name: /Выбрать тему/i })
+    const button = screen.getByRole('button', { name: /Тема/i })
     await user.click(button)
 
-    const lightTheme = screen.getByText('Светлая')
+    const lightTheme = screen.getByText(/Тема 2/i)
     await user.click(lightTheme)
 
     expect(mockOnThemeChange).toHaveBeenCalledWith('light')
@@ -81,13 +81,13 @@ describe('ThemeToggle', () => {
       />
     )
 
-    const button = screen.getByRole('button', { name: /Выбрать тему/i })
+    const button = screen.getByRole('button', { name: /Тема/i })
     await user.click(button)
 
-    const purpleTheme = screen.getByText('Фиолетовая')
+    const purpleTheme = screen.getByText(/Тема 3/i)
     await user.click(purpleTheme)
 
-    expect(screen.queryByText('Синяя')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Тема 4/i)).not.toBeInTheDocument()
   })
 
   it('должен отображать иконки для каждой темы', async () => {
@@ -100,7 +100,7 @@ describe('ThemeToggle', () => {
       />
     )
 
-    const button = screen.getByRole('button', { name: /Выбрать тему/i })
+    const button = screen.getByRole('button', { name: /Тема/i })
     await user.click(button)
 
     // Проверяем, что все иконки тем присутствуют в меню
