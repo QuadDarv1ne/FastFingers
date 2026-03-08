@@ -96,6 +96,14 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                   !notification.read ? 'bg-dark-800/30' : ''
                 }`}
                 onClick={() => markAsRead(notification.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    markAsRead(notification.id)
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Уведомление: ${notification.title}. Нажмите для отметки о прочтении`}
               >
                 <div className="flex items-start gap-3">
                   <div

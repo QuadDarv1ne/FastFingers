@@ -350,6 +350,14 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       {/* Область ввода */}
       <div
         onClick={() => inputRef.current?.focus({ preventScroll: true })}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            inputRef.current?.focus({ preventScroll: true })
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Область ввода текста. Нажмите для фокуса"
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
         <input

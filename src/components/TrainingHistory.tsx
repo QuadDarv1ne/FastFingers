@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useExport } from '../hooks/useExport'
 import { formatDurationLong } from '../utils/format'
+import type { ExportData } from '../utils/export'
 
 interface TrainingHistoryProps {
   onBack: () => void
@@ -9,7 +10,7 @@ interface TrainingHistoryProps {
 
 export function TrainingHistory({ onBack }: TrainingHistoryProps) {
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
-  const { exportToCSV, isExporting } = useExport({ filename: 'fastfingers_history.csv' })
+  const { exportDataToCSV, isExporting } = useExport({ filename: 'fastfingers_history.csv' })
 
   // Статистика за разные периоды
   const stats24h = useMemo(() => getStatsForPeriod(1), [getStatsForPeriod])
@@ -28,6 +29,18 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
   // Максимальный WPM для масштаба графика
   const maxWpm = Math.max(...wpmData.map(d => d.wpm), 1)
 
+  // Данные для экспорта
+  const exportData: ExportData[] = useMemo(() => history.sessions.map(s => ({
+    date: s.date,
+    wpm: s.wpm,
+    cpm: s.cpm,
+    accuracy: s.accuracy,
+    errors: s.errors,
+    timeElapsed: s.duration,
+    correctChars: Math.round((s.accuracy / 100) * s.cpm * s.duration / 60),
+    totalChars: s.cpm * s.duration / 60,
+  })), [history.sessions])
+
   return (
     <div className="glass rounded-xl p-6">
       {/* Заголовок */}
@@ -39,15 +52,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => exportToCSV(history.sessions.map(s => ({
-              wpm: s.wpm,
-              cpm: s.cpm,
-              accuracy: s.accuracy,
-              errors: s.errors,
-              timeElapsed: s.timeElapsed,
-              correctChars: s.correctChars,
-              totalChars: s.totalChars,
-            })), history.sessions.map(s => s.date))}
+            onClick={() => exportDataToCSV(exportData)}
             disabled={isExporting || history.sessions.length === 0}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             title="Экспорт в CSV"
