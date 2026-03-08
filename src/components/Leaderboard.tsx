@@ -1,5 +1,6 @@
-import { memo, useState, useMemo } from 'react'
+import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import { useFocusTrap } from '@hooks/useFocusTrap'
 
 export interface LeaderboardEntry {
   id: string
@@ -25,6 +26,17 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
   const [entries] = useLocalStorageState<LeaderboardEntry[]>('fastfingers_leaderboard', [])
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(containerRef, true)
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose])
 
   const filteredAndSorted = useMemo(() => {
     let filtered = [...entries]
@@ -79,12 +91,18 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
   }, [filteredAndSorted, currentUser])
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="leaderboard-title"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    >
       <div className="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Заголовок */}
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 id="leaderboard-title" className="text-2xl font-bold flex items-center gap-2">
               <span>🏆</span>
               Таблица лидеров
             </h2>
