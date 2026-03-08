@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useExport } from '../hooks/useExport'
 import { formatDurationLong } from '../utils/format'
@@ -188,42 +189,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {history.sessions.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-4">Последние сессии</h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {history.sessions.slice(0, 10).map((session, index) => (
-              <div
-                key={session.id}
-                className="bg-dark-800 rounded-lg p-4 flex items-center justify-between"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-primary-500/20 rounded-full flex items-center justify-center text-primary-400 font-bold text-sm">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-medium">{session.wpm} WPM</p>
-                    <p className="text-xs text-dark-500">
-                      {new Date(session.date).toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className={`font-medium ${
-                      session.accuracy >= 95 ? 'text-success' : 
-                      session.accuracy >= 85 ? 'text-yellow-400' : 'text-error'
-                    }`}>
-                      {session.accuracy}%
-                    </p>
-                    <p className="text-xs text-dark-500">{session.errors} ошибок</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <VirtualSessionList sessions={history.sessions.slice(0, 100)} />
         </div>
       )}
 
@@ -310,6 +276,78 @@ function PeriodCard({
           <span className="text-xs text-dark-500">Лучший WPM</span>
           <span className="text-sm text-success">{stats.bestWpm}</span>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function VirtualSessionList({ sessions }: { sessions: Array<{ id: string; wpm: number; accuracy: number; errors: number; date: string }> }) {
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: sessions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72,
+    overscan: 5,
+  })
+
+  return (
+    <div
+      ref={parentRef}
+      className="max-h-64 overflow-y-auto"
+      style={{ height: '256px' }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const session = sessions[virtualRow.index]
+          const index = virtualRow.index
+          if (!session) return null
+          return (
+            <div
+              key={session.id}
+              ref={virtualizer.measureElement}
+              data-index={virtualRow.index}
+              className="absolute left-0 w-full bg-dark-800 rounded-lg p-4 flex items-center justify-between"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 bg-primary-500/20 rounded-full flex items-center justify-center text-primary-400 font-bold text-sm">
+                  {index + 1}
+                </div>
+                <div>
+                  <p className="font-medium">{session.wpm} WPM</p>
+                  <p className="text-xs text-dark-500">
+                    {new Date(session.date).toLocaleDateString('ru-RU', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className={`font-medium ${
+                    session.accuracy >= 95 ? 'text-success' :
+                    session.accuracy >= 85 ? 'text-yellow-400' : 'text-error'
+                  }`}>
+                    {session.accuracy}%
+                  </p>
+                  <p className="text-xs text-dark-500">{session.errors} ошибок</p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
