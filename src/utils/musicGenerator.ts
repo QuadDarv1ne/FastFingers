@@ -60,7 +60,8 @@ export class MusicGenerator {
 
   init(): void {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext
+      this.audioContext = new AudioContextClass()
       this.masterGain = this.audioContext.createGain()
       this.masterGain.connect(this.audioContext.destination)
       this.masterGain.gain.value = this.volume
@@ -231,36 +232,44 @@ export class MusicGenerator {
 
     // Bass line
     if (beat % 2 === 0) {
-      const bassPattern = [0, 0, 3, 0, 5, 3, 0, 5]
-      const noteIndex = bassPattern[beat % 8]!
-      const freq = this.getFrequency(noteIndex, 2)
-      this.playBass(freq, time, 0.2)
+      const bassPattern = [0, 0, 3, 0, 5, 3, 0, 5] as const
+      const noteIndex = bassPattern[beat % 8]
+      if (noteIndex !== undefined) {
+        const freq = this.getFrequency(noteIndex, 2)
+        this.playBass(freq, time, 0.2)
+      }
     }
 
     // Lead synth
     if (beat % 4 === 0 || beat % 4 === 3) {
-      const melodyPattern = [0, 2, 4, 5, 4, 2, 0, 7]
-      const noteIndex = melodyPattern[beat % 8]!
-      const freq = this.getFrequency(noteIndex, 5)
-      this.createOscillator('sawtooth', freq, time, 0.3, 0.15)
+      const melodyPattern = [0, 2, 4, 5, 4, 2, 0, 7] as const
+      const noteIndex = melodyPattern[beat % 8]
+      if (noteIndex !== undefined) {
+        const freq = this.getFrequency(noteIndex, 5)
+        this.createOscillator('sawtooth', freq, time, 0.3, 0.15)
+      }
     }
   }
 
   private playClassical(beat: number, time: number): void {
     // Арпеджио левой руки
     if (beat % 2 === 0) {
-      const arpeggio = [0, 2, 4]
-      const noteIndex = arpeggio[(beat / 2) % 3]!
-      const freq = this.getFrequency(noteIndex, 3)
-      this.createOscillator('triangle', freq, time, 0.5, 0.25)
+      const arpeggio = [0, 2, 4] as const
+      const noteIndex = arpeggio[(beat / 2) % 3]
+      if (noteIndex !== undefined) {
+        const freq = this.getFrequency(noteIndex, 3)
+        this.createOscillator('triangle', freq, time, 0.5, 0.25)
+      }
     }
 
     // Мелодия правой руки
     if (beat % 4 === 0 || beat % 4 === 2) {
-      const melodyPattern = [0, 1, 2, 3, 4, 3, 2, 1]
-      const noteIndex = melodyPattern[beat % 8]!
-      const freq = this.getFrequency(noteIndex, 5)
-      this.createOscillator('sine', freq, time, 0.8, 0.3)
+      const melodyPattern = [0, 1, 2, 3, 4, 3, 2, 1] as const
+      const noteIndex = melodyPattern[beat % 8]
+      if (noteIndex !== undefined) {
+        const freq = this.getFrequency(noteIndex, 5)
+        this.createOscillator('sine', freq, time, 0.8, 0.3)
+      }
     }
 
     // Бас
@@ -272,7 +281,7 @@ export class MusicGenerator {
   }
 
   private playJazz(beat: number, time: number): void {
-    const scale = SCALES[this.currentKey]!
+    const scale = SCALES[this.currentKey]
 
     // Swing rhythm
     const swingOffset = beat % 2 === 1 ? 0.1 : 0
@@ -283,18 +292,21 @@ export class MusicGenerator {
     }
 
     // Walking bass
-    const bassPattern = [0, 2, 4, 5, 6, 4, 2, 1]
-    const noteIndex = bassPattern[beat % 8]!
-    const freq = this.getFrequency(noteIndex, 2)
-    this.playBass(freq, time, 0.4)
+    const bassPattern = [0, 2, 4, 5, 6, 4, 2, 1] as const
+    const noteIndex = bassPattern[beat % 8]
+    if (noteIndex !== undefined) {
+      const freq = this.getFrequency(noteIndex, 2)
+      this.playBass(freq, time, 0.4)
+    }
 
     // Piano chords (comping)
     if (beat % 4 === 0 || beat % 4 === 2) {
+      const intervalsLen = scale?.intervals.length || 7
       const chord = [
         (beat / 2) % 4,
-        ((beat / 2) % 4 + 2) % scale.intervals.length,
-        ((beat / 2) % 4 + 4) % scale.intervals.length,
-        ((beat / 2) % 4 + 6) % scale.intervals.length,
+        ((beat / 2) % 4 + 2) % intervalsLen,
+        ((beat / 2) % 4 + 4) % intervalsLen,
+        ((beat / 2) % 4 + 6) % intervalsLen,
       ]
       this.playChord(chord, time + swingOffset, 0.5, 'triangle')
     }
