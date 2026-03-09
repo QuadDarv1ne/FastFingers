@@ -54,7 +54,6 @@ const StatisticsPage = lazy(() => import('./components/StatisticsPage').then((mo
 const LearningMode = lazy(() => import('./components/LearningMode').then((module) => ({ default: module.LearningMode })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
-const NotificationBell = lazy(() => import('./components/NotificationBell').then((module) => ({ default: module.NotificationBell })))
 const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
 
 function AppContent() {
@@ -239,13 +238,8 @@ function AppContent() {
         xp={progress.xp}
         xpToNextLevel={progress.xpToNextLevel}
         onProfileClick={() => setShowProfile(true)}
+        onNotificationsClick={() => setShowNotificationPanel(true)}
       />
-
-      <div className="fixed top-4 right-4 z-40">
-        <Suspense fallback={null}>
-          <NotificationBell onOpenPanel={() => setShowNotificationPanel(true)} />
-        </Suspense>
-      </div>
 
       {showNotificationPanel && (
         <Suspense fallback={<LoadingFallback />}>

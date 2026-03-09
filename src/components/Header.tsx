@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { NotificationBell } from './NotificationBell'
 import { useAppTranslation } from '../i18n/config'
 
 interface HeaderProps {
@@ -7,9 +8,10 @@ interface HeaderProps {
   xp: number
   xpToNextLevel: number
   onProfileClick?: () => void
+  onNotificationsClick?: () => void
 }
 
-export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfileClick }: HeaderProps) {
+export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfileClick, onNotificationsClick }: HeaderProps) {
   const { t } = useAppTranslation()
   const progress = ((xp / xpToNextLevel) * 100).toFixed(0)
 
@@ -71,7 +73,10 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
               </button>
             )}
 
-            <LanguageSwitcher />
+            <div className="flex items-center gap-2">
+              <NotificationBell onOpenPanel={onNotificationsClick} />
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </div>

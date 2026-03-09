@@ -109,7 +109,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden" role="dialog" aria-label={t('notification.levelUp')}>
+          <div className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden" role="dialog" aria-label={t('notification.levelUp')} style={{ maxHeight: 'min(600px, 80vh)' }}>
             {/* Header */}
             <div className="p-4 border-b border-dark-700 flex items-center justify-between">
               <div>
