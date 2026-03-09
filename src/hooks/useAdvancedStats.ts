@@ -120,7 +120,7 @@ export function useAdvancedStats() {
       sessionsChange: previousWeek.sessions > 0 ? Math.round(((currentWeek.sessions - previousWeek.sessions) / previousWeek.sessions) * 100) : 0,
       charsChange: previousWeek.totalChars > 0 ? Math.round(((currentWeek.totalChars - previousWeek.totalChars) / previousWeek.totalChars) * 100) : 0,
     }
-  }, [history.sessions])
+  }, [history])
 
   // Персональные рекорды
   const personalRecords = useMemo<PersonalRecords>(() => {
@@ -157,7 +157,7 @@ export function useAdvancedStats() {
       totalTime: history.totalTime,
       bestSession: bestWpmSession,
     }
-  }, [history.sessions, history.totalSessions, history.totalTime])
+  }, [history])
 
   // Данные для графика WPM тренда
   const wpmTrend = useMemo<WpmTrendData[]>(() => {
