@@ -135,6 +135,13 @@ export type TranslationKey =
   | 'misc.copyright'
   | 'misc.fontSize'
   | 'misc.highContrast'
+  | 'music.title'
+  | 'music.genre'
+  | 'music.tempo'
+  | 'music.volume'
+  | 'music.key'
+  | 'music.playing'
+  | 'action.stop'
   | 'tip.posture'
   | 'tip.postureDesc'
   | 'tip.hands'
@@ -316,6 +323,13 @@ const resources = {
       'misc.copyright': '© 2026 FastFingers',
       'misc.fontSize': 'Размер шрифта',
       'misc.highContrast': 'Контрастность',
+      'music.title': 'Музыка',
+      'music.genre': 'Жанр',
+      'music.tempo': 'Темп',
+      'music.volume': 'Громкость',
+      'music.key': 'Тональность',
+      'music.playing': 'Воспроизведение...',
+      'action.stop': 'Стоп',
       'tip.posture': 'Правильная осанка',
       'tip.postureDesc': 'Сидите прямо, спина прижата к спинке стула. Расстояние от глаз до монитора — 50-70 см.',
       'tip.hands': 'Положение рук',
@@ -491,6 +505,13 @@ const resources = {
       'misc.copyright': '© 2026 FastFingers',
       'misc.fontSize': 'Font Size',
       'misc.highContrast': 'High Contrast',
+      'music.title': 'Music',
+      'music.genre': 'Genre',
+      'music.tempo': 'Tempo',
+      'music.volume': 'Volume',
+      'music.key': 'Key',
+      'music.playing': 'Playing...',
+      'action.stop': 'Stop',
       'tip.posture': 'Posture',
       'tip.postureDesc': 'Sit up straight, back against the chair. Keep 50-70cm distance from eyes to monitor.',
       'tip.hands': 'Hand Position',
