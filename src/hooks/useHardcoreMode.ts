@@ -135,7 +135,7 @@ export function useHardcoreMode({
     }
 
     e.currentTarget.value = ''
-  }, [isActive, countdown, text, currentIndex, sound, handleMistake, generateNewText])
+  }, [isActive, countdown, text, currentIndex, sound, handleMistake, generateNewText, handleStart])
 
   const resetGame = useCallback(() => {
     setStreak(0)

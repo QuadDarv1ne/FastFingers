@@ -8,6 +8,7 @@ import { supabase } from '../services/supabase'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
 import { useHotkey } from '../hooks/useHotkeys'
+import type { User } from '../types/auth'
 
 const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
@@ -32,14 +33,6 @@ interface HardcoreRecord {
   wpm: number
   accuracy: number
   created_at: string
-}
-
-interface UserWithMetadata {
-  id: string
-  name: string
-  email: string
-  createdAt: string
-  stats: any
 }
 
 export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
@@ -117,13 +110,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       const saveRecord = async () => {
         let retries = 3
         while (retries > 0) {
-          const { error } = await (supabase as any).from('hardcore_records').insert({
+          const result = await supabase?.from('hardcore_records').insert({
             user_id: user.id,
             streak,
             wpm: stats.wpm,
             accuracy: stats.accuracy,
           })
-          if (!error) break
+          if (!result?.error) break
           retries--
           if (retries > 0) await new Promise(resolve => setTimeout(resolve, 500))
         }
@@ -277,7 +270,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       {showCertificate && lastStats && user && (
         <CertificateGenerator
-          user={user as unknown as UserWithMetadata}
+          user={user as unknown as User}
           wpm={lastStats.wpm}
           accuracy={lastStats.accuracy}
           cpm={lastStats.cpm}
