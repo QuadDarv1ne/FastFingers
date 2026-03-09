@@ -1,22 +1,31 @@
-import { lazy, Suspense, type ComponentType } from 'react'
-import { memo } from 'react'
+import { lazy, Suspense, memo } from 'react'
 
 const LoadingFallback = memo(() => (
   <div className="flex items-center justify-center p-8 text-dark-400">
     <div className="animate-pulse">Загрузка графика...</div>
   </div>
 ))
+LoadingFallback.displayName = 'LoadingFallback'
 
-function createLazyChart<T extends ComponentType<any>>(importFn: () => Promise<{ default: T }>): T {
-  const LazyComponent = lazy(importFn)
-  
-  return ((props: any) => (
+ 
+const createLazyChart = (importFn: () => Promise<{ default: unknown }>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const LazyComponent = lazy(importFn as any)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const LazyWrapper = (props: any) => (
     <Suspense fallback={<LoadingFallback />}>
+      { }
       <LazyComponent {...props} />
     </Suspense>
-  )) as T
+  )
+  LazyWrapper.displayName = 'LazyWrapper'
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return LazyWrapper as any
 }
 
+export { LoadingFallback }
 export const BarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.BarChart })))
 export const Bar = createLazyChart(() => import('recharts').then(m => ({ default: m.Bar })))
 export const AreaChart = createLazyChart(() => import('recharts').then(m => ({ default: m.AreaChart })))
