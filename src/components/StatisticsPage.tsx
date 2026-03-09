@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
+import { useAdvancedStats } from '../hooks/useAdvancedStats'
 import {
   BarChart,
   Bar,
@@ -14,6 +15,9 @@ import {
   Pie,
   Cell,
 } from './LazyRecharts'
+import { ActivityHeatmap } from './ActivityHeatmap'
+import { PersonalRecords } from './PersonalRecords'
+import { WeeklyComparison } from './WeeklyComparison'
 
 interface StatisticsPageProps {
   onBack: () => void
@@ -21,6 +25,7 @@ interface StatisticsPageProps {
 
 export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
   const { history, getStatsForPeriod } = useTypingHistory()
+  useAdvancedStats()
 
   // Данные за разные периоды
   const stats24h = getStatsForPeriod(1)
@@ -154,6 +159,15 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
             trend="+2%"
           />
         </div>
+
+        {/* Персональные рекорды */}
+        <PersonalRecords className="mb-8" />
+
+        {/* Сравнение с прошлой неделей */}
+        <WeeklyComparison className="mb-8" />
+
+        {/* Тепловая карта активности */}
+        <ActivityHeatmap months={6} />
 
         {/* Графики */}
         <h2 className="text-2xl font-bold mb-4 text-gradient">📊 Расширенная аналитика</h2>
