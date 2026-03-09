@@ -5,6 +5,7 @@ import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
 import { ThemeToggle } from './components/ThemeToggle'
 import { KeyboardSkinSelector } from './components/KeyboardSkinSelector'
+import { MusicControls } from './components/MusicControls'
 import { ClockWidget } from './components/ClockWidget'
 import { MotivationalQuote } from './components/MotivationalQuote'
 import { LoadingFallback } from './components/LoadingFallback'
@@ -435,6 +436,7 @@ function AppContent() {
           <div className="space-y-6">
             <ClockWidget />
             <MotivationalQuote />
+            <MusicControls />
 
             {settings.showStats && (
               <Stats
