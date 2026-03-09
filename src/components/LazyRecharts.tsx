@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { lazy, Suspense, memo } from 'react'
 
 const LoadingFallback = memo(() => (
@@ -7,7 +8,7 @@ const LoadingFallback = memo(() => (
 ))
 LoadingFallback.displayName = 'LoadingFallback'
 
- 
+
 const createLazyChart = (importFn: () => Promise<{ default: unknown }>) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const LazyComponent = lazy(importFn as any)
@@ -15,7 +16,6 @@ const createLazyChart = (importFn: () => Promise<{ default: unknown }>) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const LazyWrapper = (props: any) => (
     <Suspense fallback={<LoadingFallback />}>
-      { }
       <LazyComponent {...props} />
     </Suspense>
   )
