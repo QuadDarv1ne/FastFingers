@@ -10,7 +10,6 @@ import { useAppTranslation } from '../i18n/config'
 
 interface TypingTrainerProps {
   layout: KeyboardLayout
-  fontSize: 'small' | 'medium' | 'large'
   onSessionComplete: (stats: TypingStats) => void
   onKeyInput?: (key: string, isCorrect: boolean) => void
   sound?: ReturnType<typeof useTypingSound>
@@ -18,13 +17,6 @@ interface TypingTrainerProps {
   isChallenge?: boolean
   challengeText?: string
 }
-
-// Вынесено наружу для избежания пересоздания функций
-const FONT_SIZE_MAP = {
-  small: 'text-lg',
-  medium: 'text-xl',
-  large: 'text-2xl',
-} as const
 
 const CATEGORY_OPTIONS = [
   { value: 'all', label: '🎲 Случайные слова' },
@@ -45,7 +37,6 @@ const DIFFICULTY_OPTIONS = [
 ] as const
 
 export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
-  fontSize,
   onSessionComplete,
   onKeyInput,
   sound,
@@ -180,7 +171,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   }, { enabled: true })
 
   // Размер шрифта (мемоизация)
-  const fontSizeClass = useMemo(() => FONT_SIZE_MAP[fontSize], [fontSize])
+  const fontSizeStyle = useMemo(() => ({ fontSize: 'var(--font-size-practice)' }), [])
 
   // Текущая клавиша для подсветки (мемоизация)
   const currentKey = useMemo(() =>
@@ -308,7 +299,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           {currentIndex} из {text.length} символов. Точность: {inputResults.filter(r => r?.isCorrect).length} из {inputResults.length}
         </div>
 
-        <div className={`font-mono leading-relaxed ${fontSizeClass} break-words select-none`} aria-live="polite">
+        <div className="font-mono leading-relaxed break-words select-none" style={fontSizeStyle} aria-live="polite">
           {renderedChars}
         </div>
         
@@ -443,7 +434,6 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   )
 }, (prevProps, nextProps) => {
   return (
-    prevProps.fontSize === nextProps.fontSize &&
     prevProps.isChallenge === nextProps.isChallenge &&
     prevProps.challengeText === nextProps.challengeText &&
     prevProps.layout === nextProps.layout

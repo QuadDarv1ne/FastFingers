@@ -12,6 +12,31 @@
   --color-text: #f8fafc;
   --color-text-muted: #94a3b8;
   --color-border: rgba(255, 255, 255, 0.1);
+  --font-size-base: 16px;
+  --font-size-practice: 1.5rem;
+}
+
+html[data-font-size='small'] {
+  --font-size-base: 14px;
+  --font-size-practice: 1.25rem;
+}
+
+html[data-font-size='medium'] {
+  --font-size-base: 16px;
+  --font-size-practice: 1.5rem;
+}
+
+html[data-font-size='large'] {
+  --font-size-base: 18px;
+  --font-size-practice: 1.75rem;
+}
+
+html[data-contrast='high'] {
+  --color-bg: #000000;
+  --color-surface: #1a1a1a;
+  --color-text: #ffffff;
+  --color-text-muted: #cccccc;
+  --color-border: rgba(255, 255, 255, 0.3);
 }
 
 * {

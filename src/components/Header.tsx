@@ -1,6 +1,8 @@
 import { memo } from 'react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { NotificationBell } from './NotificationBell'
+import { FontSizeSelector } from './FontSizeSelector'
+import { ContrastToggle } from './ContrastToggle'
 import { useAppTranslation } from '../i18n/config'
 
 interface HeaderProps {
@@ -74,6 +76,8 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
             )}
 
             <div className="flex items-center gap-2">
+              <ContrastToggle />
+              <FontSizeSelector />
               <NotificationBell onOpenPanel={onNotificationsClick} />
               <LanguageSwitcher />
             </div>
