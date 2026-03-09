@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
+import type { FontSize } from '../types'
 
 interface UseThemeReturn {
   theme: ThemeColor
   setTheme: (theme: ThemeColor) => void
   customColors: Partial<ThemeColors> | null
   setCustomColors: (colors: Partial<ThemeColors>) => void
+  fontSize: FontSize
+  setFontSize: (size: FontSize) => void
 }
 
 export function useTheme(): UseThemeReturn {
@@ -27,12 +30,30 @@ export function useTheme(): UseThemeReturn {
     }
   })
 
+  const [fontSize, setFontSizeState] = useState<FontSize>(() => {
+    try {
+      const stored = localStorage.getItem('fastfingers_font_size')
+      return (stored as FontSize) || 'medium'
+    } catch {
+      return 'medium'
+    }
+  })
+
   useEffect(() => {
     const timer = requestAnimationFrame(() => {
       applyTheme(theme, customColors || undefined)
     })
     return () => cancelAnimationFrame(timer)
   }, [theme, customColors])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-font-size', fontSize)
+    try {
+      localStorage.setItem('fastfingers_font_size', fontSize)
+    } catch {
+      // Ignore save errors
+    }
+  }, [fontSize])
 
   const setTheme = useCallback((newTheme: ThemeColor) => {
     setThemeState(newTheme)
@@ -52,5 +73,9 @@ export function useTheme(): UseThemeReturn {
     }
   }, [])
 
-  return { theme, setTheme, customColors, setCustomColors }
+  const setFontSize = useCallback((size: FontSize) => {
+    setFontSizeState(size)
+  }, [])
+
+  return { theme, setTheme, customColors, setCustomColors, fontSize, setFontSize }
 }

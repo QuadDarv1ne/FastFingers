@@ -407,7 +407,6 @@ function AppContent() {
 
                   <TypingTrainer
                     layout={settings.layout}
-                    fontSize={settings.fontSize}
                     onSessionComplete={handleSessionCompleteWithProgress}
                     onKeyInput={updateHeatmap}
                     sound={sound}

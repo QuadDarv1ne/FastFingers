@@ -133,6 +133,8 @@ export type TranslationKey =
   | 'misc.about'
   | 'misc.footer'
   | 'misc.copyright'
+  | 'misc.fontSize'
+  | 'misc.highContrast'
   | 'tip.posture'
   | 'tip.postureDesc'
   | 'tip.hands'
@@ -312,6 +314,8 @@ const resources = {
       'misc.about': 'О приложении',
       'misc.footer': 'FastFingers — Тренажёр слепой печати',
       'misc.copyright': '© 2026 FastFingers',
+      'misc.fontSize': 'Размер шрифта',
+      'misc.highContrast': 'Контрастность',
       'tip.posture': 'Правильная осанка',
       'tip.postureDesc': 'Сидите прямо, спина прижата к спинке стула. Расстояние от глаз до монитора — 50-70 см.',
       'tip.hands': 'Положение рук',
@@ -485,6 +489,8 @@ const resources = {
       'misc.about': 'About',
       'misc.footer': 'FastFingers — Touch Typing Trainer',
       'misc.copyright': '© 2026 FastFingers',
+      'misc.fontSize': 'Font Size',
+      'misc.highContrast': 'High Contrast',
       'tip.posture': 'Posture',
       'tip.postureDesc': 'Sit up straight, back against the chair. Keep 50-70cm distance from eyes to monitor.',
       'tip.hands': 'Hand Position',
