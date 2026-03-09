@@ -108,6 +108,21 @@ export type TranslationKey =
   | 'stats.achievements'
   | 'stats.leaderboard'
   | 'stats.session'
+  | 'stats.activityHeatmap'
+  | 'stats.activeDays'
+  | 'stats.totalSessions'
+  | 'stats.bestWpm'
+  | 'stats.bestAccuracy'
+  | 'stats.bestCpm'
+  | 'stats.longestStreak'
+  | 'stats.totalTime'
+  | 'stats.weeklyComparison'
+  | 'stats.thisWeek'
+  | 'stats.lastWeek'
+  | 'stats.charsTyped'
+  | 'stats.less'
+  | 'stats.more'
+  | 'stats.sessions'
   | 'misc.theme'
   | 'misc.sound'
   | 'misc.keyboard'
@@ -272,6 +287,21 @@ const resources = {
       'stats.achievements': 'Достижения',
       'stats.leaderboard': 'Таблица лидеров',
       'stats.session': 'Сессия',
+      'stats.activityHeatmap': 'Активность',
+      'stats.activeDays': 'активных дней',
+      'stats.totalSessions': 'сессий',
+      'stats.bestWpm': 'Лучший WPM',
+      'stats.bestAccuracy': 'Лучшая точность',
+      'stats.bestCpm': 'Лучший CPM',
+      'stats.longestStreak': 'Серия',
+      'stats.totalTime': 'Время тренировок',
+      'stats.weeklyComparison': 'Сравнение с прошлой неделей',
+      'stats.thisWeek': 'эта неделя',
+      'stats.lastWeek': 'прошлая неделя',
+      'stats.charsTyped': 'Напечатано',
+      'stats.less': 'Меньше',
+      'stats.more': 'Больше',
+      'stats.sessions': 'сессий',
       'misc.theme': 'Тема',
       'misc.sound': 'Звук',
       'misc.keyboard': 'Клавиатура',
@@ -430,6 +460,21 @@ const resources = {
       'stats.achievements': 'Achievements',
       'stats.leaderboard': 'Leaderboard',
       'stats.session': 'Session',
+      'stats.activityHeatmap': 'Activity',
+      'stats.activeDays': 'active days',
+      'stats.totalSessions': 'sessions',
+      'stats.bestWpm': 'Best WPM',
+      'stats.bestAccuracy': 'Best Accuracy',
+      'stats.bestCpm': 'Best CPM',
+      'stats.longestStreak': 'Streak',
+      'stats.totalTime': 'Practice Time',
+      'stats.weeklyComparison': 'Weekly Comparison',
+      'stats.thisWeek': 'this week',
+      'stats.lastWeek': 'last week',
+      'stats.charsTyped': 'Typed',
+      'stats.less': 'Less',
+      'stats.more': 'More',
+      'stats.sessions': 'sessions',
       'misc.theme': 'Theme',
       'misc.sound': 'Sound',
       'misc.keyboard': 'Keyboard',
