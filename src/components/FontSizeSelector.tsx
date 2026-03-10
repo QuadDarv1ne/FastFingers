@@ -30,7 +30,7 @@ export function FontSizeSelector() {
     [setFontSize]
   )
 
-  const currentSize = FONT_SIZES.find(s => s.value === fontSize) || FONT_SIZES[1]
+  const currentSize = FONT_SIZES.find(s => s.value === fontSize) ?? FONT_SIZES[1]
 
   return (
     <div className="relative" ref={ref}>
@@ -41,7 +41,7 @@ export function FontSizeSelector() {
         aria-expanded={isOpen}
         title={t('misc.fontSize')}
       >
-        <span className="text-lg font-bold" style={{ fontSize: currentSize.px }}>{currentSize.icon}</span>
+        <span className="text-lg font-bold" style={{ fontSize: currentSize?.px }}>{currentSize?.icon}</span>
         <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
