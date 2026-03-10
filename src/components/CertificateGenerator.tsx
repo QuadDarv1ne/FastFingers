@@ -120,6 +120,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
       role="dialog"
       aria-modal="true"
       aria-labelledby="certificate-title"
+      aria-describedby="certificate-description"
       className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
     >
       <div className="glass rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto">
@@ -130,7 +131,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
               <span>📜</span>
               Сертификат достижения
             </h2>
-            <p className="text-dark-400 text-sm mt-1">
+            <p id="certificate-description" className="text-dark-400 text-sm mt-1">
               Ваш результат: <span className="text-primary-400 font-semibold">{wpm} WPM</span>
             </p>
           </div>

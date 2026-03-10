@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-} from 'recharts'
+} from './LazyRecharts'
 import { TypingStats, KeystrokeData } from '@/types'
 import { calculateSkillProfile } from '@/utils/stats'
 

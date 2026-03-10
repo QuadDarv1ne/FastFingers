@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Area,
   AreaChart,
-} from 'recharts'
+} from './LazyRecharts'
 import { TypingStats } from '@/types'
 
 interface TypingSpeedChartProps {

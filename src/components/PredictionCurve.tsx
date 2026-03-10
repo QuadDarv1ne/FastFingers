@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   Label,
-} from 'recharts'
+} from './LazyRecharts'
 import { TypingStats, WeeklyProgress } from '@/types'
 import {
   calculateLearningVelocity,

@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
   Label,
-} from 'recharts'
+} from './LazyRecharts'
 import { TypingStats, TimeOfDayPerformance } from '@/types'
 import { analyzeTimeOfDayPerformance } from '@/utils/stats'
 
