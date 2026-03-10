@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react'
 import { downloadCSV, statsToExportData, ExportData } from '../utils/export'
 import { TypingStats } from '../types'
+import { createScopedLogger } from '../utils/logger'
+
+const logger = createScopedLogger('useExport')
 
 interface UseExportOptions {
   filename?: string
@@ -22,7 +25,7 @@ export function useExport(options: UseExportOptions = {}): UseExportReturn {
       const data = statsToExportData(stats, dates)
       downloadCSV(data, filename)
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }
@@ -33,7 +36,7 @@ export function useExport(options: UseExportOptions = {}): UseExportReturn {
     try {
       downloadCSV(data, customFilename ?? filename)
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }

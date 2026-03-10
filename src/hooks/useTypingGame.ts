@@ -3,6 +3,7 @@ import { TypingStats, KeyInputResult } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from './useTypingSound'
+import { createScopedLogger } from '../utils/logger'
 
 interface UseTypingGameOptions {
   initialWordCount?: number
@@ -45,6 +46,8 @@ const MAX_DIFFICULTY = 10
 const MIN_DURATION = 10
 const MAX_DURATION = 600
 
+const logger = createScopedLogger('useTypingGame')
+
 export function useTypingGame({
   initialWordCount = DEFAULT_WORD_COUNT,
   initialDifficulty = DEFAULT_DIFFICULTY,
@@ -86,10 +89,9 @@ export function useTypingGame({
   const generateNewText = useCallback(() => {
     try {
       const newText = generatePracticeText(safeWordCount, safeDifficulty)
-      
-      // Защита от пустого текста
+
       if (!newText || newText.trim().length === 0) {
-        console.warn('[useTypingGame] Generated empty text, using fallback')
+        logger.warn('Generated empty text, using fallback')
         setText('текст для печати')
       } else {
         setText(newText)
@@ -106,8 +108,7 @@ export function useTypingGame({
       setAccuracy(100)
       setErrors(0)
     } catch (error) {
-      console.error('[useTypingGame] Error generating text:', error)
-      // Fallback текст при ошибке
+      logger.error('Error generating text:', error)
       setText('ошибка генерации текста')
       setCurrentIndex(0)
       setInputResults([])
@@ -146,14 +147,13 @@ export function useTypingGame({
 
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {
-      // Защита от пустых результатов
       if (!results || results.length === 0) {
-        console.warn('[useTypingGame] handleComplete called with empty results')
+        logger.warn('handleComplete called with empty results')
         return
       }
 
       if (!startTime && mode !== 'timed') {
-        console.warn('[useTypingGame] handleComplete called without startTime')
+        logger.warn('handleComplete called without startTime')
         return
       }
 
@@ -174,8 +174,7 @@ export function useTypingGame({
         setErrors(errorCount)
         onComplete?.(stats)
       } catch (error) {
-        console.error('[useTypingGame] Error in handleComplete:', error)
-        // Fallback значения при ошибке
+        logger.error('Error in handleComplete:', error)
         setIsComplete(true)
         setWpm(0)
         setAccuracy(100)
@@ -229,13 +228,13 @@ export function useTypingGame({
               isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
             }
           } catch (soundError) {
-            console.warn('[useTypingGame] Sound playback error:', soundError)
+            logger.warn('Sound playback error:', soundError)
           }
 
           try {
             onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
           } catch (callbackError) {
-            console.warn('[useTypingGame] onKeyInput callback error:', callbackError)
+            logger.warn('onKeyInput callback error:', callbackError)
           }
 
           const result: KeyInputResult = {
@@ -266,7 +265,7 @@ export function useTypingGame({
 
         e.currentTarget.value = ''
       } catch (error) {
-        console.error('[useTypingGame] Error in handleInput:', error)
+        logger.error('Error in handleInput:', error)
       } finally {
         isHandlingInput.current = false
       }
@@ -278,7 +277,7 @@ export function useTypingGame({
     try {
       generateNewText()
     } catch (error) {
-      console.error('[useTypingGame] Error in handleSkip:', error)
+      logger.error('Error in handleSkip:', error)
     }
   }, [generateNewText])
 
@@ -286,7 +285,7 @@ export function useTypingGame({
     try {
       generateNewText()
     } catch (error) {
-      console.error('[useTypingGame] Error in reset:', error)
+      logger.error('Error in reset:', error)
     }
   }, [generateNewText])
 
@@ -294,7 +293,7 @@ export function useTypingGame({
     try {
       inputRef.current?.focus({ preventScroll: true })
     } catch (error) {
-      console.warn('[useTypingGame] Error focusing input:', error)
+      logger.warn('Error focusing input:', error)
     }
   }, [])
 
@@ -319,7 +318,7 @@ export function useTypingGame({
         setStartTime(Date.now())
         inputRef.current?.focus({ preventScroll: true })
       } catch (error) {
-        console.warn('[useTypingGame] Error in handleStart:', error)
+        logger.warn('Error in handleStart:', error)
       }
     },
     reset,

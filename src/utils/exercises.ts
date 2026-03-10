@@ -1,5 +1,8 @@
 import { Exercise } from '../types'
 import { practiceTexts, PracticeText, TextCategory, getRandomText } from '../data/practiceTexts'
+import { createScopedLogger } from './logger'
+
+const logger = createScopedLogger('exercises')
 
 type Layout = 'qwerty' | 'jcuken' | 'dvorak';
 
@@ -446,7 +449,7 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
 
     // Защита от пустого массива после всех проверок
     if (!words || words.length === 0) {
-      console.warn('[generatePracticeText] No words available, using fallback')
+      logger.warn('No words available, using fallback')
       return 'текст для печати'
     }
 
@@ -461,16 +464,16 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
       const word = words[Math.floor(Math.random() * words.length)]
       if (word) result.push(word)
     }
-    
+
     // Финальная проверка на пустой результат
     if (result.length === 0) {
-      console.warn('[generatePracticeText] Generated empty result, using fallback')
+      logger.warn('Generated empty result, using fallback')
       return 'текст для печати'
     }
-    
+
     return result.join(separator)
   } catch (error) {
-    console.error('[generatePracticeText] Error generating text:', error)
+    logger.error('Error generating text:', error)
     return 'ошибка генерации текста'
   }
 }

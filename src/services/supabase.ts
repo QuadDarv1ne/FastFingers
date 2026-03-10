@@ -1,4 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
+import { createScopedLogger } from '../utils/logger'
+
+const logger = createScopedLogger('supabase')
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -7,7 +10,7 @@ const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1000
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not configured. Some features may be unavailable.')
+  logger.warn('Supabase credentials not configured. Some features may be unavailable.')
 }
 
 export const supabase = supabaseUrl && supabaseAnonKey
