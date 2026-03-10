@@ -8,7 +8,7 @@ const LoadingFallback = memo(() => (
 ))
 LoadingFallback.displayName = 'LoadingFallback'
 
-
+ 
 const createLazyChart = (importFn: () => Promise<{ default: unknown }>) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const LazyComponent = lazy(importFn as any)
@@ -26,6 +26,9 @@ const createLazyChart = (importFn: () => Promise<{ default: unknown }>) => {
 }
 
 export { LoadingFallback }
+
+// Импортируем всю библиотеку одним чанком, но лениво
+// Recharts будет загружен только при первом использовании графика
 export const BarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.BarChart })))
 export const Bar = createLazyChart(() => import('recharts').then(m => ({ default: m.Bar })))
 export const AreaChart = createLazyChart(() => import('recharts').then(m => ({ default: m.AreaChart })))
