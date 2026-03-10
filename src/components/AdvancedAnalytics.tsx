@@ -67,6 +67,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
       role="dialog"
       aria-modal="true"
       aria-labelledby="analytics-title"
+      aria-describedby="analytics-description"
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     >
       <div className="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -74,7 +75,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
             <h2 id="analytics-title" className="text-2xl font-bold">📊 Расширенная аналитика</h2>
-            <p className="text-dark-400 text-sm mt-1">
+            <p id="analytics-description" className="text-dark-400 text-sm mt-1">
               Детальный анализ вашего прогресса
             </p>
           </div>
@@ -88,6 +89,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -101,12 +103,13 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
 
         <div className="p-6 space-y-6">
           {/* Тренды */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div role="region" aria-labelledby="trends-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 id="trends-heading" className="sr-only">Тренды производительности</h3>
             {/* WPM Тренд */}
-            <div className="card p-6">
+            <div className="card p-6" role="region" aria-labelledby="wpm-trend-title">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Скорость печати</h3>
-                <span className="text-2xl">
+                <h4 id="wpm-trend-title" className="text-lg font-semibold">Скорость печати</h4>
+                <span className="text-2xl" aria-hidden="true">
                   {getTrendIcon(analytics.wpmTrend.direction)}
                 </span>
               </div>
@@ -125,10 +128,10 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             </div>
 
             {/* Accuracy Тренд */}
-            <div className="card p-6">
+            <div className="card p-6" role="region" aria-labelledby="accuracy-trend-title">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Точность</h3>
-                <span className="text-2xl">
+                <h4 id="accuracy-trend-title" className="text-lg font-semibold">Точность</h4>
+                <span className="text-2xl" aria-hidden="true">
                   {getTrendIcon(analytics.accuracyTrend.direction)}
                 </span>
               </div>
@@ -148,22 +151,27 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
           </div>
 
           {/* Консистентность и улучшение */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div role="region" aria-labelledby="consistency-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 id="consistency-heading" className="sr-only">Стабильность и прогресс</h3>
             {/* Консистентность */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4">
+            <div className="card p-6" role="region" aria-labelledby="consistency-title">
+              <h4 id="consistency-title" className="text-lg font-semibold mb-4">
                 Стабильность результатов
-              </h3>
+              </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-dark-400">Оценка:</span>
                   <span
                     className={`text-2xl font-bold ${getConsistencyColor(analytics.consistencyScore)}`}
+                    aria-valuenow={Math.round(analytics.consistencyScore)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    role="meter"
                   >
                     {analytics.consistencyScore.toFixed(0)}/100
                   </span>
                 </div>
-                <div className="w-full bg-dark-800 rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-dark-800 rounded-full h-3 overflow-hidden" role="progressbar" aria-valuenow={Math.round(analytics.consistencyScore)} aria-valuemin={0} aria-valuemax={100}>
                   <div
                     className={`h-full transition-all duration-500 ${
                       analytics.consistencyScore >= 80
@@ -179,10 +187,10 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             </div>
 
             {/* Скорость улучшения */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4">
+            <div className="card p-6" role="region" aria-labelledby="improvement-title">
+              <h4 id="improvement-title" className="text-lg font-semibold mb-4">
                 Скорость прогресса
-              </h3>
+              </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-dark-400">WPM за сессию:</span>
@@ -211,19 +219,21 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
           </div>
 
           {/* Проблемные и сильные клавиши */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div role="region" aria-labelledby="keys-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 id="keys-heading" className="sr-only">Анализ клавиш</h3>
             {/* Проблемные клавиши */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>⚠️</span>
+            <div className="card p-6" role="region" aria-labelledby="weak-keys-title">
+              <h4 id="weak-keys-title" className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span aria-hidden="true">⚠️</span>
                 Проблемные клавиши
-              </h3>
+              </h4>
               {analytics.weakestKeys.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" role="list">
                   {analytics.weakestKeys.map(key => (
                     <span
                       key={key}
                       className="px-3 py-2 bg-red-500/20 border border-red-500/50 rounded-lg font-mono text-sm"
+                      role="listitem"
                     >
                       {key}
                     </span>
@@ -237,17 +247,18 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             </div>
 
             {/* Сильные клавиши */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span>✨</span>
+            <div className="card p-6" role="region" aria-labelledby="strong-keys-title">
+              <h4 id="strong-keys-title" className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span aria-hidden="true">✨</span>
                 Сильные клавиши
-              </h3>
+              </h4>
               {analytics.strongestKeys.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" role="list">
                   {analytics.strongestKeys.map(key => (
                     <span
                       key={key}
                       className="px-3 py-2 bg-green-500/20 border border-green-500/50 rounded-lg font-mono text-sm"
+                      role="listitem"
                     >
                       {key}
                     </span>

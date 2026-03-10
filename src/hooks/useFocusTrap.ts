@@ -3,18 +3,25 @@ import { useEffect, useRef, RefObject } from 'react'
 /**
  * Хук для создания фокус-ловушки в модальных окнах и диалогах
  * Удерживает фокус внутри элемента, пока он активен
- * 
+ *
  * @param ref - Ref на элемент-контейнер
  * @param isActive - Флаг активности ловушки
  */
 export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): void {
   const previousActiveElement = useRef<Element | null>(null)
+  const previousOverflow = useRef<string | null>(null)
 
   useEffect(() => {
     if (!isActive || !ref.current) return
 
     // Сохраняем предыдущий активный элемент
     previousActiveElement.current = document.activeElement
+
+    // Сохраняем состояние прокрутки body
+    previousOverflow.current = document.body.style.overflow
+
+    // Блокируем прокрутку body пока модальное окно открыто
+    document.body.style.overflow = 'hidden'
 
     // Находим все фокусируемые элементы внутри контейнера
     const focusableSelectors = [
@@ -25,6 +32,9 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
       'a[href]',
       '[tabindex]:not([tabindex="-1"])',
       '[contenteditable="true"]',
+      '[role="button"]',
+      '[role="link"]',
+      '[role="tab"]',
     ].join(', ')
 
     const container = ref.current
@@ -36,7 +46,12 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
       return style.display !== 'none' && style.visibility !== 'hidden'
     })
 
-    if (focusableElements.length === 0) return
+    if (focusableElements.length === 0) {
+      // Если нет фокусируемых элементов, фокусируемся на контейнере
+      container.setAttribute('tabindex', '-1')
+      container.focus()
+      return
+    }
 
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
@@ -65,6 +80,15 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
     // Возвращаем фокус предыдущему элементу при размонтировании
     return () => {
       container.removeEventListener('keydown', handleKeyDown)
+      
+      // Восстанавливаем прокрутку
+      if (previousOverflow.current !== null) {
+        document.body.style.overflow = previousOverflow.current
+      } else {
+        document.body.style.overflow = ''
+      }
+      
+      // Возвращаем фокус предыдущему элементу
       if (previousActiveElement.current instanceof HTMLElement) {
         previousActiveElement.current.focus()
       }

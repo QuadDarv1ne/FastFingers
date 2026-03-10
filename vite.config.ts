@@ -104,25 +104,40 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    // Включаем sourcemap только для production отладки
+    sourcemap: false,
+    // Сжимаем код на максимум
+    minify: 'esbuild',
+    cssMinify: true,
+    // Ускоряем сборку
+    cssCodeSplit: true,
+    // Удаляем console.log в production
+    esbuild: {
+      drop: ['console'],
+    },
     rollupOptions: {
       output: {
+        // Включаем tree-shaking
+        treeshake: true,
+        // Оптимизируем чанки
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
           'pdf-vendor': ['jspdf', 'jspdf-autotable'],
-          'html2canvas-vendor': ['html2canvas'],
           'i18n-vendor': ['i18next', 'react-i18next'],
           'animations-vendor': ['framer-motion'],
           'confetti-vendor': ['canvas-confetti'],
           'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
           'auth-vendor': ['@supabase/supabase-js'],
+          'virtual-vendor': ['@tanstack/react-virtual'],
+          'storage-vendor': ['zustand'],
+          'monitoring-vendor': ['@sentry/react'],
           'typing-core': ['./src/components/TypingTrainer', './src/hooks/useTypingGame', './src/hooks/useTypingSound'],
           'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],
           'ui-components': ['./src/components/Keyboard', './src/components/Stats', './src/components/Header'],
+          'charts': ['./src/components/LazyRecharts', './src/components/SpiderChart', './src/components/PredictionCurve'],
         },
       },
     },
-    chunkSizeWarningLimit: 500,
-    minify: 'esbuild',
-    cssMinify: true,
+    chunkSizeWarningLimit: 400, // Уменьшаем лимит до 400KB
   },
 })

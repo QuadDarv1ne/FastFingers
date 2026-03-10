@@ -4,6 +4,7 @@ import { TypingStats } from '../types'
 
 const LOCAL_STORAGE_KEY = 'fastfingers_cloud_sync'
 const PENDING_SESSIONS_KEY = 'fastfingers_pending_sessions'
+const BACKEND_STATUS_KEY = 'fastfingers_backend_status'
 
 interface CloudSession {
   wpm: number
@@ -24,14 +25,104 @@ interface PendingSession {
   timestamp: number
 }
 
+export interface BackendStatus {
+  isAvailable: boolean
+  lastChecked: number
+  features: {
+    sync: boolean
+    leaderboard: boolean
+    achievements: boolean
+    challenges: boolean
+  }
+}
+
+/**
+ * Проверка доступности бэкенда (Supabase)
+ */
 export function isBackendAvailable(): boolean {
   return !!supabase
 }
 
-export async function syncUserStats(user: User, stats: Partial<UserStats>): Promise<void> {
+/**
+ * Получение статуса бэкенда с кэшированием
+ */
+export function getBackendStatus(): BackendStatus {
+  const cached = localStorage.getItem(BACKEND_STATUS_KEY)
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached) as BackendStatus
+      // Кэш действителен 5 минут
+      if (Date.now() - parsed.lastChecked < 5 * 60 * 1000) {
+        return parsed
+      }
+    } catch {
+      // Игнорируем ошибки парсинга
+    }
+  }
+
+  const isAvailable = isBackendAvailable()
+  const status: BackendStatus = {
+    isAvailable,
+    lastChecked: Date.now(),
+    features: {
+      sync: isAvailable,
+      leaderboard: isAvailable,
+      achievements: isAvailable,
+      challenges: isAvailable,
+    },
+  }
+
+  try {
+    localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
+  } catch {
+    // Игнорируем ошибки сохранения
+  }
+
+  return status
+}
+
+/**
+ * Обновление статуса бэкенда
+ */
+export function updateBackendStatus(features?: Partial<BackendStatus['features']>): BackendStatus {
+  const isAvailable = isBackendAvailable()
+  const status: BackendStatus = {
+    isAvailable,
+    lastChecked: Date.now(),
+    features: {
+      sync: isAvailable,
+      leaderboard: isAvailable,
+      achievements: isAvailable,
+      challenges: isAvailable,
+      ...features,
+    },
+  }
+
+  try {
+    localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
+  } catch {
+    // Игнорируем ошибки сохранения
+  }
+
+  return status
+}
+
+/**
+ * Проверка доступности конкретной функции
+ */
+export function isFeatureAvailable(feature: keyof BackendStatus['features']): boolean {
+  const status = getBackendStatus()
+  return status.isAvailable && status.features[feature]
+}
+
+export async function syncUserStats(user: User, stats: Partial<UserStats>): Promise<{ success: boolean; isOffline: boolean }> {
   if (!supabase) {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
-    return
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
+      return { success: true, isOffline: true }
+    } catch {
+      return { success: false, isOffline: true }
+    }
   }
 
   try {
@@ -41,8 +132,20 @@ export async function syncUserStats(user: User, stats: Partial<UserStats>): Prom
       .eq('id', user.id)
 
     if (error) throw error
+
+    return { success: true, isOffline: false }
   } catch {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
+    // Сохраняем локально при ошибке
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
+    } catch {
+      // Игнорируем ошибки localStorage
+    }
+
+    // Обновляем статус бэкенда
+    updateBackendStatus({ sync: false })
+
+    return { success: false, isOffline: true }
   }
 }
 
@@ -50,10 +153,10 @@ export async function saveTypingSession(
   userId: string,
   stats: TypingStats,
   xp: number
-): Promise<void> {
+): Promise<{ success: boolean; isOffline: boolean }> {
   if (!supabase) {
     _saveSessionToLocal(stats, xp)
-    return
+    return { success: true, isOffline: true }
   }
 
   try {
@@ -70,9 +173,13 @@ export async function saveTypingSession(
     })
 
     if (error) throw error
+
+    return { success: true, isOffline: false }
   } catch {
     _saveSessionToLocal(stats, xp)
     _queuePendingSession(userId, stats, xp)
+    updateBackendStatus({ sync: false })
+    return { success: true, isOffline: true }
   }
 }
 
@@ -132,10 +239,11 @@ export async function flushPendingSessions(): Promise<void> {
 export async function loadUserSessions(
   userId: string,
   limit: number = 100
-): Promise<CloudSession[]> {
+): Promise<{ sessions: CloudSession[]; isOffline: boolean }> {
   if (!supabase) {
     // Fallback на localStorage
-    return JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    const localSessions = JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    return { sessions: localSessions, isOffline: true }
   }
 
   try {
@@ -148,7 +256,7 @@ export async function loadUserSessions(
 
     if (error) throw error
 
-    return (data || []).map(session => ({
+    const sessions = (data || []).map(session => ({
       wpm: session.wpm,
       cpm: session.cpm,
       accuracy: session.accuracy,
@@ -159,9 +267,13 @@ export async function loadUserSessions(
       xp: session.xp,
       date: session.created_at,
     }))
+
+    return { sessions, isOffline: false }
   } catch {
     // Fallback на localStorage
-    return JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    const localSessions = JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    updateBackendStatus({ sync: false })
+    return { sessions: localSessions, isOffline: true }
   }
 }
 
@@ -208,6 +320,7 @@ export async function getDailyChallenge(date: string): Promise<{
   xpReward: number
 } | null> {
   if (!supabase) {
+    // Генерируем детерминированный локальный челлендж
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
     return {
       id: 'local-' + date,
@@ -229,6 +342,15 @@ export async function getDailyChallenge(date: string): Promise<{
 
     return data
   } catch {
-    return null
+    updateBackendStatus({ challenges: false })
+    // Fallback на генерацию локального челленджа
+    const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
+    return {
+      id: 'local-' + date,
+      text: 'Локальный челлендж',
+      targetWpm: 30 + (Math.abs(hash) % 40),
+      targetAccuracy: 85 + (Math.abs(hash) % 10),
+      xpReward: 100,
+    }
   }
 }
