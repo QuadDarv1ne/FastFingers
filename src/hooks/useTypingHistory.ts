@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
+import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
+import { useAuth } from './useAuth'
 
 interface SessionData {
   id: string
@@ -24,6 +26,7 @@ interface UseTypingHistoryReturn {
   history: HistoryData
   isLoading: boolean
   error: string | null
+  isOnline: boolean
   addSession: (stats: TypingStats, xp: number) => void
   updateHeatmap: (key: string, isCorrect: boolean) => void
   clearHistory: () => void
@@ -64,12 +67,16 @@ const debouncedSaveHistory = (history: HistoryData) => {
 }
 
 export function useTypingHistory(): UseTypingHistoryReturn {
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [error] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryData>(loadHistory)
+  const [isOnline, setIsOnline] = useState(isBackendAvailable())
 
   useEffect(() => {
     setIsLoading(false)
+    // Проверка доступности бэкенда при загрузке
+    setIsOnline(isBackendAvailable())
   }, [])
 
   const addSession = useCallback((stats: TypingStats, xp: number) => {
@@ -94,7 +101,16 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       debouncedSaveHistory(newHistory)
       return newHistory
     })
-  }, [])
+
+    // Сохранение в облако с fallback
+    if (user) {
+      saveTypingSession(user.id, stats, xp).then(() => {
+        setIsOnline(isBackendAvailable())
+        // Попытка отправить отложенные сессии
+        flushPendingSessions()
+      })
+    }
+  }, [user])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
     setHistory(prev => {
@@ -141,6 +157,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     history,
     isLoading,
     error,
+    isOnline,
     addSession,
     updateHeatmap,
     clearHistory,
