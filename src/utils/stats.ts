@@ -43,14 +43,27 @@ export function calculateStats(
 ): TypingStats {
   // Валидация входных параметров
   const safeCorrectChars = Math.max(0, Math.floor(correctChars) || 0)
-  const safeTotalChars = Math.max(1, Math.floor(totalChars) || 1) // Защита от деления на ноль
+  const safeTotalChars = Math.max(0, Math.floor(totalChars) || 0)
   const safeErrors = Math.max(0, Math.floor(errors) || 0)
-  const safeTimeElapsed = Math.max(0.001, timeElapsed || 0.001) // Минимальное время для расчёта
+  const safeTimeElapsed = Math.max(0, timeElapsed || 0)
+
+  // При нулевом времени возвращаем 0 для WPM и CPM
+  if (safeTimeElapsed === 0) {
+    return {
+      wpm: 0,
+      cpm: 0,
+      accuracy: safeTotalChars === 0 ? 100 : Math.min(100, Math.max(0, Math.round((safeCorrectChars / safeTotalChars) * 100))),
+      errors: safeErrors,
+      correctChars: safeCorrectChars,
+      totalChars: safeTotalChars,
+      timeElapsed: 0,
+    }
+  }
 
   const timeInMinutes = safeTimeElapsed / 60
 
-  const cpm = timeInMinutes > 0 ? Math.round(safeCorrectChars / timeInMinutes) : 0
-  const wpm = timeInMinutes > 0 ? Math.round(safeCorrectChars / 5 / timeInMinutes) : 0
+  const cpm = Math.round(safeCorrectChars / timeInMinutes)
+  const wpm = Math.round(safeCorrectChars / 5 / timeInMinutes)
   const accuracy = safeTotalChars > 0
     ? Math.min(100, Math.max(0, Math.round((safeCorrectChars / safeTotalChars) * 100)))
     : 100
