@@ -83,10 +83,12 @@ describe('exercises utils', () => {
       expect(avgWordLength).toBeGreaterThanOrEqual(4)
     })
 
-    it('должен возвращать пустую строку при 0 слов', () => {
+    it('должен возвращать минимум одно слово при 0 слов', () => {
       const text = generatePracticeText(0, 5)
-      
-      expect(text).toBe('')
+
+      // Валидация гарантирует минимум одно слово
+      expect(text.length).toBeGreaterThan(0)
+      expect(typeof text).toBe('string')
     })
   })
 })
