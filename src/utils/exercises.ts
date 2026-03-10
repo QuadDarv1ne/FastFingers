@@ -431,16 +431,24 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
   unique?: boolean
   separator?: string
 } = {}): string {
+  // Валидация входных параметров
+  const safeWordCount = Math.max(1, Math.floor(wordCount))
+  const safeDifficulty = Math.max(1, Math.min(10, Math.floor(difficulty)))
+  
   const { unique = false, separator = ' ' } = options
-  let words = getWordsByDifficulty(difficulty)
+  let words = getWordsByDifficulty(safeDifficulty)
+
+  if (words.length === 0) {
+    words = ALL_WORDS.easy
+  }
 
   if (unique) {
     words = [...words].sort(() => Math.random() - 0.5)
-    return words.slice(0, Math.min(wordCount, words.length)).join(separator)
+    return words.slice(0, Math.min(safeWordCount, words.length)).join(separator)
   }
 
   const result: string[] = []
-  for (let i = 0; i < wordCount; i++) {
+  for (let i = 0; i < safeWordCount; i++) {
     const word = words[Math.floor(Math.random() * words.length)]
     if (word) result.push(word)
   }

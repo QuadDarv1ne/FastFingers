@@ -105,7 +105,11 @@ export function useTypingGame({
       const correctChars = results.filter(r => r.isCorrect).length
       const errorCount = results.filter(r => !r.isCorrect).length
 
-      const stats = calculateStats(correctChars, results.length, errorCount, elapsed)
+      // Защита от деления на ноль и некорректных значений
+      const safeElapsed = Math.max(elapsed, 0.001)
+      const safeTotal = Math.max(results.length, 1)
+
+      const stats = calculateStats(correctChars, safeTotal, errorCount, safeElapsed)
 
       setIsComplete(true)
       setWpm(stats.wpm)
@@ -133,7 +137,7 @@ export function useTypingGame({
 
       const newChar = value[value.length - 1]
 
-      if (!newChar) return
+      if (!newChar || !text) return
 
       setCurrentIndex(prevIndex => {
         const expectedChar = text[prevIndex]
