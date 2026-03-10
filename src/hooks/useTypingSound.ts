@@ -158,8 +158,10 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   useEffect(() => {
     initAudio()
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const oscillators = activeOscillatorsRef.current
       // Cleanup all active oscillators
-      activeOscillatorsRef.current.forEach(osc => {
+      oscillators.forEach(osc => {
         try {
           osc.stop()
           osc.disconnect()
@@ -167,7 +169,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
           // Ignore cleanup errors
         }
       })
-      activeOscillatorsRef.current.clear()
+      // Use the copied variable instead of ref
+      oscillators.clear()
 
       if (audioContextRef.current) {
         audioContextRef.current.close()
