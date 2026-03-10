@@ -48,3 +48,4 @@ export const RadarChart = createLazyChart(() => import('recharts').then(m => ({ 
 export const PolarGrid = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarGrid })))
 export const PolarAngleAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarAngleAxis })))
 export const PolarRadiusAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarRadiusAxis })))
+export const LabelList = createLazyChart(() => import('recharts').then(m => ({ default: m.LabelList })))

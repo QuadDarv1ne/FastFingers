@@ -1,4 +1,5 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 
@@ -234,15 +235,12 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
           {filteredAndSorted.length > 3 && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold mb-4">Остальные участники</h3>
-              {filteredAndSorted.slice(3).map((entry, index) => (
-                <LeaderboardRow
-                  key={entry.id}
-                  entry={entry}
-                  rank={index + 4}
-                  sortBy={sortBy}
-                  isCurrentUser={currentUser?.id === entry.id}
-                />
-              ))}
+              <VirtualLeaderboardList
+                entries={filteredAndSorted.slice(3)}
+                startRank={4}
+                sortBy={sortBy}
+                currentUserId={currentUser?.id}
+              />
             </div>
           )}
 
@@ -406,4 +404,64 @@ function getSortValue(entry: LeaderboardEntry, sortBy: SortBy): string {
     default:
       return ''
   }
+}
+
+function VirtualLeaderboardList({
+  entries,
+  startRank,
+  sortBy,
+  currentUserId,
+}: {
+  entries: LeaderboardEntry[]
+  startRank: number
+  sortBy: SortBy
+  currentUserId?: string
+}) {
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: entries.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 80,
+    overscan: 5,
+  })
+
+  return (
+    <div
+      ref={parentRef}
+      className="max-h-96 overflow-y-auto"
+      style={{ height: '384px' }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const entry = entries[virtualRow.index]
+          if (!entry) return null
+          return (
+            <div
+              key={entry.id}
+              ref={virtualizer.measureElement}
+              data-index={virtualRow.index}
+              className="absolute left-0 w-full"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <LeaderboardRow
+                entry={entry}
+                rank={startRank + virtualRow.index}
+                sortBy={sortBy}
+                isCurrentUser={currentUserId === entry.id}
+              />
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }

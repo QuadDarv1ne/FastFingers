@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
   LabelList,
-} from 'recharts'
+} from './LazyRecharts'
 import { TypingStats } from '@/types'
 import { analyzeFunnel } from '@/utils/stats'
 
@@ -129,7 +129,7 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
               domain={[0, 100]}
               stroke="#9CA3AF"
               style={{ fontSize: '12px' }}
-              tickFormatter={value => `${value}%`}
+              tickFormatter={(value: number) => `${value}%`}
             />
             <YAxis
               type="category"
@@ -144,10 +144,10 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
                 border: '1px solid #374151',
                 borderRadius: '8px',
               }}
-              formatter={(value, name, props) => {
+              formatter={(value: unknown, name: unknown, props: unknown) => {
                 const typedProps = props as { payload: { count: number } }
-                const val = value ?? 0
-                const nm = name ?? 'Unknown'
+                const val = typeof value === 'number' ? value : 0
+                const nm = typeof name === 'string' ? name : 'Unknown'
                 return [`${val}% (${typedProps.payload.count})`, nm]
               }}
               labelStyle={{ color: '#9CA3AF' }}
@@ -161,7 +161,7 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
                 position="right"
                 fill="#9CA3AF"
                 style={{ fontSize: '12px' }}
-                formatter={(val) => `${val ?? 0}%`}
+                formatter={(val: unknown) => `${(typeof val === 'number' ? val : 0)}%`}
               />
             </Bar>
           </BarChart>
