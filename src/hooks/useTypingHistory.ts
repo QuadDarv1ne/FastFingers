@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
@@ -68,6 +68,9 @@ const debouncedSaveHistory = (history: HistoryData) => {
 
 export function useTypingHistory(): UseTypingHistoryReturn {
   const { user } = useAuth()
+  const userRef = useRef(user)
+  userRef.current = user
+
   const [isLoading, setIsLoading] = useState(true)
   const [error] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryData>(loadHistory)
@@ -103,8 +106,8 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     })
 
     // Сохранение в облако с fallback
-    if (user) {
-      saveTypingSession(user.id, stats, xp)
+    if (userRef.current) {
+      saveTypingSession(userRef.current.id, stats, xp)
         .then(() => {
           setIsOnline(isBackendAvailable())
           flushPendingSessions()
