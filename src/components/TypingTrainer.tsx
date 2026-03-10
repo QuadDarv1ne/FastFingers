@@ -123,40 +123,37 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     }
 
     const newChar = value[value.length - 1]
-    if (!newChar) return
+    if (!newChar || !text) return
 
-    setCurrentIndex(prevIndex => {
-      const expectedChar = text[prevIndex]
-      if (!expectedChar) return prevIndex
+    const expectedChar = text[currentIndex]
+    if (!expectedChar) return
 
-      const isCorrect = newChar === expectedChar
+    const isCorrect = newChar === expectedChar
 
-      if (sound) {
-        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+    if (sound) {
+      isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+    }
+
+    onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+
+    const result: KeyInputResult = {
+      isCorrect,
+      char: newChar,
+      expectedChar,
+      timestamp: Date.now(),
+    }
+
+    setCurrentIndex(prev => prev + 1)
+    setInputResults(prev => {
+      const newResults = [...prev, result]
+      if (currentIndex >= textLengthRef.current - 1) {
+        handleComplete(newResults)
       }
-
-      onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
-
-      const result: KeyInputResult = {
-        isCorrect,
-        char: newChar,
-        expectedChar,
-        timestamp: Date.now(),
-      }
-
-      setInputResults(prev => {
-        const newResults = [...prev, result]
-        if (prevIndex >= textLengthRef.current - 1) {
-          handleComplete(newResults)
-        }
-        return newResults
-      })
-
-      return prevIndex + 1
+      return newResults
     })
 
     e.currentTarget.value = ''
-  }, [text, startTime, isComplete, sound, onKeyInput, handleComplete])
+  }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = useCallback(() => {
@@ -197,15 +194,26 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Рендеринг символов текста (мемоизация)
   const renderedChars = useMemo(() => {
-    return text.split('').map((char, index) => {
+    const chars = text.split('')
+    const result: JSX.Element[] = []
+    
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i]
+      if (!char) continue
+      
       let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-      if (index < currentIndex) {
-        status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-      } else if (index === currentIndex && !isComplete) {
+      
+      if (i < currentIndex) {
+        const resultItem = inputResults[i]
+        status = resultItem?.isCorrect ? 'correct' : 'incorrect'
+      } else if (i === currentIndex && !isComplete) {
         status = 'current'
       }
-      return <TypingChar key={index} char={char} status={status} />
-    })
+      
+      result.push(<TypingChar key={`${i}-${char}`} char={char} status={status} />)
+    }
+    
+    return result
   }, [text, currentIndex, inputResults, isComplete])
 
   return (
