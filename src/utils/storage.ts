@@ -14,6 +14,7 @@ const handleStorageError = (_operation: string, _key?: string, _error?: unknown)
 export function isLocalStorageAvailable(): boolean {
   try {
     const testKey = '__storage_test__'
+    if (typeof localStorage === 'undefined') return false
     localStorage.setItem(testKey, testKey)
     localStorage.removeItem(testKey)
     return true
@@ -28,6 +29,7 @@ export function isLocalStorageAvailable(): boolean {
 export function isSessionStorageAvailable(): boolean {
   try {
     const testKey = '__storage_test__'
+    if (typeof sessionStorage === 'undefined') return false
     sessionStorage.setItem(testKey, testKey)
     sessionStorage.removeItem(testKey)
     return true
@@ -49,7 +51,9 @@ export function getFromStorage<T extends StorageValue>(
 
   try {
     const item = localStorage.getItem(key)
-    return item === null ? defaultValue : (JSON.parse(item) as T)
+    if (item === null) return defaultValue
+    const parsed = JSON.parse(item) as T
+    return parsed
   } catch {
     return defaultValue
   }
@@ -64,9 +68,11 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
   }
 
   try {
-    value === null || value === undefined
-      ? localStorage.removeItem(key)
-      : localStorage.setItem(key, JSON.stringify(value))
+    if (value === null || value === undefined) {
+      localStorage.removeItem(key)
+    } else {
+      localStorage.setItem(key, JSON.stringify(value))
+    }
   } catch {
     // Ignore write errors
   }
@@ -76,6 +82,9 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
  * Удалить значение из localStorage
  */
 export function removeFromStorage(key: string): void {
+  if (!isLocalStorageAvailable()) {
+    return
+  }
   try {
     localStorage.removeItem(key)
   } catch (error) {
