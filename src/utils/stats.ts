@@ -111,21 +111,21 @@ export function calculateSessionXp(stats: TypingStats): number {
   return Math.max(0, xp)
 }
 
+const ACHIEVEMENT_CHECKS: Record<string, (p: { bestWpm: number; bestAccuracy: number; totalWordsTyped: number }, s: TypingStats) => boolean> = {
+  'first-steps': (_, s) => s.wpm >= 10,
+  'speed-demon': (p) => p.bestWpm >= 40,
+  'accuracy-master': (p) => p.bestAccuracy >= 95,
+  'word-warrior': (p) => p.totalWordsTyped >= 1000,
+  'perfectionist': (_, s) => s.accuracy === 100 && s.wpm >= 30,
+  'marathon': (p) => p.totalWordsTyped >= 10000,
+}
+
 export function checkAchievement(
   achievementId: string,
   progress: { bestWpm: number; bestAccuracy: number; totalWordsTyped: number },
   stats: TypingStats
 ): boolean {
-  const achievements: Record<string, (p: typeof progress, s: TypingStats) => boolean> = {
-    'first-steps': () => stats.wpm >= 10,
-    'speed-demon': (p) => p.bestWpm >= 40,
-    'accuracy-master': (p) => p.bestAccuracy >= 95,
-    'word-warrior': (p) => p.totalWordsTyped >= 1000,
-    'perfectionist': () => stats.accuracy === 100 && stats.wpm >= 30,
-    'marathon': (p) => p.totalWordsTyped >= 10000,
-  };
-
-  return achievements[achievementId]?.(progress, stats) ?? false;
+  return ACHIEVEMENT_CHECKS[achievementId]?.(progress, stats) ?? false
 }
 
 export function updateKeyHeatmap(
@@ -133,19 +133,15 @@ export function updateKeyHeatmap(
   key: string,
   isCorrect: boolean
 ): KeyHeatmap {
-  if (!heatmap[key]) {
-    heatmap[key] = { errors: 0, total: 0, accuracy: 100 };
-  }
+  const existing = heatmap[key]
+  const total = (existing?.total ?? 0) + 1
+  const errors = (existing?.errors ?? 0) + (isCorrect ? 0 : 1)
+  const accuracy = Math.round(((total - errors) / total) * 100)
 
-  heatmap[key].total++;
-  if (!isCorrect) {
-    heatmap[key].errors++;
+  return {
+    ...heatmap,
+    [key]: { errors, total, accuracy },
   }
-  heatmap[key].accuracy = Math.round(
-    ((heatmap[key].total - heatmap[key].errors) / heatmap[key].total) * 100
-  );
-
-  return heatmap;
 }
 
 export function getHeatmapColor(accuracy: number): string {
