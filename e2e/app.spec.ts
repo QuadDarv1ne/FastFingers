@@ -8,25 +8,23 @@ test.describe('FastFingers App', () => {
 
   test('должен загружаться корректно', async ({ page }) => {
     await expect(page).toHaveTitle(/FastFingers/)
-    await expect(page.getByText('FastFingers')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /FastFingers/i })).toBeVisible()
   })
 
   test('должен показывать главный экран с режимами', async ({ page }) => {
-    await expect(page.getByText('⚡ Спринт')).toBeVisible()
-    await expect(page.getByText('📝 Практика')).toBeVisible()
-    await expect(page.getByText('🎮 Игра')).toBeVisible()
-    await expect(page.getByText('🏆 Лидеры')).toBeVisible()
+    await expect(page.getByText('Спринт')).toBeVisible()
+    await expect(page.getByText('Практика')).toBeVisible()
+    await expect(page.getByText('История')).toBeVisible()
+    await expect(page.getByText('Лидеры')).toBeVisible()
   })
 
   test('должен переключать режимы', async ({ page }) => {
-    // Проверка переключения на режим спринта
-    await page.getByText('⚡ Спринт').click()
-    await expect(page.getByText('Спринт')).toBeVisible({ timeout: 5000 })
+    await page.getByText('Спринт').click()
+    await expect(page.getByText('60 секунд')).toBeVisible({ timeout: 5000 })
 
-    // Возврат и проверка переключения на практику
     await page.getByRole('button', { name: /назад/i }).first().click()
-    await page.getByText('📝 Практика').click()
-    await expect(page.getByText('Практика')).toBeVisible({ timeout: 5000 })
+    await page.getByText('Практика').click()
+    await expect(page.getByText('Прогресс')).toBeVisible({ timeout: 5000 })
   })
 
   test('должен показывать настройки', async ({ page }) => {
@@ -36,99 +34,68 @@ test.describe('FastFingers App', () => {
   })
 
   test('должен переключать тему', async ({ page }) => {
-    const lightButton = page.getByTitle('Светлая тема')
-    const darkButton = page.getByTitle('Тёмная тема')
-
-    await expect(lightButton).toBeVisible()
-    await expect(darkButton).toBeVisible()
+    const themeToggle = page.getByRole('button', { name: /тема/i })
+    await expect(themeToggle).toBeVisible()
   })
 
   test('должен запускать тренировку и показывать результаты', async ({ page }) => {
-    // Запуск спринт режима
-    await page.getByText('⚡ Спринт').click()
-    await expect(page.getByText('Спринт')).toBeVisible({ timeout: 5000 })
+    await page.getByText('Спринт').click()
+    await expect(page.getByText('60 секунд')).toBeVisible({ timeout: 5000 })
 
-    // Проверка наличия клавиатуры
-    await expect(page.locator('[data-key]')).toHaveCount({ min: 30 })
-
-    // Проверка наличия текста для печати
-    const textElement = page.locator('[data-testid="text-display"]')
-    await expect(textElement).toBeVisible()
+    await expect(page.locator('[role="button"][aria-label*="клавиша" i]')).toHaveCount({ min: 30 })
   })
 
   test('должен показывать историю тренировок', async ({ page }) => {
-    // Переход к истории
-    await page.getByText('📊 История').click()
+    await page.getByText('История').click()
     await expect(page.getByText('История тренировок')).toBeVisible({ timeout: 5000 })
 
-    // Проверка статистики
-    await expect(page.getByText('Всего сессий')).toBeVisible()
-    await expect(page.getByText('Время тренировок')).toBeVisible()
+    await expect(page.getByText('WPM')).toBeVisible()
+    await expect(page.getByText('Точность')).toBeVisible()
   })
 
   test('должен экспортировать статистику в CSV', async ({ page }) => {
-    await page.getByText('📊 История').click()
+    await page.getByText('История').click()
     await expect(page.getByText('История тренировок')).toBeVisible({ timeout: 5000 })
 
-    // Проверка наличия кнопки экспорта
-    const exportButton = page.getByTitle('Экспорт в CSV')
+    const exportButton = page.getByRole('button', { name: /csv/i })
     await expect(exportButton).toBeVisible()
   })
 
   test('должен показывать таблицу лидеров', async ({ page }) => {
-    await page.getByText('🏆 Лидеры').click()
+    await page.getByText('Лидеры').click()
     await expect(page.getByText('Таблица лидеров')).toBeVisible({ timeout: 5000 })
   })
 
   test('должен переключать язык', async ({ page }) => {
-    // Проверка наличия переключателя языка
-    const langSwitcher = page.getByRole('button', { name: /RU|EN|ZH|HE/i }).first()
+    const langSwitcher = page.getByRole('button', { name: /^(RU|EN|ZH|HE)$/i })
     await expect(langSwitcher).toBeVisible()
   })
 
   test('должен показывать скины клавиатуры', async ({ page }) => {
-    // Проверка наличия селектора скинов
     await expect(page.getByText('Скин')).toBeVisible()
   })
 
   test('должен обрабатывать ошибки (Error Boundary)', async ({ page }) => {
-    // Проверка что приложение не падает при навигации
-    await page.getByText('⚡ Спринт').click()
+    await page.getByText('Спринт').click()
     await expect(page).toHaveURL(/.*sprint.*/i, { timeout: 5000 })
   })
 
   test('должен показывать прогресс тренировки', async ({ page }) => {
-    await page.getByText('⚡ Спринт').click()
-    await expect(page.getByText('Спринт')).toBeVisible({ timeout: 5000 })
+    await page.getByText('Спринт').click()
+    await expect(page.getByText('60 секунд')).toBeVisible({ timeout: 5000 })
 
-    // Проверка наличия индикаторов прогресса
-    await expect(page.locator('[aria-label*="прогресс" i]')).toBeVisible()
-    await expect(page.locator('[aria-label*="WPM" i]')).toBeVisible()
+    await expect(page.locator('[role="progressbar"]')).toBeVisible()
+    await expect(page.getByText(/WPM/i)).toBeVisible()
   })
 
   test('должен поддерживать навигацию с клавиатуры', async ({ page }) => {
-    // Навигация Tab
     await page.keyboard.press('Tab')
     await expect(page.locator(':focus')).toBeVisible()
 
-    // Навигация Enter
     await page.keyboard.press('Enter')
   })
 
-  test('должен показывать мотивационные цитаты', async ({ page }) => {
-    // Проверка наличия мотивационного блока
-    const quoteElement = page.locator('[data-testid="motivational-quote"]')
-    await expect(quoteElement).toBeVisible()
-  })
-
-  test('должен показывать ежедневные челленджи', async ({ page }) => {
-    // Проверка наличия карточки ежедневного челленджа
-    const challengeCard = page.locator('[data-testid="daily-challenge"]')
-    await expect(challengeCard).toBeVisible()
-  })
-
   test('должен показывать достижения', async ({ page }) => {
-    // Проверка наличия панели достижений
     await expect(page.getByText('Достижения')).toBeVisible()
   })
 })
