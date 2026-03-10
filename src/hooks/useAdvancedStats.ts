@@ -137,12 +137,14 @@ export function useAdvancedStats() {
       }
     }
 
-    let bestWpmSession: SessionData = sessions[0]!
-    let bestAccuracySession: SessionData = sessions[0]!
-    let bestCpmSession: SessionData = sessions[0]!
+    const fallbackSession: SessionData = { id: '', date: '', wpm: 0, accuracy: 0, cpm: 0, errors: 0, duration: 0, xp: 0 }
+    let bestWpmSession: SessionData = sessions[0] ?? fallbackSession
+    let bestAccuracySession: SessionData = sessions[0] ?? fallbackSession
+    let bestCpmSession: SessionData = sessions[0] ?? fallbackSession
 
     for (let i = 1; i < sessions.length; i++) {
-      const s = sessions[i]!
+      const s = sessions[i]
+      if (!s) continue
       if (s.wpm > bestWpmSession.wpm) bestWpmSession = s
       if (s.accuracy > bestAccuracySession.accuracy) bestAccuracySession = s
       if (s.cpm > bestCpmSession.cpm) bestCpmSession = s

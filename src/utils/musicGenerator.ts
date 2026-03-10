@@ -60,7 +60,7 @@ export class MusicGenerator {
 
   init(): void {
     if (!this.audioContext) {
-      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext
+      const AudioContextClass = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext) as typeof AudioContext
       this.audioContext = new AudioContextClass()
       this.masterGain = this.audioContext.createGain()
       this.masterGain.connect(this.audioContext.destination)
@@ -337,14 +337,15 @@ export class MusicGenerator {
     // Simple melody
     if (beat % 4 === 1 || beat % 4 === 3) {
       const melodyPattern = [5, 7, 5, 4, 2, 0, 2, 4]
-      const noteIndex = melodyPattern[beat % 8]!
+      const noteIndex = melodyPattern[beat % 8] ?? 0
       const freq = this.getFrequency(noteIndex, 5)
       this.createOscillator('sine', freq, time, 0.4, 0.2)
     }
   }
 
   private playCinematic(beat: number, time: number): void {
-    const scale = SCALES[this.currentKey]!
+    const scale = SCALES[this.currentKey] ?? SCALES.C
+    const scaleIntervals = scale?.intervals ?? [0, 2, 4, 5, 7, 9, 11]
 
     // Deep bass drone
     if (beat % 16 === 0) {
@@ -356,8 +357,8 @@ export class MusicGenerator {
     if (beat % 4 === 0) {
       const chord = [0, 3, 7]
       const progression = Math.floor(beat / 16) % 4
-      const rootNote = [0, 3, 5, 7][progression]!
-      const transposedChord = chord.map(n => (rootNote + n) % scale.intervals.length)
+      const rootNote = [0, 3, 5, 7][progression] ?? 0
+      const transposedChord = chord.map(n => (rootNote + n) % scaleIntervals.length)
       this.playChord(transposedChord, time, 4 * (60 / this.tempo), 'triangle')
     }
 
