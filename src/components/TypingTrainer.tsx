@@ -8,6 +8,9 @@ import { useHotkey } from '../hooks/useHotkeys'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { TypingChar } from './TypingChar'
 import { useAppTranslation } from '../i18n/config'
+import { createScopedLogger } from '../utils/logger'
+
+const logger = createScopedLogger('TypingTrainer')
 
 interface TypingTrainerProps {
   layout: KeyboardLayout
@@ -85,27 +88,42 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Инициализация упражнения — оптимизировано
   const initExercise = useCallback(() => {
-    let exerciseText: string
+    try {
+      let exerciseText: string
 
-    if (isChallenge && challengeText) {
-      exerciseText = challengeText
-    } else if (selectedCategory === 'custom' && customExercises.length > 0) {
-      const randomIndex = Math.floor(Math.random() * customExercises.length)
-      const exercise = customExercises[randomIndex]
-      exerciseText = exercise ? exercise.text : ''
-    } else if (selectedCategory !== 'all') {
-      const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
-      exerciseText = exercise ? exercise.text : ''
-    } else {
-      exerciseText = generatePracticeText(20, selectedDifficulty)
+      if (isChallenge && challengeText) {
+        exerciseText = challengeText
+      } else if (selectedCategory === 'custom' && customExercises.length > 0) {
+        const randomIndex = Math.floor(Math.random() * customExercises.length)
+        const exercise = customExercises[randomIndex]
+        exerciseText = exercise ? exercise.text : ''
+      } else if (selectedCategory !== 'all') {
+        const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
+        exerciseText = exercise ? exercise.text : ''
+      } else {
+        exerciseText = generatePracticeText(20, selectedDifficulty)
+      }
+
+      if (!exerciseText || exerciseText.trim().length === 0) {
+        logger.warn('Empty exercise text, using fallback')
+        exerciseText = 'текст для печати'
+      }
+
+      setText(exerciseText)
+      setCurrentIndex(0)
+      setInputResults([])
+      setStartTime(null)
+      setIsComplete(false)
+      textLengthRef.current = exerciseText.length
+    } catch (error) {
+      logger.error('Error initializing exercise:', error)
+      setText('ошибка генерации текста')
+      setCurrentIndex(0)
+      setInputResults([])
+      setStartTime(null)
+      setIsComplete(false)
+      textLengthRef.current = 0
     }
-
-    setText(exerciseText)
-    setCurrentIndex(0)
-    setInputResults([])
-    setStartTime(null)
-    setIsComplete(false)
-    textLengthRef.current = exerciseText.length
   }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
 
   useEffect(() => {
