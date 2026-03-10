@@ -32,11 +32,9 @@ const MAX_SESSIONS = 1000
 const RECENT_SESSIONS_COUNT = 10
 const XP_PER_LEVEL = 1000
 
-function calculateLevel(totalXp: number): number {
-  return Math.floor(totalXp / XP_PER_LEVEL) + 1
-}
+const calculateLevel = (totalXp: number): number => Math.floor(totalXp / XP_PER_LEVEL) + 1
 
-function calculateStreak(lastDate: string | null, currentDate: string): number {
+const calculateStreak = (lastDate: string | null, currentDate: string): number => {
   if (!lastDate) return 1
 
   const last = new Date(lastDate)
