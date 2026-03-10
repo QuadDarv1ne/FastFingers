@@ -6,8 +6,9 @@
  * Проверка email на валидность
  */
 export function isValidEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') return false
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+  return emailRegex.test(email.trim())
 }
 
 /**
@@ -15,6 +16,7 @@ export function isValidEmail(email: string): boolean {
  * Требования: минимум 8 символов, 1 заглавная, 1 строчная, 1 цифра
  */
 export function isPasswordStrong(password: string): boolean {
+  if (!password || typeof password !== 'string') return false
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
   return passwordRegex.test(password)
 }
@@ -23,6 +25,8 @@ export function isPasswordStrong(password: string): boolean {
  * Получить оценку сложности пароля (0-4)
  */
 export function getPasswordStrength(password: string): number {
+  if (!password) return 0
+  
   let strength = 0
 
   if (password.length >= 8) strength++
@@ -39,22 +43,25 @@ export function getPasswordStrength(password: string): number {
  * Требования: 3-20 символов, только буквы, цифры, подчёркивание
  */
 export function isValidUsername(username: string): boolean {
+  if (!username || typeof username !== 'string') return false
   const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
-  return usernameRegex.test(username)
+  return usernameRegex.test(username.trim())
 }
 
 /**
  * Проверка телефона (российский формат)
  */
 export function isValidPhone(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') return false
   const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/
-  return phoneRegex.test(phone)
+  return phoneRegex.test(phone.trim())
 }
 
 /**
  * Очистить телефон от лишних символов
  */
 export function cleanPhone(phone: string): string {
+  if (!phone) return ''
   return phone.replace(/[^\d+]/g, '')
 }
 
@@ -62,6 +69,7 @@ export function cleanPhone(phone: string): string {
  * Проверка URL
  */
 export function isValidUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
   try {
     new URL(url)
     return true
@@ -85,6 +93,7 @@ export function isEmpty(value: unknown): boolean {
  * Обрезать строку до максимальной длины
  */
 export function truncate(str: string, maxLength: number): string {
+  if (!str) return ''
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength) + '...'
 }
@@ -93,6 +102,7 @@ export function truncate(str: string, maxLength: number): string {
  * Маска для кредитной карты
  */
 export function maskCardNumber(cardNumber: string): string {
+  if (!cardNumber) return ''
   const cleaned = cardNumber.replace(/\D/g, '')
   const masked = cleaned.slice(-4).padStart(cleaned.length, '*')
   return masked.replace(/(\d{4})/g, '$1 ').trim()
