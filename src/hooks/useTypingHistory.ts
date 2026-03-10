@@ -104,13 +104,16 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
     // Сохранение в облако с fallback
     if (user) {
-      saveTypingSession(user.id, stats, xp).then(() => {
-        setIsOnline(isBackendAvailable())
-        // Попытка отправить отложенные сессии
-        flushPendingSessions()
-      })
+      saveTypingSession(user.id, stats, xp)
+        .then(() => {
+          setIsOnline(isBackendAvailable())
+          flushPendingSessions()
+        })
+        .catch(() => {
+          // Ignore cloud sync errors
+        })
     }
-  }, [user])
+  }, [])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
     setHistory(prev => {
@@ -144,14 +147,12 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const getBestSession = useMemo(() => {
     if (history.sessions.length === 0) return null
-    return history.sessions.reduce((best, current) =>
-      current.wpm > best.wpm ? current : best
-    )
+    return [...history.sessions].sort((a, b) => b.wpm - a.wpm)[0] ?? null
   }, [history.sessions])
 
   const getRecentSessions = useCallback((count: number) => {
     return history.sessions.slice(0, count)
-  }, [history.sessions])
+  }, [history])
 
   return {
     history,
