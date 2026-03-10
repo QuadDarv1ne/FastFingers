@@ -5,6 +5,7 @@ import { getRandomExercise, generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import { TypingChar } from './TypingChar'
 import { useAppTranslation } from '../i18n/config'
 
@@ -56,6 +57,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const inputRef = useRef<HTMLInputElement>(null)
   const textContainerRef = useRef<HTMLDivElement>(null)
   const textLengthRef = useRef(0)
+  const completionRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(completionRef, isComplete)
 
   // Завершение упражнения — оптимизировано
   const handleComplete = useCallback((results: KeyInputResult[]) => {
@@ -358,6 +362,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         <AnimatePresence>
           {isComplete && (
             <motion.div
+              ref={completionRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
 import { useAppTranslation } from '../i18n/config'
+import { useFocusTrap } from '@hooks/useFocusTrap'
 
 export interface Notification {
   id: string
@@ -25,6 +26,18 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
   )
   const [isOpen, setIsOpen] = useState(false)
   const [showBadge, setShowBadge] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(dropdownRef, isOpen)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false)
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -109,7 +122,13 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden" role="dialog" aria-label={t('notification.levelUp')} style={{ maxHeight: 'min(600px, 80vh)' }}>
+          <div
+            ref={dropdownRef}
+            className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden"
+            role="dialog"
+            aria-label={t('notification.levelUp')}
+            style={{ maxHeight: 'min(600px, 80vh)' }}
+          >
             {/* Header */}
             <div className="p-4 border-b border-dark-700 flex items-center justify-between">
               <div>
