@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { lazy, Suspense, memo, type ComponentType } from 'react'
+import { Suspense, memo, lazy, type ComponentType } from 'react'
 
 const LoadingFallback = memo(() => (
   <div className="flex items-center justify-center p-8 text-dark-400">
@@ -8,79 +8,45 @@ const LoadingFallback = memo(() => (
 ))
 LoadingFallback.displayName = 'LoadingFallback'
 
-interface RechartsModule {
-  BarChart: ComponentType<unknown>
-  Bar: ComponentType<unknown>
-  AreaChart: ComponentType<unknown>
-  Area: ComponentType<unknown>
-  LineChart: ComponentType<unknown>
-  Line: ComponentType<unknown>
-  PieChart: ComponentType<unknown>
-  Pie: ComponentType<unknown>
-  XAxis: ComponentType<unknown>
-  YAxis: ComponentType<unknown>
-  CartesianGrid: ComponentType<unknown>
-  Tooltip: ComponentType<unknown>
-  ResponsiveContainer: ComponentType<unknown>
-  Cell: ComponentType<unknown>
-  Legend: ComponentType<unknown>
-  Label: ComponentType<unknown>
-  ReferenceLine: ComponentType<unknown>
-  Radar: ComponentType<unknown>
-  RadarChart: ComponentType<unknown>
-  PolarGrid: ComponentType<unknown>
-  PolarAngleAxis: ComponentType<unknown>
-  PolarRadiusAxis: ComponentType<unknown>
-  LabelList: ComponentType<unknown>
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RechartsComponent = ComponentType<any>
 
-let rechartsModule: RechartsModule | null = null
+ 
+const createLazyChart = (importFn: () => Promise<{ default: RechartsComponent }>) => {
+  const LazyComponent = lazy(importFn)
 
-const RechartsLoader = lazy(async () => {
-  if (!rechartsModule) {
-    const module = await import('recharts')
-    rechartsModule = module as RechartsModule
-  }
-  return { default: rechartsModule }
-})
-
-const createLazyChart = <T extends keyof RechartsModule>(componentName: T) => {
-  const LazyWrapper = (props: React.ComponentProps<RechartsModule[T]>) => (
+  const LazyWrapper = (props: Record<string, unknown>) => (
     <Suspense fallback={<LoadingFallback />}>
-      <RechartsLoader>
-        {(module: RechartsModule) => {
-          const Component = module[componentName]
-          return <Component {...(props as never)} />
-        }}
-      </RechartsLoader>
+      <LazyComponent {...props} />
     </Suspense>
   )
-  LazyWrapper.displayName = `Lazy${componentName}`
+  LazyWrapper.displayName = `LazyChart`
   return LazyWrapper
 }
 
 export { LoadingFallback }
 
-export const BarChart = createLazyChart('BarChart')
-export const Bar = createLazyChart('Bar')
-export const AreaChart = createLazyChart('AreaChart')
-export const Area = createLazyChart('Area')
-export const LineChart = createLazyChart('LineChart')
-export const Line = createLazyChart('Line')
-export const PieChart = createLazyChart('PieChart')
-export const Pie = createLazyChart('Pie')
-export const XAxis = createLazyChart('XAxis')
-export const YAxis = createLazyChart('YAxis')
-export const CartesianGrid = createLazyChart('CartesianGrid')
-export const Tooltip = createLazyChart('Tooltip')
-export const ResponsiveContainer = createLazyChart('ResponsiveContainer')
-export const Cell = createLazyChart('Cell')
-export const Legend = createLazyChart('Legend')
-export const Label = createLazyChart('Label')
-export const ReferenceLine = createLazyChart('ReferenceLine')
-export const Radar = createLazyChart('Radar')
-export const RadarChart = createLazyChart('RadarChart')
-export const PolarGrid = createLazyChart('PolarGrid')
-export const PolarAngleAxis = createLazyChart('PolarAngleAxis')
-export const PolarRadiusAxis = createLazyChart('PolarRadiusAxis')
-export const LabelList = createLazyChart('LabelList')
+// Каждый компонент импортируется отдельно — будет загружен только используемый
+export const BarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.BarChart as RechartsComponent })))
+export const Bar = createLazyChart(() => import('recharts').then(m => ({ default: m.Bar as RechartsComponent })))
+export const AreaChart = createLazyChart(() => import('recharts').then(m => ({ default: m.AreaChart as RechartsComponent })))
+export const Area = createLazyChart(() => import('recharts').then(m => ({ default: m.Area as RechartsComponent })))
+export const LineChart = createLazyChart(() => import('recharts').then(m => ({ default: m.LineChart as RechartsComponent })))
+export const Line = createLazyChart(() => import('recharts').then(m => ({ default: m.Line as RechartsComponent })))
+export const PieChart = createLazyChart(() => import('recharts').then(m => ({ default: m.PieChart as RechartsComponent })))
+export const Pie = createLazyChart(() => import('recharts').then(m => ({ default: m.Pie as RechartsComponent })))
+export const XAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.XAxis as RechartsComponent })))
+export const YAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.YAxis as RechartsComponent })))
+export const CartesianGrid = createLazyChart(() => import('recharts').then(m => ({ default: m.CartesianGrid as RechartsComponent })))
+export const Tooltip = createLazyChart(() => import('recharts').then(m => ({ default: m.Tooltip as RechartsComponent })))
+export const ResponsiveContainer = createLazyChart(() => import('recharts').then(m => ({ default: m.ResponsiveContainer as RechartsComponent })))
+export const Cell = createLazyChart(() => import('recharts').then(m => ({ default: m.Cell as RechartsComponent })))
+export const Legend = createLazyChart(() => import('recharts').then(m => ({ default: m.Legend as RechartsComponent })))
+export const Label = createLazyChart(() => import('recharts').then(m => ({ default: m.Label as RechartsComponent })))
+export const ReferenceLine = createLazyChart(() => import('recharts').then(m => ({ default: m.ReferenceLine as RechartsComponent })))
+export const Radar = createLazyChart(() => import('recharts').then(m => ({ default: m.Radar as RechartsComponent })))
+export const RadarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.RadarChart as RechartsComponent })))
+export const PolarGrid = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarGrid as RechartsComponent })))
+export const PolarAngleAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarAngleAxis as RechartsComponent })))
+export const PolarRadiusAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarRadiusAxis as RechartsComponent })))
+export const LabelList = createLazyChart(() => import('recharts').then(m => ({ default: m.LabelList as RechartsComponent })))
