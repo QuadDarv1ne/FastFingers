@@ -99,7 +99,7 @@ export async function flushPendingSessions(): Promise<void> {
   const pending: PendingSession[] = JSON.parse(localStorage.getItem(PENDING_SESSIONS_KEY) || '[]')
   if (pending.length === 0) return
 
-  const succeeded: number[] = []
+  const succeededIndexes = new Set<number>()
 
   for (let i = 0; i < pending.length; i++) {
     const session = pending[i]
@@ -118,14 +118,14 @@ export async function flushPendingSessions(): Promise<void> {
         xp: session.xp,
       })
 
-      if (!error) succeeded.push(i)
+      if (!error) succeededIndexes.add(i)
     } catch {
       // Ignore individual failures
     }
   }
 
-  // Remove succeeded sessions
-  const remaining = pending.filter((_, i) => !succeeded.includes(i))
+  // Remove succeeded sessions - O(n) вместо O(n²)
+  const remaining = pending.filter((_, i) => !succeededIndexes.has(i))
   localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))
 }
 
