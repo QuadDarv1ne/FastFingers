@@ -1,6 +1,4 @@
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import { User } from '../types/auth'
+import type { User } from '../types/auth'
 
 export interface CertificateData {
   user: User
@@ -70,10 +68,19 @@ const translations = {
   },
 }
 
-export function generateCertificate(
+/**
+ * Генерация PDF сертификата с динамической загрузкой jsPDF
+ */
+export async function generateCertificate(
   data: CertificateData,
   options: CertificateOptions = {}
 ): Promise<Blob> {
+  // Динамический импорт для уменьшения bundle size
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
+
   return new Promise((resolve) => {
     const {
       language = 'ru',

@@ -47,12 +47,22 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   const audioContextRef = useRef<AudioContext | null>(null)
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
+  const activeOscillatorsRef = useRef<Set<OscillatorNode>>(new Set())
   const throttleMs = 30
   const isInitialisedRef = useRef(false)
 
   const [options, setOptions] = useState<SoundOptions>(initialOptions)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const cleanupOscillator = useCallback((oscillator: OscillatorNode) => {
+    activeOscillatorsRef.current.delete(oscillator)
+    try {
+      oscillator.disconnect()
+    } catch {
+      // Ignore cleanup errors
+    }
+  }, [])
 
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
@@ -120,6 +130,9 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
 
+      // Track active oscillator for cleanup
+      activeOscillatorsRef.current.add(oscillator)
+
       oscillator.connect(gainNode)
       gainNode.connect(gainNodeRef.current)
 
@@ -132,14 +145,30 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
 
       oscillator.start(ctxNow)
       oscillator.stop(ctxNow + baseConfig.duration)
+
+      // Cleanup after sound completes
+      setTimeout(() => {
+        cleanupOscillator(oscillator)
+      }, (baseConfig.duration + baseConfig.decay) * 1000)
     } catch {
       setError('Audio play failed')
     }
-  }, [options.enabled, options.volume, options.theme, isReady, initAudio])
+  }, [options.enabled, options.volume, options.theme, isReady, initAudio, cleanupOscillator])
 
   useEffect(() => {
     initAudio()
     return () => {
+      // Cleanup all active oscillators
+      activeOscillatorsRef.current.forEach(osc => {
+        try {
+          osc.stop()
+          osc.disconnect()
+        } catch {
+          // Ignore cleanup errors
+        }
+      })
+      activeOscillatorsRef.current.clear()
+
       if (audioContextRef.current) {
         audioContextRef.current.close()
         audioContextRef.current = null

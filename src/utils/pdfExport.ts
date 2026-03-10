@@ -1,6 +1,4 @@
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import { UserProgress, TypingStats } from '../types'
+import type { UserProgress, TypingStats } from '../types'
 
 interface ExportData {
   progress: UserProgress
@@ -14,17 +12,22 @@ interface AutoTableDocument {
   }
 }
 
-function getLastAutoTableY(doc: jsPDF): number {
-  return (doc as unknown as AutoTableDocument).lastAutoTable?.finalY ?? 0
-}
-
 /**
- * Экспорт статистики в PDF
+ * Экспорт статистики в PDF с динамической загрузкой jsPDF
  */
-export function exportStatsToPDF(data: ExportData): void {
+export async function exportStatsToPDF(data: ExportData): Promise<void> {
+  // Динамический импорт для уменьшения bundle size
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
+
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let yPosition = 20
+
+  const getLastAutoTableY = (): number =>
+    (doc as unknown as AutoTableDocument).lastAutoTable?.finalY ?? 0
 
   // Заголовок
   doc.setFontSize(24)
@@ -75,7 +78,7 @@ export function exportStatsToPDF(data: ExportData): void {
     margin: { left: 14, right: 14 },
   })
 
-  yPosition = getLastAutoTableY(doc) + 15
+  yPosition = getLastAutoTableY() + 15
 
   // Последние сессии
   if (data.recentSessions.length > 0) {
@@ -100,7 +103,7 @@ export function exportStatsToPDF(data: ExportData): void {
       margin: { left: 14, right: 14 },
     })
 
-    yPosition = getLastAutoTableY(doc) + 15
+    yPosition = getLastAutoTableY() + 15
   }
 
   // Проблемные клавиши
@@ -132,7 +135,7 @@ export function exportStatsToPDF(data: ExportData): void {
   }
 
   // Новая страница для графиков (если нужно)
-  const lastY = getLastAutoTableY(doc)
+  const lastY = getLastAutoTableY()
   if (lastY && lastY > 250) {
     doc.addPage()
     yPosition = 20
@@ -170,14 +173,17 @@ function formatMinutes(minutes: number): string {
 }
 
 /**
- * Экспорт сертификата достижения
+ * Экспорт сертификата достижения с динамической загрузкой jsPDF
  */
-export function exportCertificatePDF(data: {
+export async function exportCertificatePDF(data: {
   userName: string
   wpm: number
   accuracy: number
   level: number
-}): void {
+}): Promise<void> {
+  // Динамический импорт для уменьшения bundle size
+  const [{ default: jsPDF }] = await Promise.all([import('jspdf')])
+
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
