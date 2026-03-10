@@ -252,12 +252,12 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
           </div>
 
           {/* Информация о рангах */}
-          <div className="card p-4">
-            <h4 className="font-semibold mb-3 flex items-center gap-2">
+          <div className="card p-4" role="region" aria-labelledby="ranks-heading">
+            <h4 id="ranks-heading" className="font-semibold mb-3 flex items-center gap-2">
               <span>🏆</span>
               Система рангов
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm" role="list">
               <RankInfo rank="Bronze" requirement="< 30 WPM" color="text-amber-700" />
               <RankInfo rank="Silver" requirement="30-44 WPM" color="text-gray-500" />
               <RankInfo rank="Gold" requirement="45-59 WPM" color="text-yellow-600" />
@@ -283,8 +283,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
-    <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-700">
-      <div className="text-2xl mb-1">{icon}</div>
+    <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-700" role="listitem">
+      <div className="text-2xl mb-1" aria-hidden="true">{icon}</div>
       <div className="text-xs text-dark-400">{label}</div>
       <div className="text-lg font-bold text-white">{value}</div>
     </div>
@@ -293,7 +293,7 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 
 function RankInfo({ rank, requirement, color }: { rank: string; requirement: string; color: string }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" role="listitem">
       <div className={`font-semibold ${color}`}>{rank}</div>
       <div className="text-dark-400 text-xs">{requirement}</div>
     </div>

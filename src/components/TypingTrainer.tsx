@@ -196,25 +196,32 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const renderedChars = useMemo(() => {
     const chars = text.split('')
     const result: JSX.Element[] = []
-    
-    for (let i = 0; i < chars.length; i++) {
+    const textLen = text.length
+
+    for (let i = 0; i < textLen; i++) {
       const char = chars[i]
       if (!char) continue
-      
+
       let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-      
+
       if (i < currentIndex) {
         const resultItem = inputResults[i]
         status = resultItem?.isCorrect ? 'correct' : 'incorrect'
       } else if (i === currentIndex && !isComplete) {
         status = 'current'
       }
-      
+
       result.push(<TypingChar key={`${i}-${char}`} char={char} status={status} />)
     }
-    
+
     return result
   }, [text, currentIndex, inputResults, isComplete])
+
+  // Статистика для live region (мемоизация)
+  const liveRegionText = useMemo(() => {
+    const correctCount = inputResults.reduce((sum, r) => sum + (r?.isCorrect ? 1 : 0), 0)
+    return `${currentIndex} из ${text.length} символов. Точность: ${correctCount} из ${inputResults.length}`
+  }, [currentIndex, text.length, inputResults])
 
   return (
     <div className="space-y-6" role="region" aria-label="Тренажёр печати">
@@ -308,7 +315,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
         {/* Live region для screen reader */}
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {currentIndex} из {text.length} символов. Точность: {inputResults.filter(r => r?.isCorrect).length} из {inputResults.length}
+          {liveRegionText}
         </div>
 
         <div className="font-mono leading-relaxed break-words select-none" style={fontSizeStyle} aria-live="polite">

@@ -431,28 +431,48 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
   unique?: boolean
   separator?: string
 } = {}): string {
-  // Валидация входных параметров
-  const safeWordCount = Math.max(1, Math.floor(wordCount))
-  const safeDifficulty = Math.max(1, Math.min(10, Math.floor(difficulty)))
-  
-  const { unique = false, separator = ' ' } = options
-  let words = getWordsByDifficulty(safeDifficulty)
+  try {
+    // Валидация входных параметров
+    const safeWordCount = Math.max(1, Math.min(200, Math.floor(wordCount) || 1))
+    const safeDifficulty = Math.max(1, Math.min(10, Math.floor(difficulty) || 5))
 
-  if (words.length === 0) {
-    words = ALL_WORDS.easy
-  }
+    const { unique = false, separator = ' ' } = options
+    let words = getWordsByDifficulty(safeDifficulty)
 
-  if (unique) {
-    words = [...words].sort(() => Math.random() - 0.5)
-    return words.slice(0, Math.min(safeWordCount, words.length)).join(separator)
-  }
+    // Защита от пустого массива слов
+    if (!words || words.length === 0) {
+      words = ALL_WORDS.easy
+    }
 
-  const result: string[] = []
-  for (let i = 0; i < safeWordCount; i++) {
-    const word = words[Math.floor(Math.random() * words.length)]
-    if (word) result.push(word)
+    // Защита от пустого массива после всех проверок
+    if (!words || words.length === 0) {
+      console.warn('[generatePracticeText] No words available, using fallback')
+      return 'текст для печати'
+    }
+
+    if (unique) {
+      words = [...words].sort(() => Math.random() - 0.5)
+      const selected = words.slice(0, Math.min(safeWordCount, words.length))
+      return selected.join(separator)
+    }
+
+    const result: string[] = []
+    for (let i = 0; i < safeWordCount; i++) {
+      const word = words[Math.floor(Math.random() * words.length)]
+      if (word) result.push(word)
+    }
+    
+    // Финальная проверка на пустой результат
+    if (result.length === 0) {
+      console.warn('[generatePracticeText] Generated empty result, using fallback')
+      return 'текст для печати'
+    }
+    
+    return result.join(separator)
+  } catch (error) {
+    console.error('[generatePracticeText] Error generating text:', error)
+    return 'ошибка генерации текста'
   }
-  return result.join(separator)
 }
 
 // === Интеграция с базой текстов ===

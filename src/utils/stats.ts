@@ -32,28 +32,37 @@ const WPM_HIGH = 60
 const WPM_MEDIUM = 40
 const WPM_LOW = 20
 
+/**
+ * Расчёт статистики печати с защитой от некорректных значений
+ */
 export function calculateStats(
   correctChars: number,
   totalChars: number,
   errors: number,
   timeElapsed: number
 ): TypingStats {
-  const timeInMinutes = timeElapsed / 60
+  // Валидация входных параметров
+  const safeCorrectChars = Math.max(0, Math.floor(correctChars) || 0)
+  const safeTotalChars = Math.max(1, Math.floor(totalChars) || 1) // Защита от деления на ноль
+  const safeErrors = Math.max(0, Math.floor(errors) || 0)
+  const safeTimeElapsed = Math.max(0.001, timeElapsed || 0.001) // Минимальное время для расчёта
 
-  const cpm = timeInMinutes > 0 ? Math.round(correctChars / timeInMinutes) : 0
-  const wpm = timeInMinutes > 0 ? Math.round(correctChars / 5 / timeInMinutes) : 0
-  const accuracy = totalChars > 0
-    ? Math.round((correctChars / totalChars) * 100)
+  const timeInMinutes = safeTimeElapsed / 60
+
+  const cpm = timeInMinutes > 0 ? Math.round(safeCorrectChars / timeInMinutes) : 0
+  const wpm = timeInMinutes > 0 ? Math.round(safeCorrectChars / 5 / timeInMinutes) : 0
+  const accuracy = safeTotalChars > 0
+    ? Math.min(100, Math.max(0, Math.round((safeCorrectChars / safeTotalChars) * 100)))
     : 100
 
   return {
     wpm,
     cpm,
     accuracy,
-    errors,
-    correctChars,
-    totalChars,
-    timeElapsed,
+    errors: safeErrors,
+    correctChars: safeCorrectChars,
+    totalChars: safeTotalChars,
+    timeElapsed: safeTimeElapsed,
   }
 }
 

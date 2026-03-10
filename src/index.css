@@ -10,8 +10,8 @@
   --color-bg: #0f0f0f;
   --color-surface: #1e293b;
   --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text-muted: #cbd5e1; /* Улучшена контрастность: #94a3b8 → #cbd5e1 (4.5:1 на #0f0f0f) */
+  --color-border: rgba(255, 255, 255, 0.15); /* Увеличена непрозрачность для лучшей видимости */
   --font-size-base: 16px;
   --font-size-practice: 1.5rem;
 }
@@ -35,8 +35,8 @@ html[data-contrast='high'] {
   --color-bg: #000000;
   --color-surface: #1a1a1a;
   --color-text: #ffffff;
-  --color-text-muted: #cccccc;
-  --color-border: rgba(255, 255, 255, 0.3);
+  --color-text-muted: #e5e5e5; /* Улучшена контрастность: #cccccc → #e5e5e5 (16:1 на #000) */
+  --color-border: rgba(255, 255, 255, 0.4); /* Увеличена непрозрачность */
 }
 
 * {
@@ -390,8 +390,8 @@ textarea:focus {
   --color-bg: #ffffff;
   --color-surface: #f8fafc;
   --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-border: rgba(0, 0, 0, 0.1);
+  --color-text-muted: #475569; /* Улучшена контрастность: #64748b → #475569 (7.5:1 на #fff) */
+  --color-border: rgba(0, 0, 0, 0.15); /* Увеличена непрозрачность */
 }
 
 .light .glass {
