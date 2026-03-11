@@ -1,17 +1,10 @@
 import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
 import { TypingTrainer } from './components/TypingTrainer'
 import { Header } from './components/Header'
-import { Stats } from './components/Stats'
 import { Keyboard } from './components/Keyboard'
-import { ThemeToggle } from './components/ThemeToggle'
-import { KeyboardSkinSelector } from './components/KeyboardSkinSelector'
-import { MusicControls } from './components/MusicControls'
-import { ClockWidget } from './components/ClockWidget'
-import { MotivationalQuote } from './components/MotivationalQuote'
 import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
-import { OnlineStatus } from './components/OnlineStatus'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -56,6 +49,13 @@ const LearningMode = lazy(() => import('./components/LearningMode').then((module
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
 const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
+const Stats = lazy(() => import('./components/Stats').then((module) => ({ default: module.Stats })))
+const ThemeToggle = lazy(() => import('./components/ThemeToggle').then((module) => ({ default: module.ThemeToggle })))
+const KeyboardSkinSelector = lazy(() => import('./components/KeyboardSkinSelector').then((module) => ({ default: module.KeyboardSkinSelector })))
+const MusicControls = lazy(() => import('./components/MusicControls').then((module) => ({ default: module.MusicControls })))
+const ClockWidget = lazy(() => import('./components/ClockWidget').then((module) => ({ default: module.ClockWidget })))
+const MotivationalQuote = lazy(() => import('./components/MotivationalQuote').then((module) => ({ default: module.MotivationalQuote })))
+const OnlineStatus = lazy(() => import('./components/OnlineStatus').then((module) => ({ default: module.OnlineStatus })))
 
 function AppContent() {
   const { t } = useAppTranslation()
@@ -332,11 +332,13 @@ function AppContent() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <KeyboardSkinSelector
-              skin={settings.keyboardSkin}
-              onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
-            />
-            <ThemeToggle theme={theme} onThemeChange={setTheme} />
+            <Suspense fallback={<LoadingFallback />}>
+              <KeyboardSkinSelector
+                skin={settings.keyboardSkin}
+                onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
+              />
+              <ThemeToggle theme={theme} onThemeChange={setTheme} />
+            </Suspense>
           </div>
         </div>
 
@@ -434,18 +436,22 @@ function AppContent() {
           </div>
 
           <div className="space-y-6">
-            <ClockWidget />
-            <MotivationalQuote />
-            <MusicControls />
+            <Suspense fallback={<LoadingFallback />}>
+              <ClockWidget />
+              <MotivationalQuote />
+              <MusicControls />
+            </Suspense>
 
             {settings.showStats && (
-              <Stats
-                progress={progress}
-                currentStats={currentStats}
-                onViewHistory={() => setView('history')}
-                onViewAchievements={() => setShowAchievements(true)}
-                challengeStats={challengeStats}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <Stats
+                  progress={progress}
+                  currentStats={currentStats}
+                  onViewHistory={() => setView('history')}
+                  onViewAchievements={() => setShowAchievements(true)}
+                  challengeStats={challengeStats}
+                />
+              </Suspense>
             )}
 
             <SettingsPanel
@@ -466,7 +472,9 @@ function AppContent() {
         <p>{t('misc.footer')}</p>
       </footer>
 
-      <OnlineStatus />
+      <Suspense fallback={<LoadingFallback />}>
+        <OnlineStatus />
+      </Suspense>
 
       {showOnboarding && (
         <Suspense fallback={<LoadingFallback />}>

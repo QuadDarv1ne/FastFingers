@@ -122,7 +122,7 @@ export default defineConfig({
         // Оптимизируем чанки
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
-          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable', 'html2canvas'],
           'i18n-vendor': ['i18next', 'react-i18next'],
           'animations-vendor': ['framer-motion'],
           'confetti-vendor': ['canvas-confetti'],
@@ -131,10 +131,18 @@ export default defineConfig({
           'virtual-vendor': ['@tanstack/react-virtual'],
           'storage-vendor': ['zustand'],
           'monitoring-vendor': ['@sentry/react'],
+          // Выносим тяжелые компоненты в отдельные чанки
           'typing-core': ['./src/components/TypingTrainer', './src/hooks/useTypingGame', './src/hooks/useTypingSound'],
           'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],
-          'ui-components': ['./src/components/Keyboard', './src/components/Stats', './src/components/Header'],
+          'ui-components': ['./src/components/Keyboard', './src/components/Header'],
           'charts': ['./src/components/LazyRecharts', './src/components/SpiderChart', './src/components/PredictionCurve'],
+          'auth-components': ['./src/components/auth/AuthWrapper', './src/components/auth/UserProfile'],
+          'panels': ['./src/components/NotificationPanel', './src/components/AchievementsPanel', './src/components/TrainingHistory'],
+          'settings': ['./src/components/ThemeToggle', './src/components/KeyboardSkinSelector', './src/components/MusicControls', './src/components/ExportImport'],
+          'exercises': ['./src/components/CustomExerciseEditor', './src/components/DailyChallengeCard', './src/components/LearningMode'],
+          'stats-pages': ['./src/components/StatisticsPage', './src/components/WeeklyProgress'],
+          'rewards': ['./src/components/SessionSummary', './src/components/StreakRewardsPanel', './src/components/TypingTips', './src/components/Onboarding'],
+          'widgets': ['./src/components/ClockWidget', './src/components/MotivationalQuote', './src/components/OnlineStatus'],
         },
       },
     },
