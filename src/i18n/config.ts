@@ -124,6 +124,7 @@ export type TranslationKey =
   | 'stats.more'
   | 'stats.sessions'
   | 'misc.theme'
+  | 'misc.themeAuto'
   | 'misc.sound'
   | 'misc.keyboard'
   | 'misc.language'
@@ -312,6 +313,7 @@ const resources = {
       'stats.more': 'Больше',
       'stats.sessions': 'сессий',
       'misc.theme': 'Тема',
+      'misc.themeAuto': 'Авто (системная)',
       'misc.sound': 'Звук',
       'misc.keyboard': 'Клавиатура',
       'misc.language': 'Язык',
@@ -494,6 +496,7 @@ const resources = {
       'stats.more': 'More',
       'stats.sessions': 'sessions',
       'misc.theme': 'Theme',
+      'misc.themeAuto': 'Auto (System)',
       'misc.sound': 'Sound',
       'misc.keyboard': 'Keyboard',
       'misc.language': 'Language',
@@ -661,6 +664,7 @@ const resources = {
       'stats.leaderboard': '排行榜',
       'stats.session': '会话',
       'misc.theme': '主题',
+      'misc.themeAuto': '自动（系统）',
       'misc.sound': '声音',
       'misc.keyboard': '键盘',
       'misc.language': '语言',
@@ -819,6 +823,7 @@ const resources = {
       'stats.leaderboard': 'טבלת מובילים',
       'stats.session': 'סשן',
       'misc.theme': 'ערכת נושא',
+      'misc.themeAuto': 'אוטומטי (מערכת)',
       'misc.sound': 'צליל',
       'misc.keyboard': 'מקלדת',
       'misc.language': 'שפה',

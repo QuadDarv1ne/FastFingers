@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react'
+import { Tooltip } from './Tooltip'
 import './Button.css'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -11,6 +12,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   fullWidth?: boolean
+  tooltip?: string
+  shortcut?: string
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -25,12 +28,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       disabled,
       className = '',
+      tooltip,
+      shortcut,
       ...props
     },
     ref
   ) => {
     const classes = [
       'button',
+      `button--variant`,
       `button--${variant}`,
       `button--${size}`,
       fullWidth ? 'button--full-width' : '',
@@ -40,8 +46,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       .filter(Boolean)
       .join(' ')
 
-    return (
-      <button ref={ref} className={classes} disabled={disabled || isLoading} {...props}>
+    const buttonContent = (
+      <>
         {isLoading && (
           <span className="button__spinner">
             <svg className="button__spinner-svg" viewBox="0 0 24 24">
@@ -57,10 +63,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           </span>
         )}
         {!isLoading && leftIcon && <span className="button__icon button__icon--left">{leftIcon}</span>}
-        <span className="button__content">{children}</span>
+        <span className="button__content">
+          {children}
+          {shortcut && !isLoading && (
+            <span className="button__shortcut">{shortcut}</span>
+          )}
+        </span>
         {!isLoading && rightIcon && <span className="button__icon button__icon--right">{rightIcon}</span>}
-      </button>
+      </>
     )
+
+    if (tooltip || shortcut) {
+      const tooltipContent = shortcut ? `${tooltip}${tooltip ? ' • ' : ''}${shortcut}` : tooltip || ''
+      return (
+        <Tooltip content={tooltipContent}>
+          <button ref={ref} className={classes} disabled={disabled || isLoading} {...props} />
+        </Tooltip>
+      )
+    }
+
+    return <button ref={ref} className={classes} disabled={disabled || isLoading} {...props}>{buttonContent}</button>
   }
 )
 

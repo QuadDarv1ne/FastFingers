@@ -2,16 +2,38 @@ import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
 
+type ThemeOption = ThemeColor | 'auto'
+
 interface UseThemeReturn {
   theme: ThemeColor
+  themeOption: ThemeOption
   setTheme: (theme: ThemeColor) => void
+  setThemeOption: (option: ThemeOption) => void
   customColors: Partial<ThemeColors> | null
   setCustomColors: (colors: Partial<ThemeColors>) => void
   fontSize: FontSize
   setFontSize: (size: FontSize) => void
+  isSystemDark: boolean
 }
 
 export function useTheme(): UseThemeReturn {
+  const [themeOption, setThemeOptionState] = useState<ThemeOption>(() => {
+    try {
+      const stored = localStorage.getItem('fastfingers_theme_option')
+      return (stored as ThemeOption) || 'auto'
+    } catch {
+      return 'auto'
+    }
+  })
+
+  const [isSystemDark, setIsSystemDark] = useState(() => {
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    } catch {
+      return true
+    }
+  })
+
   const [theme, setThemeState] = useState<ThemeColor>(() => {
     try {
       const stored = localStorage.getItem('fastfingers_theme')
@@ -55,6 +77,22 @@ export function useTheme(): UseThemeReturn {
     }
   }, [fontSize])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      setIsSystemDark(mediaQuery.matches)
+      if (themeOption === 'auto') {
+        const newTheme = mediaQuery.matches ? 'dark' : 'light'
+        setThemeState(newTheme)
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    handleChange()
+
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [themeOption])
+
   const setTheme = useCallback((newTheme: ThemeColor) => {
     setThemeState(newTheme)
     try {
@@ -63,6 +101,19 @@ export function useTheme(): UseThemeReturn {
       // Ignore save errors
     }
   }, [])
+
+  const setThemeOption = useCallback((option: ThemeOption) => {
+    setThemeOptionState(option)
+    try {
+      localStorage.setItem('fastfingers_theme_option', option)
+      if (option === 'auto') {
+        const newTheme = isSystemDark ? 'dark' : 'light'
+        setThemeState(newTheme)
+      }
+    } catch {
+      // Ignore save errors
+    }
+  }, [isSystemDark])
 
   const setCustomColors = useCallback((colors: Partial<ThemeColors>) => {
     setCustomColorsState(colors)
@@ -77,5 +128,15 @@ export function useTheme(): UseThemeReturn {
     setFontSizeState(size)
   }, [])
 
-  return { theme, setTheme, customColors, setCustomColors, fontSize, setFontSize }
+  return { 
+    theme, 
+    themeOption,
+    setTheme, 
+    setThemeOption,
+    customColors, 
+    setCustomColors, 
+    fontSize, 
+    setFontSize,
+    isSystemDark
+  }
 }

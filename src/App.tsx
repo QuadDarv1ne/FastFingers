@@ -117,7 +117,7 @@ function AppContent() {
 
   const { addSession } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
-  const { theme, setTheme } = useTheme()
+  const { theme, themeOption, setTheme, setThemeOption } = useTheme()
 
   const { handleSessionCompleteWithProgress, handleReactionGameComplete } = useSessionHandlers({
     addSession,
@@ -337,7 +337,7 @@ function AppContent() {
                 skin={settings.keyboardSkin}
                 onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
               />
-              <ThemeToggle theme={theme} onThemeChange={setTheme} />
+              <ThemeToggle theme={theme} themeOption={themeOption} onThemeChange={setTheme} onThemeOptionChange={setThemeOption} />
             </Suspense>
           </div>
         </div>
