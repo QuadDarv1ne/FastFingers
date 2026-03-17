@@ -134,7 +134,7 @@
 | Метрика                  | Текущее | Цель   |
 | ------------------------ | ------- | ------ |
 | Test Coverage            | ~75%    | 85%    |
-| E2E Tests                | 7       | 15+    |
+| E2E Tests                | 15      | 20+    |
 | Unit Tests               | 328     | 400+   |
 | Lighthouse Performance   | 90+     | 95+    |
 | Lighthouse Accessibility | 95+     | 100    |
@@ -142,6 +142,7 @@
 | First Contentful Paint   | <1s     | <0.8s  |
 | Time to Interactive      | <2s     | <1.5s  |
 | i18n Languages           | 4       | 6+     |
+| TypeScript Errors        | 0       | 0      |
 
 ---
 
@@ -152,8 +153,9 @@
 1. **HardcoreMode** — оптимизирован (284 строки вместо 496) ✅
 2. **App.tsx** — 735 строк (было 742), вынести логику режимов в хуки
 3. **exercises.ts** — вынести тексты в отдельный JSON/DB
-4. **exercises.ts** — остались 2 non-null assertion warning (строки 333, 335)
+4. **exercises.ts** — non-null assertion warnings — исправлено ✅
 5. **useTypingSound** — проверить утечки памяти при частых play/stop
+6. **TypeScript errors** — 0 ошибок ✅
 
 ### Новые наблюдения (2026-03-17)
 
@@ -165,6 +167,8 @@
 6. **ARIA** — большинство компонентов доступны, остались сложные (CertificateGenerator)
 7. **Offline режим** — PWA с кэшированием, offline sync hook готов
 8. **HardcoreMode** — оптимизирован с 496 до 284 строк
+9. **TypeScript** — 0 ошибок, типизация всех компонентов ✅
+10. **ESLint** — 0 warning/error ✅
 
 ### Идеи для экспериментов
 
@@ -192,6 +196,7 @@
 1. E2E тесты: покрытие критических путей расширено (15 тестов) ✅
 2. Integration тесты для hooks (useTypingGame, useProgressStore)
 3. Coverage >80% для utils и hooks
+4. Performance тесты (Lighthouse CI)
 
 ### Приоритет 2 — Контент
 
@@ -208,5 +213,6 @@
 ---
 
 _Последнее обновление: 2026-03-17_
-_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация)_
+_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок)_
 _Всего тестов: 328 unit + 15 E2E = 343_
+\_Статус: ✅ ESLint 0 ошибок, ✅ TypeScript 0 ошибок, ✅ 35 test files passed
