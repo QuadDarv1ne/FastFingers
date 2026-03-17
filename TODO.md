@@ -90,7 +90,7 @@
 
 ### 6. Тестирование
 
-- [x] E2E тесты для критических путей (Playwright настроен, 7 тестов)
+- [x] E2E тесты для критических путей (Playwright настроен, 15 тестов)
 - [ ] Integration тесты для hooks
 - [ ] Coverage > 80% для utils и hooks
 - [ ] Performance тесты (Lighthouse CI)
@@ -149,21 +149,22 @@
 
 ### Технические долги
 
-1. **HardcoreMode** — большая компонента (496 строк), нужно разбить
-2. **App.tsx** — 742 строки, вынести логику режимов в хуки
+1. **HardcoreMode** — оптимизирован (284 строки вместо 496) ✅
+2. **App.tsx** — 735 строк (было 742), вынести логику режимов в хуки
 3. **exercises.ts** — вынести тексты в отдельный JSON/DB
 4. **exercises.ts** — остались 2 non-null assertion warning (строки 333, 335)
 5. **useTypingSound** — проверить утечки памяти при частых play/stop
 
 ### Новые наблюдения (2026-03-17)
 
-1. **E2E тесты** — 7 тестов проходят, нужно расширить покрытие для критических путей
+1. **E2E тесты** — 15 тестов проходят, покрытие критических путей (SprintMode, HardcoreMode, CertificateGenerator, TrainingHistory, Leaderboard)
 2. **Code splitting** — настроен для auth/vendor/utils chunks, bundle <250KB gzipped
 3. **Lazy loading** — Recharts лениво загружается, улучшило FCP
 4. **Error handling** — добавлены Error Boundary, retry-логика для Supabase
 5. **i18n** — 4 языка (RU, EN, ZH, HE), легко добавлять новые
 6. **ARIA** — большинство компонентов доступны, остались сложные (CertificateGenerator)
 7. **Offline режим** — PWA с кэшированием, offline sync hook готов
+8. **HardcoreMode** — оптимизирован с 496 до 284 строк
 
 ### Идеи для экспериментов
 
@@ -188,7 +189,7 @@
 
 ### Приоритет 1 — Тестирование
 
-1. E2E тесты: покрытие критических путей (SprintMode, HardcoreMode, CertificateGenerator)
+1. E2E тесты: покрытие критических путей расширено (15 тестов) ✅
 2. Integration тесты для hooks (useTypingGame, useProgressStore)
 3. Coverage >80% для utils и hooks
 
@@ -200,12 +201,12 @@
 
 ### Приоритет 3 — Новые режимы
 
-1. Режим «Без ошибок» (Хардкор) — доработать
+1. Режим «Без ошибок» (Хардкор) — оптимизирован ✅
 2. Дуэли (PvP) — выбрать backend решение
 3. Еженедельные турниры — таблица лидеров
 
 ---
 
 _Последнее обновление: 2026-03-17_
-_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling)_
-_Всего тестов: 328 unit + 7 E2E = 335_
+_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация)_
+_Всего тестов: 328 unit + 15 E2E = 343_
