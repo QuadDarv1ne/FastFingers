@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useMemo } from 'react'
+import { useState, useEffect, useCallback, memo, useMemo, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'
@@ -9,6 +9,10 @@ import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
 import { useHotkey } from '../hooks/useHotkeys'
 import type { User } from '../types/auth'
+import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage, type HardcoreRank } from '../utils/hardcoreRank'
+import { createAchievementNotification } from '../utils/notifications'
+import { NotificationContext } from '../contexts/NotificationContext'
+import { triggerConfetti } from '../utils/confetti'
 
 const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
@@ -41,11 +45,15 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   sound,
 }: HardcoreModeProps) {
   const { user } = useAuth()
+  const notificationContext = useContext(NotificationContext)
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
   const [isLoadingRecords, setIsLoadingRecords] = useState(true)
   const [bestStreak, setBestStreak] = useState(0)
+  const [previousStreak, setPreviousStreak] = useState(0)
+  const [showRankUp, setShowRankUp] = useState(false)
+  const [currentRank, setCurrentRank] = useState<HardcoreRank>('C')
 
   const {
     text,
@@ -60,6 +68,33 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     handleStart,
     resetGame,
   } = useHardcoreMode({ onComplete, sound, setBestStreak })
+
+  // Обновление текущего ранга при изменении streak
+  useEffect(() => {
+    const rank = getRankByStreak(streak)
+    setCurrentRank(rank.rank)
+    
+    // Проверка на повышение ранга
+    if (checkRankUp(previousStreak, streak) && streak > 0) {
+      const newRank = getRankByStreak(streak)
+      setShowRankUp(true)
+      notificationContext?.addNotification(createAchievementNotification({
+        title: `Ранг повышен!`,
+        description: getRankUpMessage(newRank),
+        icon: newRank.rank,
+      }))
+      
+      if (['S', 'S+', 'SS', 'SS+', '👑'].includes(newRank.rank)) {
+        triggerConfetti({ type: 'celebration', duration: 3000 })
+      }
+      
+      setTimeout(() => setShowRankUp(false), 4000)
+    }
+    
+    if (streak !== previousStreak) {
+      setPreviousStreak(streak)
+    }
+  }, [streak, previousStreak, notificationContext])
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -170,6 +205,25 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden border-red-500/20">
+      {/* Rank Up Animation */}
+      <AnimatePresence>
+        {showRankUp && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.8 }}
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-primary-600 to-primary-400 px-6 py-3 rounded-xl shadow-2xl border border-primary-300"
+          >
+            <div className="text-center">
+              <div className="text-3xl font-black text-white mb-1">
+                🎉 {getRankByStreak(streak).rank} <span className="text-lg font-medium">| {getRankByStreak(streak).name}</span>
+              </div>
+              <div className="text-sm text-white/90">{getRankUpMessage(getRankByStreak(streak))}</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {countdown !== null && (
           <motion.div
@@ -204,6 +258,36 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
             Старт (R)
           </button>
         )}
+      </div>
+
+      {/* Карточка ранга */}
+      <div className="mb-4 p-4 bg-gradient-to-r from-dark-800 to-dark-700 rounded-xl border border-dark-600">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-dark-400">Текущий ранг</span>
+          <span className="text-xs text-dark-500">{getRankByStreak(streak).name}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span 
+            className="text-4xl font-black"
+            style={{ color: getRankByStreak(streak).color, textShadow: `0 0 20px ${getRankByStreak(streak).color}40` }}
+          >
+            {currentRank}
+          </span>
+          <div className="flex-1">
+            <div className="h-2 bg-dark-600 rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full"
+                style={{ backgroundColor: getRankByStreak(streak).color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${getRankProgress(streak)}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            <div className="text-xs text-dark-500 mt-1">
+              {getRankProgress(streak)}% до следующего ранга
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
