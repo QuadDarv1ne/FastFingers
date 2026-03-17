@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useMemo, useContext } from 'react'
+import { useState, useEffect, useCallback, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'
@@ -11,7 +11,7 @@ import { useHotkey } from '../hooks/useHotkeys'
 import type { User } from '../types/auth'
 import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage, type HardcoreRank } from '../utils/hardcoreRank'
 import { createAchievementNotification } from '../utils/notifications'
-import { NotificationContext } from '../contexts/NotificationContext'
+import { useNotifications } from '../contexts/NotificationContext'
 import { triggerConfetti } from '../utils/confetti'
 
 const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
@@ -45,7 +45,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   sound,
 }: HardcoreModeProps) {
   const { user } = useAuth()
-  const notificationContext = useContext(NotificationContext)
+  const { addNotification } = useNotifications()
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
@@ -78,7 +78,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     if (checkRankUp(previousStreak, streak) && streak > 0) {
       const newRank = getRankByStreak(streak)
       setShowRankUp(true)
-      notificationContext?.addNotification(createAchievementNotification({
+      addNotification(createAchievementNotification({
         title: `Ранг повышен!`,
         description: getRankUpMessage(newRank),
         icon: newRank.rank,
@@ -94,7 +94,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     if (streak !== previousStreak) {
       setPreviousStreak(streak)
     }
-  }, [streak, previousStreak, notificationContext])
+  }, [streak, previousStreak, addNotification])
 
   useEffect(() => {
     const loadRecords = async () => {
