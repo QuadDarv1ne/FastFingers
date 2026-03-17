@@ -158,6 +158,8 @@
 4. **exercises.ts** — non-null assertion warnings — исправлено ✅
 5. **useTypingSound** — проверить утечки памяти при частых play/stop
 6. **TypeScript errors** — 0 ошибок ✅
+7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity)
+8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
 
 ### Новые наблюдения (2026-03-17)
 
@@ -170,20 +172,25 @@
 7. **Offline режим** — PWA с кэшированием, offline sync hook готов
 8. **HardcoreMode** — оптимизирован с 496 до 284 строк
 9. **TypeScript** — 0 ошибок, типизация всех компонентов ✅
-10. **ESLint** — 0 warning/error ✅
+10. **ESLint** — 0 ошибок (2 warning — намеренные) ✅
 11. **Logger** — централизованное логирование через logger.ts (console.warn/error только там)
 12. **App.tsx** — 735 строк, lazy loading для 15+ компонентов
 
+### Новые файлы (2026-03-17)
+
+13. **hardcoreRank.ts** — система рангов (8 уровней от C до 👑)
+14. **useNotifications** — хук в NotificationContext для безопасного доступа
+
 ### Новые улучшения (2026-03-17 — текущий спринт)
 
-13. **Button** — добавлены tooltip и shortcut props для горячих клавиш
-14. **HardcoreMode** — система рангов (C, B, A, S, S+, SS, SS+, 👑) с анимацией и confetti
-15. **useTheme** — авто-переключение темы по системной настройке (matchMedia)
-16. **ThemeToggle** — поддержка режима 'auto' (system preference)
-17. **NotificationContext** — добавлен useNotifications хук для безопасного использования
-18. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
-19. **Сборка** — успешна, ~15s, bundle <250KB gzipped
-20. **Тесты** — 328 unit тестов (35 файлов) — 100% pass
+15. **Button** — добавлены tooltip и shortcut props для горячих клавиш
+16. **HardcoreMode** — система рангов (C, B, A, S, S+, SS, SS+, 👑) с анимацией и confetti
+17. **useTheme** — авто-переключение темы по системной настройке (matchMedia)
+18. **ThemeToggle** — поддержка режима 'auto' (system preference)
+19. **NotificationContext** — добавлен useNotifications хук для безопасного использования
+20. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
+21. **Сборка** — успешна, ~15s, bundle <250KB gzipped
+22. **Тесты** — 328 unit тестов (35 файлов) — 100% pass
 
 ### Идеи для экспериментов
 
@@ -227,10 +234,10 @@
 
 ---
 
-_Последнее обновление: 2026-03-17 (текущий спринт)_
+_Последнее обновление: 2026-03-17 (актуально)_
 _Выполнено за спринт: 25+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts)_
 _Всего тестов: 328 unit + 15 E2E = 343_
-_Статус: ✅ ESLint 0 ошибок, ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
+_Статус: ✅ ESLint 0 ошибок (2 warning), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
 _Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~15s_
 
 ### Выполнено в текущем спринте (2026-03-17)
