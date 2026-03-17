@@ -145,6 +145,8 @@
 | Time to Interactive      | <2s     | <1.5s  |
 | i18n Languages           | 4       | 6+     |
 | TypeScript Errors        | 0       | 0      |
+| ESLint Errors            | 0       | 0      |
+| Build Time               | ~12s    | <10s   |
 
 ---
 
@@ -160,6 +162,13 @@
 6. **TypeScript errors** — 0 ошибок ✅
 7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity)
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
+
+### Текущий статус (2026-03-17)
+
+- **Стабильность**: все системы работают штатно
+- **Производительность**: сборка ~12s, bundle <250KB gzipped
+- **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
+- **Тесты**: 328 unit + 15 E2E = 343 теста (100% pass)
 
 ### Новые наблюдения (2026-03-17)
 
@@ -234,11 +243,11 @@
 
 ---
 
-_Последнее обновление: 2026-03-17 (актуально)_
+_Последнее обновление: 2026-03-17 (стабильно)_
 _Выполнено за спринт: 25+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts)_
 _Всего тестов: 328 unit + 15 E2E = 343_
-_Статус: ✅ ESLint 0 ошибок (2 warning), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~15s_
+_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~12s_
 
 ### Выполнено в текущем спринте (2026-03-17)
 
