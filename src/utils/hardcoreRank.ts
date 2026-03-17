@@ -86,8 +86,13 @@ const RANKS: RankInfo[] = [
  */
 export function getRankByStreak(streak: number): RankInfo {
   // Last rank has Infinity as maxStreak, so this always finds a match
-  const found = RANKS.find(rankInfo => streak >= rankInfo.minStreak && streak <= rankInfo.maxStreak)
-  return found!
+  for (const rank of RANKS) {
+    if (streak >= rank.minStreak && streak <= rank.maxStreak) {
+      return rank
+    }
+  }
+  // Fallback (should never reach here due to Infinity in last rank)
+  return RANKS[0]!
 }
 
 /**
