@@ -49,12 +49,13 @@
 
 ### Тестирование
 
-- [x] Unit тесты: 328 тестов проходят
-- [x] E2E тесты: 7 тестов (Playwright настроен)
+- [x] Unit тесты: 328 тестов проходят (35 test files)
+- [x] E2E тесты: 15 тестов (Playwright настроен)
 - [x] Тесты для Skeleton (4 теста)
 - [x] Тесты для export utils (7 тестов)
 - [x] Тесты для hooks (useLocalStorageState, usePagination, useClipboard, useLoading)
 - [x] Тесты для компонентов (ErrorBoundary, Keyboard, ThemeToggle, SprintMode)
+- [x] Тесты для stats utils, notifications, soundThemes, dailyChallenge
 
 ---
 
@@ -169,6 +170,8 @@
 8. **HardcoreMode** — оптимизирован с 496 до 284 строк
 9. **TypeScript** — 0 ошибок, типизация всех компонентов ✅
 10. **ESLint** — 0 warning/error ✅
+11. **Logger** — централизованное логирование через logger.ts (console.warn/error только там)
+12. **App.tsx** — 735 строк, lazy loading для 15+ компонентов
 
 ### Идеи для экспериментов
 
@@ -212,7 +215,7 @@
 
 ---
 
-_Последнее обновление: 2026-03-17_
+_Последнее обновление: 2026-03-17 (вторник)_
 _Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок)_
 _Всего тестов: 328 unit + 15 E2E = 343_
-\_Статус: ✅ ESLint 0 ошибок, ✅ TypeScript 0 ошибок, ✅ 35 test files passed
+_Статус: ✅ ESLint 0 ошибок, ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
