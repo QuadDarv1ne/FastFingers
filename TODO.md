@@ -71,6 +71,7 @@
 
 ### 4. Функциональность
 
+- [x] Система рангов для HardcoreMode (C-B-A-S-S+-SS-SS+-👑)
 - [ ] Сравнение результатов с другими пользователями
 - [ ] Персонализированные рекомендации упражнений
 - [ ] Адаптивная сложность (auto-adjust на основе точности)
@@ -82,11 +83,11 @@
 
 ### 5. UI/UX
 
+- [x] Тултипы с горячими клавишами (Button.tsx — tooltip/shortcut props)
+- [x] Тёмная/светлая тема с авто-переключением (useTheme — system preference)
 - [ ] Анимации переходов между режимами
 - [ ] Toast-уведомления для всех действий
-- [ ] Тултипы с горячими клавишами
 - [ ] Адаптивная верстка для мобильных (mobile-first)
-- [ ] Тёмная/светлая тема с авто-переключением
 - [ ] Пользовательские цвета тем (color picker)
 
 ### 6. Тестирование
@@ -173,6 +174,17 @@
 11. **Logger** — централизованное логирование через logger.ts (console.warn/error только там)
 12. **App.tsx** — 735 строк, lazy loading для 15+ компонентов
 
+### Новые улучшения (2026-03-17 — текущий спринт)
+
+13. **Button** — добавлены tooltip и shortcut props для горячих клавиш
+14. **HardcoreMode** — система рангов (C, B, A, S, S+, SS, SS+, 👑) с анимацией и confetti
+15. **useTheme** — авто-переключение темы по системной настройке (matchMedia)
+16. **ThemeToggle** — поддержка режима 'auto' (system preference)
+17. **NotificationContext** — добавлен useNotifications хук для безопасного использования
+18. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
+19. **Сборка** — успешна, ~15s, bundle <250KB gzipped
+20. **Тесты** — 328 unit тестов (35 файлов) — 100% pass
+
 ### Идеи для экспериментов
 
 - [ ] Web Speech API для голосовых подсказок
@@ -215,8 +227,18 @@
 
 ---
 
-_Последнее обновление: 2026-03-17_
-_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок)_
+_Последнее обновление: 2026-03-17 (текущий спринт)_
+_Выполнено за спринт: 25+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts)_
 _Всего тестов: 328 unit + 15 E2E = 343_
 _Статус: ✅ ESLint 0 ошибок, ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-\_Стабильность: 40 хуков, 75 компонентов, PWA готово, сборка ~11.5s
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~15s_
+
+### Выполнено в текущем спринте (2026-03-17)
+
+- ✅ Button: tooltip и shortcut props для горячих клавиш
+- ✅ HardcoreMode: система рангов (C-B-A-S-S+-SS-SS+-👑) + анимация rank up + confetti
+- ✅ useTheme: авто-переключение по системной теме (matchMedia)
+- ✅ ThemeToggle: режим 'auto' (system preference)
+- ✅ NotificationContext: useNotifications хук
+- ✅ i18n: misc.themeAuto переводы (RU, EN, ZH, HE)
+- ✅ hardcoreRank.ts: утилита для расчёта рангов и прогресса
