@@ -9,6 +9,7 @@
 - [x] Offline-режим (useOfflineSync hook)
 - [x] Fallback UI при недоступности бэкенда (BackendFallbackBanner, WithBackendFallback)
 - [x] Обработка edge cases в useTypingGame (пустой текст, null значения)
+- [x] Error handling в TypingTrainer и stats utils
 
 ### Производительность
 
@@ -31,6 +32,8 @@
 ### Функциональность
 
 - [x] Экспорт статистики в CSV (useExport hook, export.ts, TrainingHistory интеграция)
+- [x] Экспорт в PDF (CertificateGenerator с рангами и темами)
+- [x] 8 тем оформления клавиатуры (classic, neon, cyberpunk, minimal, ocean, sunset, matrix, monokai)
 
 ### UI/UX
 
@@ -46,13 +49,22 @@
 
 ### Тестирование
 
+- [x] Unit тесты: 328 тестов проходят
+- [x] E2E тесты: 7 тестов (Playwright настроен)
 - [x] Тесты для Skeleton (4 теста)
 - [x] Тесты для export utils (7 тестов)
-- [x] 321 тест всего
+- [x] Тесты для hooks (useLocalStorageState, usePagination, useClipboard, useLoading)
+- [x] Тесты для компонентов (ErrorBoundary, Keyboard, ThemeToggle, SprintMode)
 
 ---
 
 ## 🔴 Критические (High Priority) — Все выполнено ✅
+
+- [x] Error boundary для обработки падений React компонентов
+- [x] Retry-логика для нестабильных API запросов
+- [x] Offline fallback для работы без интернета
+- [x] Обработка null/undefined в данных
+- [x] Типизация TypeScript для всех компонентов
 
 ## 🟡 Важные (Medium Priority)
 
@@ -64,6 +76,8 @@
 - [ ] Режим "Анти-забывание" (spaced repetition для сложных клавиш)
 - [ ] Групповые челленджи с друзьями
 - [ ] Достижения с прогресс-барами
+- [ ] Дуэли (PvP) — требует backend
+- [ ] Еженедельные турниры с таблицей лидеров
 
 ### 5. UI/UX
 
@@ -72,10 +86,11 @@
 - [ ] Тултипы с горячими клавишами
 - [ ] Адаптивная верстка для мобильных (mobile-first)
 - [ ] Тёмная/светлая тема с авто-переключением
+- [ ] Пользовательские цвета тем (color picker)
 
 ### 6. Тестирование
 
-- [ ] E2E тесты для критических путей (Playwright уже настроен)
+- [x] E2E тесты для критических путей (Playwright настроен, 7 тестов)
 - [ ] Integration тесты для hooks
 - [ ] Coverage > 80% для utils и hooks
 - [ ] Performance тесты (Lighthouse CI)
@@ -92,14 +107,16 @@
 - [ ] Интеграция с Discord/GitHub для авторизации
 - [ ] WebSocket для live-лидербордов
 - [ ] PWA offline push-уведомления
+- [ ] Мобильное приложение (Capacitor)
 
 ### 8. Аналитика
 
 - [ ] Трекинг пользовательских паттернов
 - [ ] Heatmap активности по времени суток
-- [ ] Прогноз прогресса (ML-based)
+- [ ] Прогноз прогресса (ML-based / линейная регрессия)
 - [ ] A/B тестирование UI изменений
 - [ ] Session replay для отладки UX проблем
+- [ ] Анализ ошибок по времени суток
 
 ### 9. Рефакторинг
 
@@ -108,6 +125,7 @@
 - [ ] Типизировать все API ответы (TypeScript)
 - [ ] Вынести константы в отдельные файлы
 - [ ] Упростить пропсы компонентов (object pattern)
+- [ ] Вынести тексты упражнений в отдельный JSON/DB
 
 ---
 
@@ -116,11 +134,13 @@
 | Метрика                  | Текущее | Цель   |
 | ------------------------ | ------- | ------ |
 | Test Coverage            | ~75%    | 85%    |
-| Lighthouse Performance   | 90      | 95+    |
-| Lighthouse Accessibility | 90+     | 100    |
-| Bundle Size (gzipped)    | ~300KB  | <250KB |
-| First Contentful Paint   | <1.5s   | <1s    |
-| Time to Interactive      | <3s     | <2s    |
+| E2E Tests                | 7       | 15+    |
+| Unit Tests               | 328     | 400+   |
+| Lighthouse Performance   | 90+     | 95+    |
+| Lighthouse Accessibility | 95+     | 100    |
+| Bundle Size (gzipped)    | <250KB  | <200KB |
+| First Contentful Paint   | <1s     | <0.8s  |
+| Time to Interactive      | <2s     | <1.5s  |
 | i18n Languages           | 4       | 6+     |
 
 ---
@@ -129,18 +149,21 @@
 
 ### Технические долги
 
-1. **useTypingSound** — проверить утечки памяти при частых play/stop
-2. **HardcoreMode** — большая компонента (496 строк), нужно разбить
-3. **App.tsx** — 742 строки, вынести логику режимов в хуки
-4. **exercises.ts** — вынести тексты в отдельный JSON/DB
-5. **exercises.ts** — остались 2 non-null assertion warning (строки 333, 335)
+1. **HardcoreMode** — большая компонента (496 строк), нужно разбить
+2. **App.tsx** — 742 строки, вынести логику режимов в хуки
+3. **exercises.ts** — вынести тексты в отдельный JSON/DB
+4. **exercises.ts** — остались 2 non-null assertion warning (строки 333, 335)
+5. **useTypingSound** — проверить утечки памяти при частых play/stop
 
-### Новые наблюдения (2026-03-07)
+### Новые наблюдения (2026-03-17)
 
-1. **Skeleton loaders** — работают хорошо, можно добавить больше вариантов (table, chart)
-2. **CSV экспорт** — готов к использованию, можно расширить до Excel (xlsx)
-3. **i18n** — структура хорошая, легко добавлять новые языки
-4. **ARIA** — большинство компонентов теперь доступны, остались сложные (CertificateGenerator)
+1. **E2E тесты** — 7 тестов проходят, нужно расширить покрытие для критических путей
+2. **Code splitting** — настроен для auth/vendor/utils chunks, bundle <250KB gzipped
+3. **Lazy loading** — Recharts лениво загружается, улучшило FCP
+4. **Error handling** — добавлены Error Boundary, retry-логика для Supabase
+5. **i18n** — 4 языка (RU, EN, ZH, HE), легко добавлять новые
+6. **ARIA** — большинство компонентов доступны, остались сложные (CertificateGenerator)
+7. **Offline режим** — PWA с кэшированием, offline sync hook готов
 
 ### Идеи для экспериментов
 
@@ -149,6 +172,7 @@
 - [ ] IndexedDB для кэширования истории
 - [ ] Web Animations API для производительных анимаций
 - [ ] Haptic feedback через Vibration API
+- [ ] AI-генерация персонализированных текстов
 
 ### Безопасность
 
@@ -162,25 +186,26 @@
 
 ## 🎯 Следующий спринт (1-2 недели)
 
-### Приоритет 1 — Производительность
+### Приоритет 1 — Тестирование
 
-1. Virtual scrolling для TrainingHistory
-2. Bundle size оптимизация (tree-shaking, code splitting)
-3. Lazy loading для Recharts
+1. E2E тесты: покрытие критических путей (SprintMode, HardcoreMode, CertificateGenerator)
+2. Integration тесты для hooks (useTypingGame, useProgressStore)
+3. Coverage >80% для utils и hooks
 
-### Приоритет 2 — Доступность
+### Приоритет 2 — Контент
 
-1. Focus management в модальных окнах
-2. ARIA для CertificateGenerator
-3. Contrast check для всех цветов
+1. Вынести тексты упражнений в texts.json с категориями
+2. Добавить 50+ новых текстов (фильмы, новости, философия, бизнес)
+3. Фильтрация текстов по сложности
 
-### Приоритет 3 — Тестирование
+### Приоритет 3 — Новые режимы
 
-1. E2E тесты (Playwright) для основных путей
-2. Coverage >80% для hooks
-3. Accessibility тесты (axe-core)
+1. Режим «Без ошибок» (Хардкор) — доработать
+2. Дуэли (PvP) — выбрать backend решение
+3. Еженедельные турниры — таблица лидеров
 
 ---
 
-_Последнее обновление: 2026-03-07_
-_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export)_
+_Последнее обновление: 2026-03-17_
+_Выполнено за спринт: 20+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling)_
+_Всего тестов: 328 unit + 7 E2E = 335_
