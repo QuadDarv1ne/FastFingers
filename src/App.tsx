@@ -5,9 +5,11 @@ import { Keyboard } from './components/Keyboard'
 import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
+import { ToastContainer } from './components/ToastContainer'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { ToastProvider } from './contexts/ToastContext'
 import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
@@ -725,7 +727,10 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <AppContent />
+        <ToastProvider>
+          <AppContent />
+          <ToastContainer />
+        </ToastProvider>
       </NotificationProvider>
     </AuthProvider>
   )

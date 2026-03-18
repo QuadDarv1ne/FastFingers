@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
-import { useToast } from '@hooks/useToast'
+import { useToast } from '@contexts/ToastContext'
 
 export interface CustomExercise {
   id: string
@@ -25,7 +25,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
   )
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { success, error } = useToast()
+  const { showToast } = useToast()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -36,7 +36,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
   const handleCreate = () => {
     if (!formData.title.trim() || !formData.text.trim()) {
-      error({ title: 'Заполните название и текст' })
+      showToast('Заполните название и текст', 'error')
       return
     }
 
@@ -55,7 +55,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
     setExercises([...exercises, newExercise])
     onSave?.(newExercise)
-    success({ title: 'Упражнение создано' })
+    showToast('Упражнение создано', 'success')
     resetForm()
   }
 
@@ -78,14 +78,14 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
     )
 
     setExercises(updated)
-    success({ title: 'Упражнение обновлено' })
+    showToast('Упражнение обновлено', 'success')
     resetForm()
   }
 
   const handleDelete = (id: string) => {
     if (confirm('Удалить это упражнение?')) {
       setExercises(exercises.filter(ex => ex.id !== id))
-      success({ title: 'Упражнение удалено' })
+      showToast('Упражнение удалено', 'success')
     }
   }
 
