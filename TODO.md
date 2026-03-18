@@ -102,7 +102,8 @@
 - [x] Coverage > 80% для utils и hooks ✅ **Выполнено: exercises.ts 80%, i18n 100%, общий 80.16%**
 - [x] Coverage > 82% ✅ **Выполнено: общий 82.32%**
 - [x] Coverage > 84% ✅ **Выполнено: общий 84.69%**
-- [ ] Coverage > 85% (приоритет: ThemeToggle 94%, useTypingGame 67%, practiceTexts 64%)
+- [x] Coverage > 85% ✅ **Выполнено: общий 85.09%**
+- [ ] Coverage > 87% (приоритет: useTypingGame 67%, stats.ts 77%)
 - [ ] Performance тесты (Lighthouse CI)
 - [ ] Accessibility тесты (axe-core)
 
@@ -143,10 +144,10 @@
 
 | Метрика                  | Текущее | Цель   |
 | ------------------------ | ------- | ------ |
-| Test Coverage            | 84.69%  | 85%    |
+| Test Coverage            | 85.09%  | 85%    |
 | E2E Tests                | 15      | 20+    |
-| Unit Tests               | 611     | 400+   |
-| Test Files               | 43      | 40+    |
+| Unit Tests               | 652     | 400+   |
+| Test Files               | 44      | 40+    |
 | Lighthouse Performance   | 90+     | 95+    |
 | Lighthouse Accessibility | 95+     | 100    |
 | Bundle Size (gzipped)    | <250KB  | <200KB |
@@ -156,7 +157,7 @@
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
 | Build Time               | ~13s    | <10s   |
-| Test Duration            | ~28s    | <8s    |
+| Test Duration            | ~20s    | <8s    |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -189,12 +190,12 @@
 ### Текущий статус (2026-03-18)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~28s (coverage тяжелый), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~20s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
-- **Тесты**: 611 unit (43 файлов) — 100% pass
-- **Coverage**: 84.69% (цель 85%) — проблемные зоны: useTypingGame 67%, practiceTexts 64%, ThemeToggle 94%
+- **Тесты**: 652 unit (44 файлов) — 100% pass
+- **Coverage**: 85.09% ✅ (цель 85% достигнута!) — проблемные зоны: useTypingGame 67%, stats.ts 77%
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Следующий шаг**: coverage >85% (useTypingGame 67%, practiceTexts 64%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
+- **Следующий шаг**: coverage >87% (useTypingGame 67%, stats.ts 77%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
 
 ### Новые наблюдения (2026-03-18)
 
@@ -226,6 +227,7 @@
 20. **i18n/config.test.ts** — 41 тест для i18n/config.ts (coverage 100%)
 21. **id.test.ts** — 43 теста для id.ts (coverage 81%)
 22. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%)
+23. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%)
 
 ### Новые улучшения (2026-03-18 — текущий спринт)
 
@@ -236,12 +238,12 @@
 27. **NotificationContext** — добавлен useNotifications хук для безопасного использования
 28. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
 29. **Сборка** — успешна, ~13s (улучшено с ~17s), bundle <250KB gzipped (core), PWA 36 entries
-30. **Тесты** — 611 unit тестов (43 файлов) — 100% pass, ~28s (coverage режим)
-31. **Coverage** — 84.69% (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%)
+30. **Тесты** — 652 unit тестов (44 файлов) — 100% pass, ~20s
+31. **Coverage** — 85.09% ✅ (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%, practiceTexts.ts 100%)
 32. **pdf-vendor** — выделен в отдельный чанк (421 KB / 138 KB gzipped вместо 624 KB) ✅
 33. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts для code splitting ✅
 34. **practiceRecommendations.ts** — система персонализированных рекомендаций (8 тестов) ✅
-35. **practiceTexts.ts** — 60 текстов в 10 категориях (литература, код, цитаты, пословицы, наука, технологии, фильмы, новости, философия, бизнес) ✅
+35. **practiceTexts.ts** — 60 текстов в 10 категориях + 41 тест (100% coverage) ✅
 36. **Integration тесты** — useTypingGame.integration.test.ts (24 теста), useProgressStore.test.ts (23 теста) ✅
 37. **@vitest/coverage-v8** — установлен и настроен ✅
 38. **MotivationalQuote.tsx** — добавлен data-testid, экспортированы getRandomQuote, getCategoryLabel ✅
@@ -250,6 +252,7 @@
 41. **id.test.ts** — 43 теста для id.ts (coverage 81%) ✅
 42. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%) ✅
 43. **storage.ts** — исправлен getStorageSize для happy-dom ✅
+44. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%) ✅
 
 ### Идеи для экспериментов
 
@@ -276,12 +279,13 @@
 
 1. E2E тесты: покрытие критических путей расширено (15 тестов) ✅
 2. Integration тесты для hooks (useTypingGame, useProgressStore) ✅
-3. Coverage > 73% ✅ → цель 80% для utils и hooks (@vitest/coverage-v8 установлен) ✅ **Выполнено: 84.69%**
+3. Coverage > 73% ✅ → цель 80% для utils и hooks (@vitest/coverage-v8 установлен) ✅ **Выполнено: 85.09%**
 4. Performance тесты (Lighthouse CI)
 5. Добавить тесты для exercises.ts (80% coverage) ✅
 6. Добавить тесты для i18n/config.ts (100% coverage) ✅
 7. Добавить тесты для id.ts (81% coverage) ✅
-8. Coverage > 85% — следующая цель (приоритет: useTypingGame 67%, practiceTexts 64%, ThemeToggle 94%)
+8. Coverage > 85% ✅ **Выполнено: 85.09%**
+9. Coverage > 87% — следующая цель (приоритет: useTypingGame 67%, stats.ts 77%)
 
 ### Приоритет 2 — Контент
 
@@ -304,9 +308,9 @@
 ---
 
 _Последнее обновление: 2026-03-18 (актуализировано)_
-_Выполнено за спринт: 50+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage)_
-_Всего тестов: 611 unit (43 файла) — 100% pass_
-_Coverage: 84.69% (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%)_
-_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 43 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~28s (coverage режим)_
-_Следующий шаг: coverage >85% (useTypingGame 67%, practiceTexts 64%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация_
+_Выполнено за спринт: 55+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts)_
+_Всего тестов: 652 unit (44 файла) — 100% pass_
+_Coverage: 85.09% ✅ (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%, practiceTexts.ts 100%)_
+_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 44 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~20s_
+_Следующий шаг: coverage >87% (useTypingGame 67%, stats.ts 77%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация_
