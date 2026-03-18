@@ -101,8 +101,8 @@ describe('useProgressStore Integration', () => {
       })
 
       const state = useProgressStore.getState()
-      expect(state.sessions[0].date).toBe('2024-01-02T00:00:00.000Z')
-      expect(state.sessions[1].date).toBe('2024-01-01T00:00:00.000Z')
+      expect(state.sessions[0]?.date).toBe('2024-01-02T00:00:00.000Z')
+      expect(state.sessions[1]?.date).toBe('2024-01-01T00:00:00.000Z')
     })
   })
 
