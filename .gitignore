@@ -27,6 +27,9 @@ build
 
 # Тесты
 coverage
+coverage_output.txt
+test-results/
+playwright-report/
 
 # IDE
 .idea
