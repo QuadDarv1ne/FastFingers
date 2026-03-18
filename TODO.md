@@ -95,8 +95,8 @@
 ### 6. Тестирование
 
 - [x] E2E тесты для критических путей (Playwright настроен, 15 тестов)
-- [ ] Integration тесты для hooks
-- [ ] Coverage > 80% для utils и hooks
+- [x] Integration тесты для hooks (useTypingGame, useProgressStore)
+- [ ] Coverage > 80% для utils и hooks (требуется @vitest/coverage-v8)
 - [ ] Performance тесты (Lighthouse CI)
 - [ ] Accessibility тесты (axe-core)
 
@@ -168,7 +168,8 @@
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
 9. **pdf-vendor** — 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
-11. **Build Time** — ~19s, требуется оптимизация (<10s)
+11. **Build Time** — ~14s, требуется оптимизация (<10s)
+12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 
 ### Текущий статус (2026-03-18)
 
@@ -207,12 +208,13 @@
 18. **ThemeToggle** — поддержка режима 'auto' (system preference)
 19. **NotificationContext** — добавлен useNotifications хук для безопасного использования
 20. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
-21. **Сборка** — успешна, ~19s, bundle <250KB gzipped (core), PWA 36 entries
-22. **Тесты** — 328 unit тестов (35 файлов) — 100% pass
+21. **Сборка** — успешна, ~14s, bundle <250KB gzipped (core), PWA 36 entries
+22. **Тесты** — 375 unit тестов (37 файлов) — 100% pass
 23. **pdf-vendor** — выделен в отдельный чанк (421 KB / 138 KB gzipped вместо 624 KB) ✅
 24. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts для code splitting ✅
 25. **practiceRecommendations.ts** — система персонализированных рекомендаций (8 тестов) ✅
 26. **practiceTexts.ts** — 10 текстов в 10+ категориях (литература, код, цитаты, пословицы, наука, технологии, фильмы, новости, философия, бизнес) ✅
+27. **Integration тесты** — useTypingGame.integration.test.ts (47 тестов), useProgressStore.test.ts (23 теста) ✅
 
 ### Идеи для экспериментов
 
@@ -262,8 +264,8 @@
 ---
 
 _Последнее обновление: 2026-03-18 (актуализировано)_
-_Выполнено за спринт: 36+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts)_
-_Всего тестов: 328 unit + 15 E2E = 343_
-_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~19s_
-_Следующий шаг: оптимизация сборки (~19s → <10s), integration тесты, контент (40 текстов осталось)_
+_Выполнено за спринт: 38+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты)_
+_Всего тестов: 375 unit (37 файлов) — 100% pass_
+_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 37 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~14s_
+_Следующий шаг: оптимизация сборки (~14s → <10s), контент (40 текстов осталось), coverage >80%_

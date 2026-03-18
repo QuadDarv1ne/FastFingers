@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { useTypingGame } from '../hooks/useTypingGame'
+import { useTypingSound } from '../hooks/useTypingSound'
 import * as exercises from '../utils/exercises'
 
 // Mock generatePracticeText
@@ -230,13 +231,21 @@ describe('useTypingGame Integration', () => {
     })
 
     it('должен использовать кастомный звук через sound хук', () => {
-      const mockSound = {
+      const mockSound: Partial<ReturnType<typeof useTypingSound>> = {
         playCorrect: vi.fn(),
         playError: vi.fn(),
-        stop: vi.fn(),
+        playComplete: vi.fn(),
+        playClick: vi.fn(),
+        setVolume: vi.fn(),
+        setEnabled: vi.fn(),
+        setTheme: vi.fn(),
+        initAudio: vi.fn(),
+        isReady: true,
+        isEnabled: true,
+        error: null,
       }
 
-      const { result } = renderHook(() => useTypingGame({ sound: mockSound }))
+      const { result } = renderHook(() => useTypingGame({ sound: mockSound as ReturnType<typeof useTypingSound> }))
 
       const mockEvent = {
         currentTarget: { value: 't' },
@@ -280,7 +289,10 @@ describe('useTypingGame Integration', () => {
       // Создаём mock input element
       const mockInput = document.createElement('input')
       document.body.appendChild(mockInput)
-      result.current.inputRef.current = mockInput
+      Object.defineProperty(result.current.inputRef, 'current', {
+        value: mockInput,
+        writable: true,
+      })
 
       act(() => {
         result.current.focusInput()
