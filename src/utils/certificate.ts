@@ -1,22 +1,6 @@
 import type { User } from '../types/auth'
-
-export interface CertificateData {
-  user: User
-  testType: '15s' | '30s' | '60s' | '120s' | 'sprint' | 'hardcore'
-  wpm: number
-  accuracy: number
-  cpm: number
-  date: string
-  rank: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Master'
-  level?: number
-  streak?: number
-}
-
-export interface CertificateOptions {
-  language?: 'ru' | 'en'
-  download?: boolean
-  theme?: 'classic' | 'modern' | 'neon'
-}
+import type { CertificateData, CertificateOptions } from './certificateTypes'
+import { generateCertificateId } from './certificateTypes'
 
 const rankColors = {
   Bronze: { primary: [205, 127, 50] as [number, number, number], secondary: [139, 69, 19] as [number, number, number], gradient: ['#cd7f32', '#8b4513'] },
@@ -271,10 +255,6 @@ export function calculateRank(wpm: number, accuracy: number): CertificateData['r
   if (score >= 45) return 'Gold'
   if (score >= 30) return 'Silver'
   return 'Bronze'
-}
-
-function generateCertificateId(): string {
-  return 'FF-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase()
 }
 
 // Генерация сертификата для спринта
