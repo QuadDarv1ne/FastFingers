@@ -142,6 +142,8 @@ export default defineConfig({
           'stats-pages': ['./src/components/StatisticsPage', './src/components/WeeklyProgress'],
           'rewards': ['./src/components/SessionSummary', './src/components/StreakRewardsPanel', './src/components/TypingTips', './src/components/Onboarding'],
           'widgets': ['./src/components/ClockWidget', './src/components/MotivationalQuote', './src/components/OnlineStatus'],
+          // Выносим jspdf в отдельный чанк для оптимизации
+          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
         },
       },
     },
