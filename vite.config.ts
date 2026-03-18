@@ -116,9 +116,9 @@ export default defineConfig({
       drop: ['console'],
     },
     rollupOptions: {
+      // Включаем tree-shaking
+      treeshake: true,
       output: {
-        // Включаем tree-shaking
-        treeshake: true,
         // Оптимизируем чанки
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
