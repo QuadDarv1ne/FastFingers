@@ -139,7 +139,8 @@
 | ------------------------ | ------- | ------ |
 | Test Coverage            | ~75%    | 85%    |
 | E2E Tests                | 15      | 20+    |
-| Unit Tests               | 328     | 400+   |
+| Unit Tests               | 375     | 400+   |
+| Test Files               | 37      | 40+    |
 | Lighthouse Performance   | 90+     | 95+    |
 | Lighthouse Accessibility | 95+     | 100    |
 | Bundle Size (gzipped)    | <250KB  | <200KB |
@@ -148,7 +149,7 @@
 | i18n Languages           | 4       | 6+     |
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
-| Build Time               | ~19s    | <10s   |
+| Build Time               | ~13s    | <10s   |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -174,11 +175,11 @@
 ### Текущий статус (2026-03-18)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~14s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~13s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
-- **Тесты**: 328 unit + 15 E2E = 343 теста (100% pass)
+- **Тесты**: 375 unit (37 файлов) — 100% pass
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Следующий шаг**: дальнейшая оптимизация pdf-vendor (<300 KB), integration тесты, контент (40 текстов осталось)
+- **Следующий шаг**: оптимизация сборки (~13s → <10s), контент (40 текстов осталось), coverage >80%
 
 ### Новые наблюдения (2026-03-18)
 
@@ -240,7 +241,7 @@
 ### Приоритет 1 — Тестирование
 
 1. E2E тесты: покрытие критических путей расширено (15 тестов) ✅
-2. Integration тесты для hooks (useTypingGame, useProgressStore)
+2. Integration тесты для hooks (useTypingGame, useProgressStore) ✅
 3. Coverage >80% для utils и hooks (требуется @vitest/coverage-v8)
 4. Performance тесты (Lighthouse CI)
 
@@ -259,7 +260,7 @@
 ### Приоритет 4 — Оптимизация
 
 1. pdf-vendor чанк: 421 KB → <300 KB (138 KB gzipped) ✅ Частично
-2. Оптимизация времени сборки: ~19s → <10s
+2. Оптимизация времени сборки: ~13s → <10s
 
 ---
 
@@ -267,5 +268,5 @@ _Последнее обновление: 2026-03-18 (актуализирова
 _Выполнено за спринт: 38+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты)_
 _Всего тестов: 375 unit (37 файлов) — 100% pass_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 37 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~14s_
-_Следующий шаг: оптимизация сборки (~14s → <10s), контент (40 текстов осталось), coverage >80%_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s_
+_Следующий шаг: оптимизация сборки (~13s → <10s), контент (40 текстов осталось), coverage >80%_
