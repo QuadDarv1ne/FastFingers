@@ -1,6 +1,6 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { User } from '../types/auth'
-import { calculateRank, CertificateData } from '../utils/certificate'
+import { calculateRank, type CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 
 interface CertificateGeneratorProps {
