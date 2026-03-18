@@ -73,6 +73,7 @@
 
 - [x] Система рангов для HardcoreMode (C-B-A-S-S+-SS-SS+-👑)
 - [x] Оптимизация pdf-vendor чанка (624 KB → 421 KB) — выделен в отдельный чанк
+- [x] Рефакторинг certificate.ts — вынесены типы в certificateTypes.ts для code splitting
 - [ ] Сравнение результатов с другими пользователями
 - [ ] Персонализированные рекомендации упражнений
 - [ ] Адаптивная сложность (auto-adjust на основе точности)
@@ -166,14 +167,15 @@
 7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity)
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
 9. **pdf-vendor** — 421 KB, выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
+10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
 
 ### Текущий статус (2026-03-18)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~14s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
 - **Тесты**: 328 unit + 15 E2E = 343 теста (100% pass)
-- **PWA**: 35 entries кэшировано, service worker активен
+- **PWA**: 36 entries кэшировано, service worker активен
 - **Следующий шаг**: дальнейшая оптимизация pdf-vendor (<300 KB), integration тесты, контент (40 текстов осталось)
 
 ### Новые наблюдения (2026-03-18)
@@ -204,9 +206,10 @@
 18. **ThemeToggle** — поддержка режима 'auto' (system preference)
 19. **NotificationContext** — добавлен useNotifications хук для безопасного использования
 20. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
-21. **Сборка** — успешна, ~13s, bundle <250KB gzipped, PWA 35 entries
+21. **Сборка** — успешна, ~14s, bundle <250KB gzipped, PWA 36 entries
 22. **Тесты** — 328 unit тестов (35 файлов) — 100% pass
 23. **pdf-vendor** — выделен в отдельный чанк (421 KB вместо 624 KB) ✅
+24. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts для code splitting ✅
 
 ### Идеи для экспериментов
 
@@ -256,8 +259,8 @@
 ---
 
 _Последнее обновление: 2026-03-18 (актуализировано)_
-_Выполнено за спринт: 33+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация)_
+_Выполнено за спринт: 34+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг)_
 _Всего тестов: 328 unit + 15 E2E = 343_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~14s_
 _Следующий шаг: дальнейшая оптимизация pdf-vendor (<300 KB), integration тесты, контент (40 текстов осталось)_
