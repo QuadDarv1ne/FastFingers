@@ -247,8 +247,8 @@
 ---
 
 _Последнее обновление: 2026-03-18 (актуализировано)_
-_Выполнено за спринт: 30+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты)_
+_Выполнено за спринт: 32+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf)_
 _Всего тестов: 328 unit + 15 E2E = 343_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s_
-_Следующий шаг: оптимизация pdf-vendor чанка, integration тесты, контент (40 текстов осталось)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~18s_
+_Следующий шаг: оптимизация времени сборки, integration тесты, контент (40 текстов осталось)_
