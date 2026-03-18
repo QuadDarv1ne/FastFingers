@@ -137,6 +137,7 @@ export function MotivationalQuote({
               stroke="currentColor"
               viewBox="0 0 24 24"
               aria-hidden="true"
+              data-testid="refresh-icon"
             >
               <path
                 strokeLinecap="round"
@@ -189,4 +190,4 @@ function getCategoryLabel(category: Quote['category']): string {
   return labels[category]
 }
 
-export { QUOTES }
+export { QUOTES, getRandomQuote, getCategoryLabel }

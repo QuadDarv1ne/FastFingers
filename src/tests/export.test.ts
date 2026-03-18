@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { convertToCSV, statsToExportData, type ExportData } from '../utils/export'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { convertToCSV, statsToExportData, downloadCSV, type ExportData } from '../utils/export'
 import type { TypingStats } from '../types'
 
 describe('export utils', () => {
@@ -62,6 +62,121 @@ describe('export utils', () => {
 
       expect(result[0]?.date).toBeDefined()
       expect(new Date(result[0]?.date ?? '').getTime()).toBeLessThanOrEqual(Date.now())
+    })
+  })
+
+  describe('downloadCSV', () => {
+    let appendChildSpy: any
+    let removeChildSpy: any
+    let createElementSpy: any
+    let revokeObjectURLSpy: any
+
+    beforeEach(() => {
+      const mockLink = {
+        href: '',
+        style: {},
+        click: vi.fn(),
+        setAttribute: vi.fn(),
+      }
+      createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any)
+      appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any)
+      removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any)
+      revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+      vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test-url')
+    })
+
+    afterEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('должен создавать и скачивать CSV файл', () => {
+      const data: ExportData[] = [{
+        date: '2026-03-07',
+        wpm: 60,
+        cpm: 300,
+        accuracy: 95,
+        errors: 5,
+        timeElapsed: 60,
+        correctChars: 300,
+        totalChars: 315,
+      }]
+
+      downloadCSV(data, 'test.csv')
+
+      expect(createElementSpy).toHaveBeenCalledWith('a')
+      expect(appendChildSpy).toHaveBeenCalled()
+      expect(revokeObjectURLSpy).toHaveBeenCalled()
+    })
+
+    it('должен использовать имя файла по умолчанию', () => {
+      const data: ExportData[] = [{
+        date: '2026-03-07',
+        wpm: 60,
+        cpm: 300,
+        accuracy: 95,
+        errors: 5,
+        timeElapsed: 60,
+        correctChars: 300,
+        totalChars: 315,
+      }]
+
+      downloadCSV(data)
+
+      const mockLink = createElementSpy.mock.results[0]?.value
+      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'fastfingers_stats.csv')
+    })
+
+    it('должен использовать кастомное имя файла', () => {
+      const data: ExportData[] = [{
+        date: '2026-03-07',
+        wpm: 60,
+        cpm: 300,
+        accuracy: 95,
+        errors: 5,
+        timeElapsed: 60,
+        correctChars: 300,
+        totalChars: 315,
+      }]
+
+      downloadCSV(data, 'custom_stats.csv')
+
+      const mockLink = createElementSpy.mock.results[0]?.value
+      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'custom_stats.csv')
+    })
+
+    it('должен скрывать ссылку во время скачивания', () => {
+      const data: ExportData[] = [{
+        date: '2026-03-07',
+        wpm: 60,
+        cpm: 300,
+        accuracy: 95,
+        errors: 5,
+        timeElapsed: 60,
+        correctChars: 300,
+        totalChars: 315,
+      }]
+
+      downloadCSV(data)
+
+      const mockLink = createElementSpy.mock.results[0]?.value
+      expect(mockLink.style.visibility).toBe('hidden')
+    })
+
+    it('должен удалять ссылку после скачивания', () => {
+      const data: ExportData[] = [{
+        date: '2026-03-07',
+        wpm: 60,
+        cpm: 300,
+        accuracy: 95,
+        errors: 5,
+        timeElapsed: 60,
+        correctChars: 300,
+        totalChars: 315,
+      }]
+
+      downloadCSV(data)
+
+      expect(removeChildSpy).toHaveBeenCalled()
     })
   })
 })
