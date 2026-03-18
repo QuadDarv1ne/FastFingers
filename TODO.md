@@ -150,7 +150,7 @@
 | i18n Languages           | 4       | 6+     |
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
-| Build Time               | ~17s    | <10s   |
+| Build Time               | ~12s    | <10s   |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -170,7 +170,7 @@
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
 9. **pdf-vendor** — 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
-11. **Build Time** — ~17s, требуется оптимизация (<10s)
+11. **Build Time** — ~12s, требуется оптимизация (<10s) ✅ Улучшено с ~17s
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
@@ -178,12 +178,12 @@
 ### Текущий статус (2026-03-18)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~17s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~12s, bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
 - **Тесты**: 425 unit (39 файлов) — 100% pass
 - **Coverage**: 73.68% (цель 85%)
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Следующий шаг**: coverage >80%, оптимизация сборки (~17s → <10s), pdf-vendor оптимизация
+- **Следующий шаг**: coverage >80%, оптимизация сборки (~12s → <10s), pdf-vendor оптимизация
 
 ### Новые наблюдения (2026-03-18)
 
@@ -220,7 +220,7 @@
 22. **ThemeToggle** — поддержка режима 'auto' (system preference)
 23. **NotificationContext** — добавлен useNotifications хук для безопасного использования
 24. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
-25. **Сборка** — успешна, ~17s, bundle <250KB gzipped (core), PWA 36 entries
+25. **Сборка** — успешна, ~12s (улучшено с ~17s), bundle <250KB gzipped (core), PWA 36 entries
 26. **Тесты** — 425 unit тестов (39 файлов) — 100% pass
 27. **Coverage** — 73.68% (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%)
 28. **pdf-vendor** — выделен в отдельный чанк (421 KB / 138 KB gzipped вместо 624 KB) ✅
@@ -276,7 +276,7 @@
 ### Приоритет 4 — Оптимизация
 
 1. pdf-vendor чанк: 421 KB → <300 KB (138 KB gzipped) ✅ Частично
-2. Оптимизация времени сборки: ~13s → <10s
+2. Оптимизация времени сборки: ~12s → <10s ✅ Улучшено с ~17s
 
 ---
 
@@ -285,5 +285,5 @@ _Выполнено за спринт: 50+ задач (a11y, i18n, Skeleton, CSV
 _Всего тестов: 425 unit (39 файлов) — 100% pass_
 _Coverage: 73.68% (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%)_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 39 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~17s_
-_Следующий шаг: coverage >80% (exercises.ts 32%, i18n 44%), оптимизация сборки (~17s → <10s), pdf-vendor оптимизация_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~12s (улучшено с ~17s)_
+_Следующий шаг: coverage >80% (exercises.ts 32%, i18n 44%), оптимизация сборки (~12s → <10s), pdf-vendor оптимизация_
