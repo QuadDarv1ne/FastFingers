@@ -146,7 +146,9 @@
 | i18n Languages           | 4       | 6+     |
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
-| Build Time               | ~17s    | <10s   |
+| Build Time               | ~12s    | <10s   |
+
+**Примечание:** pdf-vendor чанк требует оптимизации (624 KB → цель <300 KB)
 
 ---
 
@@ -163,15 +165,15 @@
 7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity)
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст)
 
-### Текущий статус (2026-03-17)
+### Текущий статус (2026-03-18)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~17s, bundle <250KB gzipped
+- **Производительность**: сборка ~12s, bundle <250KB gzipped (core), pdf-vendor 624 KB требует оптимизации
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
 - **Тесты**: 328 unit + 15 E2E = 343 теста (100% pass)
 - **PWA**: 34 entries кэшировано, service worker активен
 
-### Новые наблюдения (2026-03-17)
+### Новые наблюдения (2026-03-18)
 
 1. **E2E тесты** — 15 тестов проходят, покрытие критических путей (SprintMode, HardcoreMode, CertificateGenerator, TrainingHistory, Leaderboard)
 2. **Code splitting** — настроен для auth/vendor/utils chunks, bundle <250KB gzipped
@@ -244,19 +246,9 @@
 
 ---
 
-_Последнее обновление: 2026-03-17 (проверено)_
-_Выполнено за спринт: 25+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts)_
+_Последнее обновление: 2026-03-18 (актуализировано)_
+_Выполнено за спринт: 28+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts)_
 _Всего тестов: 328 unit + 15 E2E = 343_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 35 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~17s_
-
-### Выполнено в текущем спринте (2026-03-17)
-
-- ✅ Button: tooltip и shortcut props для горячих клавиш
-- ✅ HardcoreMode: система рангов (C-B-A-S-S+-SS-SS+-👑) + анимация rank up + confetti
-- ✅ useTheme: авто-переключение по системной теме (matchMedia)
-- ✅ ThemeToggle: режим 'auto' (system preference)
-- ✅ NotificationContext: useNotifications хук
-- ✅ i18n: misc.themeAuto переводы (RU, EN, ZH, HE)
-- ✅ hardcoreRank.ts: утилита для расчёта рангов и прогресса
-- ✅ PWA: service worker активен, 34 entries в кэше
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~12s_
+_Следующий шаг: оптимизация сборки, integration тесты, контент (texts.json)_
