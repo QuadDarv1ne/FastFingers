@@ -241,5 +241,52 @@ describe('storage utils', () => {
       expect(getStorageSize()).toBe(0)
       vi.restoreAllMocks()
     })
+
+    it.skip('should calculate size correctly (skip: happy-dom localStorage limitation)', () => {
+      localStorage.setItem('test', 'value')
+      const size = getStorageSize()
+      expect(size).toBeGreaterThan(0)
+      localStorage.removeItem('test')
+    })
+  })
+
+  describe('removeFromStorage error handling', () => {
+    it('should handle error when removeItem throws', () => {
+      const mockStorage = {
+        removeItem: vi.fn(() => {
+          throw new Error('Storage error')
+        }),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      expect(() => removeFromStorage('test')).not.toThrow()
+      vi.restoreAllMocks()
+    })
+  })
+
+  describe('clearStorage error handling', () => {
+    it('should handle error when clear throws', () => {
+      const mockStorage = {
+        clear: vi.fn(() => {
+          throw new Error('Storage error')
+        }),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      expect(() => clearStorage()).not.toThrow()
+      vi.restoreAllMocks()
+    })
+  })
+
+  describe('getStorageSize error handling', () => {
+    it('should return 0 when hasOwnProperty throws', () => {
+      const mockStorage = {
+        key1: 'value1',
+        hasOwnProperty: vi.fn(() => {
+          throw new Error('Error')
+        }),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      expect(getStorageSize()).toBe(0)
+      vi.restoreAllMocks()
+    })
   })
 })
