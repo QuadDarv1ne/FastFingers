@@ -122,7 +122,6 @@ export default defineConfig({
         // Оптимизируем чанки
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
-          'pdf-vendor': ['jspdf', 'jspdf-autotable', 'html2canvas'],
           'i18n-vendor': ['i18next', 'react-i18next'],
           'animations-vendor': ['framer-motion'],
           'confetti-vendor': ['canvas-confetti'],

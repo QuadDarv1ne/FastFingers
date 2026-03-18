@@ -1,6 +1,6 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { User } from '../types/auth'
-import { generateCertificate, calculateRank, CertificateData } from '../utils/certificate'
+import { calculateRank, CertificateData } from '../utils/certificate'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 
 interface CertificateGeneratorProps {
@@ -59,6 +59,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   const handleDownload = async () => {
     setIsGenerating(true)
     try {
+      const { generateCertificate } = await import('../utils/certificate')
       await generateCertificate(certificateData, {
         language,
         download: true,
@@ -73,6 +74,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 
   const handleShare = async () => {
     try {
+      const { generateCertificate } = await import('../utils/certificate')
       const blob = await generateCertificate(certificateData, {
         language,
         download: false,
