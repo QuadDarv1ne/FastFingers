@@ -140,10 +140,10 @@
 
 | Метрика                  | Текущее | Цель   |
 | ------------------------ | ------- | ------ |
-| Test Coverage            | 81.17%  | 85%    |
+| Test Coverage            | 82.32%  | 85%    |
 | E2E Tests                | 15      | 20+    |
-| Unit Tests               | 552     | 400+   |
-| Test Files               | 42      | 40+    |
+| Unit Tests               | 585     | 400+   |
+| Test Files               | 43      | 40+    |
 | Lighthouse Performance   | 90+     | 95+    |
 | Lighthouse Accessibility | 95+     | 100    |
 | Bundle Size (gzipped)    | <250KB  | <200KB |
@@ -153,7 +153,7 @@
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
 | Build Time               | ~13s    | <10s   |
-| Test Duration            | ~13s    | <8s    |
+| Test Duration            | ~12s    | <8s    |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -175,12 +175,13 @@
 10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
 11. **Build Time** — ~13s, требуется оптимизация (<10s) ✅ Улучшено с ~17s
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
-13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%) ✅
+13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%), storage.ts (95%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
-15. **Test Duration** — ~13s (42 файлов, 552 теста) ✅ Улучшено с ~18s
+15. **Test Duration** — ~12s (43 файлов, 585 тестов) ✅ Улучшено с ~18s
 16. **exercises.ts** — coverage 80% ✅
 17. **i18n/config.ts** — coverage 100% ✅
 18. **id.ts** — coverage 81% ✅ (было 52%)
+19. **storage.ts** — coverage 95% ✅ (было 65%)
 
 ### Текущий статус (2026-03-18)
 
