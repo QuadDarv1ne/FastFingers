@@ -1,102 +1,48 @@
-import { useEffect, useState, useCallback } from 'react'
-import './Toast.css'
+import { motion } from 'framer-motion'
+import type { Toast as ToastType } from '@contexts/ToastContext'
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info'
-
-export interface ToastAction {
-  label: string
-  onClick: () => void
-}
-
-export interface Toast {
-  id: string
-  type: ToastType
-  title: string
-  message?: string
-  duration?: number
-  action?: ToastAction
-}
-
-interface ToastProps extends Toast {
+interface ToastProps {
+  toast: ToastType
   onDismiss: (id: string) => void
 }
 
-const icons: Record<ToastType, string> = {
+type ToastKind = 'success' | 'error' | 'info' | 'warning'
+
+const toastStyles: Record<ToastKind, string> = {
+  success: 'bg-green-500 text-white',
+  error: 'bg-red-500 text-white',
+  info: 'bg-blue-500 text-white',
+  warning: 'bg-yellow-500 text-black',
+}
+
+const toastIcons: Record<ToastKind, string> = {
   success: '✓',
   error: '✕',
-  warning: '⚠',
   info: 'ℹ',
+  warning: '⚠',
 }
 
-const typeClasses: Record<ToastType, string> = {
-  success: 'toast--success',
-  error: 'toast--error',
-  warning: 'toast--warning',
-  info: 'toast--info',
-}
-
-export function Toast({ id, type, title, message, duration, action, onDismiss }: ToastProps) {
-  const [isPaused, setIsPaused] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(duration || 5000)
-
-  const dismiss = useCallback(() => {
-    onDismiss(id)
-  }, [id, onDismiss])
-
-  useEffect(() => {
-    if (!duration || isPaused) return
-
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 100) {
-          clearInterval(interval)
-          dismiss()
-          return 0
-        }
-        return prev - 100
-      })
-    }, 100)
-
-    return () => clearInterval(interval)
-  }, [duration, isPaused, dismiss])
-
-  const progress = duration ? ((duration - timeLeft) / duration) * 100 : 100
-
+export function Toast({ toast, onDismiss }: ToastProps) {
   return (
-    <div
-      className={`toast ${typeClasses[type]}`}
-      role="alert"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+    <motion.div
+      initial={{ opacity: 0, y: -20, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.9 }}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${toastStyles[toast.type]}`}
+      data-testid={`toast-${toast.type}`}
     >
-      <span className="toast__icon" aria-hidden="true">{icons[type]}</span>
-      <div className="toast__content">
-        <h4 className="toast__title">{title}</h4>
-        {message && <p className="toast__message">{message}</p>}
-        {action && (
-          <button
-            className="toast__action"
-            onClick={action.onClick}
-          >
-            {action.label}
-          </button>
-        )}
-      </div>
+      <span className="text-lg font-bold">{toastIcons[toast.type]}</span>
+      <span className="flex-1">{toast.message}</span>
       <button
-        className="toast__dismiss"
-        onClick={dismiss}
+        onClick={() => onDismiss(toast.id)}
+        className="p-1 hover:bg-white/20 rounded transition-colors"
         aria-label="Закрыть уведомление"
       >
-        ✕
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
-      {duration && (
-        <div className="toast__progress">
-          <div
-            className="toast__progress-bar"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
-    </div>
+    </motion.div>
   )
 }

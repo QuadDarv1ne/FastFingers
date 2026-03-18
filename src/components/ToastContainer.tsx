@@ -1,28 +1,21 @@
-import { Toast, ToastAction } from './Toast'
-import './ToastContainer.css'
+import { useToast } from '@contexts/ToastContext'
+import { Toast } from './Toast'
 
-export interface ToastWithAction {
-  id: string
-  type: 'success' | 'error' | 'warning' | 'info'
-  title: string
-  message?: string
-  duration?: number
-  action?: ToastAction
-}
+export function ToastContainer() {
+  const { toasts, dismissToast } = useToast()
 
-interface ToastContainerProps {
-  toasts: ToastWithAction[]
-  onDismiss: (id: string) => void
-}
+  if (toasts.length === 0) {
+    return null
+  }
 
-/**
- * Компонент-контейнер для Toast уведомлений
- */
-export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
-    <div className="toast-container">
-      {toasts.map(toast => (
-        <Toast key={toast.id} {...toast} onDismiss={onDismiss} />
+    <div
+      className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {toasts.map((toast) => (
+        <Toast key={toast.id} toast={toast} onDismiss={dismissToast} />
       ))}
     </div>
   )

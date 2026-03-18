@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { UserProgress } from '@/types'
-import { useToast } from '@hooks/useToast'
+import { useToast } from '@contexts/ToastContext'
 
 interface ExportImportProps {
   progress?: UserProgress
@@ -28,7 +28,7 @@ function validateBackupData(data: unknown): data is BackupData {
 
 export function ExportImport({ progress: _progress, onImport: _onImport }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
-  const { success, error } = useToast()
+  const { showToast } = useToast()
 
   const handleExport = () => {
     try {
@@ -63,9 +63,9 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
 
-      success({ title: 'Данные успешно экспортированы' })
+      showToast('Данные успешно экспортированы', 'success')
     } catch {
-      error({ title: 'Ошибка при экспорте данных' })
+      showToast('Ошибка при экспорте данных', 'error')
     }
   }
 
@@ -111,18 +111,18 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
           }
         })
 
-        success({ title: 'Данные успешно импортированы' })
+        showToast('Данные успешно импортированы', 'success')
         setTimeout(() => {
           window.location.reload()
         }, 1000)
       } catch {
-        error({ title: 'Ошибка при импорте данных' })
+        showToast('Ошибка при импорте данных', 'error')
         setImporting(false)
       }
     }
 
     reader.onerror = () => {
-      error({ title: 'Ошибка при чтении файла' })
+      showToast('Ошибка при чтении файла', 'error')
       setImporting(false)
     }
 
@@ -153,12 +153,12 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
 
       keysToRemove.forEach((key) => localStorage.removeItem(key))
 
-      success({ title: 'Все данные удалены' })
+      showToast('Все данные удалены', 'success')
       setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch {
-      error({ title: 'Ошибка при удалении данных' })
+      showToast('Ошибка при удалении данных', 'error')
     }
   }
 
