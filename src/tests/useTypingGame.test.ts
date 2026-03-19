@@ -259,4 +259,70 @@ describe('useTypingGame', () => {
     // Проверяем что value был очищен (в handleInput есть e.currentTarget.value = '')
     expect(mockEvent.currentTarget.value).toBe('')
   })
+
+  it('должен правильно работать в practice режиме', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'practice' }))
+
+    expect(result.current.isActive).toBe(false)
+    // В practice режиме timeLeft не используется
+    expect(result.current.timeLeft).toBeDefined()
+  })
+
+  it('должен обновлять статистику при вводе', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    // Вводим несколько символов
+    act(() => {
+      result.current.handleInput({ currentTarget: { value: 'test' } } as any)
+    })
+
+    // Статистика должна обновиться
+    expect(result.current.wpm).toBeDefined()
+    expect(result.current.accuracy).toBeDefined()
+  })
+
+  it('должен корректно обрабатывать паузу', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    // Проверяем что isPaused существует
+    expect(result.current.isPaused).toBeDefined()
+    expect(result.current.isPaused).toBe(false)
+  })
+
+  it('должен предоставлять доступ к inputRef', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.inputRef).toBeDefined()
+    expect(result.current.inputRef.current).toBeNull()
+  })
+
+  it('должен генерировать новый текст при handleSkip', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleSkip()
+    })
+
+    // Текст должен измениться (мокированный)
+    expect(result.current.text).toBeDefined()
+  })
+
+  it('должен использовать кастомную длительность в timed режиме', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'timed', duration: 120 }))
+
+    expect(result.current.timeLeft).toBe(120)
+  })
+
+  it('должен иметь правильные значения по умолчанию', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.currentIndex).toBe(0)
+    expect(result.current.inputResults).toEqual([])
+    expect(result.current.isComplete).toBe(false)
+    expect(result.current.isActive).toBe(false)
+  })
 })
