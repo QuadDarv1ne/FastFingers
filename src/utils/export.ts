@@ -16,42 +16,52 @@ export function convertToCSV(data: ExportData[]): string {
 
   const headers = ['Date', 'WPM', 'CPM', 'Accuracy (%)', 'Errors', 'Time (s)', 'Correct Chars', 'Total Chars']
   const rows = data.map(row => [
-    row.date,
-    row.wpm.toString(),
-    row.cpm.toString(),
-    row.accuracy.toString(),
-    row.errors.toString(),
-    row.timeElapsed.toString(),
-    row.correctChars.toString(),
-    row.totalChars.toString(),
+    row.date ?? '',
+    row.wpm?.toString() ?? '0',
+    row.cpm?.toString() ?? '0',
+    row.accuracy?.toString() ?? '0',
+    row.errors?.toString() ?? '0',
+    row.timeElapsed?.toString() ?? '0',
+    row.correctChars?.toString() ?? '0',
+    row.totalChars?.toString() ?? '0',
   ])
 
   return [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
 }
 
 export function downloadCSV(data: ExportData[], filename = 'fastfingers_stats.csv'): void {
-  const csv = convertToCSV(data)
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.setAttribute('download', filename)
-  link.style.visibility = 'hidden'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  try {
+    const csv = convertToCSV(data)
+    if (!csv) return
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('[Export] Error downloading CSV:', error)
+  }
 }
 
 export function statsToExportData(stats: TypingStats[], dates?: string[]): ExportData[] {
-  return stats.map((stat, index) => ({
+  if (!stats || stats.length === 0) return []
+
+  return stats
+    .filter((stat): stat is TypingStats => stat !== null && stat !== undefined)
+    .map((stat, index) => ({
     date: dates?.[index] ?? new Date().toISOString(),
-    wpm: stat.wpm,
-    cpm: stat.cpm,
-    accuracy: stat.accuracy,
-    errors: stat.errors,
-    timeElapsed: stat.timeElapsed,
-    correctChars: stat.correctChars,
-    totalChars: stat.totalChars,
+    wpm: stat.wpm ?? 0,
+    cpm: stat.cpm ?? 0,
+    accuracy: stat.accuracy ?? 0,
+    errors: stat.errors ?? 0,
+    timeElapsed: stat.timeElapsed ?? 0,
+    correctChars: stat.correctChars ?? 0,
+    totalChars: stat.totalChars ?? 0,
   }))
 }
