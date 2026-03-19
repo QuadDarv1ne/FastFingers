@@ -139,14 +139,17 @@ describe('useTypingGame', () => {
   it('должен фокусировать input при focusInput', () => {
     const { result } = renderHook(() => useTypingGame())
 
-    const mockFocus = vi.fn()
-    result.current.inputRef.current = { focus: mockFocus } as any
+    const mockElement = { focus: vi.fn() }
+    Object.defineProperty(result.current.inputRef, 'current', {
+      value: mockElement,
+      writable: true,
+    })
 
     act(() => {
       result.current.focusInput()
     })
 
-    expect(mockFocus).toHaveBeenCalledWith({ preventScroll: true })
+    expect(mockElement.focus).toHaveBeenCalledWith({ preventScroll: true })
   })
 
   it('должен устанавливать startTime при handleStart', () => {
