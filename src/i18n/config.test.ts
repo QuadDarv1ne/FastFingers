@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import i18n from 'i18next'
 import {
   useAppTranslation,
@@ -10,6 +10,7 @@ import {
 
 describe('i18n config', () => {
   beforeEach(async () => {
+    vi.clearAllMocks()
     await i18n.changeLanguage('ru')
   })
 
@@ -364,7 +365,7 @@ describe('i18n config', () => {
 
     it('should have detection configuration', () => {
       expect(i18n.options.detection).toBeDefined()
-      expect(i18n.options.detection?.lookupLocalStorage).toBe('fastfingers_language')
+      expect((i18n.options.detection as any)?.lookupLocalStorage).toBe('fastfingers_language')
     })
 
     it('should have react configuration with useSuspense false', () => {

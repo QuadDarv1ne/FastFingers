@@ -339,7 +339,7 @@ describe('ThemeToggle', () => {
     // currentTheme всегда находится благодаря themes.find, но тест полезен для edge case
     render(
       <ThemeToggle
-        theme="invalid_theme" as any
+        theme={'invalid_theme' as any}
         onThemeChange={mockOnThemeChange}
       />
     )
