@@ -92,7 +92,7 @@ export function getRankByStreak(streak: number): RankInfo {
     }
   }
   // Fallback (should never reach here due to Infinity in last rank)
-  return RANKS[0] ?? RANKS[RANKS.length - 1]
+  return (RANKS[0] ?? RANKS[RANKS.length - 1]) as RankInfo
 }
 
 /**
