@@ -33,10 +33,12 @@ export function Tooltip({ content, children, position = 'top', delay = 300 }: To
   }
 
   return (
-    <div 
+    <div
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      role="tooltip"
+      aria-hidden={!isVisible}
     >
       {children}
       <AnimatePresence>
@@ -47,11 +49,12 @@ export function Tooltip({ content, children, position = 'top', delay = 300 }: To
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.15 }}
             className={`absolute ${positionClasses[position]} z-50 pointer-events-none`}
+            role="presentation"
           >
             <div className="bg-dark-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-xl border border-dark-700 whitespace-nowrap">
               {content}
               {/* Стрелка */}
-              <div 
+              <div
                 className={`absolute w-2 h-2 bg-dark-800 border-dark-700 transform rotate-45 ${
                   position === 'top' ? 'bottom-[-4px] left-1/2 -translate-x-1/2 border-b border-r' :
                   position === 'bottom' ? 'top-[-4px] left-1/2 -translate-x-1/2 border-t border-l' :
