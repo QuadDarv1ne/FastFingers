@@ -4,8 +4,11 @@
 
 type StorageValue = string | number | boolean | object | null | undefined
 
-const handleStorageError = (_operation: string, _key?: string, _error?: unknown) => {
-  // Ignore storage errors
+const handleStorageError = (operation: string, key?: string, error?: unknown) => {
+  // Логирование ошибок в development режиме
+  if (import.meta.env.DEV) {
+    console.warn(`[Storage] Error ${operation}${key ? ` for key "${key}"` : ''}:`, error)
+  }
 }
 
 /**
@@ -54,7 +57,8 @@ export function getFromStorage<T extends StorageValue>(
     if (item === null) return defaultValue
     const parsed = JSON.parse(item) as T
     return parsed
-  } catch {
+  } catch (error) {
+    handleStorageError('reading from localStorage', key, error)
     return defaultValue
   }
 }
@@ -73,8 +77,8 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
     } else {
       localStorage.setItem(key, JSON.stringify(value))
     }
-  } catch {
-    // Ignore write errors
+  } catch (error) {
+    handleStorageError('saving to localStorage', key, error)
   }
 }
 
@@ -102,8 +106,8 @@ export function clearStorage(): void {
 
   try {
     localStorage.clear()
-  } catch {
-    // Ignore clear errors
+  } catch (error) {
+    handleStorageError('clearing localStorage', undefined, error)
   }
 }
 
@@ -117,7 +121,8 @@ export function getStorageKeys(): string[] {
 
   try {
     return Object.keys(localStorage)
-  } catch {
+  } catch (error) {
+    handleStorageError('reading localStorage keys', undefined, error)
     return []
   }
 }
@@ -140,7 +145,8 @@ export function getStorageSize(): number {
       }
     }
     return totalSize
-  } catch {
+  } catch (error) {
+    handleStorageError('calculating localStorage size', undefined, error)
     return 0
   }
 }

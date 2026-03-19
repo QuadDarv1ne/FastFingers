@@ -251,12 +251,13 @@ export function debounceAsync<T extends (...args: unknown[]) => Promise<unknown>
 }
 
 /**
- * Хук для debounce в React компонентах
+ * Функция для использования debounce в React компонентах
+ * Рекомендуется использовать useMemo для стабилизации ссылки
  *
  * @example
- * const debouncedSearch = useDebounce((query) => {
+ * const debouncedSearch = useMemo(() => debounce((query) => {
  *   setSearchQuery(query)
- * }, 300)
+ * }, 300), [])
  */
 export function useDebounce<T extends (...args: unknown[]) => unknown>(
   func: T,
@@ -266,7 +267,8 @@ export function useDebounce<T extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * Throttle для React хуков
+ * Функция для использования throttle в React компонентах
+ * Рекомендуется использовать useMemo для стабилизации ссылки
  */
 export function useThrottle<T extends (...args: unknown[]) => unknown>(
   func: T,
