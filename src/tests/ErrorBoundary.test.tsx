@@ -51,7 +51,7 @@ describe('ErrorBoundary', () => {
 
   it('должен вызывать onError при ошибке', () => {
     const onError = vi.fn()
-    
+
     render(
       <ErrorBoundary onError={onError}>
         <BrokenComponent />
@@ -79,13 +79,10 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    // ErrorBoundary перехватывает ошибку
     expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
 
-    // Клик по кнопке "Попробовать снова" должен сбросить состояние
     fireEvent.click(screen.getByText('Попробовать снова'))
 
-    // Компонент снова попытается рендериться и снова упадёт
     expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
   })
 
@@ -170,5 +167,54 @@ describe('ErrorBoundary', () => {
     )
 
     expect(container).toBeInTheDocument()
+  })
+
+  it('должен сохранять errorInfo в состоянии при ошибке', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+  })
+
+  it('должен использовать getDerivedStateFromError для установки состояния', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Показать детали ошибки')).toBeInTheDocument()
+  })
+
+  it('должен поддерживать resetKeys проп без ошибок', () => {
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={[1]}>
+        <WorkingComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('working')).toBeInTheDocument()
+
+    rerender(
+      <ErrorBoundary resetKeys={[2]}>
+        <WorkingComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('working')).toBeInTheDocument()
+  })
+
+  it('должен игнорировать resetKeys когда нет ошибки', () => {
+    render(
+      <ErrorBoundary resetKeys={[1]}>
+        <WorkingComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('working')).toBeInTheDocument()
   })
 })
