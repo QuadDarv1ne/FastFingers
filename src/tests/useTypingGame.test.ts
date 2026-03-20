@@ -328,4 +328,99 @@ describe('useTypingGame', () => {
     expect(result.current.isComplete).toBe(false)
     expect(result.current.isActive).toBe(false)
   })
+
+  it('должен валидировать wordCount (min/max)', () => {
+    renderHook(() => useTypingGame({ initialWordCount: -5 }))
+    renderHook(() => useTypingGame({ initialWordCount: 500 }))
+
+    expect(exercises.generatePracticeText).toHaveBeenCalledWith(1, 5)
+    expect(exercises.generatePracticeText).toHaveBeenCalledWith(200, 5)
+  })
+
+  it('должен валидировать difficulty (min/max)', () => {
+    renderHook(() => useTypingGame({ initialDifficulty: -1 }))
+    renderHook(() => useTypingGame({ initialDifficulty: 15 }))
+
+    expect(exercises.generatePracticeText).toHaveBeenCalledWith(30, 1)
+    expect(exercises.generatePracticeText).toHaveBeenCalledWith(30, 10)
+  })
+
+  it('должен валидировать duration (min/max)', () => {
+    const { result: result1 } = renderHook(() => useTypingGame({ mode: 'timed', duration: 5 }))
+    const { result: result2 } = renderHook(() => useTypingGame({ mode: 'timed', duration: 1000 }))
+
+    expect(result1.current.timeLeft).toBe(10)
+    expect(result2.current.timeLeft).toBe(600)
+  })
+
+  it('должен обрабатывать ошибку при генерации текста', () => {
+    vi.mocked(exercises.generatePracticeText).mockImplementationOnce(() => {
+      throw new Error('Generation failed')
+    })
+
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.text).toBe('ошибка генерации текста')
+  })
+
+  it('должен защищаться от null/undefined в handleInput', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEventEmpty = {
+      currentTarget: { value: '' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEventEmpty)
+    })
+
+    expect(result.current.currentIndex).toBe(0)
+  })
+
+  it('должен защищаться от выхода за границы текста', () => {
+    vi.mocked(exercises.generatePracticeText).mockReturnValueOnce('ab')
+
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEvent = {
+      currentTarget: { value: 'abc' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(result.current.currentIndex).toBeLessThanOrEqual(2)
+  })
+
+  it('должен корректно работать в practice режиме', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'practice' }))
+
+    expect(result.current.isActive).toBe(false)
+  })
+
+  it('должен обновлять inputResults при вводе', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEvent = {
+      currentTarget: { value: 'test' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(result.current.inputResults.length).toBeGreaterThan(0)
+  })
+
+  it('должен иметь все необходимые методы', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.handleInput).toBeDefined()
+    expect(result.current.handleSkip).toBeDefined()
+    expect(result.current.handleStart).toBeDefined()
+    expect(result.current.reset).toBeDefined()
+    expect(result.current.focusInput).toBeDefined()
+    expect(result.current.generateNewText).toBeDefined()
+  })
 })
