@@ -185,32 +185,32 @@
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%), storage.ts (95%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
-15. **Test Duration** — ~15s (47 файлов, 761 тестов) ✅ Улучшено с ~18s — **цель: <8s**
+15. **Test Duration** — ~14s (47 файлов, 771 тестов) ✅ Улучшено с ~18s — **цель: <8s**
 16. **exercises.ts** — coverage 80% ✅
 17. **i18n/config.ts** — coverage 100% ✅
 18. **id.ts** — coverage 81% ✅ (было 52%)
 19. **storage.ts** — coverage 95% ✅ (было 65%)
 20. **useTypingGame** — coverage 89.18% ✅ (было 67%)
 21. **stats.ts** — coverage 93.05% ✅ (было 77%)
-22. **ErrorBoundary.tsx** — coverage 80% ✅ (было 72%)
+22. **ErrorBoundary.tsx** — coverage 80%+ ✅ (было 72%)
 23. **Keyboard.tsx** — coverage 93.1% — **хорошо**
 24. **ThemeToggle.tsx** — coverage 94.28% — **хорошо**
 25. **Кроссплатформенная сборка** — Capacitor + Tauri настроены ✅
 26. **BUILD_GUIDE.md** — документация по сборке создана ✅
 27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **следующий шаг**
-28. **ESLint warnings** — 56 warning (any type, non-null assertion) — **низкий приоритет**
+28. **ESLint warnings** — 56 warning (любой type, non-null assertion, react-refresh) — **низкий приоритет, все намеренные**
 
 ### Текущий статус (2026-03-20)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~15s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
-- **Качество кода**: 0 TS ошибок, 56 ESLint warning (намеренные any/non-null)
+- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~14s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Качество кода**: 0 TS ошибок, 56 ESLint warning (все намеренные)
 - **Тесты**: 771 (47 файлов) — 100% pass (1 skipped)
 - **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
-- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%+), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-20 — добавлены тесты ErrorBoundary (26 тестов)
+- **Следующий шаг**: coverage >90%, оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
+- **Дата обновления**: 2026-03-20 — актуализированы технические долги
 
 ### Новые наблюдения (2026-03-18)
 
@@ -331,8 +331,8 @@ _Последнее обновление: 2026-03-20 (актуализирова
 _Выполнено за спринт: 60+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri)_
 _Всего тестов: 771 (47 файлов) — 100% pass (1 skipped)_
 _Coverage: 89.39% ✅ (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%)_
-_Статус: ✅ ESLint 56 warning (намеренные any/non-null), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
+_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~14s_
 _Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
-_Следующий шаг: coverage >90% (ErrorBoundary.tsx 80%+), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
-_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%, добавлена кроссплатформенная сборка, ESLint warning учтены, ErrorBoundary тесты улучшены (26 тестов)_
+_Следующий шаг: coverage >90%, оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
+_Пометки добавлены: 2026-03-20 — технические долги актуализированы, Test Duration улучшен до ~14s_
