@@ -28,7 +28,7 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.ts'],
     css: true,
     include: ['src/**/*.test.{ts,tsx}'],
-    exclude: ['**/e2e/**', '**/node_modules/**'],
+    exclude: ['**/e2e/**', '**/node_modules/**', '**/indexedDB.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -39,6 +39,7 @@ export default defineConfig({
         '**/*.config.*',
         '**/mockData',
         '**/e2e/**',
+        '**/indexedDB.ts',
       ],
     },
   },

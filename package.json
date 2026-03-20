@@ -29,7 +29,11 @@
     "tauri:build": "tauri build",
     "cap:sync": "npx cap sync",
     "cap:android": "npx cap run android",
-    "cap:ios": "npx cap run ios"
+    "cap:ios": "npx cap run ios",
+    "lhci": "lhci autorun",
+    "lhci:check": "lhci assert",
+    "lhci:collect": "lhci collect",
+    "lhci:upload": "lhci upload"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -96,6 +100,7 @@
     "vite": "^6.4.1",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18",
-    "workbox-window": "^7.0.0"
+    "workbox-window": "^7.0.0",
+    "@lhci/cli": "^0.14.0"
   }
 }

@@ -29,6 +29,7 @@ import type { CustomExercise } from './components/CustomExerciseEditor'
 
 import { useGameMode, type SpeedTestDuration } from './hooks/useGameMode'
 import { useUserProgress } from './hooks/useUserProgress'
+import { useAutoSave } from './hooks/useAutoSave'
 import { useCustomExercises } from './hooks/useCustomExercises'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
@@ -110,6 +111,21 @@ function AppContent() {
     onLevelUp: (newLevel) => {
       addNotification(createLevelUpNotification(newLevel))
       triggerConfetti({ type: 'levelup', duration: 4000 })
+    },
+  })
+
+  // Автосохранение прогресса при закрытии вкладки
+  useAutoSave({
+    progress,
+    currentSession: currentStats,
+    heatmap,
+    settings,
+    onRestore: (data) => {
+      // Восстанавливаем сессию если она есть
+      if (data.currentSession) {
+        // Можно показать уведомление о восстановлении
+        console.log('[App] Session restored:', data.currentSession)
+      }
     },
   })
 

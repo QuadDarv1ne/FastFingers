@@ -6,28 +6,66 @@ interface ExportData {
   heatmap: Record<string, { errors: number; total: number; accuracy: number }>
 }
 
-interface AutoTableDocument {
-  lastAutoTable?: {
-    finalY: number
-  }
+/**
+ * Нарисовать таблицу вручную (без autoTable для экономии места)
+ */
+function drawTable(
+  doc: any,
+  startY: number,
+  head: string[],
+  body: string[][],
+  headColor: [number, number, number] = [124, 58, 237]
+): number {
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const margin = 14
+  const tableWidth = pageWidth - margin * 2
+  const rowHeight = 8
+  const colWidth = tableWidth / head.length
+
+  // Заголовок
+  doc.setFillColor(...headColor)
+  doc.rect(margin, startY, tableWidth, rowHeight, 'F')
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(255, 255, 255)
+  head.forEach((h, i) => {
+    doc.text(h, margin + i * colWidth + 2, startY + 5.5)
+  })
+
+  // Строки
+  let currentY = startY + rowHeight
+  body.forEach((row, rowIndex) => {
+    const isEven = rowIndex % 2 === 0
+    doc.setFillColor(isEven ? 245 : 250)
+    doc.rect(margin, currentY, tableWidth, rowHeight, 'F')
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(0, 0, 0)
+    row.forEach((cell, i) => {
+      doc.text(cell, margin + i * colWidth + 2, currentY + 5.5)
+    })
+    currentY += rowHeight
+  })
+
+  // Граница
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.2)
+  doc.rect(margin, startY, tableWidth, rowHeight * (body.length + 1))
+
+  return currentY
 }
 
 /**
  * Экспорт статистики в PDF с динамической загрузкой jsPDF
  */
 export async function exportStatsToPDF(data: ExportData): Promise<void> {
-  // Динамический импорт для уменьшения bundle size
-  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+  // Динамический импорт только jspdf (без autotable)
+  const [{ default: jsPDF }] = await Promise.all([
     import('jspdf'),
-    import('jspdf-autotable'),
   ])
 
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   let yPosition = 20
-
-  const getLastAutoTableY = (): number =>
-    (doc as unknown as AutoTableDocument).lastAutoTable?.finalY ?? 0
 
   // Заголовок
   doc.setFontSize(24)
@@ -69,16 +107,8 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
     ['Серия', `${data.progress.streak} дней`],
   ]
 
-  autoTable(doc, {
-    startY: yPosition,
-    head: [['Метрика', 'Значение']],
-    body: progressData,
-    theme: 'grid',
-    headStyles: { fillColor: [124, 58, 237] },
-    margin: { left: 14, right: 14 },
-  })
-
-  yPosition = getLastAutoTableY() + 15
+  yPosition = drawTable(doc, yPosition, ['Метрика', 'Значение'], progressData)
+  yPosition += 15
 
   // Последние сессии
   if (data.recentSessions.length > 0) {
@@ -94,16 +124,13 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
       '0',
     ])
 
-    autoTable(doc, {
-      startY: yPosition,
-      head: [['Дата', 'WPM', 'Точность', 'Правильно', 'Ошибок']],
-      body: sessionsData,
-      theme: 'striped',
-      headStyles: { fillColor: [124, 58, 237] },
-      margin: { left: 14, right: 14 },
-    })
-
-    yPosition = getLastAutoTableY() + 15
+    yPosition = drawTable(
+      doc,
+      yPosition,
+      ['Дата', 'WPM', 'Точность', 'Правильно', 'Ошибок'],
+      sessionsData
+    )
+    yPosition += 15
   }
 
   // Проблемные клавиши
@@ -124,21 +151,12 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
       `${stats.accuracy}%`,
     ])
 
-    autoTable(doc, {
-      startY: yPosition,
-      head: [['Клавиша', 'Всего', 'Ошибок', 'Точность']],
-      body: keysData,
-      theme: 'grid',
-      headStyles: { fillColor: [239, 68, 68] }, // red-500
-      margin: { left: 14, right: 14 },
-    })
+    yPosition = drawTable(doc, yPosition, ['Клавиша', 'Всего', 'Ошибок', 'Точность'], keysData, [239, 68, 68])
   }
 
   // Новая страница для графиков (если нужно)
-  const lastY = getLastAutoTableY()
-  if (lastY && lastY > 250) {
+  if (yPosition > 250) {
     doc.addPage()
-    yPosition = 20
   }
 
   // Футер

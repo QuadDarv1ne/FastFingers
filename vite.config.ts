@@ -142,14 +142,14 @@ export default defineConfig({
           'ui-components': ['./src/components/Keyboard', './src/components/Header'],
           'charts': ['./src/components/LazyRecharts', './src/components/SpiderChart', './src/components/PredictionCurve'],
           'auth-components': ['./src/components/auth/AuthWrapper', './src/components/auth/UserProfile'],
-          'panels': ['./src/components/NotificationPanel', './src/components/AchievementsPanel', './src/components/TrainingHistory'],
+          'panels': ['./src/components/AchievementsPanel', './src/components/TrainingHistory'],
           'settings': ['./src/components/ThemeToggle', './src/components/KeyboardSkinSelector', './src/components/MusicControls', './src/components/ExportImport'],
           'exercises': ['./src/components/CustomExerciseEditor', './src/components/DailyChallengeCard', './src/components/LearningMode'],
           'stats-pages': ['./src/components/StatisticsPage', './src/components/WeeklyProgress'],
           'rewards': ['./src/components/SessionSummary', './src/components/StreakRewardsPanel', './src/components/TypingTips', './src/components/Onboarding'],
           'widgets': ['./src/components/ClockWidget', './src/components/MotivationalQuote', './src/components/OnlineStatus'],
-          // Выносим jspdf в отдельный чанк для оптимизации
-          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          // Выносим jspdf в отдельный чанк для оптимизации (без autotable для экономии места)
+          'pdf-vendor': ['jspdf'],
         },
       },
     },
