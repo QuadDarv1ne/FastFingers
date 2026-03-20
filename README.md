@@ -123,6 +123,45 @@ npm run build
 npm run preview
 ```
 
+## 📱 Кроссплатформенная сборка
+
+FastFingers поддерживает сборку для всех популярных платформ:
+
+### 🌐 Web / PWA
+```bash
+npm run build
+```
+PWA готово к развертыванию на любом хостинге (Netlify, Vercel, GitHub Pages).
+
+### 📱 Мобильные приложения (Capacitor)
+
+**Android:**
+```bash
+npm run build:android
+# APK будет в android/app/build/outputs/apk/
+```
+
+**iOS:**
+```bash
+npm run build:ios
+# Откройте в Xcode для дальнейшей сборки
+```
+
+### 💻 Десктопные приложения (Tauri)
+
+**Windows/macOS/Linux:**
+```bash
+npm run build:desktop
+# Файлы будут в src-tauri/target/release/bundle/
+```
+
+**Все платформы сразу:**
+```bash
+npm run build:all
+```
+
+📖 **Подробная инструкция**: см. [BUILD_GUIDE.md](BUILD_GUIDE.md)
+
 ## 📁 Структура проекта
 
 ```

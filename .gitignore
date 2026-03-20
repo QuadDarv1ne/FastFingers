@@ -37,3 +37,28 @@ playwright-report/
 *.swp
 *.swo
 *~
+
+# Mobile (Capacitor) - исключая исходники
+android/app/build/
+android/.gradle/
+android/capacitor-cordova-android-plugins/.gradle/
+ios/App/DerivedData/
+ios/App/Pods/
+
+# Desktop (Tauri)
+src-tauri/target/
+src-tauri/**/*.o
+src-tauri/**/*.so
+src-tauri/**/*.dylib
+src-tauri/**/*.dll
+src-tauri/**/*.exe
+src-tauri/**/*.app
+src-tauri/**/*.dmg
+src-tauri/**/*.deb
+src-tauri/**/*.rpm
+
+# Ключи подписи
+*.keystore
+*.jks
+*.p12
+*.pfx

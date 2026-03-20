@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FastFingers</string>
+    <string name="title_activity_main">FastFingers</string>
+    <string name="package_name">com.fastfingers.app</string>
+    <string name="custom_url_scheme">com.fastfingers.app</string>
+</resources>
