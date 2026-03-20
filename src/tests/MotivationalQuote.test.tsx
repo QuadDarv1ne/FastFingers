@@ -167,3 +167,63 @@ describe('QUOTES', () => {
     })
   })
 })
+
+describe('MotivationalQuote с autoChange', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('должен автоматически менять цитату при autoChange=true', () => {
+    render(<MotivationalQuote autoChange={true} changeInterval={1000} />)
+
+    vi.advanceTimersByTime(1000)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+
+  it('не должен менять цитату без autoChange', () => {
+    render(<MotivationalQuote autoChange={false} />)
+
+    vi.advanceTimersByTime(5000)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+
+  it('должен использовать кастомный интервал', () => {
+    render(<MotivationalQuote autoChange={true} changeInterval={500} />)
+
+    vi.advanceTimersByTime(500)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+})
+
+describe('MotivationalQuote с категорией', () => {
+  it('должен фильтровать цитаты по категории motivation', () => {
+    render(<MotivationalQuote category="motivation" />)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+
+  it('должен фильтровать цитаты по категории practice', () => {
+    render(<MotivationalQuote category="practice" />)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+
+  it('должен фильтровать цитаты по категории success', () => {
+    render(<MotivationalQuote category="success" />)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+
+  it('должен фильтровать цитаты по категории learning', () => {
+    render(<MotivationalQuote category="learning" />)
+
+    expect(screen.getByRole('complementary')).toBeInTheDocument()
+  })
+})
