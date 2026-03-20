@@ -103,7 +103,8 @@
 - [x] Coverage > 82% ✅ **Выполнено: общий 82.32%**
 - [x] Coverage > 84% ✅ **Выполнено: общий 84.69%**
 - [x] Coverage > 85% ✅ **Выполнено: общий 85.09%**
-- [ ] Coverage > 87% (приоритет: useTypingGame 67%, stats.ts 77%) — **цель следующего спринта**
+- [x] Coverage > 87% ✅ **Выполнено: общий 89.25%, useTypingGame 89.18%, stats.ts 93.05%**
+- [ ] Coverage > 90% (приоритет: Keyboard.tsx 93%, ThemeToggle.tsx 94%, ErrorBoundary.tsx 72%) — **следующая цель**
 - [ ] Performance тесты (Lighthouse CI) — **низкий приоритет**
 - [ ] Accessibility тесты (axe-core) — **низкий приоритет**
 
@@ -144,10 +145,10 @@
 
 | Метрика                  | Текущее | Цель   |
 | ------------------------ | ------- | ------ |
-| Test Coverage            | 85.09%  | 85%    |
+| Test Coverage            | 89.25%  | 90%    |
 | E2E Tests                | 15      | 20+    |
-| Unit Tests               | 652     | 400+   |
-| Test Files               | 44      | 40+    |
+| Unit Tests               | 733     | 400+   |
+| Test Files               | 47      | 40+    |
 | Lighthouse Performance   | 90+     | 95+    |
 | Lighthouse Accessibility | 95+     | 100    |
 | Bundle Size (gzipped)    | <250KB  | <200KB |
@@ -157,7 +158,7 @@
 | TypeScript Errors        | 0       | 0      |
 | ESLint Errors            | 0       | 0      |
 | Build Time               | ~13s    | <10s   |
-| Test Duration            | ~20s    | <8s    |
+| Test Duration            | ~18s    | <8s    |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -192,12 +193,12 @@
 ### Текущий статус (2026-03-20)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~20s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~18s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
-- **Тесты**: 652 unit (44 файлов) — 100% pass
-- **Coverage**: 85.09% ✅ (цель 85% достигнута!) — проблемные зоны: useTypingGame 67%, stats.ts 77%
+- **Тесты**: 733 unit (47 файлов) — 100% pass
+- **Coverage**: 89.25% ✅ (цель 87% достигнута!) — useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Следующий шаг**: coverage >87% (useTypingGame 67%, stats.ts 77%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
+- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 72%, Keyboard.tsx 93%, ThemeToggle.tsx 94%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
 - **Дата обновления**: 2026-03-20 — добавлены пометки к незавершённым задачам
 
 ### Новые наблюдения (2026-03-18)

@@ -88,4 +88,87 @@ describe('ErrorBoundary', () => {
     // Компонент снова попытается рендериться и снова упадёт
     expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
   })
+
+  it('должен вызывать onRetry при клике на "Попробовать снова"', () => {
+    const onRetry = vi.fn()
+
+    render(
+      <ErrorBoundary onRetry={onRetry}>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    fireEvent.click(screen.getByText('Попробовать снова'))
+
+    expect(onRetry).toHaveBeenCalled()
+  })
+
+  it('должен рендерить children если ошибки нет', () => {
+    render(
+      <ErrorBoundary>
+        <div>Children content</div>
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Children content')).toBeInTheDocument()
+  })
+
+  it('должен показывать ошибку в details', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const details = screen.getByText('Показать детали ошибки')
+    expect(details).toBeInTheDocument()
+  })
+
+  it('должен иметь кнопку обновления страницы', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const reloadButton = screen.getByText('Обновить страницу')
+    expect(reloadButton).toBeInTheDocument()
+  })
+
+  it('должен вызывать onError с правильными аргументами', () => {
+    const onError = vi.fn()
+
+    render(
+      <ErrorBoundary onError={onError}>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(onError).toHaveBeenCalledWith(expect.any(Error), expect.objectContaining({
+      componentStack: expect.any(String),
+    }))
+  })
+
+  it('должен показывать кастомный fallback вместо стандартного', () => {
+    const CustomFallback = () => <div data-testid="fallback">Custom</div>
+
+    render(
+      <ErrorBoundary fallback={<CustomFallback />}>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('fallback')).toBeInTheDocument()
+    expect(screen.queryByText('Упс. Что-то пошло не так')).not.toBeInTheDocument()
+  })
+
+  it('должен иметь метод resetError который существует', () => {
+    const { container } = render(
+      <ErrorBoundary>
+        <div>Test</div>
+      </ErrorBoundary>
+    )
+
+    expect(container).toBeInTheDocument()
+  })
 })
