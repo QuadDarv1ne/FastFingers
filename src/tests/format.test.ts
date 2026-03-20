@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   formatDuration,
   formatDurationLong,
@@ -28,6 +28,11 @@ describe('format utils', () => {
       expect(formatDurationLong(3600)).toBe('01:00:00')
       expect(formatDurationLong(3599)).toBe('59:59')
     })
+
+    it('должен обрабатывать отрицательные значения', () => {
+      expect(formatDurationLong(-10)).toBe('00:00')
+      expect(formatDurationLong(-100)).toBe('00:00')
+    })
   })
 
   describe('formatDate', () => {
@@ -35,6 +40,17 @@ describe('format utils', () => {
       const date = new Date('2024-01-15')
       expect(formatDate(date)).toContain('2024')
       expect(formatDate(date)).toContain('января')
+    })
+
+    it('должен возвращать тире для невалидной даты', () => {
+      expect(formatDate('invalid')).toBe('—')
+      expect(formatDate('')).toBe('—')
+      expect(formatDate(undefined as any)).toBe('—')
+    })
+
+    it('должен форматировать timestamp', () => {
+      const timestamp = Date.now()
+      expect(formatDate(timestamp)).not.toBe('—')
     })
   })
 
@@ -45,9 +61,23 @@ describe('format utils', () => {
       expect(formatted).toContain('2024')
       expect(formatted).toContain('14:30')
     })
+
+    it('должен возвращать тире для невалидной даты', () => {
+      expect(formatDateTime('invalid')).toBe('—')
+      expect(formatDateTime('')).toBe('—')
+    })
   })
 
   describe('formatRelativeTime', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2024-01-15T12:00:00'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
     it('должен показывать "только что" для недавнего времени', () => {
       const now = new Date()
       expect(formatRelativeTime(now)).toBe('только что')
@@ -67,14 +97,47 @@ describe('format utils', () => {
       const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
       expect(formatRelativeTime(fiveDaysAgo)).toContain('дн.')
     })
+
+    it('должен возвращать дату для старых дат', () => {
+      const oldDate = new Date('2023-01-01')
+      expect(formatRelativeTime(oldDate)).not.toBe('только что')
+    })
+
+    it('должен возвращать тире для невалидной даты', () => {
+      expect(formatRelativeTime('invalid')).toBe('—')
+    })
   })
 
   describe('calculateAge', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2024-06-15'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
     it('должен рассчитывать возраст', () => {
       const birthDate = new Date('2000-01-01')
       const age = calculateAge(birthDate)
-      expect(age).toBeGreaterThan(20)
-      expect(age).toBeLessThan(30)
+      expect(age).toBe(24)
+    })
+
+    it('должен рассчитывать возраст с днем рождения в будущем', () => {
+      const birthDate = new Date('2000-07-01')
+      const age = calculateAge(birthDate)
+      expect(age).toBe(23)
+    })
+
+    it('должен возвращать 0 для невалидной даты', () => {
+      expect(calculateAge('invalid')).toBe(0)
+      expect(calculateAge('')).toBe(0)
+    })
+
+    it('должен возвращать 0 для отрицательного возраста', () => {
+      const futureDate = new Date('2030-01-01')
+      expect(calculateAge(futureDate)).toBe(0)
     })
   })
 })
