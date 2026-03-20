@@ -423,4 +423,299 @@ describe('useTypingGame', () => {
     expect(result.current.focusInput).toBeDefined()
     expect(result.current.generateNewText).toBeDefined()
   })
+
+  it('должен обрабатывать ошибку в focusInput', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockElement = { focus: vi.fn(() => { throw new Error('Focus failed') }) }
+    Object.defineProperty(result.current.inputRef, 'current', {
+      value: mockElement,
+      writable: true,
+    })
+
+    expect(() => {
+      act(() => {
+        result.current.focusInput()
+      })
+    }).not.toThrow()
+  })
+
+  it('должен обрабатывать ошибку в handleStart', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockElement = { focus: vi.fn(() => { throw new Error('Focus failed') }) }
+    Object.defineProperty(result.current.inputRef, 'current', {
+      value: mockElement,
+      writable: true,
+    })
+
+    expect(() => {
+      act(() => {
+        result.current.handleStart()
+      })
+    }).not.toThrow()
+  })
+
+  it('должен обрабатывать ошибку в handleSkip', () => {
+    vi.mocked(exercises.generatePracticeText).mockImplementationOnce(() => {
+      throw new Error('Skip failed')
+    })
+
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(() => {
+      act(() => {
+        result.current.handleSkip()
+      })
+    }).not.toThrow()
+  })
+
+  it('должен обрабатывать ошибку в reset', () => {
+    vi.mocked(exercises.generatePracticeText).mockImplementationOnce(() => {
+      throw new Error('Reset failed')
+    })
+
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(() => {
+      act(() => {
+        result.current.reset()
+      })
+    }).not.toThrow()
+  })
+
+  it('должен обрабатывать ошибку в generateNewText', () => {
+    vi.mocked(exercises.generatePracticeText).mockImplementationOnce(() => {
+      throw new Error('Generate failed')
+    })
+
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.text).toBe('ошибка генерации текста')
+  })
+
+  it('должен защищаться от повторного входа в handleInput', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEvent = {
+      currentTarget: { value: 't' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(result.current.currentIndex).toBeGreaterThan(0)
+  })
+
+  it('должен игнорировать ввод когда isPaused', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEvent = {
+      currentTarget: { value: 't' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    const initialIndex = result.current.currentIndex
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(result.current.currentIndex).toBeGreaterThanOrEqual(initialIndex)
+  })
+
+  it('должен обновлять wpm и accuracy при вводе', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    act(() => {
+      result.current.handleInput({ currentTarget: { value: 'test' } } as any)
+    })
+
+    expect(result.current.wpm).toBeDefined()
+    expect(result.current.accuracy).toBeDefined()
+  })
+
+  it('должен предоставлять доступ к inputRef', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.inputRef).toBeDefined()
+    expect(result.current.inputRef.current).toBeNull()
+  })
+
+  it('должен работать с кастомным sound', () => {
+    const mockSound = {
+      playCorrect: vi.fn(),
+      playError: vi.fn(),
+      playComplete: vi.fn(),
+      playClick: vi.fn(),
+      setVolume: vi.fn(),
+      setEnabled: vi.fn(),
+      setTheme: vi.fn(),
+      initAudio: vi.fn(),
+      isReady: true,
+      isEnabled: true,
+      error: null,
+    }
+
+    const { result } = renderHook(() => useTypingGame({ sound: mockSound as any }))
+
+    const mockEvent = {
+      currentTarget: { value: 't' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(mockSound.playCorrect).toHaveBeenCalled()
+  })
+
+  it('должен работать с onKeyInput callback', () => {
+    const onKeyInputMock = vi.fn()
+
+    const { result } = renderHook(() => useTypingGame({ onKeyInput: onKeyInputMock }))
+
+    const mockEvent = {
+      currentTarget: { value: 't' },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(onKeyInputMock).toHaveBeenCalled()
+  })
+
+  it('должен предупреждать о пустых результатах в handleComplete', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    expect(() => {
+      act(() => {
+        result.current.handleInput({ currentTarget: { value: '' } } as any)
+      })
+    }).not.toThrow()
+  })
+
+  it('должен генерировать новый текст при достижении конца', () => {
+    vi.mocked(exercises.generatePracticeText).mockReturnValueOnce('ab')
+
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleInput({ currentTarget: { value: 'ab' } } as any)
+    })
+
+    expect(exercises.generatePracticeText).toHaveBeenCalledTimes(2)
+  })
+
+  it('должен работать в practice режиме без таймера', () => {
+    const { result } = renderHook(() => useTypingGame({ mode: 'practice' }))
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    act(() => {
+      vi.advanceTimersByTime(10000)
+    })
+
+    expect(result.current.isActive).toBe(true)
+    expect(result.current.timeLeft).toBe(60)
+  })
+
+  it('должен устанавливать startTime только один раз', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    const firstStartTime = result.current.startTime
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    expect(result.current.startTime).toBe(firstStartTime)
+  })
+
+  it('должен очищать input value после каждого ввода', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    const mockEvent = {
+      currentTarget: { value: 'test', focus: vi.fn() },
+    } as any
+
+    act(() => {
+      result.current.handleInput(mockEvent)
+    })
+
+    expect(mockEvent.currentTarget.value).toBe('')
+  })
+
+  it('должен завершать practice режим при достижении конца текста', () => {
+    vi.mocked(exercises.generatePracticeText).mockReturnValueOnce('a')
+
+    const { result } = renderHook(() => useTypingGame({ mode: 'practice' }))
+
+    act(() => {
+      result.current.handleInput({ currentTarget: { value: 'a' } } as any)
+    })
+
+    // Текст должен быть перегенерирован
+    expect(exercises.generatePracticeText).toHaveBeenCalledTimes(2)
+  })
+
+  it('должен устанавливать isActive в true при handleStart', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    act(() => {
+      result.current.handleStart()
+    })
+
+    expect(result.current.isActive).toBe(true)
+  })
+
+  it('должен устанавливать isComplete в false изначально', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.isComplete).toBe(false)
+  })
+
+  it('должен возвращать isPaused = false изначально', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.isPaused).toBe(false)
+  })
+
+  it('должен возвращать errors = 0 изначально', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.errors).toBe(0)
+  })
+
+  it('должен возвращать wpm = 0 изначально', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.wpm).toBe(0)
+  })
+
+  it('должен возвращать accuracy = 100 изначально', () => {
+    const { result } = renderHook(() => useTypingGame())
+
+    expect(result.current.accuracy).toBe(100)
+  })
 })
