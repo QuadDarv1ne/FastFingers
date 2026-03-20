@@ -103,7 +103,9 @@
 - [x] Coverage > 82% ✅ **Выполнено: общий 82.32%**
 - [x] Coverage > 84% ✅ **Выполнено: общий 84.69%**
 - [x] Coverage > 85% ✅ **Выполнено: общий 85.09%**
-- [ ] Coverage > 87% (приоритет: useTypingGame 67%, stats.ts 77%) — **цель следующего спринта**
+- [x] Coverage > 87% ✅ **Выполнено: общий 89.25%, useTypingGame 89.18%, stats.ts 93.05%**
+- [x] Coverage > 89% ✅ **Выполнено: общий 89.39%**
+- [ ] Coverage > 90% (приоритет: ErrorBoundary.tsx 80%, Keyboard.tsx 93.1%, ThemeToggle.tsx 94.28%) — **следующая цель**
 - [ ] Performance тесты (Lighthouse CI) — **низкий приоритет**
 - [ ] Accessibility тесты (axe-core) — **низкий приоритет**
 
@@ -142,22 +144,22 @@
 
 ## 📊 Метрики качества
 
-| Метрика                  | Текущее | Цель   |
-| ------------------------ | ------- | ------ |
-| Test Coverage            | 85.09%  | 85%    |
-| E2E Tests                | 15      | 20+    |
-| Unit Tests               | 652     | 400+   |
-| Test Files               | 44      | 40+    |
-| Lighthouse Performance   | 90+     | 95+    |
-| Lighthouse Accessibility | 95+     | 100    |
-| Bundle Size (gzipped)    | <250KB  | <200KB |
-| First Contentful Paint   | <1s     | <0.8s  |
-| Time to Interactive      | <2s     | <1.5s  |
-| i18n Languages           | 4       | 6+     |
-| TypeScript Errors        | 0       | 0      |
-| ESLint Errors            | 0       | 0      |
-| Build Time               | ~13s    | <10s   |
-| Test Duration            | ~20s    | <8s    |
+| Метрика                  | Текущее  | Цель   |
+| ------------------------ | -------- | ------ |
+| Test Coverage            | 89.39%   | 90%    |
+| E2E Tests                | 15       | 20+    |
+| Unit Tests               | 761      | 400+   |
+| Test Files               | 47       | 40+    |
+| Lighthouse Performance   | 90+      | 95+    |
+| Lighthouse Accessibility | 95+      | 100    |
+| Bundle Size (gzipped)    | <250KB   | <200KB |
+| First Contentful Paint   | <1s      | <0.8s  |
+| Time to Interactive      | <2s      | <1.5s  |
+| i18n Languages           | 4        | 6+     |
+| TypeScript Errors        | 0        | 0      |
+| ESLint Errors            | 0        | 0      |
+| Build Time               | ~13s     | <10s   |
+| Test Duration            | ~15s     | <8s    |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -181,23 +183,26 @@
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%), storage.ts (95%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
-15. **Test Duration** — ~12s (43 файлов, 585 тестов) ✅ Улучшено с ~18s — **цель: <8s**
+15. **Test Duration** — ~15s (47 файлов, 761 тестов) ✅ Улучшено с ~18s — **цель: <8s**
 16. **exercises.ts** — coverage 80% ✅
 17. **i18n/config.ts** — coverage 100% ✅
 18. **id.ts** — coverage 81% ✅ (было 52%)
 19. **storage.ts** — coverage 95% ✅ (было 65%)
-20. **useTypingGame** — coverage 67% — **требует дополнительных тестов**
-21. **stats.ts** — coverage 77% — **требует дополнительных тестов**
+20. **useTypingGame** — coverage 89.18% ✅ (было 67%)
+21. **stats.ts** — coverage 93.05% ✅ (было 77%)
+22. **ErrorBoundary.tsx** — coverage 80% ✅ (было 72%)
+23. **Keyboard.tsx** — coverage 93.1% — **хорошо**
+24. **ThemeToggle.tsx** — coverage 94.28% — **хорошо**
 
 ### Текущий статус (2026-03-20)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~20s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~15s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 0 ESLint ошибок (2 warning намеренные)
-- **Тесты**: 652 unit (44 файлов) — 100% pass
-- **Coverage**: 85.09% ✅ (цель 85% достигнута!) — проблемные зоны: useTypingGame 67%, stats.ts 77%
+- **Тесты**: 761 (47 файлов) — 100% pass
+- **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%, useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Следующий шаг**: coverage >87% (useTypingGame 67%, stats.ts 77%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
+- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
 - **Дата обновления**: 2026-03-20 — добавлены пометки к незавершённым задачам
 
 ### Новые наблюдения (2026-03-18)
@@ -311,10 +316,10 @@
 ---
 
 _Последнее обновление: 2026-03-20 (актуализировано)_
-_Выполнено за спринт: 55+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts)_
-_Всего тестов: 652 unit (44 файла) — 100% pass_
-_Coverage: 85.09% ✅ (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%, practiceTexts.ts 100%)_
-_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 44 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~20s_
-_Следующий шаг: coverage >87% (useTypingGame 67%, stats.ts 77%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация_
-_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы_
+_Выполнено за спринт: 55+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты)_
+_Всего тестов: 761 (47 файлов) — 100% pass_
+_Coverage: 89.39% ✅ (ErrorBoundary 80%, logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%)_
+_Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
+_Следующий шаг: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация_
+_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%_
