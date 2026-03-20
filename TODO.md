@@ -120,7 +120,8 @@
 - [ ] Интеграция с Discord/GitHub для авторизации
 - [ ] WebSocket для live-лидербордов
 - [ ] PWA offline push-уведомления
-- [ ] Мобильное приложение (Capacitor)
+- [x] Мобильное приложение (Capacitor) — **Android/iOS проекты созданы ✅**
+- [x] Десктопное приложение (Tauri) — **Windows/macOS/Linux конфигурация готова ✅**
 
 ### 8. Аналитика
 
@@ -193,6 +194,8 @@
 22. **ErrorBoundary.tsx** — coverage 80% ✅ (было 72%)
 23. **Keyboard.tsx** — coverage 93.1% — **хорошо**
 24. **ThemeToggle.tsx** — coverage 94.28% — **хорошо**
+25. **Кроссплатформенная сборка** — Capacitor + Tauri настроены ✅
+26. **BUILD_GUIDE.md** — документация по сборке создана ✅
 
 ### Текущий статус (2026-03-20)
 
@@ -202,6 +205,7 @@
 - **Тесты**: 761 (47 файлов) — 100% pass
 - **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%, useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
+- **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
 - **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
 - **Дата обновления**: 2026-03-20 — добавлены пометки к незавершённым задачам
 
@@ -261,6 +265,11 @@
 42. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%) ✅
 43. **storage.ts** — исправлен getStorageSize для happy-dom ✅
 44. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%) ✅
+45. **ErrorBoundary.test.tsx** — улучшено покрытие с 72% до 80% ✅
+46. **Capacitor** — настроен для Android/iOS сборок ✅
+47. **Tauri** — настроен для Windows/macOS/Linux сборок ✅
+48. **BUILD_GUIDE.md** — создана полная документация по сборке ✅
+49. **package.json** — добавлены скрипты: build:all, build:android, build:ios, build:desktop ✅
 
 ### Идеи для экспериментов
 
@@ -316,10 +325,11 @@
 ---
 
 _Последнее обновление: 2026-03-20 (актуализировано)_
-_Выполнено за спринт: 55+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты)_
+_Выполнено за спринт: 60+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri)_
 _Всего тестов: 761 (47 файлов) — 100% pass_
 _Coverage: 89.39% ✅ (ErrorBoundary 80%, logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%)_
 _Статус: ✅ ESLint 0 ошибок (2 warning намеренные), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
 _Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
+_Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
 _Следующий шаг: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация_
-_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%_
+_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%, добавлена кроссплатформенная сборка_
