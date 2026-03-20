@@ -54,15 +54,15 @@ const translations = {
 
 /**
  * Генерация PDF сертификата с динамической загрузкой jsPDF
+ * Оптимизированная версия без jspdf-autotable для уменьшения bundle size
  */
 export async function generateCertificate(
   data: CertificateData,
   options: CertificateOptions = {}
 ): Promise<Blob> {
-  // Динамический импорт для уменьшения bundle size
-  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+  // Динамический импорт только jspdf (без autotable)
+  const [{ default: jsPDF }] = await Promise.all([
     import('jspdf'),
-    import('jspdf-autotable'),
   ])
 
   return new Promise((resolve) => {
@@ -191,31 +191,48 @@ export async function generateCertificate(
       stats.push([t.streak, `${data.streak} 🔥`])
     }
 
-    autoTable(doc, {
-      startY: 145,
-      head: [[t.metric, t.value]],
-      body: stats,
-      theme: 'grid',
-      headStyles: {
-        fillColor: rankColor.primary,
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-      },
-      bodyStyles: {
-        textColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: theme === 'modern' ? [240, 240, 255] : [30, 27, 75],
-      },
-      columnStyles: {
-        0: { cellWidth: 70, fontStyle: 'bold' },
-        1: { cellWidth: 70 },
-      },
-      margin: { left: 80, right: 80 },
-      styles: {
-        lineColor: rankColor.secondary,
-      },
+    // Рисуем таблицу статистики вручную (без autoTable для экономии места)
+    const startY = 145
+    const rowHeight = 12
+    const tableWidth = 140
+    const tableX = (297 - tableWidth) / 2 // Центр
+    const [rPri, gPri, bPri] = rankColor.primary
+    const [rSec, gSec, bSec] = rankColor.secondary
+
+    // Заголовок таблицы
+    doc.setFillColor(rPri, gPri, bPri)
+    doc.rect(tableX, startY, tableWidth, rowHeight, 'F')
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text(t.metric, tableX + 5, startY + 8)
+    doc.text(t.value, tableX + tableWidth - 75, startY + 8)
+
+    // Строки таблицы
+    let currentY = startY + rowHeight
+    stats.forEach((stat, index) => {
+      const isEven = index % 2 === 0
+      doc.setFillColor(isEven ? (theme === 'modern' ? 240 : 40) : (theme === 'modern' ? 250 : 50))
+      doc.rect(tableX, currentY, tableWidth, rowHeight, 'F')
+
+      // Граница
+      doc.setDrawColor(rSec, gSec, bSec)
+      doc.setLineWidth(0.2)
+      doc.rect(tableX, currentY, tableWidth, rowHeight)
+
+      // Текст
+      doc.setFont('helvetica', isEven ? 'bold' : 'normal')
+      doc.setTextColor(255, 255, 255)
+      doc.text(stat[0], tableX + 5, currentY + 8)
+      doc.text(stat[1], tableX + tableWidth - 75, currentY + 8)
+
+      currentY += rowHeight
     })
+
+    // Общая граница таблицы
+    doc.setDrawColor(rPri, gPri, bPri)
+    doc.setLineWidth(0.5)
+    doc.rect(tableX, startY, tableWidth, rowHeight * (stats.length + 1))
 
     // Дата и подпись
     doc.setFontSize(11)

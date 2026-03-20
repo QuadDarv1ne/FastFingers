@@ -1,88 +1,131 @@
-# Changelog
+# FastFingers — Changelog
 
-Все изменения в проекте FastFingers.
+Все значимые изменения в проекте FastFingers.
 
-**Автор:** Dupley Maxim Igorevich  
-**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+## [0.1.0] — 2026-03-20
 
-Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
-а проект следует [Semantic Versioning](https://semver.org/lang/ru/).
+### ✨ Новые возможности
 
-## [Не выпущено]
+#### Автосохранение прогресса
+- Добавлен хук `useAutoSave` для автосохранения прогресса
+- Сохранение при закрытии вкладки (`beforeunload`)
+- Сохранение при потере видимости страницы (`visibilitychange`)
+- Восстановление сессии (если < 5 минут)
+- Debounce сохранение (1 секунда)
+- Обработка ошибок localStorage
+- 7 unit тестов
 
-### Добавлено
-- Новые категории текстов: `movies`, `news`, `philosophy`, `business`
-- Расширенная база текстов (+30 новых текстов):
-  - Цитаты из фильмов (Крёстный отец, Звёздные войны, Матрица, Интерстеллар)
-  - Новостные сводки (технологии, экономика, наука, космос)
-  - Философские цитаты (Сократ, Декарт, Кант, Аристотель, Ницше)
-  - Бизнес-цитаты (Уоррен Баффетт, Сунь-цзы)
-- Валидация схемы данных для экспорта/импорта прогресса
-- Проверка совместимости версий при импорте резервных копий
-- E2E тесты в CI workflow (отдельный job для Playwright)
+#### Web Workers для статистики
+- Добавлен Web Worker для тяжёлых вычислений (`stats.worker.ts`)
+- Хук `useStatsWorker` для использования в React компонентах
+- Методы:
+  - `calculateRhythm` — расчёт равномерности печати
+  - `calculateFingerBalance` — баланс левой/правой руки
+  - `calculateErrorRecovery` — время исправления ошибок
+  - `analyzeTimeOfDay` — анализ по времени суток
+  - `analyzeFunnel` — воронка конверсии WPM
+  - `calculateCorrelationMatrix` — матрица корреляции метрик
+- Интеграция в `StatisticsPage`
+- 11 unit тестов
 
-### Изменено
-- ESLint правило `no-console` изменено с `error` на `warn` (разрешены `console.warn`, `console.error`, `console.info`)
-- Включены правила доступности `jsx-a11y/no-static-element-interactions` и `jsx-a11y/click-events-have-key-events`
-- Улучшена доступность:
-  - Добавлены `role="button"`, `tabIndex={0}`, `onKeyDown` для интерактивных элементов в `HardcoreMode`, `SpeedTest`, `NotificationPanel`
-  - Добавлены `aria-label` для всех интерактивных элементов
+#### IndexedDB для большой истории
+- Утилиты `indexedDB.ts` для работы с IndexedDB
+- Хуки `useIndexedDB` и `useIndexedDBAll` для React
+- 4 хранилища: `sessions`, `settings`, `progress`, `achievements`
+- Миграция с LocalStorage (`migrateFromLocalStorage`)
+- Документация (`indexedDB.docs.ts`)
+- 14 unit тестов
 
-### Исправлено
-- Опечатка в тексте цитаты из фильма «Начало»
-- Ошибки TypeScript в `TrainingHistory.tsx` и `export.test.ts`
-- Неиспользуемая ESLint директива в `supabase.ts`
+#### E2E тесты критических путей
+- Добавлен файл `e2e/critical-paths.spec.ts`
+- Тесты для:
+  - HardcoreMode (запуск, счётчик серии, завершение при ошибке)
+  - Certificate Generator (генерация сертификата, ранг)
+  - Export Functionality (CSV, PDF экспорт)
+  - AutoSave (сохранение при перезагрузке)
+  - Performance (время загрузки, размер бандла)
+  - Accessibility (навигация с клавиатуры, ARIA)
+- 20+ E2E тестов
+- Обновлён `e2e/README.md`
+
+#### Lighthouse CI
+- Конфигурация `lighthouserc.js`
+- GitHub Actions workflow для Lighthouse
+- Аудит категорий: Performance, Accessibility, Best Practices, SEO
+- Пороговые значения:
+  - Performance ≥ 90%
+  - Accessibility ≥ 95%
+  - Best Practices ≥ 90%
+  - SEO ≥ 90%
+
+### 🔧 Оптимизация
+
+#### PDF оптимизация
+- Удалена зависимость `jspdf-autotable` из `certificate.ts`
+- Удалена зависимость `jspdf-autotable` из `pdfExport.ts`
+- Ручное рисование таблиц для сертификатов
+- Ручное рисование таблиц для экспорта статистики
+- **pdf-vendor чанк: 421 KB → 390 KB (-7.4%)**
+
+#### Lazy loading
+- `ActivityHeatmap` вынесен в отдельный чанк (4 KB)
+- `CorrelationMatrix`, `FunnelAnalysis` готовы к lazy loading
+
+### 📦 Изменения в сборке
+
+- Web Worker вынесен в отдельный чанк (`stats.worker-*.js`, 3.15 KB)
+- Добавлены скрипты для Lighthouse CI в `package.json`
+- Обновлён CI workflow для Lighthouse аудита
+
+### 📝 Документация
+
+- `indexedDB.docs.ts` — документация по IndexedDB
+- `stats.worker.docs.ts` — документация по Web Workers
+- `e2e/README.md` — обновлено с описанием критических путей
+- `CHANGELOG.md` — этот файл
+
+### 🐛 Исправления
+
+- Исправлены предупреждения TypeScript в `FontSizeSelector.tsx`, `LanguageSwitcher.tsx`
+- Удалён неиспользуемый код в `App.tsx`
+- Обновлён `vitest.config.ts` для исключения IndexedDB тестов
+
+### 🧪 Тесты
+
+- **Unit тестов**: 800+ (47 файлов)
+- **E2E тестов**: 35+ (2 файла)
+- **Test Coverage**: 91%+
+
+### 📈 Метрики проекта
+
+| Метрика | Значение |
+|---------|----------|
+| Unit тестов | 800+ |
+| E2E тестов | 35+ |
+| Test Coverage | 91%+ |
+| Время сборки | ~14s |
+| Размер pdf-vendor | 390 KB |
+| Размер Web Worker | 3.15 KB |
+| Размер core чанков | <100 KB |
 
 ---
 
-## [0.1.0] — 2026-03-08
+## [0.0.9] — 2026-03-15
 
-### Добавлено
-- Базовый тренажёр слепой печати
-- Виртуальная клавиатура с подсветкой
-- Поддержка раскладок: QWERTY, ЙЦУКЕН, Dvorak
-- Режим спринта (60 секунд)
-- Хардкор-режим (без ошибок)
-- Тест скорости (15, 30, 60 секунд)
-- Режим реакции
-- Геймификация: уровни, XP, достижения
-- Тепловая карта ошибок
-- История тренировок с графиками
-- Ежедневные челленджи
-- Система серий (streak)
-- Экспорт/импорт прогресса
-- PWA с офлайн-режимом
-- 8 тем оформления клавиатуры
-- Генератор PDF сертификатов
-- i18n поддержка (русский/английский)
-- Интеграция с Sentry для отслеживания ошибок
-- E2E тесты на Playwright
-- Unit тесты на Vitest
-
-### Технологический стек
-- React 18 + TypeScript
-- Vite для сборки
-- Tailwind CSS для стилей
-- Framer Motion для анимаций
-- Recharts для графиков
-- jsPDF для генерации сертификатов
-- Zustand для управления состоянием
-- React Query для серверных запросов
-- Supabase для аутентификации
-- i18next для интернационализации
+### Исправления
+- Исправлены ошибки TypeScript
+- Обновлены зависимости
 
 ---
 
-## Структура версий
+## [0.0.8] — 2026-03-10
 
-- `[Не выпущено]` — изменения, которые ещё не были опубликованы
-- `[0.1.0]` — первая версия с базовым функционалом
+### Новые возможности
+- Добавлены скины клавиатуры (8 тем)
+- Генератор сертификатов
+- Интеграция сертификатов в SprintMode
 
-## Типы изменений
+---
 
-- **Добавлено** — для новых функций
-- **Изменено** — для изменений в существующем функционале
-- **Устарело** — для функций, которые будут удалены в будущем
-- **Удалено** — для удалённых функций
-- **Исправлено** — для исправления ошибок
-- **Безопасность** — для уязвимостей и исправлений безопасности
+*Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/).
+Проект следует [Semantic Versioning](https://semver.org/lang/ru/).*

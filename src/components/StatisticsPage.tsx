@@ -1,6 +1,7 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, Suspense, lazy, useState, useEffect } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useAdvancedStats } from '../hooks/useAdvancedStats'
+import { useStatsWorker } from '../hooks/useStatsWorker'
 import {
   BarChart,
   Bar,
@@ -15,9 +16,13 @@ import {
   Pie,
   Cell,
 } from './LazyRecharts'
-import { ActivityHeatmap } from './ActivityHeatmap'
 import { PersonalRecords } from './PersonalRecords'
 import { WeeklyComparison } from './WeeklyComparison'
+import { LoadingFallback } from './LoadingFallback'
+import type { TypingStats } from '../types'
+
+// Lazy loading для тяжёлых компонентов
+const ActivityHeatmap = lazy(() => import('./ActivityHeatmap').then(module => ({ default: module.ActivityHeatmap })))
 
 interface StatisticsPageProps {
   onBack: () => void
@@ -25,7 +30,52 @@ interface StatisticsPageProps {
 
 export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
   const { history, getStatsForPeriod } = useTypingHistory()
-  useAdvancedStats()
+  const { dailyStats, weeklyComparison, personalRecords, wpmTrend, activityByDayOfWeek } = useAdvancedStats()
+  const { isReady, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix } = useStatsWorker()
+  
+  // Расширенная аналитика через Web Worker
+  const [timeAnalysis, setTimeAnalysis] = useState<any[]>([])
+  const [funnelData, setFunnelData] = useState<any>(null)
+  const [correlationMatrix, setCorrelationMatrix] = useState<number[][]>([])
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  // Преобразование сессий для Web Worker
+  const sessionsForWorker = useMemo<TypingStats[]>(() => 
+    history.sessions.map(s => ({
+      ...s,
+      date: s.date,
+      wpm: s.wpm,
+      accuracy: s.accuracy,
+      cpm: s.cpm,
+      errors: s.errors,
+    })),
+    [history.sessions]
+  )
+
+  // Запуск анализа через Web Worker
+  useEffect(() => {
+    if (!isReady || sessionsForWorker.length === 0) return
+
+    const runAnalysis = async () => {
+      setIsAnalyzing(true)
+      try {
+        const [timeResult, funnelResult, correlationResult] = await Promise.all([
+          analyzeTimeOfDay(sessionsForWorker),
+          analyzeFunnel(sessionsForWorker, [20, 40, 60, 80, 100]),
+          calculateCorrelationMatrix(sessionsForWorker),
+        ])
+        setTimeAnalysis(timeResult)
+        setFunnelData(funnelResult)
+        setCorrelationMatrix(correlationResult)
+      } catch (error) {
+        console.error('Analysis error:', error)
+      } finally {
+        setIsAnalyzing(false)
+      }
+    }
+
+    runAnalysis()
+  }, [isReady, sessionsForWorker])
 
   // Данные за разные периоды
   const stats24h = getStatsForPeriod(1)
@@ -167,28 +217,116 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         <WeeklyComparison className="mb-8" />
 
         {/* Тепловая карта активности */}
-        <ActivityHeatmap months={6} />
+        <Suspense fallback={<LoadingFallback />}>
+          <ActivityHeatmap months={6} />
+        </Suspense>
 
         {/* Графики */}
         <h2 className="text-2xl font-bold mb-4 text-gradient">📊 Расширенная аналитика</h2>
 
-        {/* Новые метрики и визуализации - временно отключено для исправления ошибок типов */}
-        {/* <div className="grid grid-cols-1 gap-6 mb-8">
-          <SpiderChart
-            stats={latestSessionData.stats}
-            keystrokes={latestSessionData.keystrokes}
-          />
-          <PredictionCurve
-            sessions={sessionsWithTimestamp}
-            targetWpm={60}
-          />
-        </div> */}
+        {/* Индикатор загрузки анализа */}
+        {isAnalyzing && (
+          <div className="glass rounded-xl p-6 mb-8 flex items-center gap-4">
+            <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+            <span>Анализ данных через Web Worker...</span>
+          </div>
+        )}
 
-        {/* Дополнительные графики в сетке */}
-        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <FunnelAnalysis sessions={sessionsWithTimestamp} />
-          <CorrelationMatrix sessions={sessionsWithTimestamp} />
-        </div> */}
+        {/* Анализ времени суток */}
+        {timeAnalysis.length > 0 && (
+          <div className="glass rounded-xl p-6 mb-8">
+            <h3 className="text-lg font-semibold mb-4">🕐 Производительность по времени суток</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {timeAnalysis.map(slot => (
+                <div key={slot.timeOfDay} className="text-center p-4 bg-dark-800/50 rounded-lg">
+                  <div className="text-sm text-dark-400 mb-1">
+                    {slot.timeOfDay === 'morning' && '🌅 Утро'}
+                    {slot.timeOfDay === 'afternoon' && '☀️ День'}
+                    {slot.timeOfDay === 'evening' && '🌆 Вечер'}
+                    {slot.timeOfDay === 'night' && '🌙 Ночь'}
+                  </div>
+                  <div className="text-2xl font-bold text-primary-400">{slot.avgWpm} WPM</div>
+                  <div className="text-sm text-dark-500">{slot.avgAccuracy}% точности</div>
+                  <div className="text-xs text-dark-600 mt-1">{slot.sessions} сессий</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Воронка конверсии */}
+        {funnelData && funnelData.stages.length > 0 && (
+          <div className="glass rounded-xl p-6 mb-8">
+            <h3 className="text-lg font-semibold mb-4">📊 Воронка производительности</h3>
+            <div className="space-y-3">
+              {funnelData.stages.map((stage: any, index: number) => (
+                <div key={stage.name} className="flex items-center gap-4">
+                  <div className="w-32 text-sm text-dark-400">{stage.name}</div>
+                  <div className="flex-1 h-8 bg-dark-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary-600 to-primary-400 transition-all duration-500"
+                      style={{ width: `${stage.percentage}%` }}
+                    />
+                  </div>
+                  <div className="w-20 text-right text-sm font-medium">{stage.count} ({stage.percentage}%)</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Матрица корреляции */}
+        {correlationMatrix.length > 0 && (
+          <div className="glass rounded-xl p-6 mb-8">
+            <h3 className="text-lg font-semibold mb-4">🔗 Корреляция метрик</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-dark-700">
+                    <th className="p-2 text-left text-dark-400">Метрика</th>
+                    <th className="p-2 text-center text-dark-400">WPM</th>
+                    <th className="p-2 text-center text-dark-400">Точность</th>
+                    <th className="p-2 text-center text-dark-400">CPM</th>
+                    <th className="p-2 text-center text-dark-400">Ошибки</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-dark-800">
+                    <td className="p-2 font-medium">WPM</td>
+                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
+                    <td className="p-2 text-center">{correlationMatrix[0][1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[0][2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[0][3]?.toFixed(2) || '0.00'}</td>
+                  </tr>
+                  <tr className="border-b border-dark-800">
+                    <td className="p-2 font-medium">Точность</td>
+                    <td className="p-2 text-center">{correlationMatrix[1][0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
+                    <td className="p-2 text-center">{correlationMatrix[1][2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[1][3]?.toFixed(2) || '0.00'}</td>
+                  </tr>
+                  <tr className="border-b border-dark-800">
+                    <td className="p-2 font-medium">CPM</td>
+                    <td className="p-2 text-center">{correlationMatrix[2][0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[2][1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
+                    <td className="p-2 text-center">{correlationMatrix[2][3]?.toFixed(2) || '0.00'}</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-medium">Ошибки</td>
+                    <td className="p-2 text-center">{correlationMatrix[3][0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[3][1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[3][2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-dark-500 mt-4">
+              * Значения близкие к 1 — сильная положительная корреляция, к -1 — сильная отрицательная
+            </p>
+          </div>
+        )}
 
         {/* Существующие графики */}
         <h2 className="text-2xl font-bold mb-4 text-gradient">📈 Детальная статистика</h2>

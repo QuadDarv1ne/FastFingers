@@ -54,11 +54,67 @@
 
 - [x] Unit тесты: 328 тестов проходят (35 test files)
 - [x] E2E тесты: 15 тестов (Playwright настроен)
+- [x] E2E тесты: критические пути (HardcoreMode, экспорт, сертификаты, автосохранение) — 20+ тестов
+- [x] E2E тесты: critical-paths.spec.ts (HardcoreMode, Certificate Generator, Export, AutoSave, Performance, Accessibility)
 - [x] Тесты для Skeleton (4 теста)
 - [x] Тесты для export utils (7 тестов)
 - [x] Тесты для hooks (useLocalStorageState, usePagination, useClipboard, useLoading)
 - [x] Тесты для компонентов (ErrorBoundary, Keyboard, ThemeToggle, SprintMode)
 - [x] Тесты для stats utils, notifications, soundThemes, dailyChallenge
+- [x] Тесты для useAutoSave (7 тестов)
+
+### Автосохранение
+
+- [x] useAutoSave хук для сохранения прогресса
+- [x] Сохранение при beforeunload
+- [x] Сохранение при visibilitychange
+- [x] Восстановление сессии (< 5 минут)
+- [x] Debounce сохранение (1 секунда)
+- [x] Обработка ошибок localStorage
+
+### IndexedDB
+
+- [x] indexedDB.ts утилиты (open, add, get, put, remove, getAll, clear)
+- [x] useIndexedDB хук для работы с IndexedDB
+- [x] useIndexedDBAll хук для получения всех записей
+- [x] Миграция с LocalStorage (migrateFromLocalStorage)
+- [x] 4 хранилища: sessions, settings, progress, achievements
+- [x] Документация (indexedDB.docs.ts)
+
+### Оптимизация PDF
+
+- [x] Удалена зависимость jspdf-autotable из certificate.ts
+- [x] Удалена зависимость jspdf-autotable из pdfExport.ts
+- [x] Ручное рисование таблиц для сертификатов
+- [x] Ручное рисование таблиц для экспорта статистики
+- [x] pdf-vendor чанк: 421 KB → 390 KB (-7.4%)
+
+### Web Workers
+
+- [x] stats.worker.ts — Web Worker для тяжёлых вычислений
+- [x] useStatsWorker хук для React
+- [x] Методы: calculateRhythm, calculateFingerBalance, calculateErrorRecovery
+- [x] Методы: analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix
+- [x] Обработка ошибок и таймауты (30 сек)
+- [x] Тесты для useStatsWorker (11 тестов)
+- [x] Интеграция в StatisticsPage
+- [x] UI для отображения результатов (время суток, воронка, корреляция)
+
+### Lighthouse CI
+
+- [x] lighthouserc.js конфигурация
+- [x] GitHub Actions workflow (lighthouse job)
+- [x] @lhci/cli зависимость
+- [x] Скрипты в package.json (lhci, lhci:check, lhci:collect, lhci:upload)
+- [x] Пороговые значения (Performance ≥90%, Accessibility ≥95%)
+- [x] Загрузка отчётов в артефакты
+
+### Документация
+
+- [x] indexedDB.docs.ts
+- [x] stats.worker.docs.ts
+- [x] CHANGELOG.md обновлён
+- [x] e2e/README.md обновлён
 
 ---
 
