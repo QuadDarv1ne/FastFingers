@@ -1,5 +1,8 @@
 # 🚀 Быстрый деплой FastFingers
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Вариант 1: Cloudflare Pages ⭐ (Рекомендуется)
 
 ### Через веб-интерфейс:

@@ -1,5 +1,8 @@
 # 🚀 FastFingers - Быстрый старт
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Установка и запуск
 
 ### Предварительные требования

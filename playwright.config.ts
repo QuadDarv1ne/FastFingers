@@ -1,3 +1,9 @@
+/**
+ * FastFingers — Playwright E2E тесты конфигурация
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({

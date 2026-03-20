@@ -1,3 +1,9 @@
+/**
+ * FastFingers — ESLint конфигурация
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import globals from 'globals'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'

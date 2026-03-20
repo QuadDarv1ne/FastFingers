@@ -1,3 +1,9 @@
+/**
+ * Supabase — Клиент для работы с базой данных
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { createClient } from '@supabase/supabase-js'
 import { createScopedLogger } from '../utils/logger'
 

@@ -154,30 +154,24 @@ export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOption
       </button>
 
       {showMenu && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setShowMenu(false)}
-            aria-hidden="true"
-          />
-          <div
-            ref={menuRef}
-            tabIndex={-1}
-            className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in outline-none"
-            role="menu"
-            aria-orientation="vertical"
-            aria-activedescendant={`theme-item-${focusedIndex}`}
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === 'ArrowDown') {
-                e.preventDefault()
-                setFocusedIndex(prev => (prev + 1) % themes.length)
-              } else if (e.key === 'ArrowUp') {
-                e.preventDefault()
-                setFocusedIndex(prev => (prev - 1 + themes.length) % themes.length)
-              }
-            }}
-          >
+        <div
+          ref={menuRef}
+          tabIndex={-1}
+          className="absolute right-0 top-full mt-2 w-56 glass rounded-xl p-2 z-50 animate-fade-in outline-none"
+          role="menu"
+          aria-orientation="vertical"
+          aria-activedescendant={`theme-item-${focusedIndex}`}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              setFocusedIndex(prev => (prev + 1) % themes.length)
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
+              setFocusedIndex(prev => (prev - 1 + themes.length) % themes.length)
+            }
+          }}
+        >
             {themes.map((t, index) => (
               <button
                 key={t.value}
@@ -214,7 +208,6 @@ export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOption
               </button>
             ))}
           </div>
-        </>
       )}
     </div>
   )

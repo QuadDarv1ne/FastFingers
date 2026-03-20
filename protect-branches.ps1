@@ -1,3 +1,7 @@
+# FastFingers — Настройка защиты веток
+# @author Dupley Maxim Igorevich
+# @copyright 2025-2026 Dupley Maxim Igorevich
+#
 # PowerShell скрипт для настройки защиты веток во всех репозиториях
 # Требует установленный GitHub CLI: https://cli.github.com/
 

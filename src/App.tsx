@@ -1,3 +1,9 @@
+/**
+ * FastFingers — Главный компонент приложения
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
 import { TypingTrainer } from './components/TypingTrainer'
 import { Header } from './components/Header'
@@ -50,7 +56,6 @@ const StatisticsPage = lazy(() => import('./components/StatisticsPage').then((mo
 const LearningMode = lazy(() => import('./components/LearningMode').then((module) => ({ default: module.LearningMode })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
-const NotificationPanel = lazy(() => import('./components/NotificationPanel').then((module) => ({ default: module.NotificationPanel })))
 const Stats = lazy(() => import('./components/Stats').then((module) => ({ default: module.Stats })))
 const ThemeToggle = lazy(() => import('./components/ThemeToggle').then((module) => ({ default: module.ThemeToggle })))
 const KeyboardSkinSelector = lazy(() => import('./components/KeyboardSkinSelector').then((module) => ({ default: module.KeyboardSkinSelector })))
@@ -64,7 +69,6 @@ function AppContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { addNotification } = useNotifications()
 
-  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
   const [showStreakRewards, setShowStreakRewards] = useState(false)
@@ -155,7 +159,7 @@ function AppContent() {
         button?.click()
       },
     },
-    { enabled: !showOnboarding && !showAchievements && !showNotificationPanel && !showProfile }
+    { enabled: !showOnboarding && !showAchievements && !showProfile }
   )
 
   useEffect(() => {
@@ -241,14 +245,7 @@ function AppContent() {
         xp={progress.xp}
         xpToNextLevel={progress.xpToNextLevel}
         onProfileClick={() => setShowProfile(true)}
-        onNotificationsClick={() => setShowNotificationPanel(true)}
       />
-
-      {showNotificationPanel && (
-        <Suspense fallback={<LoadingFallback />}>
-          <NotificationPanel onClose={() => setShowNotificationPanel(false)} />
-        </Suspense>
-      )}
 
       <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -470,8 +467,9 @@ function AppContent() {
         </div>
       </main>
 
-      <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm" role="contentinfo">
+      <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm border-t border-dark-700/50" role="contentinfo">
         <p>{t('misc.footer')}</p>
+        <p className="mt-2 text-xs">© 2025-2026 Dupley Maxim Igorevich. All rights reserved.</p>
       </footer>
 
       <Suspense fallback={<LoadingFallback />}>
@@ -605,7 +603,7 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div className="absolute top-full left-0 mt-2 card p-2 hidden group-hover:block z-10 min-w-[160px] animate-scale-in">
+      <div className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
         {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
           <button
             key={d}

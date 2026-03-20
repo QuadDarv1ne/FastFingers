@@ -1,2 +1,7 @@
+# QWEN.md — FastFingers AI Memories
+
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Qwen Added Memories
 - Git workflow на Windows для FastFingers: 1) Коммиты: использовать короткие сообщения без пробелов в -m, например: git commit -m "perf:Recharts-lazy-loading". Избегать многострочных сообщений и кириллицы в -m. 2) Merge: использовать --no-edit флаг для избежания открытия редактора: git merge --no-ff dev --no-edit. 3) Синхронизация: git push origin dev, затем git checkout main && git merge --no-ff dev --no-edit && git push origin main. 4) При проблемах с merge: git reset --merge HEAD для отмены.

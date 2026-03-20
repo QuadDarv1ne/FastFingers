@@ -27,20 +27,19 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 const NOTIFICATIONS_STORAGE_KEY = 'fastfingers_notifications'
 const MAX_NOTIFICATIONS = 50
 
-const getStorageKey = (userId: string) => `${NOTIFICATIONS_STORAGE_KEY}_${userId}`
-
-const loadNotifications = (userId: string): Notification[] => {
+// Используем единый ключ без userId для простоты
+const loadNotifications = (): Notification[] => {
   try {
-    const stored = localStorage.getItem(getStorageKey(userId))
+    const stored = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
     return stored ? JSON.parse(stored) : []
   } catch {
     return []
   }
 }
 
-const saveNotifications = (userId: string, notifications: Notification[]) => {
+const saveNotifications = (notifications: Notification[]) => {
   try {
-    localStorage.setItem(getStorageKey(userId), JSON.stringify(notifications))
+    localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(notifications))
   } catch {
     // Ignore save errors
   }
@@ -62,15 +61,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
 
+  // Загружаем уведомления при монтировании
   useEffect(() => {
-    if (!user?.id) return
-    setNotifications(loadNotifications(user.id))
-  }, [user])
+    setNotifications(loadNotifications())
+  }, [])
 
+  // Сохраняем при изменении
   useEffect(() => {
-    if (!user?.id) return
-    saveNotifications(user.id, notifications)
-  }, [notifications, user])
+    saveNotifications(notifications)
+  }, [notifications])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {

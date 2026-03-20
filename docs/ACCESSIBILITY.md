@@ -1,5 +1,8 @@
 # Accessibility (A11y) в FastFingers
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Реализованные функции
 
 ### 1. Skip Links

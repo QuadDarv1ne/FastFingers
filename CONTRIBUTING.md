@@ -1,5 +1,8 @@
 # Руководство по разработке FastFingers
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Структура проекта
 
 ```

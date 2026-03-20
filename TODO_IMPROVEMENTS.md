@@ -1,5 +1,8 @@
 # FastFingers Project Improvements TODO
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## ✅ Completed
 
 - [x] **Скины клавиатуры** - 8 тем оформления (classic, neon, cyberpunk, minimal, ocean, sunset, matrix, monokai)

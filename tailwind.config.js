@@ -1,3 +1,9 @@
+/**
+ * FastFingers — Tailwind CSS конфигурация
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
