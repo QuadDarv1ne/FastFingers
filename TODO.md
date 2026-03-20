@@ -122,6 +122,7 @@
 - [ ] PWA offline push-уведомления
 - [x] Мобильное приложение (Capacitor) — **Android/iOS проекты созданы ✅**
 - [x] Десктопное приложение (Tauri) — **Windows/macOS/Linux конфигурация готова ✅**
+- [ ] Supabase интеграция для бэкенда (лидерборды, дуэли, турниры) — **требует настройки**
 
 ### 8. Аналитика
 
@@ -145,22 +146,22 @@
 
 ## 📊 Метрики качества
 
-| Метрика                  | Текущее  | Цель   |
-| ------------------------ | -------- | ------ |
-| Test Coverage            | 89.39%   | 90%    |
-| E2E Tests                | 15       | 20+    |
-| Unit Tests               | 761      | 400+   |
-| Test Files               | 47       | 40+    |
-| Lighthouse Performance   | 90+      | 95+    |
-| Lighthouse Accessibility | 95+      | 100    |
-| Bundle Size (gzipped)    | <250KB   | <200KB |
-| First Contentful Paint   | <1s      | <0.8s  |
-| Time to Interactive      | <2s      | <1.5s  |
-| i18n Languages           | 4        | 6+     |
-| TypeScript Errors        | 0        | 0      |
-| ESLint Errors            | 0        | 0      |
-| Build Time               | ~13s     | <10s   |
-| Test Duration            | ~15s     | <8s    |
+| Метрика                  | Текущее      | Цель    |
+| ------------------------ | ------------ | ------- |
+| Test Coverage            | 89.39%       | 90%     |
+| E2E Tests                | 15           | 20+     |
+| Unit Tests               | 761          | 400+    |
+| Test Files               | 47           | 40+     |
+| Lighthouse Performance   | 90+          | 95+     |
+| Lighthouse Accessibility | 95+          | 100     |
+| Bundle Size (gzipped)    | <250KB (core)| <200KB  |
+| First Contentful Paint   | <1s          | <0.8s   |
+| Time to Interactive      | <2s          | <1.5s   |
+| i18n Languages           | 4            | 6+      |
+| TypeScript Errors        | 0            | 0       |
+| ESLint Errors            | 0            | 0       |
+| Build Time               | ~13s         | <10s    |
+| Test Duration            | ~15s         | <8s     |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -196,6 +197,7 @@
 24. **ThemeToggle.tsx** — coverage 94.28% — **хорошо**
 25. **Кроссплатформенная сборка** — Capacitor + Tauri настроены ✅
 26. **BUILD_GUIDE.md** — документация по сборке создана ✅
+27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **следующий шаг**
 
 ### Текущий статус (2026-03-20)
 
@@ -206,7 +208,7 @@
 - **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%, useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
-- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация
+- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
 - **Дата обновления**: 2026-03-20 — добавлены пометки к незавершённым задачам
 
 ### Новые наблюдения (2026-03-18)
@@ -313,8 +315,8 @@
 ### Приоритет 3 — Новые режимы
 
 1. Режим «Без ошибок» (Хардкор) — оптимизирован ✅
-2. Дуэли (PvP) — выбрать backend решение — **Supabase Realtime или WebSocket**
-3. Еженедельные турниры — таблица лидеров — **требует backend**
+2. Дуэли (PvP) — **Supabase Realtime выбран** — требует интеграции
+3. Еженедельные турниры — таблица лидеров — **Supabase интеграция требуется**
 
 ### Приоритет 4 — Оптимизация
 
