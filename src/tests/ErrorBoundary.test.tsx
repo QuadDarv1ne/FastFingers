@@ -330,4 +330,89 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText('Error occurred')).toBeInTheDocument()
   })
+
+  it('должен иметь кнопку обновления страницы', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const reloadButton = screen.getByText('Обновить страницу')
+    expect(reloadButton).toBeInTheDocument()
+    fireEvent.click(reloadButton)
+    // Кнопка вызывает window.location.reload()
+  })
+
+  it('должен показывать ошибку в pre элементе', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const details = screen.getByText('Показать детали ошибки')
+    fireEvent.click(details)
+
+    const preElement = document.querySelector('pre')
+    expect(preElement).toBeInTheDocument()
+    expect(preElement).toHaveClass('text-xs', 'text-red-400', 'bg-dark-800', 'rounded-lg', 'p-4')
+  })
+
+  it('должен иметь правильные классы для контейнера', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const container = screen.getByText('Упс. Что-то пошло не так').closest('.min-h-screen')
+    expect(container).toHaveClass('min-h-screen', 'bg-dark-900', 'flex', 'items-center', 'justify-center', 'p-4')
+  })
+
+  it('должен иметь SVG с правильными атрибутами', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const svg = document.querySelector('svg')
+    expect(svg).toBeInTheDocument()
+    expect(svg).toHaveAttribute('fill', 'none')
+    expect(svg).toHaveAttribute('viewBox', '0 0 24 24')
+  })
+
+  it('должен иметь path элемент', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const paths = document.querySelectorAll('path')
+    expect(paths.length).toBeGreaterThan(0)
+  })
+
+  it('должен иметь кнопку с классами перехода', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const retryButton = screen.getByText('Попробовать снова')
+    expect(retryButton).toHaveClass('px-4', 'py-2', 'bg-primary-600', 'hover:bg-primary-700', 'text-white', 'rounded-lg')
+  })
+
+  it('должен иметь кнопку обновления с классами', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const reloadButton = screen.getByText('Обновить страницу')
+    expect(reloadButton).toHaveClass('px-4', 'py-2', 'bg-dark-700', 'hover:bg-dark-600', 'text-white', 'rounded-lg')
+  })
 })
