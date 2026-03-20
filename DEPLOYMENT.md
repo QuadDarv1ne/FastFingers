@@ -1,5 +1,8 @@
 # 🚀 Руководство по развертыванию FastFingers
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 Полное руководство по развертыванию проекта FastFingers на различных хостинг-платформах.
 
 ## 📋 Содержание

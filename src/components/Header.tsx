@@ -11,10 +11,9 @@ interface HeaderProps {
   xp: number
   xpToNextLevel: number
   onProfileClick?: () => void
-  onNotificationsClick?: () => void
 }
 
-export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfileClick, onNotificationsClick }: HeaderProps) {
+export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfileClick }: HeaderProps) {
   const { t } = useAppTranslation()
   const progress = ((xp / xpToNextLevel) * 100).toFixed(0)
   const [showSettings, setShowSettings] = useState(false)
@@ -23,12 +22,12 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
   useClickOutside(settingsRef, () => setShowSettings(false))
 
   return (
-    <header className="glass border-b border-dark-700 sticky top-0 z-30 backdrop-blur-xl" role="banner">
+    <header className="glass border-b border-dark-700/50 sticky top-0 z-30 backdrop-blur-xl bg-dark-900/80" role="banner">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Логотип */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 hover:scale-105 transition-transform">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 hover:scale-105 transition-transform cursor-pointer">
               <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
               </svg>
@@ -48,7 +47,7 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
               </div>
               <div className="w-40 h-2.5 bg-dark-800 rounded-full overflow-hidden shadow-inner" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel} aria-label={`${t('common.level')} ${level}`}>
                 <div
-                  className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 progress-bar shadow-glow"
+                  className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 progress-bar shadow-glow cursor-pointer"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -62,7 +61,7 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
               </div>
               <div className="w-20 h-1.5 bg-dark-800 rounded-full overflow-hidden mt-1" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel} aria-label={`${t('common.level')} ${level}`}>
                 <div
-                  className="h-full bg-gradient-to-r from-primary-600 to-primary-400 progress-bar"
+                  className="h-full bg-gradient-to-r from-primary-600 to-primary-400 progress-bar cursor-pointer"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -72,7 +71,7 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
             {onProfileClick && (
               <button
                 onClick={onProfileClick}
-                className="w-11 h-11 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold hover:scale-105 transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30"
+                className="w-11 h-11 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold hover:scale-105 transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 cursor-pointer"
                 title={t('misc.profile')}
                 aria-label={t('misc.profile')}
               >
@@ -81,14 +80,14 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
             )}
 
             <div className="flex items-center gap-2">
-              <NotificationBell onOpenPanel={onNotificationsClick} />
+              <NotificationBell />
               <LanguageSwitcher />
               
               {/* Настройки (шрифт и контраст) */}
               <div className="relative" ref={settingsRef}>
                 <button
                   onClick={() => setShowSettings(!showSettings)}
-                  className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all"
+                  className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all cursor-pointer hover:scale-105"
                   aria-label={t('misc.settings')}
                   title={t('misc.settings')}
                 >
@@ -99,22 +98,19 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
                 </button>
 
                 {showSettings && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowSettings(false)} aria-hidden="true" />
-                    <div className="absolute right-0 top-full mt-2 card p-3 z-50 min-w-[180px] animate-scale-in shadow-xl border border-dark-700">
-                      <h4 className="text-xs font-semibold text-dark-400 mb-2 uppercase tracking-wider">{t('misc.settings')}</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-dark-300">{t('misc.fontSize')}</span>
-                          <FontSizeSelector />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-dark-300">{t('misc.highContrast')}</span>
-                          <ContrastToggle />
-                        </div>
+                  <div className="absolute right-0 top-full mt-2 glass p-3 z-50 min-w-[180px] animate-scale-in shadow-xl border border-dark-700/50 rounded-xl">
+                    <h4 className="text-xs font-semibold text-dark-400 mb-2 uppercase tracking-wider">{t('misc.settings')}</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-dark-300">{t('misc.fontSize')}</span>
+                        <FontSizeSelector />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-dark-300">{t('misc.highContrast')}</span>
+                        <ContrastToggle />
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

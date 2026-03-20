@@ -1,5 +1,8 @@
 # Session #10 Improvements
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## Дата: 24 февраля 2026
 
 ## Реализованные функции

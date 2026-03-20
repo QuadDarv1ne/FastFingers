@@ -1,3 +1,9 @@
+/**
+ * FastFingers — Глобальные стили
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -222,6 +228,17 @@ p {
   background-clip: text;
 }
 
+/* Блокировка скролла */
+body.scroll-locked {
+  overflow: hidden;
+}
+
+/* Перенос длинных слов */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-wrap: anywhere;
+}
+
 .text-gradient-success {
   background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   -webkit-background-clip: text;
@@ -237,18 +254,32 @@ p {
 }
 
 .glass {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Fallback для браузеров без backdrop-filter */
+@supports not (backdrop-filter: blur(20px)) {
+  .glass {
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
 }
 
 .glass-light {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  .glass-light {
+    background: rgba(255, 255, 255, 0.95);
+  }
 }
 
 /* Улучшенные кнопки */

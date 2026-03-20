@@ -1,5 +1,8 @@
 # 📚 Git Workflow - Руководство по работе с Git
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 Полное руководство по работе с Git в проекте FastFingers.
 
 ## 📋 Содержание

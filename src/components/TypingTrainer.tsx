@@ -1,3 +1,9 @@
+/**
+ * TypingTrainer — Основной компонент тренажёра печати
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { KeyboardLayout, TypingStats, KeyInputResult, Exercise } from '../types'
@@ -336,7 +342,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           {liveRegionText}
         </div>
 
-        <div className="font-mono leading-relaxed break-words select-none" style={fontSizeStyle} aria-live="polite">
+        <div className="font-mono leading-relaxed break-words select-none max-w-full overflow-wrap-anywhere" style={fontSizeStyle} aria-live="polite">
           {renderedChars}
         </div>
         

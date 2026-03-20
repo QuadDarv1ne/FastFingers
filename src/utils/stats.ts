@@ -1,3 +1,9 @@
+/**
+ * Stats — Утилиты для расчёта статистики
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import {
   TypingStats,
   KeyHeatmapData,

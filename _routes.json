@@ -1,5 +1,6 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/assets/*", "/*.js", "/*.css", "/*.png", "/*.svg", "/*.ico"]
+  "exclude": ["/assets/*", "/*.js", "/*.css", "/*.png", "/*.svg", "/*.ico"],
+  "_comment": "FastFingers — Cloudflare Pages routes | Author: Dupley Maxim Igorevich"
 }

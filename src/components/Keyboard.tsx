@@ -1,3 +1,9 @@
+/**
+ * Keyboard — Компонент виртуальной клавиатуры
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { memo, useMemo } from 'react'
 import { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
 import { layouts, fingerZones } from '../utils/layouts'

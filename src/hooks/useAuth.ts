@@ -1,3 +1,9 @@
+/**
+ * useAuth — Хук для использования аутентификации
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import { useContext } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
 

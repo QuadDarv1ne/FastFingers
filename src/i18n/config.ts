@@ -1,3 +1,9 @@
+/**
+ * i18n — Интернационализация FastFingers
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import i18n, { TFunction } from 'i18next'
 import { initReactI18next, useTranslation } from 'react-i18next'
 

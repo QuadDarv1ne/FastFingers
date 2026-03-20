@@ -126,6 +126,11 @@ export function useTheme(): UseThemeReturn {
 
   const setFontSize = useCallback((size: FontSize) => {
     setFontSizeState(size)
+    try {
+      localStorage.setItem('fastfingers_font_size', size)
+    } catch {
+      // Ignore save errors
+    }
   }, [])
 
   return { 

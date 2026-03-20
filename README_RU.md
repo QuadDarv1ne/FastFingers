@@ -2,6 +2,9 @@
 
 > Современный тренажёр слепой десятипальцевой печати
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 [![Tests](https://img.shields.io/badge/tests-73%20passed-brightgreen)]()

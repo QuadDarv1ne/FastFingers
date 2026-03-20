@@ -1,3 +1,10 @@
+/**
+ * FastFingers — Тренажёр слепой печати
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ * @license MIT
+ */
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'

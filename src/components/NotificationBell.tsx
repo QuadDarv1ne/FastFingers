@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
 import { useAppTranslation } from '../i18n/config'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useClickOutside } from '@hooks/useClickOutside'
 
 export interface Notification {
   id: string
@@ -15,10 +16,9 @@ export interface Notification {
 }
 
 interface NotificationBellProps {
-  onOpenPanel?: () => void
 }
 
-export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
+export function NotificationBell({}: NotificationBellProps) {
   const { t } = useAppTranslation()
   const [notifications, setNotifications] = useLocalStorageState<Notification[]>(
     'fastfingers_notifications',
@@ -29,15 +29,59 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useFocusTrap(dropdownRef, isOpen)
+  
+  // Обработчик закрытия
+  const handleClose = useCallback(() => {
+    setIsOpen(false)
+  }, [])
+  
+  useClickOutside(dropdownRef, handleClose)
 
   useEffect(() => {
+    if (isOpen) {
+      // Блокируем скролл body когда dropdown открыт
+      document.body.classList.add('scroll-locked')
+    } else {
+      // Разблокируем скролл когда dropdown закрыт
+      document.body.classList.remove('scroll-locked')
+    }
+
     if (!isOpen) return
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
     }
     document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      // Принудительно удаляем класс при cleanup
+      document.body.classList.remove('scroll-locked')
+    }
   }, [isOpen])
+
+  // Очистка при unmount
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('scroll-locked')
+    }
+  }, [])
+
+  // Синхронизация с NotificationContext
+  useEffect(() => {
+    const handleNotificationAdded = () => {
+      const stored = localStorage.getItem('fastfingers_notifications')
+      if (stored) {
+        try {
+          setNotifications(JSON.parse(stored))
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+
+    window.addEventListener('notification-added', handleNotificationAdded)
+    return () => window.removeEventListener('notification-added', handleNotificationAdded)
+  }, [setNotifications])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -76,18 +120,13 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   )
 
-  const handleOpen = () => {
-    setIsOpen(true)
-    onOpenPanel?.()
-  }
-
   return (
     <div className="relative">
       {/* Bell button */}
       <button
-        onClick={handleOpen}
-        className="relative w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-all flex items-center justify-center"
-        aria-label={t('notification.levelUp')}
+        onClick={() => setIsOpen(true)}
+        className="relative w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-all flex items-center justify-center hover:scale-105 active:scale-95"
+        aria-label="Уведомления"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -108,7 +147,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
 
         {/* Badge */}
         {showBadge && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse" aria-label={`${unreadCount} непрочитанных`}>
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-red-500/50 px-1.5" aria-label={`${unreadCount} непрочитанных`}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -116,26 +155,20 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
 
       {/* Dropdown */}
       {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-          <div
-            ref={dropdownRef}
-            className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden"
-            role="dialog"
-            aria-label={t('notification.levelUp')}
-            style={{ maxHeight: 'min(600px, 80vh)' }}
-          >
+        <div
+          ref={dropdownRef}
+          className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
+          role="dialog"
+          aria-label="Уведомления"
+          style={{ maxHeight: 'min(600px, 80vh)' }}
+        >
             {/* Header */}
-            <div className="p-4 border-b border-dark-700 flex items-center justify-between">
+            <div className="p-4 border-b border-dark-700 flex items-center justify-between flex-shrink-0">
               <div>
-                <h3 className="font-semibold text-lg">{t('notification.levelUp')}</h3>
+                <h3 className="font-semibold text-lg text-white">Уведомления</h3>
                 {unreadCount > 0 && (
-                  <p className="text-xs text-dark-400">
-                    {unreadCount} {t('common.words')}
+                  <p className="text-xs text-dark-300">
+                    {unreadCount} непрочитанных
                   </p>
                 )}
               </div>
@@ -144,7 +177,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                   <>
                     <button
                       onClick={markAllAsRead}
-                      className="text-xs px-3 py-1 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
+                      className="text-xs px-3 py-1.5 bg-dark-800 hover:bg-dark-700 text-white rounded-lg transition-colors font-medium"
                       title={t('action.confirm')}
                       aria-label={t('action.confirm')}
                     >
@@ -152,7 +185,7 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                     </button>
                     <button
                       onClick={clearAll}
-                      className="text-xs px-3 py-1 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
+                      className="text-xs px-3 py-1.5 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
                       title={t('action.delete')}
                       aria-label={t('action.delete')}
                     >
@@ -160,23 +193,31 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                     </button>
                   </>
                 )}
+                <button
+                  onClick={handleClose}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-dark-800 text-dark-400 hover:text-white transition-colors"
+                  aria-label="Закрыть"
+                  title="Закрыть"
+                >
+                  ✕
+                </button>
               </div>
             </div>
 
             {/* Notifications list */}
-            <div className="overflow-y-auto max-h-[500px]" role="list" aria-label={t('notification.levelUp')}>
+            <div className="overflow-y-auto flex-1" role="list" aria-label="Уведомления">
               {sortedNotifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="text-4xl mb-2" aria-hidden="true">🔔</div>
-                  <p className="text-dark-400">{t('action.loading')}</p>
+                  <div className="text-4xl mb-2 opacity-80" aria-hidden="true">🔔</div>
+                  <p className="text-dark-400">Нет уведомлений</p>
                 </div>
               ) : (
-                <div className="divide-y divide-dark-700">
+                <div className="divide-y divide-dark-700/50">
                   {sortedNotifications.map(notification => (
                     <button
                       key={notification.id}
-                      className={`w-full p-4 hover:bg-dark-800/50 transition-colors text-left ${
-                        !notification.read ? 'bg-dark-800/30' : ''
+                      className={`w-full p-4 hover:bg-dark-800/60 transition-all text-left ${
+                        !notification.read ? 'bg-dark-800/40' : ''
                       }`}
                       onClick={() => markAsRead(notification.id)}
                       aria-label={notification.title}
@@ -190,14 +231,14 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-semibold text-sm">
+                            <h4 className="font-semibold text-sm text-white">
                               {notification.title}
                             </h4>
                             {!notification.read && (
-                              <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" aria-label="непрочитано" />
+                              <span className="w-2.5 h-2.5 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 shadow-lg shadow-blue-500/50" aria-label="непрочитано" />
                             )}
                           </div>
-                          <p className="text-sm text-dark-400 mt-1">
+                          <p className="text-sm text-dark-300 mt-1.5 line-clamp-2">
                             {notification.message}
                           </p>
                           <p className="text-xs text-dark-500 mt-2">
@@ -211,7 +252,6 @@ export function NotificationBell({ onOpenPanel }: NotificationBellProps) {
               )}
             </div>
           </div>
-        </>
       )}
     </div>
   )

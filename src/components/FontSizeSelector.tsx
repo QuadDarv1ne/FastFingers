@@ -48,32 +48,29 @@ export function FontSizeSelector() {
       </button>
 
       {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} aria-hidden="true" />
-          <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700">
-            {FONT_SIZES.map((size) => (
-              <button
-                key={size.value}
-                onClick={() => handleFontSizeChange(size.value)}
-                className={`w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center gap-3 ${
-                  fontSize === size.value ? 'bg-dark-800/50 text-primary-400' : 'text-dark-300'
-                }`}
-              >
-                <span className="font-bold" style={{ fontSize: size.px }}>{size.icon}</span>
-                <span>{size.label}</span>
-                {fontSize === size.value && (
-                  <svg className="w-4 h-4 ml-auto text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
-        </>
+        <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700">
+          {FONT_SIZES.map((size) => (
+            <button
+              key={size.value}
+              onClick={() => handleFontSizeChange(size.value)}
+              className={`w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center gap-3 ${
+                fontSize === size.value ? 'bg-dark-800/50 text-primary-400' : 'text-dark-300'
+              }`}
+            >
+              <span className="font-bold" style={{ fontSize: size.px }}>{size.icon}</span>
+              <span>{size.label}</span>
+              {fontSize === size.value && (
+                <svg className="w-4 h-4 ml-auto text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   )

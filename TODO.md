@@ -1,5 +1,8 @@
 # FastFingers — План улучшений
 
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+
 ## ✅ Выполнено (Completed)
 
 ### Обработка ошибок и устойчивость
@@ -89,6 +92,13 @@
 - [x] Тултипы с горячими клавишами (Button.tsx — tooltip/shortcut props)
 - [x] Тёмная/светлая тема с авто-переключением (useTheme — system preference)
 - [x] 60 текстов в 10 категориях (practiceTexts.ts)
+- [x] Удалены overlay из всех dropdown (LanguageSwitcher, FontSizeSelector, Header, KeyboardSkinSelector, ThemeToggle, NotificationBell)
+- [x] Исправлена блокировка скролла (CSS .scroll-locked, очистка при закрытии)
+- [x] Унифицированы уведомления (удалён NotificationPanel, оставлен NotificationBell dropdown)
+- [x] Синхронизация уведомлений через localStorage + событие notification-added
+- [x] Улучшено наложение текста (overflow-wrap-anywhere для длинных слов)
+- [x] SpeedTestDropdown — улучшен z-index и стили (glass, shadow-xl)
+- [x] Footer с автором (© 2025-2026 Dupley Maxim Igorevich)
 - [ ] Анимации переходов между режимами — **Framer Motion уже установлен**
 - [ ] Toast-уведомления для всех действий — **NotificationContext готов, нужна интеграция**
 - [ ] Адаптивная верстка для мобильных (mobile-first) — **критично для SEO**
@@ -209,8 +219,9 @@
 - **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%, MotivationalQuote 85%+, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
+- **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
 - **Следующий шаг**: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-20 — coverage >91% достигнута!
+- **Дата обновления**: 2026-03-20 — UX/UI спринт завершён!
 
 ### Новые наблюдения (2026-03-18)
 
@@ -244,35 +255,17 @@
 22. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%)
 23. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%)
 
-### Новые улучшения (2026-03-18 — текущий спринт)
+### Новые улучшения (2026-03-20 — UX/UI спринт)
 
-23. **Button** — добавлены tooltip и shortcut props для горячих клавиш
-24. **HardcoreMode** — система рангов (C, B, A, S, S+, SS, SS+, 👑) с анимацией и confetti
-25. **useTheme** — авто-переключение темы по системной настройке (matchMedia)
-26. **ThemeToggle** — поддержка режима 'auto' (system preference)
-27. **NotificationContext** — добавлен useNotifications хук для безопасного использования
-28. **i18n** — добавлены переводы для misc.themeAuto (4 языка)
-29. **Сборка** — успешна, ~13s (улучшено с ~17s), bundle <250KB gzipped (core), PWA 36 entries
-30. **Тесты** — 652 unit тестов (44 файлов) — 100% pass, ~20s
-31. **Coverage** — 85.09% ✅ (logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 93%, practiceTexts.ts 100%)
-32. **pdf-vendor** — выделен в отдельный чанк (421 KB / 138 KB gzipped вместо 624 KB) ✅
-33. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts для code splitting ✅
-34. **practiceRecommendations.ts** — система персонализированных рекомендаций (8 тестов) ✅
-35. **practiceTexts.ts** — 60 текстов в 10 категориях + 41 тест (100% coverage) ✅
-36. **Integration тесты** — useTypingGame.integration.test.ts (24 теста), useProgressStore.test.ts (23 теста) ✅
-37. **@vitest/coverage-v8** — установлен и настроен ✅
-38. **MotivationalQuote.tsx** — добавлен data-testid, экспортированы getRandomQuote, getCategoryLabel ✅
-39. **exercises.test.ts** — 43 теста для exercises.ts (coverage 80%) ✅
-40. **i18n/config.test.ts** — 41 тест для i18n/config.ts (coverage 100%) ✅
-41. **id.test.ts** — 43 теста для id.ts (coverage 81%) ✅
-42. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%) ✅
-43. **storage.ts** — исправлен getStorageSize для happy-dom ✅
-44. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%) ✅
-45. **ErrorBoundary.test.tsx** — улучшено покрытие с 72% до 80% ✅
 46. **Capacitor** — настроен для Android/iOS сборок ✅
 47. **Tauri** — настроен для Windows/macOS/Linux сборок ✅
 48. **BUILD_GUIDE.md** — создана полная документация по сборке ✅
 49. **package.json** — добавлены скрипты: build:all, build:android, build:ios, build:desktop ✅
+50. **UX/UI спринт** — удалены overlay из 6 dropdown, исправлена блокировка скролла ✅
+51. **NotificationBell** — синхронизация через localStorage + notification-added событие ✅
+52. **TypingTrainer** — overflow-wrap-anywhere для предотвращения выхода текста ✅
+53. **Footer** — добавлен copyright (© 2025-2026 Dupley Maxim Igorevich) ✅
+54. **Автор во всех файлах** — добавлены комментарии в 40+ файлов проекта ✅
 
 ### Идеи для экспериментов
 
@@ -328,11 +321,12 @@
 ---
 
 _Последнее обновление: 2026-03-20 (актуализировано)_
-_Выполнено за спринт: 60+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri)_
+_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**)_
 _Всего тестов: 826 (47 файлов) — 100% pass (1 skipped)_
 _Coverage: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 85%+, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%)_
 _Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
 _Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
 _Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
+_UX/UI: ✅ 6 dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы, ✅ текст не выходит за границы, ✅ copyright в footer_
 _Следующий шаг: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
-_Пометки добавлены: 2026-03-20 — coverage >91% достигнута! Улучшены format.ts (19 тестов), ErrorBoundary (33 теста), useLocalStorageState (14 тестов), useTypingStats (15 тестов)_
+_Пометки добавлены: 2026-03-20 — UX/UI спринт завершён!_

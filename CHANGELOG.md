@@ -1,6 +1,9 @@
 # Changelog
 
-Все изменения в проекте FastFingers будут документироваться в этом файле.
+Все изменения в проекте FastFingers.
+
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
 
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 а проект следует [Semantic Versioning](https://semver.org/lang/ru/).

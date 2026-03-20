@@ -1,3 +1,9 @@
+/**
+ * Types — Основные типы и интерфейсы FastFingers
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 /** Раскладки клавиатуры */
 export type KeyboardLayout = 'qwerty' | 'jcuken' | 'dvorak';
 

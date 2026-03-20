@@ -1,4 +1,7 @@
-# Документация по интеграции с Tilda
+# Документация FastFingers
+
+**Автор:** Dupley Maxim Igorevich  
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
 
 ## Файлы
 
