@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
 import { useAppTranslation } from '../i18n/config'
@@ -29,24 +29,20 @@ export function NotificationBell({}: NotificationBellProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useFocusTrap(dropdownRef, isOpen)
-  
+
   // Обработчик закрытия
   const handleClose = useCallback(() => {
     setIsOpen(false)
   }, [])
-  
+
   useClickOutside(dropdownRef, handleClose)
 
+  // Блокировка скролла + Escape handler
   useEffect(() => {
-    if (isOpen) {
-      // Блокируем скролл body когда dropdown открыт
-      document.body.classList.add('scroll-locked')
-    } else {
-      // Разблокируем скролл когда dropdown закрыт
-      document.body.classList.remove('scroll-locked')
-    }
-
     if (!isOpen) return
+
+    document.body.classList.add('scroll-locked')
+    
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
     }
@@ -54,17 +50,9 @@ export function NotificationBell({}: NotificationBellProps) {
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      // Принудительно удаляем класс при cleanup
       document.body.classList.remove('scroll-locked')
     }
   }, [isOpen])
-
-  // Очистка при unmount
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('scroll-locked')
-    }
-  }, [])
 
   // Синхронизация с NotificationContext
   useEffect(() => {
@@ -83,29 +71,23 @@ export function NotificationBell({}: NotificationBellProps) {
     return () => window.removeEventListener('notification-added', handleNotificationAdded)
   }, [setNotifications])
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications])
 
-  useEffect(() => {
-    setShowBadge(unreadCount > 0)
-  }, [unreadCount])
+  const markAsRead = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)))
+  }, [])
 
-  const markAsRead = (id: string) => {
-    setNotifications(
-      notifications.map(n => (n.id === id ? { ...n, read: true } : n))
-    )
-  }
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+  }, [])
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })))
-  }
-
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     if (confirm(t('action.delete') + '?')) {
       setNotifications([])
     }
-  }
+  }, [t])
 
-  const getNotificationColor = (type: Notification['type']) => {
+  const getNotificationColor = useCallback((type: Notification['type']) => {
     const colors = {
       achievement: 'text-yellow-400',
       milestone: 'text-blue-400',
@@ -114,10 +96,13 @@ export function NotificationBell({}: NotificationBellProps) {
       info: 'text-green-400',
     }
     return colors[type]
-  }
+  }, [])
 
-  const sortedNotifications = [...notifications].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  const sortedNotifications = useMemo(() => 
+    [...notifications].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    ),
+    [notifications]
   )
 
   return (
