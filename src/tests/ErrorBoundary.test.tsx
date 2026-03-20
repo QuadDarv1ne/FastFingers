@@ -217,4 +217,117 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByTestId('working')).toBeInTheDocument()
   })
+
+  it('должен поддерживать resetKeys без падения', () => {
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={[1]}>
+        <WorkingComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('working')).toBeInTheDocument()
+
+    rerender(
+      <ErrorBoundary resetKeys={[2]}>
+        <WorkingComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByTestId('working')).toBeInTheDocument()
+  })
+
+  it('должен вызывать resetError и сбрасывать ошибку', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+
+    const retryButton = screen.getByText('Попробовать снова')
+    fireEvent.click(retryButton)
+
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+  })
+
+  it('должен иметь правильные стили для иконки ошибки', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const errorIcon = screen.getByText('Упс. Что-то пошло не так')
+    expect(errorIcon).toBeInTheDocument()
+  })
+
+  it('должен рендерить details с ошибкой', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const details = screen.getByText('Показать детали ошибки')
+    expect(details).toBeInTheDocument()
+
+    fireEvent.click(details)
+
+    const errorText = screen.getByText(/Test error/)
+    expect(errorText).toBeInTheDocument()
+  })
+
+  it('должен иметь glass класс для контейнера ошибки', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const container = screen.getByText('Упс. Что-то пошло не так').closest('.glass')
+    expect(container).toBeInTheDocument()
+  })
+
+  it('должен рендерить SVG иконку ошибки', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const svg = document.querySelector('svg')
+    expect(svg).toBeInTheDocument()
+  })
+
+  it('должен иметь правильный путь для SVG иконки', () => {
+    render(
+      <ErrorBoundary>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    const paths = document.querySelectorAll('path')
+    expect(paths.length).toBeGreaterThan(0)
+  })
+
+  it('должен поддерживать пустой fallback', () => {
+    render(
+      <ErrorBoundary fallback={null}>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+  })
+
+  it('должен рендерить fallback с React элементом', () => {
+    render(
+      <ErrorBoundary fallback={<div>Error occurred</div>}>
+        <BrokenComponent />
+      </ErrorBoundary>
+    )
+
+    expect(screen.getByText('Error occurred')).toBeInTheDocument()
+  })
 })
