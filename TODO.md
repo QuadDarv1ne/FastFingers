@@ -150,7 +150,7 @@
 | ------------------------ | ------------ | ------- |
 | Test Coverage            | 89.39%       | 90%     |
 | E2E Tests                | 15           | 20+     |
-| Unit Tests               | 761          | 400+    |
+| Unit Tests               | 771          | 400+    |
 | Test Files               | 47           | 40+     |
 | Lighthouse Performance   | 90+          | 95+     |
 | Lighthouse Accessibility | 95+          | 100     |
