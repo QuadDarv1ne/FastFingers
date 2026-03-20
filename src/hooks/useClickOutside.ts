@@ -9,7 +9,7 @@ interface ClickOptions {
 }
 
 const DEFAULT_OPTIONS: Required<ClickOptions> = {
-  mouseEvent: 'mousedown',
+  mouseEvent: 'click',
   touchEvent: 'touchstart',
 }
 

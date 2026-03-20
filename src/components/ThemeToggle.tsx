@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { ThemeColor } from '../utils/themes'
 import { useAppTranslation } from '../i18n/config'
+import { useClickOutside } from '@hooks/useClickOutside'
 
 type ThemeOption = ThemeColor | 'auto'
 
@@ -17,6 +18,8 @@ export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOption
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useClickOutside(menuRef, () => setShowMenu(false))
 
   const handleThemeOptionChange = useCallback((option: ThemeOption) => {
     if (onThemeOptionChange) {

@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect } from 'react'
 import { KeyboardSkin } from '../types'
 import { keyboardSkinPresets, getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
+import { useClickOutside } from '@hooks/useClickOutside'
 
 interface KeyboardSkinSelectorProps {
   skin: KeyboardSkin
@@ -14,6 +15,8 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useClickOutside(menuRef, () => setShowMenu(false))
 
   const currentSkin = useMemo(
     () => keyboardSkinPresets.find(t => t.value === skin) ?? keyboardSkinPresets[0],
