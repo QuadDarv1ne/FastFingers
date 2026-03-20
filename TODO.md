@@ -105,7 +105,7 @@
 - [x] Coverage > 85% ✅ **Выполнено: общий 85.09%**
 - [x] Coverage > 87% ✅ **Выполнено: общий 89.25%, useTypingGame 89.18%, stats.ts 93.05%**
 - [x] Coverage > 89% ✅ **Выполнено: общий 89.39%**
-- [ ] Coverage > 90% (приоритет: ErrorBoundary.tsx 80%, Keyboard.tsx 93.1%, ThemeToggle.tsx 94.28%) — **следующая цель**
+- [ ] Coverage > 90% (приоритет: ErrorBoundary.tsx 80%+, Keyboard.tsx 93.1%, ThemeToggle.tsx 94.28%) — **следующая цель**
 - [ ] Performance тесты (Lighthouse CI) — **низкий приоритет**
 - [ ] Accessibility тесты (axe-core) — **низкий приоритет**
 
@@ -205,12 +205,12 @@
 - **Стабильность**: все системы работают штатно
 - **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~15s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 56 ESLint warning (намеренные any/non-null)
-- **Тесты**: 762 (47 файлов) — 100% pass (1 skipped)
-- **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%, useTypingGame 89.18%, stats.ts 93.05%
+- **Тесты**: 771 (47 файлов) — 100% pass (1 skipped)
+- **Coverage**: 89.39% ✅ (цель 87% достигнута!) — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
-- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-20 — добавлены пометки к незавершённым задачам
+- **Следующий шаг**: coverage >90% (ErrorBoundary.tsx 80%+), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
+- **Дата обновления**: 2026-03-20 — добавлены тесты ErrorBoundary (26 тестов)
 
 ### Новые наблюдения (2026-03-18)
 
@@ -329,10 +329,10 @@
 
 _Последнее обновление: 2026-03-20 (актуализировано)_
 _Выполнено за спринт: 60+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты logger/notifications/export/MotivationalQuote/exercises/i18n/id/storage/practiceTexts, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri)_
-_Всего тестов: 762 (47 файлов) — 100% pass (1 skipped)_
-_Coverage: 89.39% ✅ (ErrorBoundary 80%, logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%)_
+_Всего тестов: 771 (47 файлов) — 100% pass (1 skipped)_
+_Coverage: 89.39% ✅ (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 79%, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%)_
 _Статус: ✅ ESLint 56 warning (намеренные any/non-null), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
 _Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
 _Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
-_Следующий шаг: coverage >90% (ErrorBoundary.tsx 80%), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
-_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%, добавлена кроссплатформенная сборка, ESLint warning учтены_
+_Следующий шаг: coverage >90% (ErrorBoundary.tsx 80%+), оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
+_Пометки добавлены: 2026-03-20 — приоритеты задач уточнены, технические долги актуализированы, coverage обновлён до 89.39%, добавлена кроссплатформенная сборка, ESLint warning учтены, ErrorBoundary тесты улучшены (26 тестов)_
