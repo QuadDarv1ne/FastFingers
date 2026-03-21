@@ -115,7 +115,8 @@ function analyzeTimeOfDay(sessions: TypingStats[]): TimeOfDayPerformance[] {
   }
 
   sessions.forEach(session => {
-    const hour = new Date(session.date).getHours()
+    if (!session) return
+    const hour = new Date(session.date || '').getHours()
     let slot: string
 
     if (hour >= 6 && hour < 12) slot = 'morning'
@@ -123,21 +124,35 @@ function analyzeTimeOfDay(sessions: TypingStats[]): TimeOfDayPerformance[] {
     else if (hour >= 18 && hour < 24) slot = 'evening'
     else slot = 'night'
 
-    timeSlots[slot].sessions++
-    timeSlots[slot].totalWpm += session.wpm
-    timeSlots[slot].totalAccuracy += session.accuracy
+    const timeSlot = timeSlots[slot]
+    if (timeSlot) {
+      timeSlot.sessions++
+      timeSlot.totalWpm += session.wpm
+      timeSlot.totalAccuracy += session.accuracy
+    }
   })
 
-  return (Object.keys(timeSlots) as string[]).map(slot => ({
-    timeOfDay: slot as 'morning' | 'afternoon' | 'evening' | 'night',
-    sessions: timeSlots[slot].sessions,
-    avgWpm: timeSlots[slot].sessions > 0
-      ? Math.round(timeSlots[slot].totalWpm / timeSlots[slot].sessions)
-      : 0,
-    avgAccuracy: timeSlots[slot].sessions > 0
-      ? Math.round(timeSlots[slot].totalAccuracy / timeSlots[slot].sessions)
-      : 0,
-  }))
+  return (Object.keys(timeSlots) as string[]).map(slot => {
+    const timeSlot = timeSlots[slot]
+    if (!timeSlot) {
+      return {
+        timeOfDay: slot as 'morning' | 'afternoon' | 'evening' | 'night',
+        sessions: 0,
+        avgWpm: 0,
+        avgAccuracy: 0,
+      }
+    }
+    return {
+      timeOfDay: slot as 'morning' | 'afternoon' | 'evening' | 'night',
+      sessions: timeSlot.sessions,
+      avgWpm: timeSlot.sessions > 0
+        ? Math.round(timeSlot.totalWpm / timeSlot.sessions)
+        : 0,
+      avgAccuracy: timeSlot.sessions > 0
+        ? Math.round(timeSlot.totalAccuracy / timeSlot.sessions)
+        : 0,
+    }
+  })
 }
 
 /**
@@ -151,9 +166,12 @@ function analyzeFunnel(
   const conversionRates: number[] = []
 
   const totalSessions = sessions.length
+  if (totalSessions === 0) {
+    return { stages: [], conversionRates: [] }
+  }
 
   thresholds.forEach((threshold, index) => {
-    const count = sessions.filter(s => s.wpm >= threshold).length
+    const count = sessions.filter(s => s && s.wpm >= threshold).length
     const percentage = totalSessions > 0 ? Math.round((count / totalSessions) * 100) : 0
 
     stages.push({
@@ -165,8 +183,8 @@ function analyzeFunnel(
     if (index === 0) {
       conversionRates.push(percentage)
     } else {
-      const prevCount = stages[index - 1].count
-      const rate = prevCount > 0 ? Math.round((count / prevCount) * 100) : 0
+      const prevStage = stages[index - 1]
+      const rate = prevStage && prevStage.count > 0 ? Math.round((count / prevStage.count) * 100) : 0
       conversionRates.push(rate)
     }
   })
@@ -184,36 +202,41 @@ function calculateCorrelationMatrix(sessions: TypingStats[]): number[][] {
   const n = sessions.length
 
   // Извлекаем значения метрик
-  const values = metrics.map(metric =>
-    sessions.map(s => (s as any)[metric] || 0)
+  const values: number[][] = metrics.map((metric) =>
+    sessions.map((s) => (s ? (s as any)[metric] || 0 : 0))
   )
 
   // Вычисляем средние значения
-  const means = values.map(v => v.reduce((a, b) => a + b, 0) / n)
+  const means: number[] = values.map((v) => (v.length > 0 ? v.reduce((a, b) => a + b, 0) / n : 0))
 
   // Вычисляем корреляционную матрицу
-  const matrix: number[][] = []
+  const matrix: number[][] = Array(metrics.length)
+    .fill(null)
+    .map(() => Array(metrics.length).fill(0))
 
   for (let i = 0; i < metrics.length; i++) {
-    matrix[i] = []
     for (let j = 0; j < metrics.length; j++) {
       if (i === j) {
-        matrix[i][j] = 1
+        matrix[i]![j] = 1
       } else {
         let numerator = 0
         let denomI = 0
         let denomJ = 0
 
         for (let k = 0; k < n; k++) {
-          const diffI = values[i][k] - means[i]
-          const diffJ = values[j][k] - means[j]
+          const valI: number = values[i]![k]!
+          const valJ: number = values[j]![k]!
+          const meanI: number = means[i]!
+          const meanJ: number = means[j]!
+          const diffI = valI - meanI
+          const diffJ = valJ - meanJ
           numerator += diffI * diffJ
           denomI += diffI * diffI
           denomJ += diffJ * diffJ
         }
 
         const denominator = Math.sqrt(denomI * denomJ)
-        matrix[i][j] = denominator > 0 ? numerator / denominator : 0
+        matrix[i]![j] = denominator > 0 ? numerator / denominator : 0
       }
     }
   }

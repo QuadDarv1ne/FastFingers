@@ -6,13 +6,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  openDB,
-  add,
   get,
   put,
   remove,
   getAll,
   clear,
+  add,
   isIndexedDBAvailable,
 } from '../utils/indexedDB'
 
@@ -76,21 +75,21 @@ export function useIndexedDB<T>(
   }, [loadData])
 
   const handleAdd = useCallback(
-    async (item: T) => {
-      const id = await add(storeName, item as any)
+    async (newItem: T) => {
+      const id = await add(storeName, newItem as any)
       await loadData()
       return id
     },
-    [storeName, item, loadData]
+    [storeName, loadData]
   )
 
   const handleUpdate = useCallback(
-    async (item: T) => {
-      const id = await put(storeName, item as any)
+    async (newItem: T) => {
+      const id = await put(storeName, newItem as any)
       await loadData()
       return id
     },
-    [storeName, item, loadData]
+    [storeName, loadData]
   )
 
   const handleRemove = useCallback(
@@ -98,7 +97,7 @@ export function useIndexedDB<T>(
       await remove(storeName, keyToRemove)
       await loadData()
     },
-    [storeName, key, loadData]
+    [storeName, loadData]
   )
 
   return {
@@ -134,7 +133,7 @@ export function useIndexedDBAll<T extends { id: string }>(
     try {
       setLoading(true)
       const result = await getAll(storeName)
-      setData(result as T[])
+      setData(result as unknown as T[])
       setError(null)
     } catch (err) {
       setError(err as Error)

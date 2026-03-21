@@ -102,7 +102,7 @@ class MockWorker {
     // Имитируем обработку сообщений
     setTimeout(() => {
       if (this.onmessage) {
-        const { type, payload } = message
+        const { type } = message
         let result: any
 
         try {
@@ -176,5 +176,4 @@ class MockWorker {
 vi.mock('../workers/stats.worker.ts', () => ({}))
 
 // Переопределяем глобальный Worker
-const originalWorker = global.Worker
 global.Worker = MockWorker as any

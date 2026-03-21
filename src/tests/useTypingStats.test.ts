@@ -117,10 +117,10 @@ describe('useTypingStats', () => {
 
     const keystrokes = result.current.getKeystrokes()
     expect(keystrokes.length).toBe(2)
-    expect(keystrokes[0].key).toBe('a')
-    expect(keystrokes[0].isCorrect).toBe(true)
-    expect(keystrokes[1].key).toBe('b')
-    expect(keystrokes[1].isCorrect).toBe(false)
+    expect(keystrokes[0]?.key).toBe('a')
+    expect(keystrokes[0]?.isCorrect).toBe(true)
+    expect(keystrokes[1]?.key).toBe('b')
+    expect(keystrokes[1]?.isCorrect).toBe(false)
   })
 
   it('должен возвращать расширенные метрики', () => {
@@ -155,7 +155,7 @@ describe('useTypingStats', () => {
   })
 
   it('должен использовать кастомную функцию getKeyFinger', () => {
-    const getKeyFinger = vi.fn((key: string) => 'left-index')
+    const getKeyFinger = vi.fn((_key: string) => 'left-index')
     const { result } = renderHook(() => useTypingStats({ getKeyFinger }))
 
     act(() => {

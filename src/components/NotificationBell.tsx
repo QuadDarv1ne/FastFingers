@@ -25,7 +25,6 @@ export function NotificationBell({}: NotificationBellProps) {
     []
   )
   const [isOpen, setIsOpen] = useState(false)
-  const [showBadge, setShowBadge] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useFocusTrap(dropdownRef, isOpen)
@@ -131,7 +130,7 @@ export function NotificationBell({}: NotificationBellProps) {
         </svg>
 
         {/* Badge */}
-        {showBadge && (
+        {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-red-500/50 px-1.5" aria-label={`${unreadCount} непрочитанных`}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>

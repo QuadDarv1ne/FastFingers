@@ -129,7 +129,7 @@ describe('useStatsWorker', () => {
 
     expect(Array.isArray(matrix)).toBe(true)
     expect(matrix.length).toBeGreaterThan(0)
-    expect(matrix[0].length).toBeGreaterThan(0)
+    expect(matrix[0]?.length).toBeGreaterThan(0)
   })
 
   it('should handle worker not ready', async () => {

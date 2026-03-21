@@ -58,7 +58,7 @@ const showBrowserNotification = (title: string, message: string) => {
 }
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
 
   // Загружаем уведомления при монтировании

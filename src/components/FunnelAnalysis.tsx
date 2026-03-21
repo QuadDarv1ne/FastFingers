@@ -64,11 +64,11 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
   ]
 
   // Преобразуем данные для горизонтальной воронки
-  const chartData = funnelData.map((stage, index) => ({
-    name: stage.stage,
+  const chartData = funnelData.map((stage) => ({
+    name: stage.name,
     value: stage.percentage,
     count: stage.count,
-    fill: colors[index % colors.length],
+    fill: colors[funnelData.indexOf(stage) % colors.length],
   }))
 
   // Расчёт ключевых метрик воронки
@@ -77,10 +77,10 @@ export function FunnelAnalysis({ sessions, thresholds }: FunnelAnalysisProps) {
     : 0
 
   const completionRate =
-    funnelData.find(f => f.stage === '100% сессии')?.percentage ?? 0
+    funnelData.find(f => f.name === '100% сессии')?.percentage ?? 0
 
   const highAccuracyRate =
-    funnelData.find(f => f.stage === 'Высокая точность')?.percentage ?? 0
+    funnelData.find(f => f.name === 'Высокая точность')?.percentage ?? 0
 
   return (
     <div className="card p-6">
