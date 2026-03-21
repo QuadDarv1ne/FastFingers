@@ -392,11 +392,11 @@ export function analyzeFunnel(
   )
 
   return [
-    { stage: 'Начали тренировку', count: total, percentage: 100 },
-    { stage: '50% сессии', count: counts.completed50, percentage: Math.round((counts.completed50 / total) * 100) },
-    { stage: '80% сессии', count: counts.completed80, percentage: Math.round((counts.completed80 / total) * 100) },
-    { stage: '100% сессии', count: counts.completed100, percentage: Math.round((counts.completed100 / total) * 100) },
-    { stage: 'Высокая точность', count: counts.highAccuracy, percentage: Math.round((counts.highAccuracy / total) * 100) },
+    { name: 'Начали тренировку', count: total, percentage: 100 },
+    { name: '50% сессии', count: counts.completed50, percentage: Math.round((counts.completed50 / total) * 100) },
+    { name: '80% сессии', count: counts.completed80, percentage: Math.round((counts.completed80 / total) * 100) },
+    { name: '100% сессии', count: counts.completed100, percentage: Math.round((counts.completed100 / total) * 100) },
+    { name: 'Высокая точность', count: counts.highAccuracy, percentage: Math.round((counts.highAccuracy / total) * 100) },
   ]
 }
 

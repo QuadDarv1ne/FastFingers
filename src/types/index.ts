@@ -38,6 +38,7 @@ export interface TypingStats {
   correctChars: number;
   totalChars: number;
   timeElapsed: number;
+  date?: string; // Дата сессии (ISO string)
   // Новые метрики
   rhythmScore?: number; // Отклонение интервала между нажатиями (0-100)
   fingerBalance?: { left: number; right: number }; // Сравнение скорости левой/правой руки
@@ -54,7 +55,7 @@ export interface WeeklyProgress {
 
 /** Данные для анализа оттока (Funnel Analysis) */
 export interface FunnelStage {
-  stage: string;
+  name: string;
   count: number;
   percentage: number;
 }

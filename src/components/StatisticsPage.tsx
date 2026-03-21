@@ -30,9 +30,9 @@ interface StatisticsPageProps {
 
 export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
   const { history, getStatsForPeriod } = useTypingHistory()
-  const { dailyStats, weeklyComparison, personalRecords, wpmTrend, activityByDayOfWeek } = useAdvancedStats()
+  const { wpmTrend: _wpmTrend, activityByDayOfWeek: _activityByDayOfWeek } = useAdvancedStats()
   const { isReady, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix } = useStatsWorker()
-  
+
   // Расширенная аналитика через Web Worker
   const [timeAnalysis, setTimeAnalysis] = useState<any[]>([])
   const [funnelData, setFunnelData] = useState<any>(null)
@@ -40,15 +40,17 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   // Преобразование сессий для Web Worker
-  const sessionsForWorker = useMemo<TypingStats[]>(() => 
+  const sessionsForWorker = useMemo<TypingStats[]>(() =>
     history.sessions.map(s => ({
-      ...s,
       date: s.date,
       wpm: s.wpm,
       accuracy: s.accuracy,
       cpm: s.cpm,
       errors: s.errors,
-    })),
+      correctChars: 0,
+      totalChars: 0,
+      timeElapsed: s.duration,
+    } as TypingStats)),
     [history.sessions]
   )
 
@@ -255,11 +257,11 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         )}
 
         {/* Воронка конверсии */}
-        {funnelData && funnelData.stages.length > 0 && (
+        {funnelData && funnelData.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
             <h3 className="text-lg font-semibold mb-4">📊 Воронка производительности</h3>
             <div className="space-y-3">
-              {funnelData.stages.map((stage: any, index: number) => (
+              {funnelData.map((stage: any) => (
                 <div key={stage.name} className="flex items-center gap-4">
                   <div className="w-32 text-sm text-dark-400">{stage.name}</div>
                   <div className="flex-1 h-8 bg-dark-800 rounded-full overflow-hidden">
@@ -294,29 +296,29 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
                   <tr className="border-b border-dark-800">
                     <td className="p-2 font-medium">WPM</td>
                     <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[0][1]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[0][2]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[0][3]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[0]?.[1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[0]?.[2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[0]?.[3]?.toFixed(2) || '0.00'}</td>
                   </tr>
                   <tr className="border-b border-dark-800">
                     <td className="p-2 font-medium">Точность</td>
-                    <td className="p-2 text-center">{correlationMatrix[1][0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[1]?.[0]?.toFixed(2) || '0.00'}</td>
                     <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[1][2]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[1][3]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[1]?.[2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[1]?.[3]?.toFixed(2) || '0.00'}</td>
                   </tr>
                   <tr className="border-b border-dark-800">
                     <td className="p-2 font-medium">CPM</td>
-                    <td className="p-2 text-center">{correlationMatrix[2][0]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[2][1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[2]?.[0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[2]?.[1]?.toFixed(2) || '0.00'}</td>
                     <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[2][3]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[2]?.[3]?.toFixed(2) || '0.00'}</td>
                   </tr>
                   <tr>
                     <td className="p-2 font-medium">Ошибки</td>
-                    <td className="p-2 text-center">{correlationMatrix[3][0]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[3][1]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[3][2]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[3]?.[0]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[3]?.[1]?.toFixed(2) || '0.00'}</td>
+                    <td className="p-2 text-center">{correlationMatrix[3]?.[2]?.toFixed(2) || '0.00'}</td>
                     <td className="p-2 text-center bg-primary-900/20">1.00</td>
                   </tr>
                 </tbody>

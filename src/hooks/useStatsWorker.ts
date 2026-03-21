@@ -69,7 +69,9 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         // Для простоты используем последний добавленный
         const entries = Array.from(pendingPromises.current.entries())
         if (entries.length > 0) {
-          const [id, { resolve }] = entries[0]
+          const entry = entries[0]
+          if (!entry) return
+          const [id, { resolve }] = entry
           pendingPromises.current.delete(id)
           resolve(payload)
           setIsBusy(false)
@@ -93,6 +95,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)
       setIsReady(false)
+      return
     }
   }, [])
 

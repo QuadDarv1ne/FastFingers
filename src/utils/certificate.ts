@@ -210,9 +210,10 @@ export async function generateCertificate(
 
     // Строки таблицы
     let currentY = startY + rowHeight
-    stats.forEach((stat, index) => {
+    stats.forEach((stat, index: number) => {
       const isEven = index % 2 === 0
-      doc.setFillColor(isEven ? (theme === 'modern' ? 240 : 40) : (theme === 'modern' ? 250 : 50))
+      const fillColor = isEven ? (theme === 'modern' ? 240 : 40) : (theme === 'modern' ? 250 : 50)
+      doc.setFillColor(fillColor, fillColor, fillColor)
       doc.rect(tableX, currentY, tableWidth, rowHeight, 'F')
 
       // Граница
@@ -223,8 +224,8 @@ export async function generateCertificate(
       // Текст
       doc.setFont('helvetica', isEven ? 'bold' : 'normal')
       doc.setTextColor(255, 255, 255)
-      doc.text(stat[0], tableX + 5, currentY + 8)
-      doc.text(stat[1], tableX + tableWidth - 75, currentY + 8)
+      doc.text(String(stat[0]), tableX + 5, currentY + 8)
+      doc.text(String(stat[1]), tableX + tableWidth - 75, currentY + 8)
 
       currentY += rowHeight
     })
