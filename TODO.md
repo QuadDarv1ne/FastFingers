@@ -214,10 +214,10 @@
 
 | Метрика                  | Текущее      | Цель    |
 | ------------------------ | ------------ | ------- |
-| Test Coverage            | 89.39%       | 90%     |
+| Test Coverage            | 91.09%       | 90%     |
 | E2E Tests                | 15           | 20+     |
-| Unit Tests               | 771          | 400+    |
-| Test Files               | 47           | 40+     |
+| Unit Tests               | 831          | 400+    |
+| Test Files               | 49           | 40+     |
 | Lighthouse Performance   | 90+          | 95+     |
 | Lighthouse Accessibility | 95+          | 100     |
 | Bundle Size (gzipped)    | <250KB (core)| <200KB  |
@@ -227,7 +227,7 @@
 | TypeScript Errors        | 0            | 0       |
 | ESLint Errors            | 0            | 0       |
 | Build Time               | ~13s         | <10s    |
-| Test Duration            | ~15s         | <8s     |
+| Test Duration            | ~18s         | <8s     |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
 
@@ -266,18 +266,26 @@
 27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **следующий шаг**
 28. **ESLint warnings** — 56 warning (любой type, non-null assertion, react-refresh) — **низкий приоритет, все намеренные**
 
-### Текущий статус (2026-03-20)
+### Текущий статус (2026-03-21)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~15s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~18s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок, 56 ESLint warning (все намеренные)
-- **Тесты**: 826 (47 файлов) — 100% pass (1 skipped)
+- **Тесты**: 831 (49 файлов) — 100% pass (1 skipped) ✅
 - **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%, MotivationalQuote 85%+, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
 - **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
 - **Следующий шаг**: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-20 — UX/UI спринт завершён!
+- **Дата обновления**: 2026-03-21 — Исправлены тесты (useStatsWorker, ThemeToggle, ToastContainer) ✅
+
+### Исправления (2026-03-21)
+
+1. **useClickOutside.ts** — удалён useCallback из useEffect (нарушение правил React) ✅
+2. **ToastContainer.test.tsx** — исправлен тест с z-50 на z-[100] ✅
+3. **setup.ts** — добавлен MockWorker для тестирования Web Worker ✅
+4. **useStatsWorker.test.ts** — исправлены тесты terminate и empty data ✅
+5. **Тесты**: 831 passed, 1 skipped (100% pass rate) ✅
 
 ### Новые наблюдения (2026-03-18)
 
@@ -376,13 +384,14 @@
 
 ---
 
-_Последнее обновление: 2026-03-20 (актуализировано)_
-_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**)_
-_Всего тестов: 826 (47 файлов) — 100% pass (1 skipped)_
+_Последнее обновление: 2026-03-21 (актуализировано)_
+_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**, **Исправления: useClickOutside, ToastContainer, useStatsWorker тесты**)_
+_Всего тестов: 831 (49 файлов) — 100% pass (1 skipped)_
 _Coverage: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 85%+, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%)_
-_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 47 test files passed (100%)_
-_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~15s_
+_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 49 test files passed (100%)_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~18s_
 _Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
 _UX/UI: ✅ 6 dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы, ✅ текст не выходит за границы, ✅ copyright в footer_
 _Следующий шаг: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
 _Пометки добавлены: 2026-03-20 — UX/UI спринт завершён!_
+_Пометки добавлены: 2026-03-21 — Исправления тестов завершены (useClickOutside, ToastContainer, useStatsWorker)_

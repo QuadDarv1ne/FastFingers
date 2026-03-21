@@ -21,12 +21,12 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   const { mouseEvent, touchEvent } = { ...DEFAULT_OPTIONS, ...options }
 
   useEffect(() => {
-    const listener = useCallback((event: MouseEvent | TouchEvent) => {
+    const listener = (event: MouseEvent | TouchEvent) => {
       if (!ref?.current || ref.current.contains(event.target as Node)) {
         return
       }
       handler(event)
-    }, [ref, handler])
+    }
 
     document.addEventListener(mouseEvent, listener)
     document.addEventListener(touchEvent, listener)
