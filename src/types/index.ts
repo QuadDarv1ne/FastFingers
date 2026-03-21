@@ -159,10 +159,10 @@ export interface RaceEvent {
 }
 
 /** Звуковые темы */
-export type SoundTheme = 'default' | 'piano' | 'mechanical' | 'soft' | 'retro';
+export type SoundTheme = 'default' | 'piano' | 'mechanical' | 'soft' | 'retro' | 'asmr';
 
 /** Скины клавиатуры */
-export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai';
+export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai' | 'galaxy';
 
 /** Размеры шрифта */
 export type FontSize = 'small' | 'medium' | 'large';

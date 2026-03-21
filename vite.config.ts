@@ -29,7 +29,12 @@ function copyRoutesPlugin() {
 export default defineConfig({
   base: process.env.VITE_BASE_PATH || '/',
   plugins: [
-    react(),
+    react({
+      // Оптимизация React компонентов
+      babel: {
+        plugins: [],
+      },
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
@@ -75,12 +80,43 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
-        ]
+        ],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       devOptions: {
         enabled: false
-      }
+      },
+      useCredentials: false,
+      injectRegister: 'auto',
     }),
     visualizer({
       filename: 'dist/stats.html',
@@ -110,22 +146,27 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    // Включаем sourcemap только для production отладки
     sourcemap: false,
-    // Сжимаем код на максимум
     minify: 'esbuild',
     cssMinify: true,
-    // Ускоряем сборку
     cssCodeSplit: true,
-    // Удаляем console.log в production
     esbuild: {
       drop: ['console'],
+      legalComments: 'none',
+    },
+    commonjsOptions: {
+      include: [/node_modules/],
+      extensions: ['.js', '.cjs'],
     },
     rollupOptions: {
-      // Включаем tree-shaking
-      treeshake: true,
+      treeshake: {
+        preset: 'safest',
+        propertyReadSideEffects: false,
+      },
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
-        // Оптимизируем чанки
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is'],
           'i18n-vendor': ['i18next', 'react-i18next'],
@@ -136,8 +177,9 @@ export default defineConfig({
           'virtual-vendor': ['@tanstack/react-virtual'],
           'storage-vendor': ['zustand'],
           'monitoring-vendor': ['@sentry/react'],
-          // Выносим тяжелые компоненты в отдельные чанки
-          'typing-core': ['./src/components/TypingTrainer', './src/hooks/useTypingGame', './src/hooks/useTypingSound'],
+          'pdf-vendor': ['jspdf'],
+          // Компоненты по функциональности
+          'typing-core': ['./src/components/TypingTrainer'],
           'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],
           'ui-components': ['./src/components/Keyboard', './src/components/Header'],
           'charts': ['./src/components/LazyRecharts', './src/components/SpiderChart', './src/components/PredictionCurve'],
@@ -148,11 +190,25 @@ export default defineConfig({
           'stats-pages': ['./src/components/StatisticsPage', './src/components/WeeklyProgress'],
           'rewards': ['./src/components/SessionSummary', './src/components/StreakRewardsPanel', './src/components/TypingTips', './src/components/Onboarding'],
           'widgets': ['./src/components/ClockWidget', './src/components/MotivationalQuote', './src/components/OnlineStatus'],
-          // Выносим jspdf в отдельный чанк для оптимизации (без autotable для экономии места)
-          'pdf-vendor': ['jspdf'],
+          'certificate': ['./src/components/CertificateGenerator'],
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        sourcemap: false,
+        hoistTransitiveImports: true,
       },
     },
-    chunkSizeWarningLimit: 400, // Уменьшаем лимит до 400KB
+    chunkSizeWarningLimit: 350,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-is', 'framer-motion', '@tanstack/react-query'],
+    exclude: ['@sentry/react'],
+  },
+  css: {
+    devSourcemap: false,
+    modules: {
+      localsConvention: 'camelCaseOnly',
+    },
   },
 })

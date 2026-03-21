@@ -11,6 +11,7 @@ const THEME_ICONS: Record<SoundTheme, string> = {
   mechanical: '⌨️',
   soft: '🌸',
   retro: '👾',
+  asmr: '🎧',
 }
 
 const THEME_NAMES: Record<SoundTheme, string> = {
@@ -19,10 +20,11 @@ const THEME_NAMES: Record<SoundTheme, string> = {
   mechanical: 'Механическая',
   soft: 'Мягкий',
   retro: 'Ретро',
+  asmr: 'ASMR',
 }
 
 export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSelectorProps) {
-  const themes: SoundTheme[] = ['default', 'piano', 'mechanical', 'soft', 'retro']
+  const themes: SoundTheme[] = ['default', 'piano', 'mechanical', 'soft', 'retro', 'asmr']
   const id = 'sound-theme-selector'
 
   return (

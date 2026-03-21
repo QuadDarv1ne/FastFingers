@@ -41,6 +41,7 @@ const THEME_CONFIGS: Record<SoundTheme, { baseFreq: number; waveType: Oscillator
   mechanical: { baseFreq: 1, waveType: 'square' },
   soft: { baseFreq: 0.8, waveType: 'sine' },
   retro: { baseFreq: 0.9, waveType: 'square' },
+  asmr: { baseFreq: 0.7, waveType: 'sine' },
 }
 
 export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundReturn {
