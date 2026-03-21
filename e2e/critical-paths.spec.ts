@@ -104,7 +104,6 @@ test.describe('Certificate Generator E2E', () => {
 
         // Проверяем, что PDF создан (проверяем наличие ссылки или сообщения об успехе)
         const successMessage = page.locator(':has-text(/успешно|success|скачан|downloaded/i)')
-        const downloadPromise = page.waitForEvent('download').catch(() => null)
 
         const successVisible = await successMessage.isVisible().catch(() => false)
         expect(successVisible).toBeTruthy()

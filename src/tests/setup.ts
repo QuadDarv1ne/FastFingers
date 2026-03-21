@@ -2,6 +2,34 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
 
+// Мок для framer-motion
+vi.mock('framer-motion', async () => {
+  const actual = await vi.importActual('framer-motion')
+  return {
+    ...actual,
+    motion: {
+      div: 'div',
+      span: 'span',
+      button: 'button',
+      input: 'input',
+      p: 'p',
+      h1: 'h1',
+      h2: 'h2',
+      h3: 'h3',
+      h4: 'h4',
+      li: 'li',
+      ul: 'ul',
+      nav: 'nav',
+      header: 'header',
+      footer: 'footer',
+      main: 'main',
+      section: 'section',
+      article: 'article',
+      aside: 'aside',
+    },
+  }
+})
+
 // Очищать DOM после каждого теста
 afterEach(() => {
   cleanup()

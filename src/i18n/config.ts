@@ -192,7 +192,7 @@ export type TranslationKey =
   | 'quote.collier'
   | 'quote.jobs'
 
-export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he'
+export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es'
 
 // ============================================
 // Ресурсы переводов
@@ -895,7 +895,7 @@ i18n
     resources,
     lng: undefined,
     fallbackLng: 'ru',
-    supportedLngs: ['ru', 'en', 'zh', 'he'],
+    supportedLngs: ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es'],
     interpolation: {
       escapeValue: false,
     },
@@ -911,7 +911,7 @@ i18n
   })
 
 i18n.on('languageChanged', (lng) => {
-  const isRTL = lng === 'he'
+  const isRTL = lng === 'he' || lng === 'ar'
   document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
   document.documentElement.lang = lng
 })

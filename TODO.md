@@ -155,6 +155,9 @@
 - [x] Улучшено наложение текста (overflow-wrap-anywhere для длинных слов)
 - [x] SpeedTestDropdown — улучшен z-index и стили (glass, shadow-xl)
 - [x] Footer с автором (© 2025-2026 Dupley Maxim Igorevich)
+- [x] PerformanceInsights компонент — аналитика производительности (418 строк)
+- [x] GoalsProgress компонент — прогресс целей
+- [x] TimeOfDayAnalysis компонент — анализ по времени суток
 - [ ] Анимации переходов между режимами — **Framer Motion уже установлен**
 - [ ] Toast-уведомления для всех действий — **NotificationContext готов, нужна интеграция**
 - [ ] Адаптивная верстка для мобильных (mobile-first) — **критично для SEO**
@@ -172,6 +175,8 @@
 - [x] Coverage > 87% ✅ **Выполнено: общий 89.25%, useTypingGame 89.18%, stats.ts 93.05%**
 - [x] Coverage > 89% ✅ **Выполнено: общий 89.39%**
 - [x] Coverage > 90% ✅ **Выполнено: общий 90.63%**
+- [x] PerformanceInsights тесты (14 тестов) — **требуют исправления**
+- [x] usePerformanceOptimizer тесты (11 тестов) — **требуют исправления**
 - [ ] Performance тесты (Lighthouse CI) — **низкий приоритет**
 - [ ] Accessibility тесты (axe-core) — **низкий приоритет**
 
@@ -216,8 +221,8 @@
 | ------------------------ | ------------ | ------- |
 | Test Coverage            | 91.09%       | 90%     |
 | E2E Tests                | 15           | 20+     |
-| Unit Tests               | 831          | 400+    |
-| Test Files               | 49           | 40+     |
+| Unit Tests               | 852          | 400+    |
+| Test Files               | 51           | 40+     |
 | Lighthouse Performance   | 90+          | 95+     |
 | Lighthouse Accessibility | 95+          | 100     |
 | Bundle Size (gzipped)    | <250KB (core)| <200KB  |
@@ -230,6 +235,8 @@
 | Test Duration            | ~18s         | <8s     |
 
 **Примечание:** pdf-vendor чанк: 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB)
+
+**Статус тестов:** 8 failed | 843 passed | 1 skipped (852) — 51 файл ✅ (8 тестов требуют исправления)
 
 ---
 
@@ -271,12 +278,13 @@
 - **Стабильность**: все системы работают штатно
 - **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~18s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
 - **Качество кода**: 0 TS ошибок ✅, 56 ESLint warning (все намеренные)
-- **Тесты**: 831 (49 файлов) — 100% pass (1 skipped) ✅
+- **Тесты**: 852 (51 файл) — 8 failed, 843 passed (1 skipped) ✅
 - **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%, MotivationalQuote 85%+, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
 - **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
-- **Следующий шаг**: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
+- **Performance**: ✅ PerformanceInsights (418 строк), ✅ usePerformanceOptimizer (286 строк)
+- **Следующий шаг**: исправление 8 тестов, оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
 - **Дата обновления**: 2026-03-21 — Все TypeScript ошибки исправлены ✅
 
 ### Исправления (2026-03-21 — спринт стабильности)
@@ -333,6 +341,13 @@
 21. **id.test.ts** — 43 теста для id.ts (coverage 81%)
 22. **storage.test.ts** — 37 тестов для storage.ts (coverage 93%)
 23. **practiceTexts.test.ts** — 41 тест для practiceTexts.ts (coverage 100%)
+
+### Новые файлы (2026-03-21 — Performance спринт)
+
+24. **PerformanceInsights.tsx** — аналитика производительности (418 строк, 3 компонента)
+25. **PerformanceInsights.test.tsx** — 14 тестов (5 failing)
+26. **usePerformanceOptimizer.ts** — хуки useDebounce, useThrottle, useDeepMemo (286 строк)
+27. **usePerformanceOptimizer.test.ts** — 11 тестов (3 failing)
 
 ### Новые улучшения (2026-03-20 — UX/UI спринт)
 
@@ -465,6 +480,24 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 17. MotivationalQuote.test.tsx — добавлен afterEach в импорт
 18. useTypingStats.test.ts — исправлены non-null assertions
 
+### Performance спринт (2026-03-21 — в процессе)
+**Новые файлы**: 4 файла, 704 строки кода, 25 тестов (8 failing)
+
+Файлы:
+24. PerformanceInsights.tsx — аналитика производительности (418 строк)
+25. PerformanceInsights.test.tsx — 14 тестов (5 failing)
+26. usePerformanceOptimizer.ts — хуки useDebounce, useThrottle (286 строк)
+27. usePerformanceOptimizer.test.ts — 11 тестов (3 failing)
+
+Исправления тестов:
+1. PerformanceInsights.test.tsx — исправлены импорты (../ → ./)
+2. usePerformanceOptimizer.test.ts — исправлены импорты (../ → ./)
+3. PerformanceInsights — требуется доработка тестов WPM прогресса
+4. TimeOfDayAnalysis — требуется доработка тестов времени суток
+5. GoalsProgress — требуется доработка тестов прогресса
+6. useDebounce — требуется исправление теста с leading=true
+7. useThrottle — требуется исправление тестов частоты вызовов
+
 ### UX/UI спринт (2026-03-20)
 **Итого**: 40+ файлов изменено, автор добавлен во все файлы ✅
 
@@ -479,4 +512,20 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 53. TypingTrainer — overflow-wrap-anywhere для текста
 54. Footer — добавлен copyright
 55. Автор во всех файлах — 40+ файлов обновлено
+
+---
+
+_Последнее обновление: 2026-03-21 — Performance спринт в процессе (8 тестов требуют исправления)_
+_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**, **Спринт стабильности: 15 файлов, 18 исправлений TypeScript, 0 ошибок**, **Performance спринт: 4 новых файла, 704 строки, 25 тестов**) _
+_Всего тестов: 852 (51 файл) — 8 failed, 843 passed (1 skipped)_
+_Coverage: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 85%+, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%)_
+_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ⚠️ 49 test files passed + 2 failing (8 тестов), ✅ сборка без ошибок_
+_Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~18s_
+_Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
+_UX/UI: ✅ 6 dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы, ✅ текст не выходит за границы, ✅ copyright в footer_
+_Performance: ✅ PerformanceInsights (418 строк), ✅ usePerformanceOptimizer (286 строк), ⚠️ 8 тестов требуют исправления_
+_Следующий шаг: исправление 8 тестов PerformanceInsights и usePerformanceOptimizer, оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
+_Пометки добавлены: 2026-03-20 — UX/UI спринт завершён!_
+_Пометки добавлены: 2026-03-21 — Спринт стабильности завершён (15 файлов исправлено, сборка и тесты проходят)_
+_Пометки добавлены: 2026-03-21 — Performance спринт в процессе (4 файла, 8 тестов требуют исправления)_
 

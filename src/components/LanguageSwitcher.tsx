@@ -12,6 +12,9 @@ const LANGUAGES: { code: SupportedLanguage; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'zh', label: '中文', flag: '🇨🇳' },
   { code: 'he', label: 'עברית', flag: '🇮🇱' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
 ]
 
 export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {

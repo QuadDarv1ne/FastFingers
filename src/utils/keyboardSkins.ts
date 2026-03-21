@@ -1,5 +1,5 @@
 /** Темы оформления клавиатуры (скины) */
-export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai'
+export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai' | 'galaxy'
 
 export interface KeyboardSkinColors {
   keyBg: string
@@ -189,6 +189,28 @@ export const keyboardSkins: Record<KeyboardSkin, KeyboardSkinColors> = {
     },
     spacebarGradient: 'linear-gradient(90deg, #272822 0%, #3e3d32 50%, #272822 100%)',
   },
+
+  galaxy: {
+    keyBg: '#0d0616',
+    keyBgActive: '#1a0f2e',
+    keyText: '#c084fc',
+    keyBorder: 'rgba(192, 132, 252, 0.3)',
+    keyActiveText: '#ffffff',
+    highlight: '#e879f9',
+    highlightGlow: 'rgba(232, 121, 249, 0.6)',
+    zoneColors: {
+      'left-pinky': '#f43f5e',
+      'left-ring': '#f97316',
+      'left-middle': '#fbbf24',
+      'left-index': '#22c55e',
+      'right-index': '#06b6d4',
+      'right-middle': '#6366f1',
+      'right-ring': '#a855f7',
+      'right-pinky': '#ec4899',
+      thumb: '#c084fc',
+    },
+    spacebarGradient: 'linear-gradient(90deg, #7c3aed 0%, #c084fc 50%, #e879f9 100%)',
+  },
 }
 
 /** Получить скин по названию */
@@ -206,4 +228,5 @@ export const keyboardSkinPresets = [
   { value: 'sunset' as KeyboardSkin, label: 'Закат', icon: '🌅', description: 'Тёплые цвета заката' },
   { value: 'matrix' as KeyboardSkin, label: 'Матрица', icon: '🟩', description: 'Легендарный зелёный' },
   { value: 'monokai' as KeyboardSkin, label: 'Monokai', icon: '🎨', description: 'Популярная тема редактора' },
+  { value: 'galaxy' as KeyboardSkin, label: 'Галактика', icon: '🌌', description: 'Фиолетовые космические оттенки' },
 ] as const
