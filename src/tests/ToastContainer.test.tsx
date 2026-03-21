@@ -65,12 +65,12 @@ describe('ToastContainer', () => {
     function TestComponent() {
       const { showToast } = useToast()
       React.useEffect(() => { showToast('Тест', 'info') }, [])
-       
+
       return <ToastContainer />
     }
 
     const { container } = renderWithProvider(<TestComponent />)
     const toastContainer = container.querySelector('div[class*="fixed"]')
-    expect(toastContainer).toHaveClass('z-50')
+    expect(toastContainer).toHaveClass('z-[100]')
   })
 })
