@@ -266,26 +266,41 @@
 27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **следующий шаг**
 28. **ESLint warnings** — 56 warning (любой type, non-null assertion, react-refresh) — **низкий приоритет, все намеренные**
 
-### Текущий статус (2026-03-21)
+### Текущий статус (2026-03-21 — актуализировано)
 
 - **Стабильность**: все системы работают штатно
 - **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~18s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
-- **Качество кода**: 0 TS ошибок, 56 ESLint warning (все намеренные)
+- **Качество кода**: 0 TS ошибок ✅, 56 ESLint warning (все намеренные)
 - **Тесты**: 831 (49 файлов) — 100% pass (1 skipped) ✅
 - **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%, MotivationalQuote 85%+, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%
 - **PWA**: 36 entries кэшировано, service worker активен
 - **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
 - **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
 - **Следующий шаг**: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-21 — Исправлены тесты (useStatsWorker, ThemeToggle, ToastContainer) ✅
+- **Дата обновления**: 2026-03-21 — Все TypeScript ошибки исправлены ✅
 
-### Исправления (2026-03-21)
+### Исправления (2026-03-21 — спринт стабильности)
 
 1. **useClickOutside.ts** — удалён useCallback из useEffect (нарушение правил React) ✅
 2. **ToastContainer.test.tsx** — исправлен тест с z-50 на z-[100] ✅
 3. **setup.ts** — добавлен MockWorker для тестирования Web Worker ✅
 4. **useStatsWorker.test.ts** — исправлены тесты terminate и empty data ✅
-5. **Тесты**: 831 passed, 1 skipped (100% pass rate) ✅
+5. **useIndexedDB.ts** — исправлены unused переменные (item, key, openDB) ✅
+6. **useStatsWorker.ts** — исправлены code paths (return в catch) ✅
+7. **stats.worker.ts** — переписана calculateCorrelationMatrix (75 строк) ✅
+8. **StatisticsPage.tsx** — исправлены unused переменные (dailyStats, weeklyComparison, personalRecords) ✅
+9. **StatisticsPage.tsx** — исправлен тип sessionsForWorker (TypingStats[]) ✅
+10. **NotificationBell.tsx** — удалён unused showBadge ✅
+11. **FunnelAnalysis.tsx** — исправлен тип FunnelStage (stage → name) ✅
+12. **FunnelAnalysis.tsx** — адаптирован под массив FunnelStage[] ✅
+13. **certificate.ts** — исправлен setFillColor (number → string) ✅
+14. **types/index.ts** — добавлено date?: string в TypingStats ✅
+15. **types/index.ts** — исправлен FunnelStage (stage → name) ✅
+16. **stats.ts** — исправлен analyzeFunnel (stage → name) ✅
+17. **MotivationalQuote.test.tsx** — добавлен afterEach в импорт ✅
+18. **useTypingStats.test.ts** — исправлены non-null assertions ✅
+
+**Итого**: 15 файлов изменено, 111 строк добавлено, 84 удалено ✅
 
 ### Новые наблюдения (2026-03-18)
 
@@ -384,14 +399,14 @@
 
 ---
 
-_Последнее обновление: 2026-03-21 (актуализировано)_
-_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**, **Исправления: useClickOutside, ToastContainer, useStatsWorker тесты**)_
+_Последнее обновление: 2026-03-21 — спринт стабильности завершён_
+_Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**, **Спринт стабильности: 15 файлов, 18 исправлений TypeScript, 0 ошибок**) _
 _Всего тестов: 831 (49 файлов) — 100% pass (1 skipped)_
 _Coverage: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 85%+, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%)_
-_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 49 test files passed (100%)_
+_Статус: ✅ ESLint 56 warning (все намеренные), ✅ TypeScript 0 ошибок, ✅ 49 test files passed (100%), ✅ сборка без ошибок_
 _Стабильность: 40+ хуков, 75+ компонентов, PWA готово, сборка ~13s (улучшено с ~17s), тесты ~18s_
 _Кроссплатформенная сборка: ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)_
 _UX/UI: ✅ 6 dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы, ✅ текст не выходит за границы, ✅ copyright в footer_
 _Следующий шаг: оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, Supabase интеграция_
 _Пометки добавлены: 2026-03-20 — UX/UI спринт завершён!_
-_Пометки добавлены: 2026-03-21 — Исправления тестов завершены (useClickOutside, ToastContainer, useStatsWorker)_
+_Пометки добавлены: 2026-03-21 — Спринт стабильности завершён (15 файлов исправлено, сборка и тесты проходят)_
