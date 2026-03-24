@@ -898,17 +898,11 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: undefined,
+    lng: 'ru',
     fallbackLng: 'ru',
     supportedLngs: ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es'],
     interpolation: {
       escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'fastfingers_language',
-      checkWhitelist: true,
     },
     react: {
       useSuspense: false,

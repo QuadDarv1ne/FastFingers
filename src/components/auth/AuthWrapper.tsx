@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Login } from './Login'
 import { Register } from './Register'
 import { PasswordReset } from './PasswordReset'
+import { ThemeToggle } from '../ThemeToggle'
+import { useTheme } from '@hooks/useTheme'
 
 type AuthView = 'login' | 'register' | 'reset'
 
@@ -12,6 +14,7 @@ interface AuthWrapperProps {
 
 export function AuthWrapper({ onSuccess }: AuthWrapperProps) {
   const [view, setView] = useState<AuthView>('login')
+  const { theme, themeOption, setTheme, setThemeOption } = useTheme()
 
   return (
     <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
@@ -19,6 +22,16 @@ export function AuthWrapper({ onSuccess }: AuthWrapperProps) {
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-600/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl" />
+      </div>
+
+      {/* Переключатель темы */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle
+          theme={theme}
+          themeOption={themeOption}
+          onThemeChange={setTheme}
+          onThemeOptionChange={setThemeOption}
+        />
       </div>
 
       {/* Контент */}
