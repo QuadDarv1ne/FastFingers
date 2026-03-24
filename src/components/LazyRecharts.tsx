@@ -33,6 +33,7 @@ const createLazyChart = <T extends keyof Awaited<ReturnType<typeof loadRecharts>
 
 export { LoadingFallback }
 
+<<<<<<< HEAD
 // Компоненты recharts с ленивой загрузкой
 // Все компоненты загружаются одним чанком при первом использовании любого из них
 export const BarChart = createLazyChart('BarChart')
