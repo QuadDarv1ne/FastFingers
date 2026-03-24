@@ -1,7 +1,7 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useFocusTrap } from '@hooks/useFocusTrap'
-import { useLeaderboard, useUserRank, LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
+import { useLeaderboard, useUserRank, type LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
 
 export interface LeaderboardEntry {
   id: string
@@ -15,16 +15,36 @@ export interface LeaderboardEntry {
   avatar?: string
 }
 
+// Адаптер для преобразования данных из Supabase в формат компонента
+function adaptLeaderboardEntry(entry: SupabaseLeaderboardEntry): LeaderboardEntry {
+  return {
+    id: entry.user_id,
+    name: entry.name,
+    wpm: entry.wpm,
+    accuracy: entry.accuracy,
+    level: entry.level,
+    totalWords: Math.floor(entry.score / 10),
+    streak: 0,
+    lastActive: entry.created_at,
+  }
+}
+
 interface LeaderboardProps {
   currentUser?: LeaderboardEntry
   onClose: () => void
   userId?: string
+  gameMode?: 'classic' | 'hardcore' | 'duel'
 }
 
 type SortBy = 'wpm' | 'accuracy' | 'level' | 'words' | 'streak'
 type TimeFilter = 'today' | 'week' | 'month' | 'all'
 
-export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ currentUser, onClose, userId }: LeaderboardProps) {
+export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
+  currentUser,
+  onClose,
+  userId,
+  gameMode = 'classic'
+}: LeaderboardProps) {
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -58,6 +78,23 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
 
   useFocusTrap(containerRef, true)
 
+  // Загружаем данные из Supabase через хук
+  const { data: supabaseEntries, isLoading, error } = useLeaderboard({
+    gameMode,
+    timeFilter,
+    sortBy: sortBy === 'wpm' || sortBy === 'accuracy' || sortBy === 'level' ? sortBy : 'score',
+    limit: 100,
+  })
+
+  // Загружаем ранг текущего пользователя
+  const { data: userRankData } = useUserRank(currentUser?.id, gameMode)
+
+  // Адаптируем данные из Supabase
+  const entries: LeaderboardEntry[] = useMemo(() => {
+    if (!supabaseEntries) return []
+    return supabaseEntries.map(adaptLeaderboardEntry)
+  }, [supabaseEntries])
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -66,13 +103,18 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
-  // Data is already filtered and sorted by Supabase, just use it directly
+  // Данные уже отфильтрованы и отсортированы хуком useLeaderboard
   const filteredAndSorted = useMemo(() => {
     return entries
   }, [entries])
 
-  // Use rank from Supabase hook
-  const currentUserRank = userRankData?.rank || null
+  // Use rank from Supabase hook with fallback
+  const currentUserRank = useMemo(() => {
+    if (userRankData?.rank) return userRankData.rank
+    if (!currentUser) return null
+    const index = filteredAndSorted.findIndex(e => e.id === currentUser.id)
+    return index >= 0 ? index + 1 : null
+  }, [filteredAndSorted, currentUser, userRankData])
 
   const currentUserPercentile = useMemo(() => {
     if (!currentUser || filteredAndSorted.length === 0) return null
@@ -116,6 +158,38 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Состояние загрузки */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <div className="text-4xl mb-4">⏳</div>
+              <p className="text-dark-400">Загрузка лидерборда...</p>
+            </div>
+          )}
+
+          {/* Состояние ошибки */}
+          {error && (
+            <div className="text-center py-12">
+              <div className="text-4xl mb-4">❌</div>
+              <p className="text-red-400">Ошибка загрузки данных</p>
+              <p className="text-sm text-dark-500 mt-2">
+                Проверьте подключение к интернету или настройки Supabase
+              </p>
+            </div>
+          )}
+
+          {/* Пустое состояние (нет данных) */}
+          {!isLoading && !error && filteredAndSorted.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🏆</div>
+              <h3 className="text-xl font-semibold mb-2">Нет данных</h3>
+              <p className="text-dark-400">
+                Начните тренироваться, чтобы попасть в рейтинг
+              </p>
+            </div>
+          )}
+
+          {!isLoading && !error && filteredAndSorted.length > 0 && (
+            <>
           {/* Фильтры */}
           <div className="flex flex-wrap gap-4">
             {/* Сортировка */}
@@ -236,16 +310,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
               />
             </div>
           )}
-
-          {/* Пустое состояние */}
-          {filteredAndSorted.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🏆</div>
-              <h3 className="text-xl font-semibold mb-2">Нет данных</h3>
-              <p className="text-dark-400">
-                Начните тренироваться, чтобы попасть в рейтинг
-              </p>
-            </div>
+            </>
           )}
         </div>
       </div>
