@@ -26,9 +26,9 @@ const CACHE_LIMITS = {
 }
 
 // Установка сервис-воркера
-self.addEventListener('install', (event: ExtendableEvent) => {
+self.addEventListener('install', /** @param {ExtendableEvent} event */ (event) => {
   console.log('[SW] Installing service worker...')
-  
+
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
@@ -39,12 +39,12 @@ self.addEventListener('install', (event: ExtendableEvent) => {
         console.error('[SW] Pre-cache failed:', err)
       })
   )
-  
+
   self.skipWaiting()
 })
 
 // Активация сервис-воркера
-self.addEventListener('activate', (event: ExtendableEvent) => {
+self.addEventListener('activate', /** @param {ExtendableEvent} event */ (event) => {
   console.log('[SW] Activating service worker...')
   
   event.waitUntil(
@@ -75,7 +75,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 })
 
 // Перехват запросов
-self.addEventListener('fetch', (event: FetchEvent) => {
+self.addEventListener('fetch', /** @param {FetchEvent} event */ (event) => {
   const { request } = event
   const url = new URL(request.url)
   
@@ -93,7 +93,11 @@ self.addEventListener('fetch', (event: FetchEvent) => {
 })
 
 // Обработка запросов
-async function handleRequest(request: Request): Promise<Response> {
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleRequest(request) {
   const url = new URL(request.url)
   
   try {
@@ -121,23 +125,39 @@ async function handleRequest(request: Request): Promise<Response> {
 }
 
 // Проверка типа запроса
-function isImageRequest(url: URL): boolean {
+/**
+ * @param {URL} url
+ * @returns {boolean}
+ */
+function isImageRequest(url) {
   return /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(url.pathname)
 }
 
-function isApiRequest(url: URL): boolean {
-  return url.pathname.startsWith('/api/') || 
+/**
+ * @param {URL} url
+ * @returns {boolean}
+ */
+function isApiRequest(url) {
+  return url.pathname.startsWith('/api/') ||
          url.hostname.includes('supabase') ||
          url.hostname.includes('api.')
 }
 
-function isStaticAsset(url: URL): boolean {
+/**
+ * @param {URL} url
+ * @returns {boolean}
+ */
+function isStaticAsset(url) {
   return /\.(js|css|woff|woff2|ttf|eot)$/i.test(url.pathname) ||
          url.pathname.includes('/assets/')
 }
 
 // Обработчики запросов
-async function handleImageRequest(request: Request): Promise<Response> {
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleImageRequest(request) {
   const cachedResponse = await caches.match(request)
   
   if (cachedResponse) {
@@ -165,7 +185,11 @@ async function handleImageRequest(request: Request): Promise<Response> {
   }
 }
 
-async function handleApiRequest(request: Request): Promise<Response> {
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleApiRequest(request) {
   try {
     const response = await fetch(request)
     
@@ -186,7 +210,11 @@ async function handleApiRequest(request: Request): Promise<Response> {
   }
 }
 
-async function handleStaticRequest(request: Request): Promise<Response> {
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleStaticRequest(request) {
   const cachedResponse = await caches.match(request)
   
   if (cachedResponse) {
@@ -205,7 +233,11 @@ async function handleStaticRequest(request: Request): Promise<Response> {
   }
 }
 
-async function handleDynamicRequest(request: Request): Promise<Response> {
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleDynamicRequest(request) {
   const cachedResponse = await caches.match(request)
   
   const fetchPromise = fetch(request).then((networkResponse) => {
@@ -223,7 +255,12 @@ async function handleDynamicRequest(request: Request): Promise<Response> {
 }
 
 // Очистка кэша до лимита
-async function trimCache(cacheName: string, limit: number): Promise<void> {
+/**
+ * @param {string} cacheName
+ * @param {number} limit
+ * @returns {Promise<void>}
+ */
+async function trimCache(cacheName, limit) {
   try {
     const cache = await caches.open(cacheName)
     const keys = await cache.keys()
@@ -242,7 +279,7 @@ async function trimCache(cacheName: string, limit: number): Promise<void> {
 }
 
 // Background sync для офлайн действий
-self.addEventListener('sync', (event: SyncEvent) => {
+self.addEventListener('sync', /** @param {SyncEvent} event */ (event) => {
   console.log('[SW] Sync event:', event.tag)
   
   if (event.tag === 'sync-typing-data') {
@@ -290,7 +327,11 @@ function openDatabase(): Promise<IDBDatabase> {
   })
 }
 
-function getPendingData(db: IDBDatabase): Promise<any[]> {
+/**
+ * @param {IDBDatabase} db
+ * @returns {Promise<any[]>}
+ */
+function getPendingData(db) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('pendingSessions', 'readonly')
     const store = transaction.objectStore('pendingSessions')
@@ -301,7 +342,12 @@ function getPendingData(db: IDBDatabase): Promise<any[]> {
   })
 }
 
-function removePendingData(db: IDBDatabase, id: string): Promise<void> {
+/**
+ * @param {IDBDatabase} db
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
+function removePendingData(db, id) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('pendingSessions', 'readwrite')
     const store = transaction.objectStore('pendingSessions')
@@ -313,7 +359,7 @@ function removePendingData(db: IDBDatabase, id: string): Promise<void> {
 }
 
 // Push notifications
-self.addEventListener('push', (event: PushEvent) => {
+self.addEventListener('push', /** @param {PushEvent} event */ (event) => {
   console.log('[SW] Push received:', event)
   
   const data = event.data?.json() || {}
@@ -333,7 +379,7 @@ self.addEventListener('push', (event: PushEvent) => {
 })
 
 // Notification click handler
-self.addEventListener('notificationclick', (event: NotificationEvent) => {
+self.addEventListener('notificationclick', /** @param {NotificationEvent} event */ (event) => {
   console.log('[SW] Notification clicked:', event.action)
   
   event.notification.close()
@@ -354,7 +400,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
 })
 
 // Message handler для коммуникации с приложением
-self.addEventListener('message', (event: ExtendableMessageEvent) => {
+self.addEventListener('message', /** @param {ExtendableMessageEvent} event */ (event) => {
   console.log('[SW] Message received:', event.data)
   
   if (event.data && event.data.type === 'SKIP_WAITING') {
