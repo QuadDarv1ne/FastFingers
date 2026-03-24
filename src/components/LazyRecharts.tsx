@@ -11,42 +11,50 @@ LoadingFallback.displayName = 'LoadingFallback'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RechartsComponent = ComponentType<any>
 
- 
-const createLazyChart = (importFn: () => Promise<{ default: RechartsComponent }>) => {
-  const LazyComponent = lazy(importFn)
+// Ленивая загрузка с группировкой импортов для уменьшения количества чанков
+// Основной импорт - загружает всю библиотеку recharts одним чанком
+const loadRecharts = () => import('recharts')
+
+const createLazyChart = <T extends keyof Awaited<ReturnType<typeof loadRecharts>>>(
+  componentName: T
+) => {
+  const LazyComponent = lazy(() =>
+    loadRecharts().then(m => ({ default: m[componentName] as unknown as RechartsComponent }))
+  )
 
   const LazyWrapper = (props: Record<string, unknown>) => (
     <Suspense fallback={<LoadingFallback />}>
       <LazyComponent {...props} />
     </Suspense>
   )
-  LazyWrapper.displayName = `LazyChart`
+  LazyWrapper.displayName = `Lazy${String(componentName)}`
   return LazyWrapper
 }
 
 export { LoadingFallback }
 
-// Каждый компонент импортируется отдельно — будет загружен только используемый
-export const BarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.BarChart as RechartsComponent })))
-export const Bar = createLazyChart(() => import('recharts').then(m => ({ default: m.Bar as RechartsComponent })))
-export const AreaChart = createLazyChart(() => import('recharts').then(m => ({ default: m.AreaChart as RechartsComponent })))
-export const Area = createLazyChart(() => import('recharts').then(m => ({ default: m.Area as RechartsComponent })))
-export const LineChart = createLazyChart(() => import('recharts').then(m => ({ default: m.LineChart as RechartsComponent })))
-export const Line = createLazyChart(() => import('recharts').then(m => ({ default: m.Line as RechartsComponent })))
-export const PieChart = createLazyChart(() => import('recharts').then(m => ({ default: m.PieChart as RechartsComponent })))
-export const Pie = createLazyChart(() => import('recharts').then(m => ({ default: m.Pie as RechartsComponent })))
-export const XAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.XAxis as RechartsComponent })))
-export const YAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.YAxis as RechartsComponent })))
-export const CartesianGrid = createLazyChart(() => import('recharts').then(m => ({ default: m.CartesianGrid as RechartsComponent })))
-export const Tooltip = createLazyChart(() => import('recharts').then(m => ({ default: m.Tooltip as RechartsComponent })))
-export const ResponsiveContainer = createLazyChart(() => import('recharts').then(m => ({ default: m.ResponsiveContainer as RechartsComponent })))
-export const Cell = createLazyChart(() => import('recharts').then(m => ({ default: m.Cell as RechartsComponent })))
-export const Legend = createLazyChart(() => import('recharts').then(m => ({ default: m.Legend as RechartsComponent })))
-export const Label = createLazyChart(() => import('recharts').then(m => ({ default: m.Label as RechartsComponent })))
-export const ReferenceLine = createLazyChart(() => import('recharts').then(m => ({ default: m.ReferenceLine as RechartsComponent })))
-export const Radar = createLazyChart(() => import('recharts').then(m => ({ default: m.Radar as RechartsComponent })))
-export const RadarChart = createLazyChart(() => import('recharts').then(m => ({ default: m.RadarChart as RechartsComponent })))
-export const PolarGrid = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarGrid as RechartsComponent })))
-export const PolarAngleAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarAngleAxis as RechartsComponent })))
-export const PolarRadiusAxis = createLazyChart(() => import('recharts').then(m => ({ default: m.PolarRadiusAxis as RechartsComponent })))
-export const LabelList = createLazyChart(() => import('recharts').then(m => ({ default: m.LabelList as RechartsComponent })))
+// Компоненты recharts с ленивой загрузкой
+// Все компоненты загружаются одним чанком при первом использовании любого из них
+export const BarChart = createLazyChart('BarChart')
+export const Bar = createLazyChart('Bar')
+export const AreaChart = createLazyChart('AreaChart')
+export const Area = createLazyChart('Area')
+export const LineChart = createLazyChart('LineChart')
+export const Line = createLazyChart('Line')
+export const PieChart = createLazyChart('PieChart')
+export const Pie = createLazyChart('Pie')
+export const XAxis = createLazyChart('XAxis')
+export const YAxis = createLazyChart('YAxis')
+export const CartesianGrid = createLazyChart('CartesianGrid')
+export const Tooltip = createLazyChart('Tooltip')
+export const ResponsiveContainer = createLazyChart('ResponsiveContainer')
+export const Cell = createLazyChart('Cell')
+export const Legend = createLazyChart('Legend')
+export const Label = createLazyChart('Label')
+export const ReferenceLine = createLazyChart('ReferenceLine')
+export const Radar = createLazyChart('Radar')
+export const RadarChart = createLazyChart('RadarChart')
+export const PolarGrid = createLazyChart('PolarGrid')
+export const PolarAngleAxis = createLazyChart('PolarAngleAxis')
+export const PolarRadiusAxis = createLazyChart('PolarRadiusAxis')
+export const LabelList = createLazyChart('LabelList')

@@ -9,7 +9,8 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { copyFileSync } from 'fs'
+import { copyFileSync, writeFileSync, readFileSync } from 'fs'
+import { brotliCompressSync } from 'zlib'
 
 // Плагин для копирования _routes.json в dist
 function copyRoutesPlugin() {
@@ -125,6 +126,29 @@ export default defineConfig({
       brotliSize: true,
     }),
     copyRoutesPlugin(),
+    // Brotli compression plugin
+    {
+      name: 'brotli-compression',
+      writeBundle(options, bundle) {
+        const dir = options.dir || 'dist'
+        for (const [fileName, asset] of Object.entries(bundle)) {
+          if (fileName.endsWith('.js') || fileName.endsWith('.css')) {
+            let content: Buffer
+            if (asset.type === 'asset' && 'source' in asset) {
+              content = Buffer.from(asset.source)
+            } else {
+              // For chunks, read from disk
+              const filePath = `${dir}/${fileName}`
+              content = readFileSync(filePath)
+            }
+            if (content.length > 0) {
+              const compressed = brotliCompressSync(content)
+              writeFileSync(`${dir}/${fileName}.br`, compressed)
+            }
+          }
+        }
+      },
+    },
   ],
   resolve: {
     alias: {
@@ -177,7 +201,7 @@ export default defineConfig({
           'virtual-vendor': ['@tanstack/react-virtual'],
           'storage-vendor': ['zustand'],
           'monitoring-vendor': ['@sentry/react'],
-          'pdf-vendor': ['jspdf'],
+          // jspdf не включаем в vendor - используется только динамически через import()
           // Компоненты по функциональности
           'typing-core': ['./src/components/TypingTrainer'],
           'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],

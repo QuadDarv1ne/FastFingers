@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(ls -la dist/assets/*pdf*)",
+      "Bash(ls dist/assets/*.br)",
+      "Bash(dir distassets*.br)",
+      "Bash(npx playwright:*)",
+      "Bash(ls dist/*.br)"
+    ]
+  }
+}

@@ -1,6 +1,9 @@
 import { User, UserStats } from '../types/auth'
 import { useEffect } from 'react'
+import { supabase } from './supabase'
+import { createScopedLogger } from '../utils/logger'
 
+const logger = createScopedLogger('cloudSync')
 const CLOUD_SYNC_KEY = 'fastfingers_cloud_sync'
 const SYNC_INTERVAL = 5 * 60 * 1000 // 5 минут
 
@@ -11,11 +14,50 @@ export interface CloudSave {
   version: string
 }
 
+// Database schema types for Supabase
+interface TypingSessionRow {
+  id: string
+  user_id: string
+  wpm: number
+  cpm: number
+  accuracy: number
+  errors: number
+  correct_chars: number
+  total_chars: number
+  duration: number
+  xp: number
+  created_at: string
+}
+
+interface HardcoreRecordRow {
+  id: string
+  user_id: string
+  streak: number
+  wpm: number
+  accuracy: number
+  created_at: string
+}
+
 class CloudSyncService {
   private syncQueue: CloudSave[] = []
   private isSyncing = false
+  private isOnline = true
+  private offlineCache: Array<{ type: string; data: unknown }> = []
 
-  // Сохранение в "облако" (localStorage для демонстрации)
+  constructor() {
+    // Monitor online status
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => {
+        this.isOnline = true
+        this.flushOfflineCache()
+      })
+      window.addEventListener('offline', () => {
+        this.isOnline = false
+      })
+    }
+  }
+
+  // Save user stats to Supabase
   async saveProgress(user: User, stats: UserStats): Promise<void> {
     const save: CloudSave = {
       userId: user.id,
@@ -24,33 +66,72 @@ class CloudSyncService {
       version: '1.0',
     }
 
-    // Добавляем в очередь
+    // Add to queue
     this.syncQueue.push(save)
 
-    // Сохраняем локально
-    try {
-      const saves = this.getAllSaves()
-      saves[user.id] = save
-      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
-    } catch {
-      throw new Error('Failed to save progress')
+    // Save to Supabase if online
+    if (this.isOnline && supabase) {
+      try {
+        const { error } = await supabase
+          .from('user_stats')
+          .upsert(
+            {
+              user_id: user.id,
+              stats,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id' }
+          )
+
+        if (error) throw error
+
+        logger.info('Progress saved to Supabase')
+      } catch (error) {
+        logger.error('Failed to save to Supabase:', error)
+        // Fallback to localStorage
+        this.saveToLocalStorage(save)
+        this.offlineCache.push({ type: 'stats', data: save })
+      }
+    } else {
+      // Fallback to localStorage
+      this.saveToLocalStorage(save)
     }
 
-    // Очищаем очередь
+    // Clear from queue
     this.syncQueue = this.syncQueue.filter(s => s !== save)
   }
 
-  // Загрузка из "облака"
+  // Load user stats from Supabase
   async loadProgress(userId: string): Promise<CloudSave | null> {
-    try {
-      const saves = this.getAllSaves()
-      return saves[userId] || null
-    } catch {
-      return null
+    if (this.isOnline && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('user_stats')
+          .select('stats')
+          .eq('user_id', userId)
+          .single()
+
+        if (error) {
+          if (error.code === 'PGRST116') return null // No rows found
+          throw error
+        }
+
+        return {
+          userId,
+          stats: data.stats as UserStats,
+          timestamp: Date.now(),
+          version: '1.0',
+        }
+      } catch (error) {
+        logger.error('Failed to load from Supabase:', error)
+      }
     }
+
+    // Fallback to localStorage
+    return this.loadFromLocalStorage(userId)
   }
 
-  // Синхронизация
+  // Full sync with merge
   async sync(user: User, localStats: UserStats): Promise<UserStats> {
     if (this.isSyncing) return localStats
     this.isSyncing = true
@@ -59,15 +140,15 @@ class CloudSyncService {
       const cloudSave = await this.loadProgress(user.id)
 
       if (!cloudSave) {
-        // Нет данных в облаке, загружаем локальные
+        // No cloud data, upload local
         await this.saveProgress(user, localStats)
         return localStats
       }
 
-      // Сравниваем версии и объединяем данные
+      // Merge stats
       const mergedStats = this.mergeStats(localStats, cloudSave.stats)
-      
-      // Сохраняем объединённые данные
+
+      // Save merged data
       await this.saveProgress(user, mergedStats)
 
       return mergedStats
@@ -76,7 +157,118 @@ class CloudSyncService {
     }
   }
 
-  // Объединение статистики
+  // Save typing session
+  async saveTypingSession(
+    userId: string,
+    session: Omit<TypingSessionRow, 'id' | 'user_id' | 'created_at'>
+  ): Promise<void> {
+    if (this.isOnline && supabase) {
+      try {
+        const { error } = await supabase.from('typing_sessions').insert({
+          user_id: userId,
+          ...session,
+        })
+
+        if (error) throw error
+        logger.info('Typing session saved')
+      } catch (error) {
+        logger.error('Failed to save typing session:', error)
+        this.offlineCache.push({ type: 'session', data: { userId, ...session } })
+      }
+    }
+  }
+
+  // Save hardcore mode record
+  async saveHardcoreRecord(
+    userId: string,
+    record: Omit<HardcoreRecordRow, 'id' | 'user_id' | 'created_at'>
+  ): Promise<void> {
+    if (this.isOnline && supabase) {
+      try {
+        const { error } = await supabase.from('hardcore_records').insert({
+          user_id: userId,
+          ...record,
+        })
+
+        if (error) throw error
+        logger.info('Hardcore record saved')
+      } catch (error) {
+        logger.error('Failed to save hardcore record:', error)
+      }
+    }
+  }
+
+  // Save leaderboard entry
+  async saveLeaderboardEntry(
+    userId: string,
+    entry: {
+      game_mode: string
+      wpm: number
+      cpm: number
+      accuracy: number
+      score: number
+      season?: string
+    }
+  ): Promise<void> {
+    if (this.isOnline && supabase) {
+      try {
+        const { error } = await supabase.from('leaderboards').insert({
+          user_id: userId,
+          ...entry,
+        })
+
+        if (error) throw error
+        logger.info('Leaderboard entry saved')
+      } catch (error) {
+        logger.error('Failed to save leaderboard entry:', error)
+      }
+    }
+  }
+
+  // Get user's hardcore records
+  async getHardcoreRecords(userId: string): Promise<HardcoreRecordRow[]> {
+    if (this.isOnline && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('hardcore_records')
+          .select('*')
+          .eq('user_id', userId)
+          .order('streak', { ascending: false })
+          .limit(10)
+
+        if (error) throw error
+        return data || []
+      } catch (error) {
+        logger.error('Failed to load hardcore records:', error)
+      }
+    }
+    return []
+  }
+
+  // Get typing sessions history
+  async getTypingSessions(
+    userId: string,
+    limit = 50
+  ): Promise<TypingSessionRow[]> {
+    if (this.isOnline && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('typing_sessions')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(limit)
+
+        if (error) throw error
+        return data || []
+      } catch (error) {
+        logger.error('Failed to load typing sessions:', error)
+      }
+    }
+    return []
+  }
+
+  // Merge stats from local and cloud
   private mergeStats(local: UserStats, cloud: UserStats): UserStats {
     return {
       totalXp: Math.max(local.totalXp, cloud.totalXp),
@@ -91,6 +283,28 @@ class CloudSyncService {
     }
   }
 
+  // Save to localStorage as fallback
+  private saveToLocalStorage(save: CloudSave): void {
+    try {
+      const saves = this.getAllSaves()
+      saves[save.userId] = save
+      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
+    } catch {
+      logger.error('Failed to save to localStorage')
+    }
+  }
+
+  // Load from localStorage
+  private loadFromLocalStorage(userId: string): CloudSave | null {
+    try {
+      const saves = this.getAllSaves()
+      return saves[userId] || null
+    } catch {
+      return null
+    }
+  }
+
+  // Get all saves from localStorage
   private getAllSaves(): Record<string, CloudSave> {
     try {
       const stored = localStorage.getItem(CLOUD_SYNC_KEY)
@@ -100,29 +314,74 @@ class CloudSyncService {
     }
   }
 
-  // Проверка наличия несохранённых данных
-  getPendingSyncs(): number {
-    return this.syncQueue.length
+  // Flush offline cache when back online
+  private async flushOfflineCache(): Promise<void> {
+    if (this.offlineCache.length === 0) return
+
+    logger.info(`Flushing ${this.offlineCache.length} cached operations`)
+
+    for (const item of this.offlineCache) {
+      try {
+        switch (item.type) {
+          case 'stats': {
+            const save = item.data as CloudSave
+            await this.saveProgress(
+              { id: save.userId } as User,
+              save.stats
+            )
+            break
+          }
+          case 'session': {
+            const data = item.data as { userId: string } & Partial<TypingSessionRow>
+            await this.saveTypingSession(data.userId, {
+              wpm: data.wpm!,
+              cpm: data.cpm!,
+              accuracy: data.accuracy!,
+              errors: data.errors || 0,
+              correct_chars: data.correct_chars || 0,
+              total_chars: data.total_chars || 0,
+              duration: data.duration!,
+              xp: data.xp || 0,
+            })
+            break
+          }
+        }
+      } catch (error) {
+        logger.error('Failed to flush cached operation:', error)
+      }
+    }
+
+    this.offlineCache = []
   }
 
-  // Очистка данных пользователя
+  // Get pending sync count
+  getPendingSyncs(): number {
+    return this.syncQueue.length + this.offlineCache.length
+  }
+
+  // Clear user data
   clearUser(userId: string): void {
     const saves = this.getAllSaves()
     delete saves[userId]
     localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
   }
+
+  // Check if online
+  getIsOnline(): boolean {
+    return this.isOnline
+  }
 }
 
 export const cloudSyncService = new CloudSyncService()
 
-// Хук для автосинхронизации
+// Hook for auto-sync
 export function useAutoSync(user: User | null, stats: UserStats) {
   useEffect(() => {
     if (!user) return
 
     const interval = setInterval(async () => {
-      await cloudSyncService.saveProgress(user, stats).catch(() => {
-        // Ignore sync errors
+      await cloudSyncService.saveProgress(user, stats).catch((err) => {
+        logger.error('Auto-sync failed:', err)
       })
     }, SYNC_INTERVAL)
 

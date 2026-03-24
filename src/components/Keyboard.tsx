@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
 import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
@@ -18,6 +18,7 @@ interface KeyboardProps {
   showHeatmap?: boolean
   onToggleHeatmap?: (show: boolean) => void
   skin?: KeyboardSkin
+  onKeyTouch?: (key: string) => void
 }
 
 export const Keyboard = memo<KeyboardProps>(function Keyboard({
@@ -26,11 +27,29 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   heatmap = {},
   showHeatmap = false,
   onToggleHeatmap,
-  skin = 'classic'
+  skin = 'classic',
+  onKeyTouch,
 }: KeyboardProps) {
   const { t } = useAppTranslation()
   const layoutData = layouts[layout]
   const skinColors = getKeyboardSkin(skin)
+
+  // Haptic feedback for touch devices
+  const triggerHaptic = useCallback((intensity: 'light' | 'medium' | 'heavy' = 'light') => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      const patterns = {
+        light: [10],
+        medium: [20],
+        heavy: [30],
+      }
+      navigator.vibrate(patterns[intensity])
+    }
+  }, [])
+
+  const handleKeyTouch = useCallback((key: string) => {
+    triggerHaptic('light')
+    onKeyTouch?.(key)
+  }, [triggerHaptic, onKeyTouch])
 
   // Мемоизация вычисления подсветки и тепловой карты
   const keyStyles = useMemo(() => {
@@ -52,14 +71,14 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
         styles[key] = {
           className: `
             relative flex items-center justify-center
-            w-10 h-10 md:w-11 md:h-11
-            rounded-xl text-sm font-semibold
-            transition-all duration-200
+            w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11
+            rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold
+            transition-all duration-200 touch-manipulation
             ${isHighlighted
               ? 'text-white scale-110 shadow-xl animate-pulse'
               : heatmapColor
                 ? 'text-white shadow-lg'
-                : 'hover:bg-dark-800 border'}
+                : 'hover:bg-dark-800 border active:bg-dark-700 active:scale-95'}
           `,
           style: {
             backgroundColor: heatmapColor || (isHighlighted ? skinColors.highlight : skinColors.keyBg),
@@ -110,13 +129,13 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
         )}
       </div>
       
-      <div className="space-y-2 select-none" role="group" aria-label="Раскладка клавиатуры">
+      <div className="space-y-1.5 sm:space-y-2 select-none" role="group" aria-label="Раскладка клавиатуры">
         {/* Ряды клавиш */}
         {layoutData.rows.map((row, rowIndex) => (
           <div
             key={rowIndex}
-            className="flex justify-center gap-1.5"
-            style={{ paddingLeft: `${rowIndex * 12}px` }}
+            className="flex justify-center gap-1 sm:gap-1.5"
+            style={{ paddingLeft: `${rowIndex * 8}px` }}
             role="row"
             aria-label={`Ряд ${rowIndex + 1}`}
           >
@@ -133,8 +152,20 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   style={style}
                   title={title}
                   role="button"
+                  tabIndex={0}
                   aria-label={`Клавиша ${key.toUpperCase()}`}
                   aria-pressed={highlightKey === key.toLowerCase()}
+                  onTouchStart={(e) => {
+                    e.preventDefault()
+                    handleKeyTouch(key.toLowerCase())
+                  }}
+                  onMouseDown={() => handleKeyTouch(key.toLowerCase())}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleKeyTouch(key.toLowerCase())
+                    }
+                  }}
                 >
                   {key.toUpperCase()}
                   {showHeatmap && heatmapData?.total && heatmapData.total >= 3 && (
@@ -150,13 +181,19 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
 
         {/* Пробел */}
         <div className="flex justify-center mt-3">
-          <div
-            className="w-64 h-9 bg-dark-800 rounded-lg flex items-center justify-center text-xs text-dark-500"
-            role="button"
+          <button
+            type="button"
+            className="w-48 sm:w-64 h-9 bg-dark-800 rounded-lg flex items-center justify-center text-xs text-dark-500 touch-manipulation select-none active:bg-dark-700 transition-colors"
             aria-label="Клавиша пробел"
+            onTouchStart={(e) => {
+              e.preventDefault()
+              triggerHaptic('light')
+            }}
+            onMouseDown={() => triggerHaptic('light')}
+            onClick={() => triggerHaptic('light')}
           >
             {t('common.chars').charAt(0)}
-          </div>
+          </button>
         </div>
       </div>
       

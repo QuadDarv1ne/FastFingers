@@ -248,11 +248,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   }, [currentIndex, text.length, inputResults])
 
   return (
-    <div className="space-y-6" role="region" aria-label="Тренажёр печати">
-      {/* Выбор режима */}
+    <div className="space-y-4 sm:space-y-6" role="region" aria-label="Тренажёр печати">
+      {/* Выбор режима — mobile-first stacked layout */}
       <div className="card" role="group" aria-label="Настройки упражнения">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-[200px]">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end">
+          <div className="flex-1 min-w-0">
             <label htmlFor="category-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>📁</span>
               {t('exercise.custom').split(' ')[0]}
@@ -261,7 +261,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               id="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 touch-manipulation"
               disabled={isChallenge}
               aria-disabled={isChallenge}
               aria-label="Категория упражнения"
@@ -272,7 +272,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             </select>
           </div>
 
-          <div className="flex-1 min-w-[180px]">
+          <div className="flex-1 min-w-0">
             <label htmlFor="difficulty-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>🎯</span>
               {t('common.level')}
@@ -281,7 +281,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               id="difficulty-select"
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
-              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 touch-manipulation"
               aria-label="Выберите сложность"
             >
               {difficultyOptions.map(opt => (
@@ -292,29 +292,30 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
           <button
             onClick={initExercise}
-            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
+            className="px-6 py-3 sm:py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-2 active:scale-95 touch-manipulation"
             title="Сгенерировать новое упражнение"
             aria-label="Новое упражнение"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span className="hidden sm:inline">{t('action.restart')}</span>
+            <span className="sm:hidden">Новое</span>
           </button>
         </div>
       </div>
 
-      {/* Область текста */}
+      {/* Область текста — mobile optimized */}
       <div
         ref={textContainerRef}
-        className="card cursor-text min-h-[250px] relative group hover:border-primary-500/30 transition-all"
+        className="card cursor-text min-h-[250px] sm:min-h-[280px] relative group hover:border-primary-500/30 transition-all"
         role="textbox"
         aria-readonly="true"
         aria-label="Область текста для печати"
       >
-        {/* Подсказка о фокусе */}
+        {/* Подсказка о фокусе — скрыта на мобильных для экономии места */}
         {!isComplete && (
-          <div className="absolute top-4 right-4 text-xs text-dark-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+          <div className="absolute top-4 right-4 text-xs text-dark-500 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
             </svg>
@@ -342,7 +343,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           {liveRegionText}
         </div>
 
-        <div className="font-mono leading-relaxed break-words select-none max-w-full overflow-wrap-anywhere" style={fontSizeStyle} aria-live="polite">
+        <div className="font-mono leading-relaxed sm:leading-loose break-words select-none max-w-full overflow-wrap-anywhere text-lg sm:text-xl" style={fontSizeStyle} aria-live="polite">
           {renderedChars}
         </div>
         

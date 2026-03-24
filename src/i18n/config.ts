@@ -142,6 +142,7 @@ export type TranslationKey =
   | 'misc.copyright'
   | 'misc.fontSize'
   | 'misc.highContrast'
+  | 'misc.installApp'
   | 'music.title'
   | 'music.genre'
   | 'music.tempo'
@@ -331,6 +332,7 @@ const resources = {
       'misc.copyright': '© 2026 FastFingers',
       'misc.fontSize': 'Размер шрифта',
       'misc.highContrast': 'Контрастность',
+      'misc.installApp': 'Установить приложение',
       'music.title': 'Музыка',
       'music.genre': 'Жанр',
       'music.tempo': 'Темп',
@@ -514,6 +516,7 @@ const resources = {
       'misc.copyright': '© 2026 FastFingers',
       'misc.fontSize': 'Font Size',
       'misc.highContrast': 'High Contrast',
+      'misc.installApp': 'Install App',
       'music.title': 'Music',
       'music.genre': 'Genre',
       'music.tempo': 'Tempo',
@@ -680,6 +683,7 @@ const resources = {
       'misc.about': '关于',
       'misc.footer': 'FastFingers — 打字训练器',
       'misc.copyright': '© 2026 FastFingers',
+      'misc.installApp': '安装应用',
       'tip.posture': '姿势',
       'tip.postureDesc': '坐直，背部靠在椅背上。眼睛与显示器距离 50-70 厘米。',
       'tip.hands': '手部位置',
@@ -839,6 +843,7 @@ const resources = {
       'misc.about': 'אודות',
       'misc.footer': 'FastFingers — מאמן הקלדה עיוורת',
       'misc.copyright': '© 2026 FastFingers',
+      'misc.installApp': 'התקן אפליקציה',
       'tip.posture': 'יציבה',
       'tip.postureDesc': 'שבו זקוף, גב צמוד למשענת הכיסא. שמרו על מרחק 50-70 ס״מ מהעיניים למסך.',
       'tip.hands': 'מיקום ידיים',

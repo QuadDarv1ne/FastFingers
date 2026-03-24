@@ -67,7 +67,7 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="px-3 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all flex items-center gap-2 text-sm font-medium"
+        className="px-3 py-2 sm:py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all flex items-center gap-2 text-sm font-medium touch-manipulation active:scale-95"
         aria-label="Select language"
         aria-expanded={isOpen}
       >
@@ -79,7 +79,7 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[140px] animate-scale-in shadow-xl border border-dark-700">
+        <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[180px] sm:min-w-[140px] animate-scale-in shadow-xl border border-dark-700 max-h-80 overflow-y-auto">
           {languageItems}
         </div>
       )}

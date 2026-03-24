@@ -1,7 +1,7 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useLeaderboard, useUserRank, LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
 
 export interface LeaderboardEntry {
   id: string
@@ -18,16 +18,43 @@ export interface LeaderboardEntry {
 interface LeaderboardProps {
   currentUser?: LeaderboardEntry
   onClose: () => void
+  userId?: string
 }
 
 type SortBy = 'wpm' | 'accuracy' | 'level' | 'words' | 'streak'
 type TimeFilter = 'today' | 'week' | 'month' | 'all'
 
-export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
-  const [entries] = useLocalStorageState<LeaderboardEntry[]>('fastfingers_leaderboard', [])
+export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ currentUser, onClose, userId }: LeaderboardProps) {
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Fetch leaderboard data from Supabase
+  const { data: leaderboardData, isLoading, error } = useLeaderboard({
+    gameMode: 'classic',
+    timeFilter,
+    sortBy: sortBy === 'words' || sortBy === 'streak' ? 'score' : sortBy,
+    limit: 100,
+  })
+
+  // Fetch user rank
+  const { data: userRankData } = useUserRank(userId, 'classic')
+
+  // Transform Supabase data to local format
+  const entries: LeaderboardEntry[] = useMemo(() => {
+    if (!leaderboardData) return []
+    return leaderboardData.map((entry: SupabaseLeaderboardEntry) => ({
+      id: entry.user_id,
+      name: entry.name,
+      wpm: entry.wpm,
+      accuracy: entry.accuracy,
+      level: entry.level,
+      totalWords: entry.score,
+      streak: 0,
+      lastActive: entry.created_at,
+      avatar: entry.avatar || undefined,
+    }))
+  }, [leaderboardData])
 
   useFocusTrap(containerRef, true)
 
@@ -39,53 +66,17 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
+  // Data is already filtered and sorted by Supabase, just use it directly
   const filteredAndSorted = useMemo(() => {
-    let filtered = [...entries]
+    return entries
+  }, [entries])
 
-    // Фильтрация по времени
-    const now = Date.now()
-    const timeRanges = {
-      today: 24 * 60 * 60 * 1000,
-      week: 7 * 24 * 60 * 60 * 1000,
-      month: 30 * 24 * 60 * 60 * 1000,
-      all: Infinity,
-    }
-
-    filtered = filtered.filter(entry => {
-      const lastActive = new Date(entry.lastActive).getTime()
-      return now - lastActive <= timeRanges[timeFilter]
-    })
-
-    // Сортировка
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'wpm':
-          return b.wpm - a.wpm
-        case 'accuracy':
-          return b.accuracy - a.accuracy
-        case 'level':
-          return b.level - a.level
-        case 'words':
-          return b.totalWords - a.totalWords
-        case 'streak':
-          return b.streak - a.streak
-        default:
-          return 0
-      }
-    })
-
-    return filtered
-  }, [entries, sortBy, timeFilter])
-
-  const currentUserRank = useMemo(() => {
-    if (!currentUser) return null
-    const index = filteredAndSorted.findIndex(e => e.id === currentUser.id)
-    return index >= 0 ? index + 1 : null
-  }, [filteredAndSorted, currentUser])
+  // Use rank from Supabase hook
+  const currentUserRank = userRankData?.rank || null
 
   const currentUserPercentile = useMemo(() => {
     if (!currentUser || filteredAndSorted.length === 0) return null
-    const betterThan = filteredAndSorted.filter(e => 
+    const betterThan = filteredAndSorted.filter(e =>
       e.wpm < currentUser.wpm || (e.wpm === currentUser.wpm && e.accuracy < currentUser.accuracy)
     ).length
     return Math.round((betterThan / filteredAndSorted.length) * 100)
@@ -110,6 +101,8 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
             <p className="text-dark-400 text-sm mt-1">
               Соревнуйтесь с другими пользователями
             </p>
+            {isLoading && <p className="text-primary-400 text-xs mt-2">Загрузка...</p>}
+            {error && <p className="text-red-400 text-xs mt-2">Ошибка загрузки данных</p>}
           </div>
           <button
             onClick={onClose}

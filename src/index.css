@@ -288,6 +288,8 @@ button,
   transition: all 0.2s ease;
   font-weight: 500;
   letter-spacing: -0.01em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button:hover:not(:disabled),
@@ -298,13 +300,40 @@ button:hover:not(:disabled),
 
 button:active:not(:disabled),
 .btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
 }
 
 button:disabled,
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Mobile optimizations — touch-friendly */
+@media (max-width: 768px) {
+  /* Ensure minimum touch target size of 44x44 */
+  button,
+  a,
+  input,
+  select,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Disable hover effects on touch devices */
+  button:hover,
+  .btn:hover {
+    transform: none;
+  }
+
+  /* Better active states for touch */
+  button:active,
+  .btn:active,
+  [role="button"]:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
 }
 
 /* Фокус клавиши */

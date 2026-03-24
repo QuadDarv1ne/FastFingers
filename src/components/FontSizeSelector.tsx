@@ -64,19 +64,20 @@ export function FontSizeSelector() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="px-3 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all flex items-center gap-2 text-sm font-medium"
+        className="px-3 py-2 sm:py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all flex items-center gap-2 text-sm font-medium touch-manipulation active:scale-95"
         aria-label={t('misc.fontSize')}
         aria-expanded={isOpen}
         title={t('misc.fontSize')}
       >
         <span className="text-lg font-bold" style={{ fontSize: currentSize?.px }}>{currentSize?.icon}</span>
+        <span className="hidden sm:inline">{t('misc.fontSize')}</span>
         <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700">
+        <div className="absolute right-0 top-full mt-2 card p-2 z-50 min-w-[180px] sm:min-w-[160px] animate-scale-in shadow-xl border border-dark-700 max-h-64 overflow-y-auto">
           {sizeItems}
         </div>
       )}
