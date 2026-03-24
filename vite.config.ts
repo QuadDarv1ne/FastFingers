@@ -202,12 +202,18 @@ export default defineConfig({
       target: 'esnext',
       loaders: {},
       keepNames: false,
+      pure: ['console.log', 'console.warn', 'console.error'],
     },
     commonjsOptions: {
       include: [/node_modules/],
       extensions: ['.js', '.cjs'],
       transformMixedEsModules: true,
       ignoreTryCatch: true,
+      defaultIsModuleExports: (id) => {
+        // Enable better tree-shaking for known libraries
+        if (id.includes('recharts') || id.includes('d3')) return true
+        return false
+      },
     },
     rollupOptions: {
       treeshake: {
@@ -255,7 +261,14 @@ export default defineConfig({
               return 'html2canvas-vendor'
             }
             if (id.includes('recharts')) {
-              return 'charts-vendor'
+              // Recharts разделяем на под-чанки
+              if (id.includes('recharts-scale') || id.includes('d3-')) {
+                return 'charts-vendor' // D3 зависимости
+              }
+              if (id.includes('recharts') && (id.includes('Bar') || id.includes('Area') || id.includes('Line'))) {
+                return 'charts-core' // Основные компоненты
+              }
+              return 'charts-vendor' // Остальные
             }
           }
 
@@ -285,6 +298,7 @@ export default defineConfig({
         sourcemap: false,
         hoistTransitiveImports: false,
         inlineDynamicImports: false,
+        intro: '',
       },
     },
     chunkSizeWarningLimit: 350,

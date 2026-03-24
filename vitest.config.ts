@@ -34,6 +34,7 @@ export default defineConfig({
       threads: {
         minThreads: 4,
         maxThreads: 8,
+        useAtomics: true, // Включить атомарные операции для скорости
       },
     },
     cache: {
