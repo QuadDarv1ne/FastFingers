@@ -177,15 +177,19 @@ export default defineConfig({
     esbuild: {
       drop: ['console'],
       legalComments: 'none',
+      target: 'esnext',
+      loaders: {},
     },
     commonjsOptions: {
       include: [/node_modules/],
       extensions: ['.js', '.cjs'],
+      transformMixedEsModules: true,
     },
     rollupOptions: {
       treeshake: {
         preset: 'safest',
         propertyReadSideEffects: false,
+        moduleSideEffects: 'no-external',
       },
       input: {
         main: path.resolve(__dirname, 'index.html'),
@@ -233,6 +237,8 @@ export default defineConfig({
           // App чанки
           if (id.includes('src/components')) {
             if (id.includes('TypingTrainer')) return 'typing-core'
+            // multiplayer должен быть перед Mode для избежания циклической зависимости
+            if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
             if (id.includes('Mode')) return 'game-modes'
             if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
             if (id.includes('Recharts') || id.includes('Chart')) return 'charts'
@@ -244,7 +250,6 @@ export default defineConfig({
             if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
             if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
             if (id.includes('Certificate')) return 'certificate'
-            if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
           }
 
           return undefined
