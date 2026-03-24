@@ -530,6 +530,15 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 - ✅ 9 режимов игры (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
 - ✅ **main ветка синхронизирована с dev**
 
+### Исправления ошибок (2026-03-24 — ночь)
+1. **AuthWrapper.tsx** — удалён неиспользуемый импорт `useEffect` ✅
+2. **i18n/config.ts** — добавлена конфигурация `detection.lookupLocalStorage: 'fastfingers_language'` ✅
+
+**Коммиты:**
+- `fix:TypeScript-errors-i18n-detection-and-AuthWrapper-import` (dev + main)
+- `feat:AuthWrapper-theme-toggle-and-Vite-port-auto-detection` (dev + main)
+- `perf:Vite-build-optimization-and-chunk-fixes` (dev + main)
+
 ### Спринт стабильности (2026-03-21)
 **Итого**: 15 файлов изменено, 111 строк добавлено, 84 удалено ✅
 
@@ -606,6 +615,7 @@ _Пометки добавлены: 2026-03-24 — Supabase интеграция
 _Пометки добавлены: 2026-03-24 — 9 режимов игры реализовано (Code, Duel, Tournament добавлены)_
 _Пометки добавлены: 2026-03-24 — вечер: тесты 859 passed (52 файла), тесты ~13.5s_
 _Пометки добавлены: 2026-03-24 — **dev → main синхронизировано** (merge completed, push successful)_
+_Пометки добавлены: 2026-03-24 — ночь: исправлены 2 TypeScript ошибки (AuthWrapper, i18n), сборка и тесты проходят_
 
 ---
 
