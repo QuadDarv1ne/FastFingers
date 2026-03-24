@@ -10,6 +10,28 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { copyFileSync } from 'fs'
+import net from 'net'
+
+// Функция для проверки доступности порта
+function checkPort(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer()
+    server.once('error', () => resolve(false))
+    server.once('listening', () => {
+      server.close(() => resolve(true))
+    })
+    server.listen(port)
+  })
+}
+
+// Автоопределение свободного порта
+async function findAvailablePort(startPort: number): Promise<number> {
+  let port = startPort
+  while (!(await checkPort(port))) {
+    port++
+  }
+  return port
+}
 
 // Плагин для копирования _routes.json в dist
 function copyRoutesPlugin() {
@@ -140,7 +162,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3000,
+    port: await findAvailablePort(3000),
     open: false,
     allowedHosts: ['fastfingers-whjy.onrender.com', '.onrender.com']
   },

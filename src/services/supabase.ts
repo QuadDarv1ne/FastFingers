@@ -15,11 +15,21 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1000
 
+// Проверка валидности URL
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 if (!supabaseUrl || !supabaseAnonKey) {
   logger.warn('Supabase credentials not configured. Some features may be unavailable.')
 }
 
-export const supabase = supabaseUrl && supabaseAnonKey
+export const supabase = supabaseUrl && supabaseAnonKey && isValidUrl(supabaseUrl)
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
