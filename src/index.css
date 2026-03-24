@@ -1011,3 +1011,203 @@ html[data-contrast='high'] .text-shimmer {
   background-clip: text;
   animation: none;
 }
+
+/* ============================================
+   MOBILE-FIRST RESPONSIVE STYLES
+   ============================================ */
+
+/* Базовые стили для мобильных устройств (по умолчанию) */
+@media (max-width: 640px) {
+  /* Уменьшенные отступы для мобильных */
+  .container,
+  .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Адаптивная клавиатура */
+  .keyboard {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+
+  /* Уменьшенные шрифты для мобильных */
+  h1 {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  h3 {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  /* Адаптивные кнопки */
+  button,
+  .btn {
+    min-height: 44px; /* Минимальный размер для touch */
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Адаптивные карточки */
+  .card,
+  .glass {
+    padding: 1rem !important;
+    margin: 0.5rem !important;
+  }
+
+  /* Скрываем второстепенные элементы на мобильных */
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  /* Полноэкранные модальные окна на мобильных */
+  .modal-content,
+  .dialog-panel {
+    margin: 0 !important;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Адаптивные графики */
+  .recharts-wrapper {
+    margin: 0 auto;
+  }
+
+  /* Уменьшенная тепловая карта */
+  .heatmap-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Оптимизация для маленьких экранов */
+  .text-practice {
+    font-size: 1.25rem !important;
+    line-height: 1.8 !important;
+  }
+
+  /* Адаптивная навигация */
+  nav {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+  }
+
+  /* Улучшенный touch для прокрутки */
+  .overflow-auto,
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Предотвращение горизонтального скролла */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Адаптивные изображения */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Уменьшенные тени для производительности */
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Оптимизация градиентов */
+  .bg-gradient-to-r {
+    background: var(--color-primary);
+  }
+}
+
+/* Планшеты (641px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .keyboard {
+    transform: scale(0.95);
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+}
+
+/* Touch оптимизация для мобильных устройств */
+@media (pointer: coarse) {
+  /* Увеличенные цели для touch */
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Убраны hover эффекты для touch устройств */
+  .hover\\:scale-105:hover,
+  .hover\\:scale-110:hover {
+    transform: none;
+  }
+
+  /* Добавлены active эффекты */
+  .touch-active:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* Landscape режим для мобильных */
+@media (max-height: 500px) and (orientation: landscape) {
+  .keyboard {
+    transform: scale(0.7);
+  }
+
+  .text-practice {
+    font-size: 1rem !important;
+  }
+
+  /* Скрываем второстепенные элементы в landscape */
+  .hidden-landscape {
+    display: none !important;
+  }
+}
+
+/* PWA: безопасные зоны для iPhone X+ */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  nav {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}

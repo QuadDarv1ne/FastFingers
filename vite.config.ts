@@ -237,14 +237,12 @@ export default defineConfig({
               return 'html2canvas-vendor'
             }
             if (id.includes('recharts')) {
-              // Recharts разделяем на под-чанки
-              if (id.includes('recharts-scale') || id.includes('d3-')) {
-                return 'charts-vendor' // D3 зависимости
+              // Recharts разделяем на под-чанки для лучшего tree-shaking
+              if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
+                return 'charts-vendor' // D3 и другие зависимости
               }
-              if (id.includes('recharts') && (id.includes('Bar') || id.includes('Area') || id.includes('Line'))) {
-                return 'charts-core' // Основные компоненты
-              }
-              return 'charts-vendor' // Остальные
+              // Все компоненты Recharts в одном чанке для избежания циклических зависимостей
+              return 'charts-core'
             }
           }
 
@@ -255,7 +253,7 @@ export default defineConfig({
             if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
             if (id.includes('Mode')) return 'game-modes'
             if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
-            if (id.includes('Recharts') || id.includes('Chart')) return 'charts'
+            if (id.includes('Recharts') || id.includes('Chart') || id.includes('LazyRecharts')) return 'charts'
             if (id.includes('auth/')) return 'auth-components'
             if (id.includes('Panel') || id.includes('History')) return 'panels'
             if (id.includes('Setting') || id.includes('Toggle') || id.includes('Selector')) return 'settings'
@@ -264,6 +262,13 @@ export default defineConfig({
             if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
             if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
             if (id.includes('Certificate')) return 'certificate'
+            if (id.includes('ExportImport')) return 'export'
+          }
+
+          // Utils чанки
+          if (id.includes('src/utils')) {
+            if (id.includes('certificate')) return 'certificate-utils'
+            // pdfExport используется только в тестах, не включаем в production чанки
           }
 
           // Default — main чанк
