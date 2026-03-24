@@ -248,11 +248,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   }, [currentIndex, text.length, inputResults])
 
   return (
-    <div className="space-y-6" role="region" aria-label="Тренажёр печати">
+    <div className="space-y-4 sm:space-y-6" role="region" aria-label="Тренажёр печати">
       {/* Выбор режима */}
       <div className="card" role="group" aria-label="Настройки упражнения">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-[200px]">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end">
+          <div className="flex-1 min-w-[200px] w-full sm:w-auto">
             <label htmlFor="category-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>📁</span>
               {t('exercise.custom').split(' ')[0]}
@@ -261,7 +261,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               id="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 min-h-touch"
               disabled={isChallenge}
               aria-disabled={isChallenge}
               aria-label="Категория упражнения"
@@ -272,7 +272,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             </select>
           </div>
 
-          <div className="flex-1 min-w-[180px]">
+          <div className="flex-1 min-w-[180px] w-full sm:w-auto mt-3 sm:mt-0">
             <label htmlFor="difficulty-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>🎯</span>
               {t('common.level')}
@@ -281,7 +281,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               id="difficulty-select"
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
-              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600"
+              className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 min-h-touch"
               aria-label="Выберите сложность"
             >
               {difficultyOptions.map(opt => (
@@ -292,14 +292,15 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
           <button
             onClick={initExercise}
-            className="px-6 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-2 min-h-touch mt-3 sm:mt-0"
             title="Сгенерировать новое упражнение"
             aria-label="Новое упражнение"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span className="hidden sm:inline">{t('action.restart')}</span>
+            <span className="sm:hidden">Новое</span>
           </button>
         </div>
       </div>
@@ -347,13 +348,13 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         </div>
         
         {/* Индикатор прогресса */}
-        <div className="mt-8 space-y-2" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс упражнения">
-          <div className="flex items-center justify-between text-sm">
+        <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс упражнения">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
             <span className="text-dark-400 font-medium">Прогресс</span>
             <span className="text-primary-400 font-bold">{Math.round((currentIndex / text.length) * 100)}%</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-3 bg-dark-800 rounded-full overflow-hidden shadow-inner">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex-1 w-full h-3 sm:h-3 bg-dark-800 rounded-full overflow-hidden shadow-inner">
               <motion.div
                 className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 shadow-glow"
                 initial={{ width: 0 }}
@@ -361,24 +362,25 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                 transition={{ duration: 0.2, ease: "easeOut" }}
               />
             </div>
-            <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-right">
+            <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-center sm:text-right">
               {currentIndex} / {text.length}
             </span>
           </div>
         </div>
 
         {/* Кнопки управления */}
-        <div className="flex justify-between items-center mt-6 pt-6 border-t border-dark-700/50" role="group" aria-label="Управление упражнением">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mt-6 pt-6 border-t border-dark-700/50" role="group" aria-label="Управление упражнением">
           <button
             onClick={handleSkip}
-            className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="w-full sm:w-auto px-4 py-3 sm:py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 min-h-touch"
             title="Пропустить это упражнение"
             aria-label="Пропустить упражнение"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
             </svg>
-            {t('action.skip')}
+            <span className="sm:hidden">Пропустить</span>
+            <span className="hidden sm:inline">{t('action.skip')}</span>
           </button>
 
           {isComplete && (
@@ -386,11 +388,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               onClick={initExercise}
-              className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-2 min-h-touch"
               aria-label="Продолжить следующее упражнение"
             >
               {t('action.continue')}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </motion.button>
