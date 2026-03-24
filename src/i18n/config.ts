@@ -902,6 +902,9 @@ i18n
     react: {
       useSuspense: false,
     },
+    detection: {
+      lookupLocalStorage: 'fastfingers_language',
+    },
   })
 
 i18n.on('languageChanged', (lng) => {
