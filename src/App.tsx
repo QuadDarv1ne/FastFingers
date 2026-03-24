@@ -12,6 +12,7 @@ import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { ToastContainer } from './components/ToastContainer'
+import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -64,6 +65,10 @@ const MusicControls = lazy(() => import('./components/MusicControls').then((modu
 const ClockWidget = lazy(() => import('./components/ClockWidget').then((module) => ({ default: module.ClockWidget })))
 const MotivationalQuote = lazy(() => import('./components/MotivationalQuote').then((module) => ({ default: module.MotivationalQuote })))
 const OnlineStatus = lazy(() => import('./components/OnlineStatus').then((module) => ({ default: module.OnlineStatus })))
+const MarathonMode = lazy(() => import('./components/MarathonMode').then((module) => ({ default: module.MarathonMode })))
+const CodeMode = lazy(() => import('./components/CodeMode').then((module) => ({ default: module.CodeMode })))
+const DuelMode = lazy(() => import('./components/DuelMode').then((module) => ({ default: module.DuelMode })))
+const TournamentMode = lazy(() => import('./components/TournamentMode').then((module) => ({ default: module.TournamentMode })))
 
 function AppContent() {
   const { t } = useAppTranslation()
@@ -344,6 +349,34 @@ function AppContent() {
               label={t('nav.reaction')}
               title={t('mode.game')}
             />
+            <ModeButton
+              isActive={gameMode === 'marathon'}
+              onClick={() => setGameMode('marathon')}
+              icon="🏃"
+              label="Марафон"
+              title="5 минут непрерывной печати на выносливость"
+            />
+            <ModeButton
+              isActive={gameMode === 'code'}
+              onClick={() => setGameMode('code')}
+              icon="💻"
+              label="Код"
+              title="Печать кода на разных языках программирования"
+            />
+            <ModeButton
+              isActive={gameMode === 'duel'}
+              onClick={() => setGameMode('duel')}
+              icon="⚔️"
+              label="Дуэль"
+              title="Сразись с другим игроком 1 на 1"
+            />
+            <ModeButton
+              isActive={gameMode === 'tournament'}
+              onClick={() => setGameMode('tournament')}
+              icon="🏆"
+              label="Турнир"
+              title="Участвуй в турнирах и побеждай"
+            />
           </nav>
 
           <div className="flex items-center gap-2">
@@ -383,6 +416,27 @@ function AppContent() {
                   onBack={() => setView('main')}
                   onClose={() => setView('main')}
                   onStartLesson={() => {}}
+                />
+              ) : gameMode === 'duel' ? (
+                <DuelMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionCompleteWithProgress}
+                  sound={sound}
+                />
+              ) : gameMode === 'code' ? (
+                <CodeMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionCompleteWithProgress}
+                />
+              ) : gameMode === 'marathon' ? (
+                <MarathonMode
+                  onExit={() => setGameMode('practice')}
+                  onComplete={handleSessionCompleteWithProgress}
+                  sound={sound}
+                />
+              ) : gameMode === 'tournament' ? (
+                <TournamentMode
+                  onExit={() => setGameMode('practice')}
                 />
               ) : gameMode === 'sprint' ? (
                 <SprintMode
@@ -543,6 +597,9 @@ function AppContent() {
           <UserProfile onClose={() => setShowProfile(false)} />
         </Suspense>
       )}
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   )
 }
