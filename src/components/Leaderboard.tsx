@@ -1,7 +1,7 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useLeaderboard, useUserRank, type LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
 
 export interface LeaderboardEntry {
   id: string
@@ -15,21 +15,56 @@ export interface LeaderboardEntry {
   avatar?: string
 }
 
+// Адаптер для преобразования данных из Supabase в формат компонента
+function adaptLeaderboardEntry(entry: SupabaseLeaderboardEntry): LeaderboardEntry {
+  return {
+    id: entry.user_id,
+    name: entry.name,
+    wpm: entry.wpm,
+    accuracy: entry.accuracy,
+    level: entry.level,
+    totalWords: Math.floor(entry.score / 10),
+    streak: 0,
+    lastActive: entry.created_at,
+  }
+}
+
 interface LeaderboardProps {
   currentUser?: LeaderboardEntry
   onClose: () => void
+  gameMode?: 'classic' | 'hardcore' | 'duel'
 }
 
 type SortBy = 'wpm' | 'accuracy' | 'level' | 'words' | 'streak'
 type TimeFilter = 'today' | 'week' | 'month' | 'all'
 
-export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ currentUser, onClose }: LeaderboardProps) {
-  const [entries] = useLocalStorageState<LeaderboardEntry[]>('fastfingers_leaderboard', [])
+export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
+  currentUser,
+  onClose,
+  gameMode = 'classic'
+}: LeaderboardProps) {
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const containerRef = useRef<HTMLDivElement>(null)
 
   useFocusTrap(containerRef, true)
+
+  // Загружаем данные из Supabase через хук
+  const { data: supabaseEntries, isLoading, error } = useLeaderboard({
+    gameMode,
+    timeFilter,
+    sortBy: sortBy === 'wpm' || sortBy === 'accuracy' || sortBy === 'level' ? sortBy : 'score',
+    limit: 100,
+  })
+
+  // Загружаем ранг текущего пользователя
+  const { data: userRankData } = useUserRank(currentUser?.id, gameMode)
+
+  // Адаптируем данные из Supabase
+  const entries: LeaderboardEntry[] = useMemo(() => {
+    if (!supabaseEntries) return []
+    return supabaseEntries.map(adaptLeaderboardEntry)
+  }, [supabaseEntries])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -39,53 +74,21 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
+  // Данные уже отфильтрованы и отсортированы хуком useLeaderboard
   const filteredAndSorted = useMemo(() => {
-    let filtered = [...entries]
-
-    // Фильтрация по времени
-    const now = Date.now()
-    const timeRanges = {
-      today: 24 * 60 * 60 * 1000,
-      week: 7 * 24 * 60 * 60 * 1000,
-      month: 30 * 24 * 60 * 60 * 1000,
-      all: Infinity,
-    }
-
-    filtered = filtered.filter(entry => {
-      const lastActive = new Date(entry.lastActive).getTime()
-      return now - lastActive <= timeRanges[timeFilter]
-    })
-
-    // Сортировка
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'wpm':
-          return b.wpm - a.wpm
-        case 'accuracy':
-          return b.accuracy - a.accuracy
-        case 'level':
-          return b.level - a.level
-        case 'words':
-          return b.totalWords - a.totalWords
-        case 'streak':
-          return b.streak - a.streak
-        default:
-          return 0
-      }
-    })
-
-    return filtered
-  }, [entries, sortBy, timeFilter])
+    return entries
+  }, [entries])
 
   const currentUserRank = useMemo(() => {
+    if (userRankData) return userRankData.rank
     if (!currentUser) return null
     const index = filteredAndSorted.findIndex(e => e.id === currentUser.id)
     return index >= 0 ? index + 1 : null
-  }, [filteredAndSorted, currentUser])
+  }, [filteredAndSorted, currentUser, userRankData])
 
   const currentUserPercentile = useMemo(() => {
     if (!currentUser || filteredAndSorted.length === 0) return null
-    const betterThan = filteredAndSorted.filter(e => 
+    const betterThan = filteredAndSorted.filter(e =>
       e.wpm < currentUser.wpm || (e.wpm === currentUser.wpm && e.accuracy < currentUser.accuracy)
     ).length
     return Math.round((betterThan / filteredAndSorted.length) * 100)
@@ -123,6 +126,38 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Состояние загрузки */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <div className="text-4xl mb-4">⏳</div>
+              <p className="text-dark-400">Загрузка лидерборда...</p>
+            </div>
+          )}
+
+          {/* Состояние ошибки */}
+          {error && (
+            <div className="text-center py-12">
+              <div className="text-4xl mb-4">❌</div>
+              <p className="text-red-400">Ошибка загрузки данных</p>
+              <p className="text-sm text-dark-500 mt-2">
+                Проверьте подключение к интернету или настройки Supabase
+              </p>
+            </div>
+          )}
+
+          {/* Пустое состояние (нет данных) */}
+          {!isLoading && !error && filteredAndSorted.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🏆</div>
+              <h3 className="text-xl font-semibold mb-2">Нет данных</h3>
+              <p className="text-dark-400">
+                Начните тренироваться, чтобы попасть в рейтинг
+              </p>
+            </div>
+          )}
+
+          {!isLoading && !error && filteredAndSorted.length > 0 && (
+            <>
           {/* Фильтры */}
           <div className="flex flex-wrap gap-4">
             {/* Сортировка */}
@@ -243,16 +278,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({ current
               />
             </div>
           )}
-
-          {/* Пустое состояние */}
-          {filteredAndSorted.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🏆</div>
-              <h3 className="text-xl font-semibold mb-2">Нет данных</h3>
-              <p className="text-dark-400">
-                Начните тренироваться, чтобы попасть в рейтинг
-              </p>
-            </div>
+            </>
           )}
         </div>
       </div>

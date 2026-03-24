@@ -29,6 +29,23 @@ export default defineConfig({
     css: true,
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['**/e2e/**', '**/node_modules/**', '**/indexedDB.test.ts'],
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        minThreads: 2,
+        maxThreads: 4,
+      },
+    },
+    cache: {
+      dir: './node_modules/.vitest',
+    },
+    deps: {
+      optimizer: {
+        web: {
+          include: ['react', 'react-dom'],
+        },
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

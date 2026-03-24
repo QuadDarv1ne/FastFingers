@@ -167,30 +167,64 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
       },
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-is'],
-          'i18n-vendor': ['i18next', 'react-i18next'],
-          'animations-vendor': ['framer-motion'],
-          'confetti-vendor': ['canvas-confetti'],
-          'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
-          'auth-vendor': ['@supabase/supabase-js'],
-          'virtual-vendor': ['@tanstack/react-virtual'],
-          'storage-vendor': ['zustand'],
-          'monitoring-vendor': ['@sentry/react'],
-          'pdf-vendor': ['jspdf'],
-          // Компоненты по функциональности
-          'typing-core': ['./src/components/TypingTrainer'],
-          'game-modes': ['./src/components/SprintMode', './src/components/HardcoreMode', './src/components/SpeedTest', './src/components/ReactionGame'],
-          'ui-components': ['./src/components/Keyboard', './src/components/Header'],
-          'charts': ['./src/components/LazyRecharts', './src/components/SpiderChart', './src/components/PredictionCurve'],
-          'auth-components': ['./src/components/auth/AuthWrapper', './src/components/auth/UserProfile'],
-          'panels': ['./src/components/AchievementsPanel', './src/components/TrainingHistory'],
-          'settings': ['./src/components/ThemeToggle', './src/components/KeyboardSkinSelector', './src/components/MusicControls', './src/components/ExportImport'],
-          'exercises': ['./src/components/CustomExerciseEditor', './src/components/DailyChallengeCard', './src/components/LearningMode'],
-          'stats-pages': ['./src/components/StatisticsPage', './src/components/WeeklyProgress'],
-          'rewards': ['./src/components/SessionSummary', './src/components/StreakRewardsPanel', './src/components/TypingTips', './src/components/Onboarding'],
-          'widgets': ['./src/components/ClockWidget', './src/components/MotivationalQuote', './src/components/OnlineStatus'],
-          'certificate': ['./src/components/CertificateGenerator'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            // Vendor чанки
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
+              return 'react-vendor'
+            }
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'i18n-vendor'
+            }
+            if (id.includes('framer-motion')) {
+              return 'animations-vendor'
+            }
+            if (id.includes('canvas-confetti')) {
+              return 'confetti-vendor'
+            }
+            if (id.includes('@tanstack')) {
+              if (id.includes('react-query')) return 'query-vendor'
+              if (id.includes('virtual')) return 'virtual-vendor'
+            }
+            if (id.includes('@supabase')) {
+              return 'auth-vendor'
+            }
+            if (id.includes('zustand')) {
+              return 'storage-vendor'
+            }
+            if (id.includes('@sentry')) {
+              return 'monitoring-vendor'
+            }
+            if (id.includes('jspdf')) {
+              return 'pdf-vendor'
+            }
+            if (id.includes('html2canvas')) {
+              return 'html2canvas-vendor'
+            }
+            if (id.includes('recharts')) {
+              return 'charts-vendor'
+            }
+          }
+
+          // App чанки
+          if (id.includes('src/components')) {
+            if (id.includes('TypingTrainer')) return 'typing-core'
+            if (id.includes('Mode')) return 'game-modes'
+            if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
+            if (id.includes('Recharts') || id.includes('Chart')) return 'charts'
+            if (id.includes('auth/')) return 'auth-components'
+            if (id.includes('Panel') || id.includes('History')) return 'panels'
+            if (id.includes('Setting') || id.includes('Toggle') || id.includes('Selector')) return 'settings'
+            if (id.includes('Exercise') || id.includes('Challenge') || id.includes('Learning')) return 'exercises'
+            if (id.includes('Statistic') || id.includes('Weekly')) return 'stats-pages'
+            if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
+            if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
+            if (id.includes('Certificate')) return 'certificate'
+            if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
+          }
+
+          // Default — main чанк
+          return undefined
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',

@@ -62,13 +62,15 @@
 
 ## 🛠 Технологический стек
 
-| Компонент    | Технологии                                         |
-| ------------ | -------------------------------------------------- |
-| **Frontend** | React 18 + TypeScript, Tailwind CSS, Framer Motion |
-| **Сборка**   | Vite                                               |
-| **PWA**      | vite-plugin-pwa, Workbox                           |
-| **Аудио**    | Web Audio API                                      |
-| **Хранение** | LocalStorage                                       |
+| Компонент      | Технологии                                         |
+| -------------- | -------------------------------------------------- |
+| **Frontend**   | React 18 + TypeScript, Tailwind CSS, Framer Motion |
+| **Сборка**     | Vite                                               |
+| **PWA**        | vite-plugin-pwa, Workbox                           |
+| **Аудио**      | Web Audio API                                      |
+| **Бэкенд**     | Supabase (PostgreSQL, Realtime, Auth)              |
+| **Хранение**   | LocalStorage + Supabase Cloud                      |
+| **State Mgmt** | React Query (TanStack Query)                       |
 
 ## Целевая аудитория
 
@@ -84,9 +86,10 @@
 | ---------- | ----------------------------------------------------------------- |
 | **MVP** ✅ | Базовый тренажёр, виртуальная клавиатура, 3 раскладки, статистика |
 | **0.2** 🔄 | Режим спринта, тепловая карта, звуковые эффекты, история          |
-| **1.0**    | Аккаунты, облачное хранение, соревновательный режим, база текстов |
+| **1.0** ✅ | Аккаунты, облачное хранение (Supabase), лидерборды, дуэли         |
+| **1.1** 🔄 | Турниры, Code Mode, Marathon Mode, Hardcore Mode                  |
 | **2.0**    | AI-генерация текстов, персонализированные рекомендации            |
-| **Future** | API, корпоративные аккаунты, турниры, мультиплеер                 |
+| **Future** | API, корпоративные аккаунты, расширенные турниры                  |
 
 ## 💰 Модель распространения
 
@@ -124,6 +127,22 @@ npm run build
 
 # Предпросмотр сборки
 npm run preview
+```
+
+### Настройка Supabase (облачное хранилище)
+
+Для включения облачной синхронизации, лидербордов и дуэлей:
+
+1. Создайте проект на https://supabase.com
+2. Примените миграции из `supabase/migrations/`
+3. Скопируйте `.env.example` в `.env`
+4. Добавьте ваши ключи Supabase
+
+📖 **Подробная инструкция**: см. [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ## 📱 Кроссплатформенная сборка
@@ -171,18 +190,33 @@ npm run build:all
 FastFingers/
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx          # Шапка с уровнем и XP
-│   │   ├── Stats.tsx           # Статистика и достижения
-│   │   ├── Keyboard.tsx        # Виртуальная клавиатура с тепловой картой
-│   │   ├── TypingTrainer.tsx   # Основной тренажёр
-│   │   ├── SprintMode.tsx      # Режим спринта (60 сек)
-│   │   └── TrainingHistory.tsx # История тренировок с графиками
+│   │   ├── Header.tsx           # Шапка с уровнем и XP
+│   │   ├── Stats.tsx            # Статистика и достижения
+│   │   ├── Keyboard.tsx         # Виртуальная клавиатура с тепловой картой
+│   │   ├── TypingTrainer.tsx    # Основной тренажёр
+│   │   ├── SprintMode.tsx       # Режим спринта (60 сек)
+│   │   ├── DuelMode.tsx         # Дуэли (PvP)
+│   │   ├── TournamentMode.tsx   # Турниры и сетки
+│   │   ├── CodeMode.tsx         # Режим для программистов
+│   │   ├── Leaderboard.tsx      # Таблица лидеров
+│   │   └── TrainingHistory.tsx  # История тренировок с графиками
 │   ├── hooks/
-│   │   ├── useTypingSound.ts   # Звуковые эффекты
-│   │   └── useTypingHistory.ts # История тренировок
-│   ├── types/                  # TypeScript типы
-│   └── utils/                  # Утилиты и данные
-├── public/                     # Статические файлы (PWA)
+│   │   ├── useTypingSound.ts    # Звуковые эффекты
+│   │   ├── useTypingHistory.ts  # История тренировок
+│   │   ├── useLeaderboard.ts    # Supabase лидерборды
+│   │   └── useGameMode.ts       # Управление режимами игры
+│   ├── services/
+│   │   ├── supabase.ts          # Supabase клиент
+│   │   ├── authService.ts       # Аутентификация
+│   │   └── cloudSyncService.ts  # Облачная синхронизация
+│   ├── contexts/
+│   │   └── AuthContext.tsx      # Контекст аутентификации
+│   ├── types/                   # TypeScript типы
+│   ├── data/                    # Данные упражнений
+│   └── utils/                   # Утилиты
+├── supabase/
+│   └── migrations/              # SQL миграции базы данных
+├── public/                      # Статические файлы (PWA)
 └── конфиги (Vite, Tailwind, TS)
 ```
 
