@@ -197,21 +197,24 @@ export default defineConfig({
     cssMinify: true,
     cssCodeSplit: true,
     esbuild: {
-      drop: ['console'],
+      drop: ['console', 'debugger'],
       legalComments: 'none',
       target: 'esnext',
       loaders: {},
+      keepNames: false,
     },
     commonjsOptions: {
       include: [/node_modules/],
       extensions: ['.js', '.cjs'],
       transformMixedEsModules: true,
+      ignoreTryCatch: true,
     },
     rollupOptions: {
       treeshake: {
         preset: 'safest',
         propertyReadSideEffects: false,
         moduleSideEffects: 'no-external',
+        annotations: true,
       },
       input: {
         main: path.resolve(__dirname, 'index.html'),
@@ -280,7 +283,8 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         sourcemap: false,
-        hoistTransitiveImports: true,
+        hoistTransitiveImports: false,
+        inlineDynamicImports: false,
       },
     },
     chunkSizeWarningLimit: 350,

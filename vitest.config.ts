@@ -32,8 +32,8 @@ export default defineConfig({
     pool: 'threads',
     poolOptions: {
       threads: {
-        minThreads: 2,
-        maxThreads: 4,
+        minThreads: 4,
+        maxThreads: 8,
       },
     },
     cache: {
@@ -46,6 +46,14 @@ export default defineConfig({
         },
       },
     },
+    snapshotFormat: {
+      escapeString: true,
+      printBasicPrototype: true,
+    },
+    bail: 0,
+    retry: 0,
+    testTimeout: 10000,
+    hookTimeout: 5000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
