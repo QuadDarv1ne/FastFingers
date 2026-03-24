@@ -565,6 +565,42 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 **Коммиты:**
 - Интеграция выполнена в предыдущих коммитах
 
+### Мобильная адаптация (2026-03-24 — адаптация завершена)
+**Итого**: 3 файла изменено, 196 строк добавлено, 30 удалено ✅
+
+**Улучшения:**
+
+1. **index.css** — добавлены mobile-first стили:
+   - Touch-friendly tap targets (min-height: 44px)
+   - Адаптивная типографика для мобильных
+   - Предотвращение зума на iOS (font-size: 16px для input)
+   - Safe areas для iPhone X+
+   - Overscroll-behavior для предотвращения pull-to-refresh
+   - Hover только для устройств с mouse
+   - Touch-action: manipulation для кнопок
+
+2. **tailwind.config.js** — добавлены:
+   - xs breakpoint (480px)
+   - touch spacing (44px, 56px)
+
+3. **TypingTrainer.tsx** — mobile-first адаптация:
+   - stacked layout на мобильных (flex-col sm:flex-row)
+   - full-width кнопки на мобильных
+   - min-h-touch для всех интерактивных элементов
+   - Адаптивный текст (text-base sm:text-sm)
+   - Упрощённые лейблы на мобильных
+
+**Результат:**
+- ✅ Apple HIG compliance (44px tap targets)
+- ✅ iOS zoom prevention
+- ✅ Safe area support
+- ✅ Touch-optimized interactions
+- ✅ Responsive typography
+
+**Коммиты:**
+- `feat:mobile-first-adaptation-touch-optimization-and-responsive-design` (dev + main)
+- `merge:dev-into-main-mobile-adaptation-conflict-resolved` (main)
+
 ### Оптимизация сборки и тестов (2026-03-24 — оптимизация завершена)
 **Итого**: 4 файла изменено, 18 строк добавлено, 15 удалено ✅
 
@@ -733,7 +769,7 @@ _Пометки добавлены: 2026-03-24 — вечер: a11y улучше
 | Duel | ✅ | DuelMode.tsx | ✅ (требует Supabase) |
 | Tournament | ✅ | TournamentMode.tsx | ✅ (требует Supabase) |
 
-### Метрики проекта (2026-03-24 — оптимизация завершена):
+### Метрики проекта (2026-03-24 — мобильная адаптация завершена):
 
 - **Режимов игры**: 9 (было 6)
 - **Компонентов**: 80+ (было 75+)
@@ -751,11 +787,12 @@ _Пометки добавлены: 2026-03-24 — вечер: a11y улучше
 2. **Оптимизация сборки** — ~13s → <10s (продолжить)
 3. **Оптимизация тестов** — ~13s → <8s (продолжить)
 4. **Оптимизация pdf-vendor** — 415 KB → <300 KB (требует замены jspdf)
-5. **Мобильная адаптация** — mobile-first для SEO
+5. **Мобильная адаптация** — ✅ Завершена (Apple HIG compliance, touch optimization)
 
 ---
 
 _Пометки добавлены: 2026-03-24 — оптимизация завершена (сборка ~13s, тесты ~13s, pdf-vendor 415 KB)_
 _Пометки добавлены: 2026-03-24 — **dev → main синхронизировано** (оптимизация vite/vitest configs, удалён jspdf-autotable)_
 _Пометки добавлены: 2026-03-24 — **Supabase интеграция завершена** (4 миграции, 3 хука, 3 компонента, документация)_
+_Пометки добавлены: 2026-03-24 — **Мобильная адаптация завершена** (196 строк, touch optimization, Apple HIG compliance)_
 
