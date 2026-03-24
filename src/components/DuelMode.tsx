@@ -299,8 +299,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         <div className="space-y-6">
           {/* Выбор длительности */}
           <div>
-            <label className="block text-sm text-dark-400 mb-2">Длительность</label>
-            <div className="flex gap-2">
+            <span id="duration-label" className="block text-sm text-dark-400 mb-2">Длительность</span>
+            <div className="flex gap-2" role="group" aria-labelledby="duration-label">
               {([30, 60, 120] as DuelDuration[]).map((d) => (
                 <button
                   key={d}
@@ -319,8 +319,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
           {/* Ставка */}
           <div>
-            <label className="block text-sm text-dark-400 mb-2">Ставка (XP)</label>
+            <label htmlFor="bet-amount" className="block text-sm text-dark-400 mb-2">Ставка (XP)</label>
             <input
+              id="bet-amount"
               type="number"
               value={betAmount}
               onChange={(e) => setBetAmount(Number(e.target.value))}
