@@ -468,36 +468,186 @@ textarea:focus {
   background: var(--color-primary);
 }
 
-/* Адаптивность */
+/* ============================================
+   MOBILE-FIRST АДАПТАЦИЯ И TOUCH ОПТИМИЗАЦИЯ
+   ============================================ */
+
+/* Базовые touch стили для мобильных */
 @media (max-width: 768px) {
+  /* Увеличенные tap targets для touch */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px; /* Apple HIG рекомендует 44px */
+    touch-action: manipulation;
+  }
+
+  /* Улучшенная прокрутка на мобильных */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Предотвращение зума при тапе на input */
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    font-size: 16px; /* Предотвращает зум на iOS */
+  }
+
+  /* Адаптивная типографика */
   h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 
   h2 {
     font-size: 1.5rem;
+    line-height: 1.3;
   }
 
   h3 {
     font-size: 1.25rem;
+    line-height: 1.4;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Адаптивные отступы */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Карточки на мобильных */
+  .card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  /* Сетки в одну колонку */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Flex в колонку на мобильных */
+  .flex {
+    flex-direction: column;
+  }
+
+  .flex-row-mobile {
+    flex-direction: row;
+  }
+
+  /* Скрываем неважное на мобильных */
+  .hidden-mobile {
+    display: none;
+  }
+
+  /* Адаптивная навигация */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  /* Увеличенные интервалы для touch */
+  .space-y-2 > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .space-x-2 > * + * {
+    margin-left: 0.75rem;
+  }
+}
+
+/* Очень маленькие экраны (< 480px) */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
   }
 
   .card {
-    @apply p-4;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  /* Минимальные отступы */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 }
 
-/* Улучшенные тени */
-.shadow-glow {
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+/* Landscape режим на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+  .card {
+    padding: 0.75rem;
+  }
+
+  /* Компактный режим для ландшафта */
+  h1 {
+    font-size: 1.5rem;
+  }
 }
 
-.shadow-glow-success {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+/* ============================================
+   TOUCH ВЗАИМОДЕЙСТВИЯ
+   ============================================ */
+
+/* Hover только для устройств с mouse */
+@media (hover: hover) {
+  button:hover {
+    transform: translateY(-2px);
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  }
 }
 
-.shadow-glow-error {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+/* Убираем hover на touch устройствах */
+@media (hover: none) {
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Убираем задержку 300ms на мобильных */
+  a,
+  button {
+    touch-action: manipulation;
+  }
+}
+
+/* Safe areas для iPhone X+ */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Предотвращение pull-to-refresh на мобильных */
+body {
+  overscroll-behavior-y: contain;
 }
 
 /* ============================================
