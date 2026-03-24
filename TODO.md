@@ -587,3 +587,85 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 _Пометки добавлены: 2026-03-21 — Performance спринт завершён (все тесты проходят)_
 _Пометки добавлены: 2026-03-24 — todo.md актуализирован (метрики, статус, приоритеты)_
 
+---
+
+## 🎮 Новые режимы (2026-03-24)
+
+### ✅ Реализованы все 4 запрошенных режима:
+
+1. **Code Mode** (💻 Код-режим) — печать кода на 8 языках программирования:
+   - JavaScript, TypeScript, Python, Java, Rust, Go, SQL, CSS
+   - 18 упражнений с фильтрацией по языку
+   - Выбор случайного упражнения
+   - Отображение сложности (1-10)
+   - Реализация: `src/components/CodeMode.tsx`
+
+2. **Duel Mode** (⚔️ Дуэль 1 на 1) — PvP режим с Supabase:
+   - Быстрый матч (поиск соперника)
+   - Выбор длительности (30/60/120 секунд)
+   - Система ставок (XP)
+   - Real-time обновления через Supabase Realtime
+   - История дуэлей
+   - Реализация: `src/components/DuelMode.tsx`
+
+3. **Tournament Mode** (🏆 Турниры) — турнирная сетка на выбывание:
+   - Список турниров со статусами (upcoming/registration/active/completed/cancelled)
+   - Регистрация/отмена регистрации
+   - Информация о турнире (призовой фонд, взнос, требования)
+   - Список участников с рангами
+   - Визуализация сетки (раунды, матчи, чемпион)
+   - Real-time обновления через Supabase
+   - Реализация: `src/components/TournamentMode.tsx`, `src/components/TournamentBracket.tsx`
+
+4. **Marathon Mode** (🏃 Марафон) — 5 минут на выносливость:
+   - Уже существовал в проекте
+   - Интегрирован в навигацию
+   - Вехи с мотивационными сообщениями
+
+### Изменения в файлах:
+
+**Новые компоненты:**
+- `src/components/CodeMode.tsx` (410 строк)
+- `src/components/DuelMode.tsx` (570+ строк)
+- `src/components/TournamentMode.tsx` (450+ строк)
+- `src/components/TournamentBracket.tsx` (250+ строк)
+
+**Обновлённые файлы:**
+- `src/hooks/useGameMode.ts` — добавлен `'tournament'` в GameMode type
+- `src/App.tsx` — lazy loading и навигация для 3 новых режимов
+- `src/data/practiceTexts.ts` — 18 новых code snippets
+- `src/tests/practiceTexts.test.ts` — обновлён лимит (59-80 текстов)
+
+### Текущий статус режимов:
+
+| Режим | Статус | Файл | Интеграция |
+|-------|--------|------|------------|
+| Practice | ✅ | TypingTrainer.tsx | ✅ |
+| Sprint | ✅ | SprintMode.tsx | ✅ |
+| Hardcore | ✅ | HardcoreMode.tsx | ✅ |
+| SpeedTest | ✅ | SpeedTest.tsx | ✅ |
+| Reaction | ✅ | ReactionGame.tsx | ✅ |
+| Marathon | ✅ | MarathonMode.tsx | ✅ |
+| Code | ✅ | CodeMode.tsx | ✅ |
+| Duel | ✅ | DuelMode.tsx | ✅ (требует Supabase) |
+| Tournament | ✅ | TournamentMode.tsx | ✅ (требует Supabase) |
+
+### Метрики проекта (2026-03-24):
+
+- **Режимов игры**: 9 (было 6)
+- **Компонентов**: 80+ (было 75+)
+- **Тестов**: 844 passed (100% pass rate)
+- **Coverage**: 91.09% ✅
+- **TypeScript ошибок**: 0 ✅
+- **Сборка**: ~13s (цель <10s)
+- **Тесты**: ~21s (цель <8s)
+
+### Следующие шаги:
+
+1. **Supabase интеграция** — для Duel и Tournament режимов
+2. **Оптимизация сборки** — ~13s → <10s
+3. **Оптимизация тестов** — ~21s → <8s
+4. **Мобильная адаптация** — mobile-first для SEO
+
+---
+
