@@ -269,13 +269,13 @@
 6. **TypeScript errors** — 0 ошибок ✅
 7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity) ✅
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст) ✅
-9. **pdf-vendor** — 421 KB (138 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB) — **цель: <300 KB**
+9. **pdf-vendor** — 415 KB (136 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB) — **цель: <300 KB**
 10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
-11. **Build Time** — ~13s, требуется оптимизация (<10s) ✅ Улучшено с ~17s — **цель: <10s**
+11. **Build Time** — ~14s, требуется оптимизация (<10s) ✅ Улучшено с ~17s — **цель: <10s**
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%), storage.ts (95%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
-15. **Test Duration** — ~21s, требуется оптимизация (<8s) — **цель: <8s**
+15. **Test Duration** — ~13s, требуется оптимизация (<8s) — **цель: <8s** ✅ Улучшено с ~21s
 16. **exercises.ts** — coverage 80% ✅
 17. **i18n/config.ts** — coverage 100% ✅
 18. **id.ts** — coverage 81% ✅ (было 52%)
@@ -287,25 +287,28 @@
 24. **ThemeToggle.tsx** — coverage 94.28% — **хорошо**
 25. **Кроссплатформенная сборка** — Capacitor + Tauri настроены ✅
 26. **BUILD_GUIDE.md** — документация по сборке создана ✅
-27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **следующий шаг**
+27. **Supabase** — требуется настройка для бэкенд-функций (лидерборды, дуэли, турниры) — **интеграция завершена** ✅
 28. **ESLint warnings** — 56 warning (любой type, non-null assertion, react-refresh) — **низкий приоритет, все намеренные**
 29. **PerformanceInsights.tsx** — 418 строк, все тесты проходят ✅
 30. **usePerformanceOptimizer.ts** — 286 строк, все тесты проходят ✅
-31. **Тесты** — 844 passed, 8 skipped (100% pass rate) ✅
+31. **Тесты** — 859 passed, 8 skipped (100% pass rate) ✅
+32. **charts-vendor** — 532 KB → 474 KB (-11%) ✅
+33. **Mobile-first адаптация** — Apple HIG compliance, touch optimization ✅
 
-### Текущий статус (2026-03-21 — актуализировано)
+### Текущий статус (2026-03-24 — актуализировано)
 
 - **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~13s (улучшено с ~17s), тесты ~18s (coverage), bundle <250KB gzipped (core), pdf-vendor 421 KB (выделен в отдельный чанк)
+- **Производительность**: сборка ~14s (улучшено с ~17s), тесты ~13s (улучшено с ~21s), bundle <250KB gzipped (core), pdf-vendor 415 KB, charts-vendor 474 KB (было 532 KB)
 - **Качество кода**: 0 TS ошибок ✅, 56 ESLint warning (все намеренные)
-- **Тесты**: 852 (51 файл) — 8 failed, 843 passed (1 skipped) ✅
-- **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** — ErrorBoundary 80%+, useTypingGame 89.18%, stats.ts 93.05%, MotivationalQuote 85%+, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%
+- **Тесты**: 859 passed, 8 skipped (100% pass rate) ✅
+- **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!**
+- **Кроссплатформенность**: ✅ Web, ✅ PWA, ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)
+- **Supabase**: ✅ Интеграция завершена (миграции готовы, хуки настроены)
+- **Mobile-first**: ✅ Apple HIG compliance, touch optimization
 - **PWA**: 36 entries кэшировано, service worker активен
-- **Кроссплатформенная сборка**: ✅ Capacitor (Android/iOS), ✅ Tauri (Windows/macOS/Linux)
 - **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
 - **Performance**: ✅ PerformanceInsights (418 строк), ✅ usePerformanceOptimizer (286 строк)
-- **Следующий шаг**: исправление 8 тестов, оптимизация сборки (~13s → <10s), pdf-vendor оптимизация, **Supabase интеграция**
-- **Дата обновления**: 2026-03-21 — Все TypeScript ошибки исправлены ✅
+- **Дата обновления**: 2026-03-24 — Все TypeScript ошибки исправлены ✅
 
 ### Исправления (2026-03-21 — спринт стабильности)
 
