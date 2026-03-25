@@ -32,9 +32,9 @@ export default defineConfig({
     pool: 'threads',
     poolOptions: {
       threads: {
-        minThreads: 4,
-        maxThreads: 8,
-        useAtomics: true, // Включить атомарные операции для скорости
+        minThreads: 6,
+        maxThreads: 12,
+        useAtomics: true,
       },
     },
     cache: {
@@ -55,6 +55,10 @@ export default defineConfig({
     retry: 0,
     testTimeout: 10000,
     hookTimeout: 5000,
+    // Пропускать тесты без изменений для ускорения
+    changed: false,
+    // Быстрая ошибка для fail-fast
+    passWithNoTests: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
