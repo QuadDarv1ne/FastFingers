@@ -159,7 +159,8 @@ export async function generateCertificate(
       'hardcore': language === 'ru' ? 'Без ошибок' : 'Hardcore',
     }
 
-    doc.text(testTypeLabels[data.testType], 148.5, 126, { align: 'center' })
+    const label = String(testTypeLabels[data.testType!] || testTypeLabels['sprint'])
+    doc.text(label, 148.5, 126, { align: 'center' })
 
     doc.setFontSize(16)
     doc.setTextColor(200, 200, 200)

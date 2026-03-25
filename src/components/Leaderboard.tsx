@@ -42,39 +42,11 @@ type TimeFilter = 'today' | 'week' | 'month' | 'all'
 export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
   currentUser,
   onClose,
-  userId,
   gameMode = 'classic'
 }: LeaderboardProps) {
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const containerRef = useRef<HTMLDivElement>(null)
-
-  // Fetch leaderboard data from Supabase
-  const { data: leaderboardData, isLoading, error } = useLeaderboard({
-    gameMode: 'classic',
-    timeFilter,
-    sortBy: sortBy === 'words' || sortBy === 'streak' ? 'score' : sortBy,
-    limit: 100,
-  })
-
-  // Fetch user rank
-  const { data: userRankData } = useUserRank(userId, 'classic')
-
-  // Transform Supabase data to local format
-  const entries: LeaderboardEntry[] = useMemo(() => {
-    if (!leaderboardData) return []
-    return leaderboardData.map((entry: SupabaseLeaderboardEntry) => ({
-      id: entry.user_id,
-      name: entry.name,
-      wpm: entry.wpm,
-      accuracy: entry.accuracy,
-      level: entry.level,
-      totalWords: entry.score,
-      streak: 0,
-      lastActive: entry.created_at,
-      avatar: entry.avatar || undefined,
-    }))
-  }, [leaderboardData])
 
   useFocusTrap(containerRef, true)
 
