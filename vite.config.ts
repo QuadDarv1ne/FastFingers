@@ -212,6 +212,7 @@ export default defineConfig({
       defaultIsModuleExports: (id) => {
         // Enable better tree-shaking for known libraries
         if (id.includes('recharts') || id.includes('d3')) return true
+        if (id.includes('jspdf')) return true
         return false
       },
     },
@@ -265,7 +266,10 @@ export default defineConfig({
               if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
                 return 'charts-vendor' // D3 и другие зависимости
               }
-              // Все компоненты Recharts в одном чанке для избежания циклических зависимостей
+              // Дальнейшее разделение recharts на более мелкие чанки
+              if (id.includes('recharts/lib/component/Container')) {
+                return 'charts-core'
+              }
               return 'charts-core'
             }
           }
