@@ -24,7 +24,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: ['./src/tests/setup.ts'],
     css: true,
     include: ['src/**/*.test.{ts,tsx}'],
@@ -55,9 +55,6 @@ export default defineConfig({
     retry: 0,
     testTimeout: 10000,
     hookTimeout: 5000,
-    // Пропускать тесты без изменений для ускорения
-    changed: false,
-    // Быстрая ошибка для fail-fast
     passWithNoTests: true,
     coverage: {
       provider: 'v8',
