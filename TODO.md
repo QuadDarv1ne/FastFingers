@@ -168,9 +168,10 @@
 - [x] FeedbackToast — обратная связь ✅
 - [x] AriaAnnouncer — объявления для screen reader ✅
 - [x] SkipLink — ссылка для доступности ✅
+- [x] Mobile-first адаптация — 200+ строк CSS, 5 медиа-запросов, Apple HIG compliance ✅
+- [x] 10 языков интерфейса — ru, en, zh, he, de, fr, es, it, pt, ja ✅
 - [ ] Анимации переходов между режимами — **Framer Motion уже установлен**
 - [ ] Toast-уведомления для всех действий — **NotificationContext готов, нужна интеграция**
-- [ ] Адаптивная верстка для мобильных (mobile-first) — **критично для SEO**
 - [ ] Пользовательские цвета тем (color picker) — **низкий приоритет**
 
 ### 6. Тестирование
@@ -259,6 +260,22 @@
 
 ## 📝 Заметки
 
+### Актуальные метрики (2026-03-24 — ночь)
+
+| Метрика | Значение | Изменение |
+|---------|----------|-----------|
+| Сборка | ~13.66s | -19.5% (было ~17s) |
+| Тесты | ~13.56s | -35.4% (было ~21s) |
+| Coverage | 91.09% | +0.69% (было 90.4%) |
+| Тестов пройдено | 859 | +28 (было 831) |
+| Тест файлов | 52 | +1 (было 51) |
+| TypeScript ошибок | 0 | ✅ |
+| pdf-vendor | 415 KB | -6 KB (было 421 KB) |
+| charts-vendor | 434 KB | -98 KB (было 532 KB) |
+| Языков | 10 | +6 (было 4) |
+| Режимов | 9 | +3 (Code, Duel, Tournament) |
+| Mobile-first CSS | 200+ строк | ✅新增 |
+
 ### Технические долги
 
 1. **HardcoreMode** — оптимизирован (284 строки вместо 496) ✅
@@ -269,13 +286,13 @@
 6. **TypeScript errors** — 0 ошибок ✅
 7. **hardcoreRank.ts** — non-null assertion (намеренно, т.к. последний ранг имеет Infinity) ✅
 8. **NotificationContext** — react-refresh warning (намеренно, т.к. экспортируем хук + контекст) ✅
-9. **pdf-vendor** — 415 KB (136 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB) — **цель: <300 KB**
+9. **pdf-vendor** — 415 KB (136 KB gzipped), выделен в отдельный чанк ✅, требуется дальнейшая оптимизация (<300 KB) — **цель: <300 KB**, требуется замена jspdf на pdf-lib
 10. **certificate.ts** — рефакторинг: типы вынесены в certificateTypes.ts ✅
-11. **Build Time** — ~14s, требуется оптимизация (<10s) ✅ Улучшено с ~17s — **цель: <10s**
+11. **Build Time** — ~13.66s, требуется оптимизация (<10s) ✅ Улучшено с ~17s (-19.5%) — **цель: <10s**
 12. **Integration тесты** — useTypingGame (47 тестов), useProgressStore (23 теста) ✅
 13. **Coverage тесты** — logger (100%), notifications (100%), export (100%), MotivationalQuote (79%), id.ts (81%), storage.ts (95%) ✅
 14. **@vitest/coverage-v8** — установлен и настроен ✅
-15. **Test Duration** — ~13s, требуется оптимизация (<8s) — **цель: <8s** ✅ Улучшено с ~21s
+15. **Test Duration** — ~13.56s, требуется оптимизация (<8s) — **цель: <8s** ✅ Улучшено с ~21s (-35.4%)
 16. **exercises.ts** — coverage 80% ✅
 17. **i18n/config.ts** — coverage 100% ✅
 18. **id.ts** — coverage 81% ✅ (было 52%)
@@ -292,23 +309,32 @@
 29. **PerformanceInsights.tsx** — 418 строк, все тесты проходят ✅
 30. **usePerformanceOptimizer.ts** — 286 строк, все тесты проходят ✅
 31. **Тесты** — 859 passed, 8 skipped (100% pass rate) ✅
-32. **charts-vendor** — 532 KB → 474 KB (-11%) ✅
+32. **charts-vendor** — 532 KB → 434 KB (-18.4%) ✅
 33. **Mobile-first адаптация** — Apple HIG compliance, touch optimization ✅
+34. **i18n** — 10 языков (ru, en, zh, he, de, fr, es, it, pt, ja) ✅
+35. **Code Mode** — 8 языков программирования, 18 упражнений ✅
+36. **Duel Mode** — 570+ строк, Supabase Realtime ✅
+37. **Tournament Mode** — 450+ строк, турнирная сетка ✅
 
-### Текущий статус (2026-03-24 — актуализировано)
+### Текущий статус (2026-03-24 — ночь, актуализировано)
 
-- **Стабильность**: все системы работают штатно
-- **Производительность**: сборка ~14s (улучшено с ~17s), тесты ~13s (улучшено с ~21s), bundle <250KB gzipped (core), pdf-vendor 415 KB, charts-vendor 474 KB (было 532 KB)
-- **Качество кода**: 0 TS ошибок ✅, 56 ESLint warning (все намеренные)
+- **Стабильность**: все системы работают штатно ✅
+- **Производительность**:
+  - Сборка: ~13.66s (улучшено с ~17s, -19.5%)
+  - Тесты: ~13.56s (улучшено с ~21s, -35.4%)
+  - Bundle: core <250KB gzipped, pdf-vendor 415 KB (138 KB gzipped), charts-vendor 434 KB (-98 KB)
+- **Качество кода**: 0 TS ошибок ✅, 56 ESLint warning (все намеренные) ✅
 - **Тесты**: 859 passed, 8 skipped (100% pass rate) ✅
 - **Coverage**: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!**
 - **Кроссплатформенность**: ✅ Web, ✅ PWA, ✅ Android (Capacitor), ✅ iOS (Capacitor), ✅ Windows (Tauri), ✅ macOS (Tauri), ✅ Linux (Tauri)
-- **Supabase**: ✅ Интеграция завершена (миграции готовы, хуки настроены)
-- **Mobile-first**: ✅ Apple HIG compliance, touch optimization
-- **PWA**: 36 entries кэшировано, service worker активен
+- **Supabase**: ✅ Интеграция завершена (миграции 001-004, хуки useLeaderboard/useDuels, компоненты Leaderboard/DuelMode/TournamentMode)
+- **Mobile-first**: ✅ Apple HIG compliance (44px tap targets), touch optimization, 200+ строк CSS
+- **i18n**: ✅ 10 языков (ru, en, zh, he, de, fr, es, it, pt, ja)
+- **Режимы игры**: ✅ 9 режимов (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
+- **PWA**: 36 entries кэшировано, service worker активен ✅
 - **UX/UI**: ✅ dropdown без overlay, ✅ скролл не блокируется, ✅ уведомления синхронизированы
 - **Performance**: ✅ PerformanceInsights (418 строк), ✅ usePerformanceOptimizer (286 строк)
-- **Дата обновления**: 2026-03-24 — Все TypeScript ошибки исправлены ✅
+- **Дата обновления**: 2026-03-24 — ночь, все метрики актуализированы ✅
 
 ### Исправления (2026-03-21 — спринт стабильности)
 
@@ -405,6 +431,16 @@
 
 ## 🎯 Следующий спринт (1-2 недели)
 
+### Приоритет 0 — Завершение текущих задач ✅ ВЫПОЛНЕНО
+
+- [x] **i18n: 10 языков** — ru, en, zh, he, de, fr, es, it, pt, ja ✅
+- [x] **Mobile-first адаптация** — Apple HIG compliance, touch optimization ✅
+- [x] **9 режимов игры** — Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament ✅
+- [x] **Coverage >90%** — 91.09% ✅
+- [x] **TypeScript 0 ошибок** — все исправлены ✅
+- [x] **Supabase интеграция** — миграции, хуки, компоненты готовы ✅
+- [x] **Кроссплатформенная сборка** — Capacitor (Android/iOS), Tauri (Windows/macOS/Linux) ✅
+
 ### Приоритет 1 — Supabase Интеграция ✅ ВЫПОЛНЕНО
 
 1. ✅ cloudSyncService обновлён — Supabase + localStorage fallback
@@ -416,12 +452,13 @@
 
 **Требуется:** Применить миграции в Supabase Dashboard и настроить .env
 
-### Приоритет 2 — Оптимизация
+### Приоритет 2 — Оптимизация (Текущий фокус)
 
-1. **Оптимизация сборки**: ~13s → <10s — **главная цель**
-2. **Оптимизация test duration**: ~21s → <8s — **высокий приоритет**
-3. **Оптимизация pdf-vendor**: 421 KB → <300 KB — **средний приоритет**
-4. Performance тесты (Lighthouse CI) — **низкий приоритет**
+1. **Оптимизация сборки**: ~13.66s → <10s — **главная цель** (улучшено с ~17s)
+2. **Оптимизация test duration**: ~13.56s → <8s — **высокий приоритет** (улучшено с ~21s)
+3. **Оптимизация pdf-vendor**: 415 KB → <300 KB — **средний приоритет** (138 KB gzipped)
+4. **Оптимизация charts-vendor**: 434 KB — **выполнено** (было 532 KB, -98 KB) ✅
+5. Performance тесты (Lighthouse CI) — **низкий приоритет**
 
 ### Приоритет 2 — Бэкенд (Supabase) ✅ ИНТЕГРАЦИЯ ВЫПОЛНЕНА
 
@@ -441,11 +478,11 @@
 3. Coverage > 90% ✅ **Выполнено: 91.09%**
 4. Добавить E2E тесты для новых режимов — **цель: 20+ тестов**
 
-### Приоритет 4 — Мобильная адаптация
+### Приоритет 4 — Мобильная адаптация ✅ ВЫПОЛНЕНО
 
-1. Mobile-first верстка — **критично для SEO**
-2. Touch оптимизация для мобильных устройств
-3. Адаптация UI для маленьких экранов
+1. ~~Mobile-first верстка~~ — **выполнено**: 200+ строк CSS, 5 медиа-запросов ✅
+2. ~~Touch оптимизация~~ — **выполнено**: Apple HIG compliance (44px tap targets) ✅
+3. ~~Адаптация UI~~ — **выполнено**: responsive typography, safe areas, overflow-wrap ✅
 
 ### Приоритет 2 — Контент
 
@@ -453,17 +490,18 @@
 2. Добавить 50+ новых текстов (фильмы, новости, философия, бизнес) — 60/50 ✅
 3. Фильтрация текстов по сложности — **низкий приоритет**
 
-### Приоритет 3 — Новые режимы
+### Приоритет 3 — Новые режимы ✅ ВЫПОЛНЕНО
 
-1. Режим «Без ошибок» (Хардкор) — оптимизирован ✅
-2. Дуэли (PvP) — **Supabase Realtime выбран** — требует интеграции
-3. Еженедельные турниры — таблица лидеров — **Supabase интеграция требуется**
+1. ~~Режим «Без ошибок»~~ — оптимизирован (284 строки) ✅
+2. ~~Дуэли (PvP)~~ — **выполнено**: DuelMode.tsx (570+ строк), Supabase Realtime ✅
+3. ~~Еженедельные турниры~~ — **выполнено**: TournamentMode.tsx (450+ строк), TournamentBracket.tsx (250+ строк) ✅
+4. ~~Code Mode~~ — **выполнено**: CodeMode.tsx (410 строк), 8 языков программирования ✅
 
-### Приоритет 4 — Оптимизация
+### Приоритет 4 — Оптимизация (Продолжение)
 
-1. pdf-vendor чанк: 421 KB → <300 KB (138 KB gzipped) ✅ Частично — **цель: <300 KB**
-2. Оптимизация времени сборки: ~13s → <10s ✅ Улучшено с ~17s — **цель: <10s**
-3. Оптимизация времени тестов: ~13s → <8s ✅ Улучшено с ~18s — **цель: <8s**
+1. pdf-vendor чанк: 415 KB → <300 KB (138 KB gzipped) — **цель: <300 KB** (требуется замена jspdf)
+2. Оптимизация времени сборки: ~13.66s → <10s — **улучшено с ~17s** (-19.5%)
+3. Оптимизация времени тестов: ~13.56s → <8s — **улучшено с ~21s** (-35.4%)
 
 ---
 
@@ -709,7 +747,7 @@ _Пометки добавлены: 2026-03-21 — Спринт стабильн
 
 ---
 
-_Последнее обновление: 2026-03-24 — Все тесты проходят (844 passed, 8 skipped)_
+_Последнее обновление: 2026-03-24 — ночь: 859 passed, 8 skipped (100% pass rate)_
 _Выполнено за спринт: 70+ задач (a11y, i18n, Skeleton, CSV export, E2E тесты, code splitting, lazy loading, error handling, HardcoreMode оптимизация, TypeScript 0 ошибок, система рангов, авто-тема, Button shortcuts, новые тексты, lazy-load jspdf, pdf-vendor оптимизация, certificate.ts рефакторинг, practiceRecommendations.ts, practiceTexts.ts, integration тесты, coverage тесты, ErrorBoundary тесты, кроссплатформенная сборка Capacitor+Tauri, **UX/UI спринт: dropdown без overlay, скролл не блокируется, уведомления синхронизированы, автор во всех файлах**, **Спринт стабильности: 15 файлов, 18 исправлений TypeScript, 0 ошибок**, **Performance спринт: 4 новых файла, 704 строки, 25 тестов**) _
 _Всего тестов: 867 (52 файла) — ✅ 859 passed, 8 skipped (100% pass rate)_
 _Coverage: 91.09% ✅ **ЦЕЛЬ ДОСТИГНУТА!** (ErrorBoundary 80%+, logger 100%, notifications 100%, export 100%, MotivationalQuote 85%+, exercises.ts 80%, i18n 100%, id.ts 81%, storage.ts 95%, practiceTexts.ts 100%, useTypingGame 89.18%, stats.ts 93.05%, useLocalStorageState 100%, useTypingStats 100%, format.ts 92.3%)_
@@ -730,10 +768,12 @@ _Пометки добавлены: 2026-03-24 — **dev → main синхрон
 _Пометки добавлены: 2026-03-24 — ночь: исправлены 2 TypeScript ошибки (AuthWrapper, i18n), сборка и тесты проходят_
 _Пометки добавлены: 2026-03-24 — вечер: a11y улучшения (DuelMode ARIA-labels, sw-enhanced.js JSDoc), dev → main синхронизировано_
 _Пометки добавлены: 2026-03-24 — **i18n: 10 языков** (it, pt, ja добавлены), LanguageSwitcher обновлён_
-_Пометки добавлены: 2026-03-24 — **Mobile-first CSS**: 200+ строк, 5 медиа-запросов, touch optimization_
-_Пометки добавлены: 2026-03-24 — **Bundle оптимизация**: charts-vendor 434 KB (-40 KB), circular warnings исправлены_
-_Пометки добавлены: 2026-03-24 — **Performance**: сборка ~13.66s, тесты ~13.56s, 859 passed (52 файла)_
+_Пометки добавлены: 2026-03-24 — **Mobile-first CSS**: 200+ строк, 5 медиа-запросов, touch optimization, Apple HIG compliance_
+_Пометки добавлены: 2026-03-24 — **Bundle оптимизация**: charts-vendor 434 KB (-98 KB от 532 KB), circular warnings исправлены_
+_Пометки добавлены: 2026-03-24 — **Performance**: сборка ~13.66s (-19.5%), тесты ~13.56s (-35.4%), 859 passed (52 файла)_
 _Пометки добавлены: 2026-03-24 — **CHANGELOG.md**: v0.2.1 добавлен (i18n, mobile-first, оптимизации)_
+_Пометки добавлены: 2026-03-24 — **9 режимов игры**: Code Mode (8 языков), Duel Mode (PvP), Tournament Mode (сетка)_
+_Пометки добавлены: 2026-03-24 — **Supabase интеграция**: 4 миграции, 3 хука, 3 компонента, документация_
 
 ---
 
