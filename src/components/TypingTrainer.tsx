@@ -15,6 +15,9 @@ import { useFocusTrap } from '../hooks/useFocusTrap'
 import { TypingChar } from './TypingChar'
 import { useAppTranslation } from '../i18n/config'
 import { createScopedLogger } from '../utils/logger'
+import {
+  useAdaptiveDifficulty,
+} from '../hooks/useAdaptiveDifficulty'
 
 const logger = createScopedLogger('TypingTrainer')
 
@@ -55,6 +58,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   challengeText
 }: TypingTrainerProps) {
   const { t } = useAppTranslation()
+  const adaptive = useAdaptiveDifficulty(true)
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<KeyInputResult[]>([])
@@ -89,8 +93,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     const stats = calculateStats(correctChars, results.length, errors, timeElapsed)
 
     setIsComplete(true)
+    adaptive.onSessionComplete(stats)
     onSessionComplete(stats)
-  }, [startTime, onSessionComplete])
+  }, [startTime, onSessionComplete, adaptive])
 
   // Инициализация упражнения — оптимизировано
   const initExercise = useCallback(() => {
@@ -104,10 +109,22 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         const exercise = customExercises[randomIndex]
         exerciseText = exercise ? exercise.text : ''
       } else if (selectedCategory !== 'all') {
-        const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
-        exerciseText = exercise ? exercise.text : ''
+        // Используем адаптивную сложность для выбора текста
+        if (adaptive.isEnabled && selectedCategory === 'all') {
+          const adaptiveText = adaptive.getNextText()
+          exerciseText = adaptiveText ? adaptiveText.text : ''
+        } else {
+          const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
+          exerciseText = exercise ? exercise.text : ''
+        }
       } else {
-        exerciseText = generatePracticeText(20, selectedDifficulty)
+        // Используем адаптивную сложность для выбора текста
+        if (adaptive.isEnabled) {
+          const adaptiveText = adaptive.getNextText()
+          exerciseText = adaptiveText ? adaptiveText.text : ''
+        } else {
+          exerciseText = generatePracticeText(20, selectedDifficulty)
+        }
       }
 
       if (!exerciseText || exerciseText.trim().length === 0) {
@@ -130,7 +147,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setIsComplete(false)
       textLengthRef.current = 0
     }
-  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText])
+  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText, adaptive.isEnabled, adaptive.getNextText])
 
   useEffect(() => {
     initExercise()
@@ -288,6 +305,28 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+          </div>
+
+          {/* Адаптивная сложность */}
+          <div className="flex-1 min-w-[180px] w-full sm:w-auto mt-3 sm:mt-0">
+            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+              <span>📈</span>
+              Адаптация
+            </label>
+            <div className="flex items-center gap-2 bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5">
+              <span className="text-xl" title={adaptive.levelDescription}>{adaptive.levelBadge}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-dark-400 truncate">Уровень {adaptive.level}</div>
+                <div className="text-xs font-medium truncate">{adaptive.levelDescription}</div>
+              </div>
+              <button
+                onClick={adaptive.toggleEnabled}
+                className={`w-10 h-5 rounded-full transition-colors ${adaptive.isEnabled ? 'bg-primary-600' : 'bg-dark-700'}`}
+                aria-label={adaptive.isEnabled ? 'Отключить адаптивную сложность' : 'Включить адаптивную сложность'}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${adaptive.isEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
           </div>
 
           <button

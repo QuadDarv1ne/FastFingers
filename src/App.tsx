@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TypingTrainer } from './components/TypingTrainer'
 import { Header } from './components/Header'
 import { Keyboard } from './components/Keyboard'
@@ -393,114 +394,234 @@ function AppContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Suspense fallback={<LoadingFallback />}>
-              {view === 'history' ? (
-                <TrainingHistory onBack={() => setView('main')} />
-              ) : view === 'custom-exercise' ? (
-                <CustomExerciseEditor
-                  onSave={handleSaveCustomExercise}
-                  onClose={() => setView('main')}
-                />
-              ) : view === 'tips' ? (
-                <TypingTips />
-              ) : view === 'weekly' ? (
-                <WeeklyProgress />
-              ) : gameMode === 'reaction' ? (
-                <ReactionGame
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleReactionGameComplete}
-                />
-              ) : view === 'statistics' ? (
-                <StatisticsPage onBack={() => setView('main')} />
-              ) : view === 'learning' ? (
-                <LearningMode
-                  onBack={() => setView('main')}
-                  onClose={() => setView('main')}
-                  onStartLesson={() => {}}
-                />
-              ) : gameMode === 'duel' ? (
-                <DuelMode
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                  sound={sound}
-                />
-              ) : gameMode === 'code' ? (
-                <CodeMode
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                />
-              ) : gameMode === 'marathon' ? (
-                <MarathonMode
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                  sound={sound}
-                />
-              ) : gameMode === 'tournament' ? (
-                <TournamentMode
-                  onExit={() => setGameMode('practice')}
-                />
-              ) : gameMode === 'sprint' ? (
-                <SprintMode
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                  sound={sound}
-                />
-              ) : gameMode === 'hardcore' ? (
-                <HardcoreMode
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                  sound={sound}
-                />
-              ) : gameMode === 'speedtest' ? (
-                <SpeedTest
-                  duration={speedTestDuration}
-                  onExit={() => setGameMode('practice')}
-                  onComplete={handleSessionCompleteWithProgress}
-                  sound={sound}
-                />
-              ) : (
-                <>
-                  {todayChallenge && gameMode !== 'challenge' && (
-                    <DailyChallengeCard
-                      challenge={{
-                        id: todayChallenge.id,
-                        date: todayChallenge.date,
-                        title: 'Челлендж дня',
-                        description: todayChallenge.text,
-                        goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
-                        reward: { points: 100, badge: '🏆' },
-                        difficulty: 'medium' as const,
-                        completed: todayChallenge.completed,
-                        progress: 0,
-                      }}
-                      streak={streak.current}
-                      onComplete={completeChallenge}
+              <AnimatePresence mode="wait">
+                {view === 'history' ? (
+                  <motion.div
+                    key="history"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <TrainingHistory onBack={() => setView('main')} />
+                  </motion.div>
+                ) : view === 'custom-exercise' ? (
+                  <motion.div
+                    key="custom-exercise"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <CustomExerciseEditor
+                      onSave={handleSaveCustomExercise}
+                      onClose={() => setView('main')}
                     />
-                  )}
+                  </motion.div>
+                ) : view === 'tips' ? (
+                  <motion.div
+                    key="tips"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <TypingTips />
+                  </motion.div>
+                ) : view === 'weekly' ? (
+                  <motion.div
+                    key="weekly"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <WeeklyProgress />
+                  </motion.div>
+                ) : gameMode === 'reaction' ? (
+                  <motion.div
+                    key="reaction"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ReactionGame
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleReactionGameComplete}
+                    />
+                  </motion.div>
+                ) : view === 'statistics' ? (
+                  <motion.div
+                    key="statistics"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <StatisticsPage onBack={() => setView('main')} />
+                  </motion.div>
+                ) : view === 'learning' ? (
+                  <motion.div
+                    key="learning"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <LearningMode
+                      onBack={() => setView('main')}
+                      onClose={() => setView('main')}
+                      onStartLesson={() => {}}
+                    />
+                  </motion.div>
+                ) : gameMode === 'duel' ? (
+                  <motion.div
+                    key="duel"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <DuelMode
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                      sound={sound}
+                    />
+                  </motion.div>
+                ) : gameMode === 'code' ? (
+                  <motion.div
+                    key="code"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <CodeMode
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                    />
+                  </motion.div>
+                ) : gameMode === 'marathon' ? (
+                  <motion.div
+                    key="marathon"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <MarathonMode
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                      sound={sound}
+                    />
+                  </motion.div>
+                ) : gameMode === 'tournament' ? (
+                  <motion.div
+                    key="tournament"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <TournamentMode
+                      onExit={() => setGameMode('practice')}
+                    />
+                  </motion.div>
+                ) : gameMode === 'sprint' ? (
+                  <motion.div
+                    key="sprint"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <SprintMode
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                      sound={sound}
+                    />
+                  </motion.div>
+                ) : gameMode === 'hardcore' ? (
+                  <motion.div
+                    key="hardcore"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <HardcoreMode
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                      sound={sound}
+                    />
+                  </motion.div>
+                ) : gameMode === 'speedtest' ? (
+                  <motion.div
+                    key="speedtest"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <SpeedTest
+                      duration={speedTestDuration}
+                      onExit={() => setGameMode('practice')}
+                      onComplete={handleSessionCompleteWithProgress}
+                      sound={sound}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="practice"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {todayChallenge && gameMode !== 'challenge' && (
+                      <DailyChallengeCard
+                        challenge={{
+                          id: todayChallenge.id,
+                          date: todayChallenge.date,
+                          title: 'Челлендж дня',
+                          description: todayChallenge.text,
+                          goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
+                          reward: { points: 100, badge: '🏆' },
+                          difficulty: 'medium' as const,
+                          completed: todayChallenge.completed,
+                          progress: 0,
+                        }}
+                        streak={streak.current}
+                        onComplete={completeChallenge}
+                      />
+                    )}
 
-                  <TypingTrainer
-                    layout={settings.layout}
-                    onSessionComplete={handleSessionCompleteWithProgress}
-                    onKeyInput={updateHeatmap}
-                    sound={sound}
-                    customExercises={customExercises}
-                    isChallenge={gameMode === 'challenge'}
-                    challengeText={
-                      gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined
-                    }
-                  />
-
-                  {settings.showKeyboard && (
-                    <Keyboard
+                    <TypingTrainer
                       layout={settings.layout}
-                      highlightKey={null}
-                      heatmap={heatmap}
-                      showHeatmap={showHeatmap}
-                      onToggleHeatmap={setShowHeatmap}
-                      skin={settings.keyboardSkin}
+                      onSessionComplete={handleSessionCompleteWithProgress}
+                      onKeyInput={updateHeatmap}
+                      sound={sound}
+                      customExercises={customExercises}
+                      isChallenge={gameMode === 'challenge'}
+                      challengeText={
+                        gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined
+                      }
                     />
-                  )}
-                </>
-              )}
+
+                    {settings.showKeyboard && (
+                      <Keyboard
+                        layout={settings.layout}
+                        highlightKey={null}
+                        heatmap={heatmap}
+                        showHeatmap={showHeatmap}
+                        onToggleHeatmap={setShowHeatmap}
+                        skin={settings.keyboardSkin}
+                      />
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Suspense>
           </div>
 

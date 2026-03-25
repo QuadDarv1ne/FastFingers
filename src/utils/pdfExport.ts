@@ -1,3 +1,9 @@
+/**
+ * FastFingers — Экспорт статистики в PDF
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
+
 import type { UserProgress, TypingStats } from '../types'
 
 interface ExportData {
@@ -7,7 +13,7 @@ interface ExportData {
 }
 
 /**
- * Нарисовать таблицу вручную (без autoTable для экономии места)
+ * Нарисовать таблицу вручную (без autoTable)
  */
 function drawTable(
   doc: any,
@@ -58,10 +64,7 @@ function drawTable(
  * Экспорт статистики в PDF с динамической загрузкой jsPDF
  */
 export async function exportStatsToPDF(data: ExportData): Promise<void> {
-  // Динамический импорт только jspdf (без autotable)
-  const [{ default: jsPDF }] = await Promise.all([
-    import('jspdf'),
-  ])
+  const [{ default: jsPDF }] = await Promise.all([import('jspdf')])
 
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -69,25 +72,18 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
 
   // Заголовок
   doc.setFontSize(24)
-  doc.setTextColor(124, 58, 237) // primary-600
+  doc.setTextColor(124, 58, 237)
   doc.text('FastFingers', pageWidth / 2, yPosition, { align: 'center' })
 
   yPosition += 10
   doc.setFontSize(16)
   doc.setTextColor(100, 100, 100)
-  doc.text('Статистика прогресса', pageWidth / 2, yPosition, {
-    align: 'center',
-  })
+  doc.text('Статистика прогресса', pageWidth / 2, yPosition, { align: 'center' })
 
   yPosition += 5
   doc.setFontSize(10)
   doc.setTextColor(150, 150, 150)
-  doc.text(
-    `Сгенерировано: ${new Date().toLocaleDateString('ru-RU')}`,
-    pageWidth / 2,
-    yPosition,
-    { align: 'center' }
-  )
+  doc.text(`Сгенерировано: ${new Date().toLocaleDateString('ru-RU')}`, pageWidth / 2, yPosition, { align: 'center' })
 
   yPosition += 15
 
@@ -124,12 +120,7 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
       '0',
     ])
 
-    yPosition = drawTable(
-      doc,
-      yPosition,
-      ['Дата', 'WPM', 'Точность', 'Правильно', 'Ошибок'],
-      sessionsData
-    )
+    yPosition = drawTable(doc, yPosition, ['Дата', 'WPM', 'Точность', 'Правильно', 'Ошибок'], sessionsData)
     yPosition += 15
   }
 
@@ -154,10 +145,8 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
     yPosition = drawTable(doc, yPosition, ['Клавиша', 'Всего', 'Ошибок', 'Точность'], keysData, [239, 68, 68])
   }
 
-  // Новая страница для графиков (если нужно)
-  if (yPosition > 250) {
-    doc.addPage()
-  }
+  // Новая страница если нужно
+  if (yPosition > 250) doc.addPage()
 
   // Футер
   const pageCount = doc.getNumberOfPages()
@@ -165,33 +154,22 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
     doc.setPage(i)
     doc.setFontSize(8)
     doc.setTextColor(150, 150, 150)
-    doc.text(
-      `FastFingers © 2026 | Страница ${i} из ${pageCount}`,
-      pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 10,
-      { align: 'center' }
-    )
+    doc.text(`FastFingers © 2026 | Страница ${i} из ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' })
   }
 
-  // Сохранение
   const filename = `fastfingers-stats-${new Date().toISOString().split('T')[0]}.pdf`
   doc.save(filename)
 }
 
-/**
- * Форматирование минут в читаемый формат
- */
 function formatMinutes(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} мин`
-  }
+  if (minutes < 60) return `${minutes} мин`
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
   return `${hours} ч ${mins} мин`
 }
 
 /**
- * Экспорт сертификата достижения с динамической загрузкой jsPDF
+ * Экспорт сертификата достижения
  */
 export async function exportCertificatePDF(data: {
   userName: string
@@ -199,15 +177,9 @@ export async function exportCertificatePDF(data: {
   accuracy: number
   level: number
 }): Promise<void> {
-  // Динамический импорт для уменьшения bundle size
   const [{ default: jsPDF }] = await Promise.all([import('jspdf')])
 
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4',
-  })
-
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
 
@@ -227,29 +199,21 @@ export async function exportCertificatePDF(data: {
 
   doc.setFontSize(16)
   doc.setTextColor(200, 200, 200)
-  doc.text('о достижениях в слепой печати', pageWidth / 2, 55, {
-    align: 'center',
-  })
+  doc.text('о достижениях в слепой печати', pageWidth / 2, 55, { align: 'center' })
 
   // Имя
   doc.setFontSize(12)
   doc.setTextColor(150, 150, 150)
-  doc.text('Настоящим подтверждается, что', pageWidth / 2, 80, {
-    align: 'center',
-  })
+  doc.text('Настоящим подтверждается, что', pageWidth / 2, 80, { align: 'center' })
 
   doc.setFontSize(28)
   doc.setTextColor(255, 255, 255)
-  doc.text(data.userName || 'Пользователь', pageWidth / 2, 95, {
-    align: 'center',
-  })
+  doc.text(data.userName || 'Пользователь', pageWidth / 2, 95, { align: 'center' })
 
   // Достижения
   doc.setFontSize(12)
   doc.setTextColor(150, 150, 150)
-  doc.text('достиг следующих результатов:', pageWidth / 2, 110, {
-    align: 'center',
-  })
+  doc.text('достиг следующих результатов:', pageWidth / 2, 110, { align: 'center' })
 
   const achievements = [
     `Скорость печати: ${data.wpm} WPM`,
@@ -266,19 +230,13 @@ export async function exportCertificatePDF(data: {
   // Дата
   doc.setFontSize(10)
   doc.setTextColor(150, 150, 150)
-  doc.text(
-    `Дата: ${new Date().toLocaleDateString('ru-RU')}`,
-    pageWidth / 2,
-    pageHeight - 30,
-    { align: 'center' }
-  )
+  doc.text(`Дата: ${new Date().toLocaleDateString('ru-RU')}`, pageWidth / 2, pageHeight - 30, { align: 'center' })
 
   // Подпись
   doc.setFontSize(14)
   doc.setTextColor(124, 58, 237)
   doc.text('FastFingers', pageWidth / 2, pageHeight - 20, { align: 'center' })
 
-  // Сохранение
   const filename = `fastfingers-certificate-${new Date().toISOString().split('T')[0]}.pdf`
   doc.save(filename)
 }

@@ -88,64 +88,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
-      devOptions: {
-        enabled: false
-      },
+      devOptions: { enabled: false },
       useCredentials: false,
       injectRegister: 'auto',
     }),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    // Visualizer только для анализа (отключён для ускорения сборки)
+    // visualizer({ filename: 'dist/stats.html', open: false, gzipSize: true, brotliSize: true }),
     copyRoutesPlugin(),
   ],
   resolve: {
@@ -176,7 +126,6 @@ export default defineConfig({
       drop: ['console', 'debugger'],
       legalComments: 'none',
       target: 'esnext',
-      loaders: {},
       keepNames: false,
       pure: ['console.log', 'console.warn', 'console.error'],
     },
@@ -185,104 +134,37 @@ export default defineConfig({
       extensions: ['.js', '.cjs'],
       transformMixedEsModules: true,
       ignoreTryCatch: true,
-      defaultIsModuleExports: (id) => {
-        // Enable better tree-shaking for known libraries
-        if (id.includes('recharts') || id.includes('d3')) return true
-        if (id.includes('jspdf')) return true
-        return false
-      },
     },
     rollupOptions: {
       treeshake: {
-        preset: 'safest',
+        preset: 'recommended',
         propertyReadSideEffects: false,
-        moduleSideEffects: 'no-external',
-        annotations: true,
+        moduleSideEffects: false,
       },
       input: {
         main: path.resolve(__dirname, 'index.html'),
       },
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // Vendor чанки
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
-              return 'react-vendor'
-            }
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'i18n-vendor'
-            }
-            if (id.includes('framer-motion')) {
-              return 'animations-vendor'
-            }
-            if (id.includes('canvas-confetti')) {
-              return 'confetti-vendor'
-            }
-            if (id.includes('@tanstack')) {
-              if (id.includes('react-query')) return 'query-vendor'
-              if (id.includes('virtual')) return 'virtual-vendor'
-            }
-            if (id.includes('@supabase')) {
-              return 'auth-vendor'
-            }
-            if (id.includes('zustand')) {
-              return 'storage-vendor'
-            }
-            if (id.includes('@sentry')) {
-              return 'monitoring-vendor'
-            }
-            if (id.includes('jspdf')) {
-              return 'pdf-vendor'
-            }
-            if (id.includes('html2canvas')) {
-              return 'html2canvas-vendor'
-            }
-            if (id.includes('recharts')) {
-              // Recharts разделяем на под-чанки для лучшего tree-shaking
-              // Все d3 и victory-vendor в отдельном чанке
-              if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
-                return 'charts-vendor' // D3 и другие зависимости
-              }
-              // Все recharts компоненты в одном чанке для избежания дубликации
-              return 'charts-core'
-            }
-          }
-
-          // App чанки
-          if (id.includes('src/components')) {
-            if (id.includes('TypingTrainer')) return 'typing-core'
-            // multiplayer должен быть перед Mode для избежания циклической зависимости
-            if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
-            if (id.includes('Mode')) return 'game-modes'
-            if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
-            if (id.includes('Recharts') || id.includes('Chart') || id.includes('LazyRecharts')) return 'charts'
-            if (id.includes('auth/')) return 'auth-components'
-            if (id.includes('Panel') || id.includes('History')) return 'panels'
-            if (id.includes('Setting') || id.includes('Toggle') || id.includes('Selector')) return 'settings'
-            if (id.includes('Exercise') || id.includes('Challenge') || id.includes('Learning')) return 'exercises'
-            if (id.includes('Statistic') || id.includes('Weekly')) return 'stats-pages'
-            if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
-            if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
-            if (id.includes('Certificate')) return 'certificate'
-            if (id.includes('ExportImport')) return 'export'
-          }
-
-          // Utils чанки
-          if (id.includes('src/utils')) {
-            if (id.includes('certificate')) return 'certificate-utils'
-            // pdfExport используется только в тестах, не включаем в production чанки
-          }
-
-          // Default — main чанк
-          return undefined
+        manualChunks: {
+          // Vendor чанки - явное разделение для ускорения сборки
+          'react-vendor': ['react', 'react-dom', 'react-is'],
+          'i18n-vendor': ['i18next', 'react-i18next'],
+          'animations-vendor': ['framer-motion'],
+          'confetti-vendor': ['canvas-confetti'],
+          'query-vendor': ['@tanstack/react-query'],
+          'virtual-vendor': ['@tanstack/react-virtual'],
+          'auth-vendor': ['@supabase/supabase-js'],
+          'storage-vendor': ['zustand'],
+          'monitoring-vendor': ['@sentry/react'],
+          'pdf-vendor': ['jspdf'],
+          'html2canvas-vendor': ['html2canvas'],
+          'charts-core': ['recharts'],
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         sourcemap: false,
         hoistTransitiveImports: false,
-        inlineDynamicImports: false,
-        intro: '',
       },
     },
     chunkSizeWarningLimit: 350,
