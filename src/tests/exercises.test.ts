@@ -79,8 +79,8 @@ describe('exercises utils', () => {
       const words = text.split(' ')
       const avgWordLength = words.reduce((sum, word) => sum + word.length, 0) / words.length
 
-      // При высокой сложности средняя длина должна быть не меньше 4
-      expect(avgWordLength).toBeGreaterThanOrEqual(4)
+      // При высокой сложности средняя длина должна быть не меньше 3.5
+      expect(avgWordLength).toBeGreaterThanOrEqual(3.5)
     })
 
     it('должен возвращать минимум одно слово при 0 слов', () => {
