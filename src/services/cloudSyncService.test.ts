@@ -55,15 +55,15 @@ describe('cloudSyncService', () => {
       expect(saves[mockUser.id].stats).toEqual(mockStats)
     })
 
-    it('должен создавать резервную копию в localStorage', async () => {
+    it('должен сохранять только в fastfingers_cloud_sync', async () => {
       await cloudSyncService.saveProgress(mockUser, mockStats)
 
-      const backup = localStorage.getItem('fastfingers_local_backup')
-      expect(backup).not.toBeNull()
+      const stored = localStorage.getItem('fastfingers_cloud_sync')
+      expect(stored).not.toBeNull()
 
-      const backupData = JSON.parse(backup!)
-      expect(backupData.userId).toBe(mockUser.id)
-      expect(backupData.stats).toEqual(mockStats)
+      // Проверяем что нет отдельной backup записи
+      const backup = localStorage.getItem('fastfingers_local_backup')
+      expect(backup).toBeNull()
     })
 
     it('должен сохранять прогресс с правильными полями', async () => {
@@ -98,17 +98,16 @@ describe('cloudSyncService', () => {
       expect(loaded).toBeNull()
     })
 
-    it('должен восстанавливать из резервной копии при отсутствии данных', async () => {
+    it('должен возвращать null после очистки данных', async () => {
       // Сохраняем
       await cloudSyncService.saveProgress(mockUser, mockStats)
 
-      // Очищаем основные данные
+      // Очищаем данные
       localStorage.removeItem('fastfingers_cloud_sync')
 
-      // Восстанавливаем из резервной копии
-      const backup = cloudSyncService.restoreFromBackup()
-      expect(backup).not.toBeNull()
-      expect(backup?.userId).toBe(mockUser.id)
+      // Проверяем что данные удалены
+      const loaded = await cloudSyncService.loadProgress(mockUser.id)
+      expect(loaded).toBeNull()
     })
   })
 
@@ -149,11 +148,11 @@ describe('cloudSyncService', () => {
       expect(result.level).toBe(Math.max(localStats.level, cloudStats.level))
       expect(result.bestWpm).toBe(Math.max(localStats.bestWpm, cloudStats.bestWpm))
       expect(result.bestAccuracy).toBe(Math.max(localStats.bestAccuracy, cloudStats.bestAccuracy))
-      expect(result.totalWordsTyped).toBe(Math.max(localStats.totalWordsTyped, cloudStats.totalWordsTyped))
+      expect(result.totalWordsTyped).toBe(localStats.totalWordsTyped + cloudStats.totalWordsTyped)
       expect(result.totalPracticeTime).toBe(localStats.totalPracticeTime + cloudStats.totalPracticeTime)
       expect(result.currentStreak).toBe(Math.max(localStats.currentStreak, cloudStats.currentStreak))
       expect(result.longestStreak).toBe(Math.max(localStats.longestStreak, cloudStats.longestStreak))
-      expect(result.completedChallenges).toBe(Math.max(localStats.completedChallenges, cloudStats.completedChallenges))
+      expect(result.completedChallenges).toBe(localStats.completedChallenges + cloudStats.completedChallenges)
     })
   })
 

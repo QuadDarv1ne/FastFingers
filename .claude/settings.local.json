@@ -6,7 +6,13 @@
       "Bash(ls dist/assets/*.br)",
       "Bash(dir distassets*.br)",
       "Bash(npx playwright:*)",
-      "Bash(ls dist/*.br)"
+      "Bash(ls dist/*.br)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(npm test:*)"
     ]
   }
 }
