@@ -263,13 +263,11 @@ export default defineConfig({
             }
             if (id.includes('recharts')) {
               // Recharts разделяем на под-чанки для лучшего tree-shaking
+              // Все d3 и victory-vendor в отдельном чанке
               if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
                 return 'charts-vendor' // D3 и другие зависимости
               }
-              // Дальнейшее разделение recharts на более мелкие чанки
-              if (id.includes('recharts/lib/component/Container')) {
-                return 'charts-core'
-              }
+              // Все recharts компоненты в одном чанке для избежания дубликации
               return 'charts-core'
             }
           }
