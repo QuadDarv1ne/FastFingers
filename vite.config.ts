@@ -89,64 +89,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
-      devOptions: {
-        enabled: false
-      },
+      devOptions: { enabled: false },
       useCredentials: false,
       injectRegister: 'auto',
     }),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    // Visualizer только для анализа (отключён для ускорения сборки)
+    // visualizer({ filename: 'dist/stats.html', open: false, gzipSize: true, brotliSize: true }),
     copyRoutesPlugin(),
     // Brotli compression plugin
     {
@@ -200,7 +150,6 @@ export default defineConfig({
       drop: ['console', 'debugger'],
       legalComments: 'none',
       target: 'esnext',
-      loaders: {},
       keepNames: false,
       pure: ['console.log', 'console.warn', 'console.error'],
     },
@@ -209,19 +158,12 @@ export default defineConfig({
       extensions: ['.js', '.cjs'],
       transformMixedEsModules: true,
       ignoreTryCatch: true,
-      defaultIsModuleExports: (id) => {
-        // Enable better tree-shaking for known libraries
-        if (id.includes('recharts') || id.includes('d3')) return true
-        if (id.includes('jspdf')) return true
-        return false
-      },
     },
     rollupOptions: {
       treeshake: {
-        preset: 'safest',
+        preset: 'recommended',
         propertyReadSideEffects: false,
-        moduleSideEffects: 'no-external',
-        annotations: true,
+        moduleSideEffects: false,
       },
       input: {
         main: path.resolve(__dirname, 'index.html'),
@@ -304,8 +246,6 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
         sourcemap: false,
         hoistTransitiveImports: false,
-        inlineDynamicImports: false,
-        intro: '',
       },
     },
     chunkSizeWarningLimit: 350,
