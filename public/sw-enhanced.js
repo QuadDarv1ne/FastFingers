@@ -287,7 +287,7 @@ self.addEventListener('sync', /** @param {SyncEvent} event */ (event) => {
   }
 })
 
-async function syncTypingData(): Promise<void> {
+async function syncTypingData() {
   // Логика синхронизации данных печати
   console.log('[SW] Syncing typing data...')
   
@@ -311,15 +311,18 @@ async function syncTypingData(): Promise<void> {
 }
 
 // IndexedDB утилиты
-function openDatabase(): Promise<IDBDatabase> {
+/**
+ * @returns {Promise<IDBDatabase>}
+ */
+function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('fastfingers-offline', 1)
-    
+
     request.onerror = () => reject(request.error)
     request.onsuccess = () => resolve(request.result)
-    
+
     request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result
+      const db = /** @type {IDBOpenDBRequest} */ (event.target).result
       if (!db.objectStoreNames.contains('pendingSessions')) {
         db.createObjectStore('pendingSessions', { keyPath: 'id' })
       }
