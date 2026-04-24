@@ -309,7 +309,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
           {/* Адаптивная сложность */}
           <div className="flex-1 min-w-[180px] w-full sm:w-auto mt-3 sm:mt-0">
-            <label className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
+            <label htmlFor="adaptive-toggle" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>📈</span>
               Адаптация
             </label>
@@ -320,6 +320,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                 <div className="text-xs font-medium truncate">{adaptive.levelDescription}</div>
               </div>
               <button
+                id="adaptive-toggle"
                 onClick={adaptive.toggleEnabled}
                 className={`w-10 h-5 rounded-full transition-colors ${adaptive.isEnabled ? 'bg-primary-600' : 'bg-dark-700'}`}
                 aria-label={adaptive.isEnabled ? 'Отключить адаптивную сложность' : 'Включить адаптивную сложность'}
