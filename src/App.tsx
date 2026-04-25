@@ -28,6 +28,7 @@ import {
   UserSettings,
 } from './types'
 import type { CustomExercise } from './components/CustomExerciseEditor'
+import { logger } from './utils/logger'
 
 import { useGameMode, type SpeedTestDuration } from './hooks/useGameMode'
 import { useUserProgress } from './hooks/useUserProgress'
@@ -130,7 +131,7 @@ function AppContent() {
       // Восстанавливаем сессию если она есть
       if (data.currentSession) {
         // Можно показать уведомление о восстановлении
-        console.log('[App] Session restored:', data.currentSession)
+        logger.log('[App] Session restored:', data.currentSession)
       }
     },
   })
