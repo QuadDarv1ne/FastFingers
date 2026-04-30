@@ -3,7 +3,6 @@
  * @author Dupley Maxim Igorevich
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
-
 import { useRef, useCallback, useEffect, useState } from 'react'
 import { SoundTheme } from '../types'
 
@@ -45,14 +44,7 @@ const SOUND_CONFIGS: Record<'correct' | 'error' | 'complete' | 'click' | 'milest
   milestone: { frequency: 1760, type: 'sine', duration: 0.4, decay: 0.3, harmonics: [220, 440, 880] },
 }
 
-const THEME_CONFIGS: Record<SoundTheme, { 
-  baseFreq: number
-  waveType: OscillatorType
-  reverb: number
-  pitchVariation: number
-  attack: number
-  release: number
-}> = {
+const THEME_CONFIGS: Record<SoundTheme, { baseFreq: number; waveType: OscillatorType; reverb: number; pitchVariation: number; attack: number; release: number }> = {
   default: { baseFreq: 1, waveType: 'sine', reverb: 0.1, pitchVariation: 0.05, attack: 0.01, release: 0.1 },
   piano: { baseFreq: 1, waveType: 'sine', reverb: 0.3, pitchVariation: 0.02, attack: 0.02, release: 0.3 },
   mechanical: { baseFreq: 1, waveType: 'square', reverb: 0.05, pitchVariation: 0.1, attack: 0.005, release: 0.05 },
@@ -63,33 +55,9 @@ const THEME_CONFIGS: Record<SoundTheme, {
 
 // Частоты для разных клавиш (пентатоника для приятного звучания)
 const KEY_FREQUENCIES: Record<string, number> = {
-  'a': 261.63, // C4
-  's': 293.66, // D4
-  'd': 329.63, // E4
-  'f': 349.23, // F4
-  'g': 392.00, // G4
-  'h': 440.00, // A4
-  'j': 523.25, // C5
-  'k': 587.33, // D5
-  'l': 659.25, // E5
-  ';': 783.99, // G5
-  'q': 261.63,
-  'w': 293.66,
-  'e': 329.63,
-  'r': 349.23,
-  't': 392.00,
-  'y': 440.00,
-  'u': 523.25,
-  'i': 587.33,
-  'o': 659.25,
-  'p': 783.99,
-  'z': 329.63,
-  'x': 349.23,
-  'c': 392.00,
-  'v': 440.00,
-  'b': 523.25,
-  'n': 587.33,
-  'm': 659.25,
+  'a': 261.63, 's': 293.66, 'd': 329.63, 'f': 349.23, 'g': 392.00, 'h': 440.00, 'j': 523.25, 'k': 587.33, 'l': 659.25, ';': 783.99,
+  'q': 261.63, 'w': 293.66, 'e': 329.63, 'r': 349.23, 't': 392.00, 'y': 440.00, 'u': 523.25, 'i': 587.33, 'o': 659.25, 'p': 783.99,
+  'z': 329.63, 'x': 349.23, 'c': 392.00, 'v': 440.00, 'b': 523.25, 'n': 587.33, 'm': 659.25,
 }
 
 export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingSoundEnhancedReturn {
@@ -99,6 +67,7 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
   const compressorRef = useRef<DynamicsCompressorNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
   const activeOscillatorsRef = useRef<Set<OscillatorNode>>(new Set())
+
   const [isReady, setIsReady] = useState(false)
   const [isEnabled, setIsEnabled] = useState(initialOptions.enabled)
   const [error, setError] = useState<string | null>(null)
@@ -112,48 +81,43 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
       const audioContext = new AudioContextClass()
-      
+
       // Создаём цепочку узлов
       const gainNode = audioContext.createGain()
       const compressor = audioContext.createDynamicsCompressor()
       const reverbNode = audioContext.createConvolver()
-      
+
       // Настройка компрессора
       compressor.threshold.value = -50
       compressor.knee.value = 40
       compressor.ratio.value = 12
       compressor.attack.value = 0.003
       compressor.release.value = 0.25
-      
+
       // Создание импульса для реверберации
       const sampleRate = audioContext.sampleRate
       const length = sampleRate * 2
       const impulse = audioContext.createBuffer(2, length, sampleRate)
       const impulseL = impulse.getChannelData(0)
       const impulseR = impulse.getChannelData(1)
-      
       for (let i = 0; i < length; i++) {
         const decay = Math.pow(1 - i / length, 2)
         impulseL[i] = (Math.random() * 2 - 1) * decay
         impulseR[i] = (Math.random() * 2 - 1) * decay
       }
-      
       reverbNode.buffer = impulse
-      
+
       // Подключение узлов
       gainNode.connect(compressor)
       compressor.connect(reverbNode)
       reverbNode.connect(audioContext.destination)
-      
+
       audioContextRef.current = audioContext
       gainNodeRef.current = gainNode
       reverbNodeRef.current = reverbNode
       compressorRef.current = compressor
-      
       gainNode.gain.value = options.volume
       setIsReady(true)
-      
-      console.log('[useTypingSound] Audio initialized')
     } catch (err) {
       console.error('[useTypingSound] Failed to initialize audio:', err)
       setError('Failed to initialize audio')
@@ -170,7 +134,7 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
     const audioContext = audioContextRef.current
     const now = audioContext.currentTime
     const themeConfig = THEME_CONFIGS[currentTheme]
-    
+
     // Ограничение частоты воспроизведения
     if (now - lastPlayTimeRef.current < 0.03) return
     lastPlayTimeRef.current = now
@@ -182,63 +146,55 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
       if (keyFreq !== undefined) {
         baseFrequency = keyFreq * themeConfig.baseFreq
       } else {
-        // Небольшая вариация питча для естественности
         baseFrequency *= (1 + (Math.random() - 0.5) * themeConfig.pitchVariation * 2)
       }
     } else {
-      // Небольшая вариация питча для естественности
       baseFrequency *= (1 + (Math.random() - 0.5) * themeConfig.pitchVariation * 2)
     }
 
     // Создание осциллятора
     const oscillator = audioContext.createOscillator()
     const noteGain = audioContext.createGain()
-    
     oscillator.type = config.type
     oscillator.frequency.setValueAtTime(baseFrequency, now)
-    
+
     // Добавление гармоник для богатого звучания
     if (config.harmonics) {
       config.harmonics.forEach((harmonic, index) => {
         const harmonicOsc = audioContext.createOscillator()
         const harmonicGain = audioContext.createGain()
-        
         harmonicOsc.type = config.type
         harmonicOsc.frequency.setValueAtTime(harmonic, now)
-        
         harmonicGain.gain.setValueAtTime(options.volume * 0.3 / (index + 1), now)
         harmonicOsc.connect(harmonicGain)
         harmonicGain.connect(noteGain)
-        
         harmonicOsc.start(now)
         harmonicOsc.stop(now + config.duration)
-        
         activeOscillatorsRef.current.add(harmonicOsc)
         setTimeout(() => {
           activeOscillatorsRef.current.delete(harmonicOsc)
         }, config.duration * 1000)
       })
     }
-    
+
     // ADSR огибающая
     const attack = themeConfig.attack || config.duration * 0.1
     const decay = config.decay
     const sustain = options.volume * 0.7
     const release = themeConfig.release || config.decay
-    
+
     noteGain.gain.setValueAtTime(0, now)
     noteGain.gain.linearRampToValueAtTime(options.volume, now + attack)
     noteGain.gain.linearRampToValueAtTime(sustain, now + attack + decay)
     noteGain.gain.linearRampToValueAtTime(0, now + config.duration + release)
-    
+
     // Подключение
     oscillator.connect(noteGain)
     noteGain.connect(gainNodeRef.current)
-    
+
     // Запуск
     oscillator.start(now)
     oscillator.stop(now + config.duration + release)
-    
     activeOscillatorsRef.current.add(oscillator)
     setTimeout(() => {
       activeOscillatorsRef.current.delete(oscillator)
@@ -275,12 +231,8 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
   const setVolume = useCallback((volume: number) => {
     const clampedVolume = Math.max(0, Math.min(1, volume))
     setOptions(prev => ({ ...prev, volume: clampedVolume }))
-    
     if (gainNodeRef.current && audioContextRef.current) {
-      gainNodeRef.current.gain.setValueAtTime(
-        clampedVolume,
-        audioContextRef.current.currentTime
-      )
+      gainNodeRef.current.gain.setValueAtTime(clampedVolume, audioContextRef.current.currentTime)
     }
   }, [])
 
@@ -304,7 +256,6 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
           // Игнорируем ошибки остановки
         }
       })
-      
       if (audioContextRef.current) {
         audioContextRef.current.close()
       }
@@ -314,10 +265,7 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
   // Обновление громкости при изменении опций
   useEffect(() => {
     if (gainNodeRef.current && audioContextRef.current) {
-      gainNodeRef.current.gain.setValueAtTime(
-        options.volume,
-        audioContextRef.current.currentTime
-      )
+      gainNodeRef.current.gain.setValueAtTime(options.volume, audioContextRef.current.currentTime)
     }
   }, [options.volume])
 
@@ -326,7 +274,6 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
     if (reverbNodeRef.current && gainNodeRef.current) {
       const themeConfig = THEME_CONFIGS[currentTheme]
       reverbNodeRef.current.disconnect()
-
       if (themeConfig.reverb > 0.2) {
         reverbNodeRef.current.connect(gainNodeRef.current)
       } else {
