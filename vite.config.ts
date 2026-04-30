@@ -3,14 +3,11 @@
  * @author Dupley Maxim Igorevich
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
-import { visualizer } from 'rollup-plugin-visualizer'
-import { copyFileSync, writeFileSync, readFileSync } from 'fs'
-import { brotliCompressSync } from 'zlib'
+import { copyFileSync } from 'fs'
 import net from 'net'
 
 // Функция для проверки доступности порта
@@ -69,23 +66,10 @@ export default defineConfig({
         background_color: '#0f0f0f',
         display: 'standalone',
         icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
@@ -95,32 +79,7 @@ export default defineConfig({
       useCredentials: false,
       injectRegister: 'auto',
     }),
-    // Visualizer только для анализа (отключён для ускорения сборки)
-    // visualizer({ filename: 'dist/stats.html', open: false, gzipSize: true, brotliSize: true }),
     copyRoutesPlugin(),
-    // Brotli compression plugin
-    {
-      name: 'brotli-compression',
-      writeBundle(options, bundle) {
-        const dir = options.dir || 'dist'
-        for (const [fileName, asset] of Object.entries(bundle)) {
-          if (fileName.endsWith('.js') || fileName.endsWith('.css')) {
-            let content: Buffer
-            if (asset.type === 'asset' && 'source' in asset) {
-              content = Buffer.from(asset.source)
-            } else {
-              // For chunks, read from disk
-              const filePath = `${dir}/${fileName}`
-              content = readFileSync(filePath)
-            }
-            if (content.length > 0) {
-              const compressed = brotliCompressSync(content)
-              writeFileSync(`${dir}/${fileName}.br`, compressed)
-            }
-          }
-        }
-      },
-    },
   ],
   resolve: {
     alias: {
@@ -138,7 +97,7 @@ export default defineConfig({
     host: true,
     port: await findAvailablePort(3000),
     open: false,
-    allowedHosts: ['fastfingers-whjy.onrender.com', '.onrender.com']
+    allowedHosts: ['fastfingers-whjy.onrender.com', '.onrender.com'],
   },
   build: {
     target: 'esnext',
@@ -205,19 +164,15 @@ export default defineConfig({
             }
             if (id.includes('recharts')) {
               // Recharts разделяем на под-чанки для лучшего tree-shaking
-              // Все d3 и victory-vendor в отдельном чанке
               if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
-                return 'charts-vendor' // D3 и другие зависимости
+                return 'charts-vendor'
               }
-              // Все recharts компоненты в одном чанке для избежания дубликации
               return 'charts-core'
             }
           }
-
           // App чанки
           if (id.includes('src/components')) {
             if (id.includes('TypingTrainer')) return 'typing-core'
-            // multiplayer должен быть перед Mode для избежания циклической зависимости
             if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
             if (id.includes('Mode')) return 'game-modes'
             if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
@@ -232,13 +187,10 @@ export default defineConfig({
             if (id.includes('Certificate')) return 'certificate'
             if (id.includes('ExportImport')) return 'export'
           }
-
           // Utils чанки
           if (id.includes('src/utils')) {
             if (id.includes('certificate')) return 'certificate-utils'
-            // pdfExport используется только в тестах, не включаем в production чанки
           }
-
           return undefined
         },
         chunkFileNames: 'assets/[name]-[hash].js',
