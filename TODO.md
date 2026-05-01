@@ -2,7 +2,7 @@
 **Автор:** Dupley Maxim Igorevich
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich
 
-**Последнее обновление:** 2026-05-01
+**Последнее обновление:** 2026-05-01 10:30
 
 ---
 
@@ -42,7 +42,7 @@
 ## 🟡 Средний приоритет
 
 ### 3. Исправление тестов
-- [ ] act() warnings в useStatsWorker.test.ts (rhythm score test)
+- [ ] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations)
 
 ### 4. Supabase интеграция (если требуется backend)
 - [ ] Создать проект на Supabase
@@ -176,4 +176,4 @@
 
 ---
 
-_Последнее обновление: 2026-05-01_
+_Последнее обновление: 2026-05-01 10:30_
