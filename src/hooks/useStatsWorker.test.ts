@@ -54,7 +54,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const rhythmScore = await result.current.calculateRhythm(mockKeystrokes)
+    const rhythmScore = await act(async () => {
+      return await result.current.calculateRhythm(mockKeystrokes)
+    })
     expect(rhythmScore).toBeGreaterThanOrEqual(0)
     expect(rhythmScore).toBeLessThanOrEqual(100)
   })
@@ -66,7 +68,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const balance = await result.current.calculateFingerBalance(mockKeystrokes)
+    const balance = await act(async () => {
+      return await result.current.calculateFingerBalance(mockKeystrokes)
+    })
     expect(balance).toHaveProperty('left')
     expect(balance).toHaveProperty('right')
     expect(balance.left + balance.right).toBe(100)
@@ -79,7 +83,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const recoveryTime = await result.current.calculateErrorRecovery(mockKeystrokes)
+    const recoveryTime = await act(async () => {
+      return await result.current.calculateErrorRecovery(mockKeystrokes)
+    })
     expect(recoveryTime).toBeGreaterThanOrEqual(0)
   })
 
@@ -90,7 +96,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const timeAnalysis = await result.current.analyzeTimeOfDay(mockSessions)
+    const timeAnalysis = await act(async () => {
+      return await result.current.analyzeTimeOfDay(mockSessions)
+    })
     expect(Array.isArray(timeAnalysis)).toBe(true)
     expect(timeAnalysis.length).toBeGreaterThan(0)
     expect(timeAnalysis[0]).toHaveProperty('timeOfDay')
@@ -105,7 +113,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const funnelResult = await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
+    const funnelResult = await act(async () => {
+      return await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
+    })
     expect(funnelResult).toHaveProperty('stages')
     expect(funnelResult).toHaveProperty('conversionRates')
     expect(Array.isArray(funnelResult.stages)).toBe(true)
@@ -119,7 +129,9 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const matrix = await result.current.calculateCorrelationMatrix(mockSessions)
+    const matrix = await act(async () => {
+      return await result.current.calculateCorrelationMatrix(mockSessions)
+    })
     expect(Array.isArray(matrix)).toBe(true)
     expect(matrix.length).toBeGreaterThan(0)
     expect(matrix[0]?.length).toBeGreaterThan(0)
@@ -129,7 +141,9 @@ describe('useStatsWorker', () => {
     const { result } = renderHook(() => useStatsWorker())
     // Пытаемся вызвать до готовности
     try {
-      await result.current.calculateRhythm(mockKeystrokes)
+      await act(async () => {
+        return await result.current.calculateRhythm(mockKeystrokes)
+      })
     } catch (error) {
       expect(error).toBeDefined()
     }
@@ -156,7 +170,9 @@ describe('useStatsWorker', () => {
       })
     }, { timeout: 2000 })
     // Пустые данные возвращают значение по умолчанию
-    const rhythmScore = await result.current.calculateRhythm([])
+    const rhythmScore = await act(async () => {
+      return await result.current.calculateRhythm([])
+    })
     expect(rhythmScore).toBe(75) // Mock возвращает 75
   })
 
@@ -167,10 +183,12 @@ describe('useStatsWorker', () => {
         expect(result.current.isReady).toBe(true)
       })
     }, { timeout: 2000 })
-    const [rhythm1, rhythm2] = await Promise.all([
-      result.current.calculateRhythm(mockKeystrokes),
-      result.current.calculateRhythm(mockKeystrokes.slice(0, 5)),
-    ])
+    const [rhythm1, rhythm2] = await act(async () => {
+      return await Promise.all([
+        result.current.calculateRhythm(mockKeystrokes),
+        result.current.calculateRhythm(mockKeystrokes.slice(0, 5)),
+      ])
+    })
     expect(rhythm1).toBeDefined()
     expect(rhythm2).toBeDefined()
   })
