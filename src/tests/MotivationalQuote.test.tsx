@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { MotivationalQuote, QUOTES } from '../components/MotivationalQuote'
+import { MotivationalQuote } from '../components/MotivationalQuote'
+import { QUOTES } from '../constants/quotes'
 
 // Mock i18next
 vi.mock('../i18n/config', () => ({
@@ -98,7 +99,7 @@ describe('MotivationalQuote', () => {
 
 describe('getRandomQuote', () => {
   it('должен возвращать цитату из общего списка', async () => {
-    const { getRandomQuote } = await import('../components/MotivationalQuote')
+    const { getRandomQuote } = await import('../constants/quotes')
     const quote = getRandomQuote()
 
     expect(quote).toHaveProperty('textKey')
@@ -107,14 +108,14 @@ describe('getRandomQuote', () => {
   })
 
   it('должен фильтровать цитаты по категории', async () => {
-    const { getRandomQuote } = await import('../components/MotivationalQuote')
+    const { getRandomQuote } = await import('../constants/quotes')
     const quote = getRandomQuote('motivation')
 
     expect(quote.category).toBe('motivation')
   })
 
   it('должен возвращать цитату из указанной категории', async () => {
-    const { getRandomQuote } = await import('../components/MotivationalQuote')
+    const { getRandomQuote } = await import('../constants/quotes')
 
     for (let i = 0; i < 10; i++) {
       const quote = getRandomQuote('practice')
@@ -125,22 +126,22 @@ describe('getRandomQuote', () => {
 
 describe('getCategoryLabel', () => {
   it('должен возвращать правильную метку для motivation', async () => {
-    const { getCategoryLabel } = await import('../components/MotivationalQuote')
+    const { getCategoryLabel } = await import('../constants/quotes')
     expect(getCategoryLabel('motivation')).toBe('Мотивация')
   })
 
   it('должен возвращать правильную метку для practice', async () => {
-    const { getCategoryLabel } = await import('../components/MotivationalQuote')
+    const { getCategoryLabel } = await import('../constants/quotes')
     expect(getCategoryLabel('practice')).toBe('Практика')
   })
 
   it('должен возвращать правильную метку для success', async () => {
-    const { getCategoryLabel } = await import('../components/MotivationalQuote')
+    const { getCategoryLabel } = await import('../constants/quotes')
     expect(getCategoryLabel('success')).toBe('Успех')
   })
 
   it('должен возвращать правильную метку для learning', async () => {
-    const { getCategoryLabel } = await import('../components/MotivationalQuote')
+    const { getCategoryLabel } = await import('../constants/quotes')
     expect(getCategoryLabel('learning')).toBe('Обучение')
   })
 })

@@ -73,18 +73,18 @@ export function NotificationBell({}: NotificationBellProps) {
   const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications])
 
   const markAsRead = useCallback((id: string) => {
-    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)))
-  }, [])
+    setNotifications(_prev => _prev.map(n => (n.id === id ? { ...n, read: true } : n)))
+  }, [setNotifications])
 
   const markAllAsRead = useCallback(() => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }, [])
+    setNotifications(_prev => _prev.map(n => ({ ...n, read: true })))
+  }, [setNotifications])
 
   const clearAll = useCallback(() => {
     if (confirm(t('action.delete') + '?')) {
-      setNotifications([])
+      setNotifications(_prev => [])
     }
-  }, [t])
+  }, [t, setNotifications])
 
   const getNotificationColor = useCallback((type: Notification['type']) => {
     const colors = {
