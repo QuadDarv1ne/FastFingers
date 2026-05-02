@@ -2,7 +2,7 @@
 **Автор:** Dupley Maxim Igorevich
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich
 
-**Последнее обновление:** 2026-05-02 12:00
+**Последнее обновление:** 2026-05-02 13:45
 
 ---
 
@@ -27,10 +27,12 @@
 - [ ] **pdf-vendor**: 390 KB → <300 KB
   - Текущий: 389.82 KB (128.45 KB gzipped)
   - Исследовать: замена jspdf на более лёгкую библиотеку
+  - Исследовать: оптимизация chunking для лучшего tree-shaking
 - [ ] **charts-core**: 529 KB → <400 KB
   - Текущий: 528.90 KB (145.79 KB gzipped)
   - Исследовать: замена Recharts на более лёгкую альтернативу
   - Исследовать: lazy loading для отдельных графиков
+  - Исследовать: улучшение manualChunks для более granular splitting
 
 ### 2. Ускорение сборки
 - ✅ Сборка ~8.6s → <10s (цель достигнута стабильно)
@@ -40,7 +42,7 @@
 ## 🟡 Средний приоритет
 
 ### 3. Исправление тестов
-- [ ] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations)
+- [x] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations) — исправлено 2026-05-02
 
 ### 4. Supabase интеграция (если требуется backend)
 - [ ] Создать проект на Supabase
@@ -102,6 +104,17 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-02 — Исследование оптимизации bundle size
+- ✅ Проанализирована структура recharts для улучшения chunking
+- ✅ Тестировался granular chunking recharts, но привел к круговым зависимостям
+- ✅ Возвращен к исходному двухчанковому делению (charts-vendor/charts-core)
+- ✅ Исследован jspdf: текущая версия 4.2.1 уже последняя, значительное уменьшение маловероятно без кастомной сборки
+- ✅ Все 900 тестов проходят без warnings
+
+### 2026-05-02 — Исправление тестов
+- ✅ Исправлены act() warnings в useStatsWorker.test.ts
+- ✅ Все 900 тестов проходят без warnings
 
 ### 2026-04-30 — Оптимизация сборки
 - ✅ Удалён Brotli compression plugin из production сборки
@@ -173,4 +186,4 @@
 
 ---
 
-_Последнее обновление: 2026-05-02 12:00_
+_Последнее обновление: 2026-05-02 13:45_
