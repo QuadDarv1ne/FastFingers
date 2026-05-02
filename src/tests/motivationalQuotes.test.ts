@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { QUOTES } from '@components/MotivationalQuote'
+import { QUOTES } from '../constants/quotes'
 
 describe('Motivational Quotes', () => {
   it('should have at least 10 quotes', () => {
