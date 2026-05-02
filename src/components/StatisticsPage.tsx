@@ -34,8 +34,8 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   const { isReady, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix } = useStatsWorker()
 
   // Расширенная аналитика через Web Worker
-  const [timeAnalysis, setTimeAnalysis] = useState<any[]>([])
-  const [funnelData, setFunnelData] = useState<any>(null)
+  const [timeAnalysis, setTimeAnalysis] = useState<Array<{ timeOfDay: string; avgWpm: number; avgAccuracy: number; sessions: number }>>([])
+  const [funnelData, setFunnelData] = useState<Array<{ name: string; percentage: number; count: number }> | null>(null)
   const [correlationMatrix, setCorrelationMatrix] = useState<number[][]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
@@ -77,7 +77,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
     }
 
     runAnalysis()
-  }, [isReady, sessionsForWorker])
+  }, [isReady, sessionsForWorker, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix])
 
   // Данные за разные периоды
   const stats24h = getStatsForPeriod(1)
@@ -261,7 +261,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           <div className="glass rounded-xl p-6 mb-8">
             <h3 className="text-lg font-semibold mb-4">📊 Воронка производительности</h3>
             <div className="space-y-3">
-              {funnelData.map((stage: any) => (
+              {funnelData.map((stage) => (
                 <div key={stage.name} className="flex items-center gap-4">
                   <div className="w-32 text-sm text-dark-400">{stage.name}</div>
                   <div className="flex-1 h-8 bg-dark-800 rounded-full overflow-hidden">
