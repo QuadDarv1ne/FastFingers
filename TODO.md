@@ -40,7 +40,7 @@
 ## 🟡 Средний приоритет
 
 ### 3. Исправление тестов
-- [ ] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations)
+- [x] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations) — исправлено 2026-05-02
 
 ### 4. Supabase интеграция (если требуется backend)
 - [ ] Создать проект на Supabase
@@ -102,6 +102,10 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-02 — Исправление тестов
+- ✅ Исправлены act() warnings в useStatsWorker.test.ts
+- ✅ Все 900 тестов проходят без warnings
 
 ### 2026-04-30 — Оптимизация сборки
 - ✅ Удалён Brotli compression plugin из production сборки
