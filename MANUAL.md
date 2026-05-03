@@ -79,4 +79,4 @@ VITE_SENTRY_DSN=your-sentry-dsn
   ```
 
 ## License
-MIT © 2025-2026 Dupley Maxim Igorevich
+Custom license with attribution, notification, commercial restriction, and share-alike. See LICENSE file for details. © 2025-2026 Dupley Maxim Igorevich
