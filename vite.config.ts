@@ -163,11 +163,8 @@ export default defineConfig({
               return 'html2canvas-vendor'
             }
             if (id.includes('recharts')) {
-              // Recharts разделяем на под-чанки для лучшего tree-shaking
-              if (id.includes('recharts-scale') || id.includes('d3-') || id.includes('victory-vendor')) {
-                return 'charts-vendor'
-              }
-              return 'charts-core'
+              // Put all recharts modules into a single vendor chunk to reduce the size of the core chunk
+              return 'charts-vendor'
             }
           }
           // App чанки
