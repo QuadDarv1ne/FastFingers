@@ -67,7 +67,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           calculateCorrelationMatrix(sessionsForWorker),
         ])
         setTimeAnalysis(timeResult)
-        setFunnelData(funnelResult)
+        setFunnelData(funnelResult.stages)
         setCorrelationMatrix(correlationResult)
       } catch (error) {
         console.error('Analysis error:', error)
