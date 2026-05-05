@@ -10,6 +10,7 @@ import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
 import { getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
+import { useHapticFeedback } from '../hooks/useHapticFeedback'
 
 interface KeyboardProps {
   layout: KeyboardLayout
@@ -34,22 +35,12 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   const layoutData = layouts[layout]
   const skinColors = getKeyboardSkin(skin)
 
-  // Haptic feedback for touch devices
-  const triggerHaptic = useCallback((intensity: 'light' | 'medium' | 'heavy' = 'light') => {
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      const patterns = {
-        light: [10],
-        medium: [20],
-        heavy: [30],
-      }
-      navigator.vibrate(patterns[intensity])
-    }
-  }, [])
+  const { vibrate } = useHapticFeedback()
 
   const handleKeyTouch = useCallback((key: string) => {
-    triggerHaptic('light')
+    vibrate([10]) // light haptic feedback
     onKeyTouch?.(key)
-  }, [triggerHaptic, onKeyTouch])
+  }, [vibrate, onKeyTouch])
 
   // Мемоизация вычисления подсветки и тепловой карты
   const keyStyles = useMemo(() => {
@@ -187,10 +178,10 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             aria-label="Клавиша пробел"
             onTouchStart={(e) => {
               e.preventDefault()
-              triggerHaptic('light')
+              vibrate([10])
             }}
-            onMouseDown={() => triggerHaptic('light')}
-            onClick={() => triggerHaptic('light')}
+            onMouseDown={() => vibrate([10])}
+            onClick={() => vibrate([10])}
           >
             {t('common.chars').charAt(0)}
           </button>

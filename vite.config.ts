@@ -127,6 +127,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
       },
+      external: ['canvg', 'core-js', 'dompurify', 'html2canvas'],
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
