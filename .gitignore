@@ -1,64 +1,27 @@
-# Логи
+```
+# Dependencies
+node_modules/
+
+# Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# Зависимости
-node_modules
-dist
-dist-ssr
-*.local
-
-# Редакторы
-.DS_Store
-*.pem
-
-# Переменные окружения
+# Environment variables
 .env
 .env.local
-.env.*.local
+.env.*
 
-# Сборка
-build
-.cache
-
-# Тесты
-coverage
-coverage_output.txt
-test-results/
-playwright-report/
-
-# IDE
-.idea
-.vscode
+# IDE and editor files
+.vscode/
+.idea/
 *.swp
 *.swo
-*~
 
-# Mobile (Capacitor) - исключая исходники
-android/app/build/
-android/.gradle/
-android/capacitor-cordova-android-plugins/.gradle/
-ios/App/DerivedData/
-ios/App/Pods/
+# Build artifacts and temporary files
+dist/
+build/
+*.tmp
 
-# Desktop (Tauri)
-src-tauri/target/
-src-tauri/**/*.o
-src-tauri/**/*.so
-src-tauri/**/*.dylib
-src-tauri/**/*.dll
-src-tauri/**/*.exe
-src-tauri/**/*.app
-src-tauri/**/*.dmg
-src-tauri/**/*.deb
-src-tauri/**/*.rpm
-
-# Ключи подписи
-*.keystore
-*.jks
-*.p12
-*.pfx
+# OS generated files
+.DS_Store
+Thumbs.db
+```
