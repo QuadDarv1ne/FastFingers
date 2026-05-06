@@ -230,7 +230,7 @@ FastFingers/
 
 ## 📄 Лицензия
 
-MIT License — подробности в файле [LICENSE](LICENSE)
+Проприетарная лицензия — подробности в файле [LICENSE](LICENSE). Все права принадлежат Dupley Maxim Igorevich.
 
 ## 📞 Контакты
 
