@@ -1,3 +1,8 @@
+/**
+ * CertificateGenerator — Оптимизированная версия (без jspdf)
+ * @author Dupley Maxim Igorevich
+ * @copyright 2025-2026 Dupley Maxim Igorevich
+ */
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { User } from '../types/auth'
 import { calculateRank, type CertificateData } from '../utils/certificateTypes'
@@ -59,12 +64,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   const handleDownload = async () => {
     setIsGenerating(true)
     try {
-      const { generateCertificate } = await import('../utils/certificate')
-      await generateCertificate(certificateData, {
-        language,
-        download: true,
-        theme,
-      })
+      const { generateCertificate } = await import('../utils/certificateOptimized')
+      await generateCertificate(certificateData, { language, download: true, theme })
     } catch {
       // Error handled silently
     } finally {
@@ -74,15 +75,9 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 
   const handleShare = async () => {
     try {
-      const { generateCertificate } = await import('../utils/certificate')
-      const blob = await generateCertificate(certificateData, {
-        language,
-        download: false,
-        theme,
-      })
-
-      const file = new File([blob], 'certificate.pdf', { type: 'application/pdf' })
-
+      const { generateCertificate } = await import('../utils/certificateOptimized')
+      const blob = await generateCertificate(certificateData, { language, download: false, theme })
+      const file = new File([blob], 'certificate.png', { type: 'image/png' })
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: 'Сертификат FastFingers',
@@ -90,7 +85,6 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
           files: [file],
         })
       } else {
-        // Fallback - скачивание
         await handleDownload()
       }
     } catch {
@@ -130,8 +124,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
             <h2 id="certificate-title" className="text-2xl font-bold flex items-center gap-2">
-              <span>📜</span>
-              Сертификат достижения
+              <span>📜</span> Сертификат достижения
             </h2>
             <p id="certificate-description" className="text-dark-400 text-sm mt-1">
               Ваш результат: <span className="text-primary-400 font-semibold">{wpm} WPM</span>
@@ -235,9 +228,14 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
               className="flex-1 min-w-[200px] px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
               </svg>
-              {isGenerating ? 'Генерация...' : 'Скачать PDF'}
+              {isGenerating ? 'Генерация...' : 'Скачать PNG'}
             </button>
 
             <button
@@ -247,7 +245,12 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
               className="flex-1 min-w-[200px] px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
               </svg>
               Поделиться
             </button>
@@ -256,8 +259,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
           {/* Информация о рангах */}
           <div className="card p-4" role="region" aria-labelledby="ranks-heading">
             <h4 id="ranks-heading" className="font-semibold mb-3 flex items-center gap-2">
-              <span>🏆</span>
-              Система рангов
+              <span>🏆</span> Система рангов
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm" role="list">
               <RankInfo rank="Bronze" requirement="< 30 WPM" color="text-amber-700" />
@@ -286,7 +288,9 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
   return (
     <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-700" role="listitem">
-      <div className="text-2xl mb-1" aria-hidden="true">{icon}</div>
+      <div className="text-2xl mb-1" aria-hidden="true">
+        {icon}
+      </div>
       <div className="text-xs text-dark-400">{label}</div>
       <div className="text-lg font-bold text-white">{value}</div>
     </div>
