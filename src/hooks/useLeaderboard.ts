@@ -4,6 +4,34 @@ import { createScopedLogger } from '../utils/logger'
 
 const logger = createScopedLogger('useLeaderboard')
 
+export interface DuelsData {
+  id: string
+  challenger_id: string
+  opponent_id: string
+  status: string
+  duration: number
+  bet_amount: number
+  winner_id?: string
+  challenger_score?: number
+  opponent_score?: number
+  challenger_wpm?: number
+  opponent_wpm?: number
+  challenger_accuracy?: number
+  opponent_accuracy?: number
+  created_at: string
+  updated_at: string
+  challenger: {
+    id: string
+    name: string
+    avatar: string | null
+  }
+  opponent: {
+    id: string
+    name: string
+    avatar: string | null
+  }
+}
+
 export interface LeaderboardEntry {
   id: string
   user_id: string

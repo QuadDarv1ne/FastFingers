@@ -149,7 +149,7 @@ export async function exportStatsToPDF(data: ExportData): Promise<void> {
   if (yPosition > 250) doc.addPage()
 
   // Футер
-  const pageCount = doc.getNumberOfPages()
+  const pageCount = doc.internal.getNumberOfPages()
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.setFontSize(8)

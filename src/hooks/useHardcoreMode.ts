@@ -91,9 +91,10 @@ export function useHardcoreMode({
 
     const correct = calculateCorrectCount(inputResults)
     const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const errors = inputResults.length + 1 - correct + 1
+    const total = inputResults.length + 1 // including the current incorrect char
+    const errors = 1 // only the current one is incorrect
 
-    const stats = calculateStats(correct, inputResults.length + 1, errors, timeElapsed)
+    const stats = calculateStats(correct, total, errors, timeElapsed)
     onComplete(stats)
   }, [inputResults, startTime, calculateCorrectCount, onComplete])
 

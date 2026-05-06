@@ -11,7 +11,7 @@ import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
 import { useAuth } from '@hooks/useAuth'
-import { useDuels } from '@hooks/useLeaderboard'
+import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { supabase } from '../services/supabase'
 
 interface DuelModeProps {
@@ -353,7 +353,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-dark-300 mb-3">Последние дуэли</h3>
               <div className="space-y-2 max-h-40 overflow-y-auto">
-                {userDuels.slice(0, 5).map((duel) => {
+                {userDuels.slice(0, 5).map((duel: DuelsData) => {
                   const isChallenger = duel.challenger_id === user?.id
                   const isWinner = duel.winner_id === user?.id
                   return (
