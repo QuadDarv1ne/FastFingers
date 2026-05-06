@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "author": "Dupley Maxim Igorevich",
-  "license": "MIT",
+  "license": "UNLICENSED",
+  "description": "Proprietary software. All rights reserved to Dupley Maxim Igorevich.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

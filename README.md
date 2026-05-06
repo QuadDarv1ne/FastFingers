@@ -6,7 +6,7 @@
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich
 
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![License](https://img.shields.io/badge/license-PROPRIETARY-red)]()
 
 ## 📖 О проекте
 
@@ -230,7 +230,7 @@ FastFingers/
 
 ## 📄 Лицензия
 
-MIT License — подробности в файле [LICENSE](LICENSE)
+Проприетарная лицензия — подробности в файле [LICENSE](LICENSE). Все права принадлежат Dupley Maxim Igorevich.
 
 ## 📞 Контакты
 
@@ -243,3 +243,22 @@ MIT License — подробности в файле [LICENSE](LICENSE)
   <b>FastFingers</b> © 2026<br>
   Сделано с ❤️ для тех, кто печатает быстро и без ошибок
 </p>
+
+---
+
+## 📜 Лицензия и права собственности
+
+**© 2025-2026 Dupley Maxim Igorevich. Все права защищены.**
+
+Данное программное обеспечение является частной собственностью Dupley Maxim Igorevich.
+
+**Запрещается:**
+- Копирование, распространение или модификация без письменного разрешения
+- Коммерческое использование без отдельного лицензионного соглашения
+- Обратная разработка, декомпиляция или дизассемблирование
+
+Все права на код, дизайн, интерфейс, документацию и другие материалы принадлежат исключительно Dupley Maxim Igorevich.
+
+Для получения коммерческой лицензии свяжитесь с автором.
+
+---

@@ -1,23 +1,68 @@
-MIT-Style Custom License with Copyleft and Commercial Restrictions
-=====================================================================
+PROPRIETARY LICENSE AGREEMENT
+==============================
 
-Copyright (c) 2025-2026 Dupley Maxim Igorevich (QuadDarv1ne) and Maestro7IT Programming School
+Copyright (c) 2025-2026 Dupley Maxim Igorevich (QuadDarv1ne)
+All Rights Reserved.
 
 Project: FastFingers — Тренажёр слепой печати
-Repository: https://github.com/QuadDarv1ne/FastFingers
+Owner: Dupley Maxim Igorevich
 
 
-TERMS AND CONDITIONS
---------------------
+NOTICE - PROPRIETARY SOFTWARE
+------------------------------
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, and sublicense copies of
-the Software, subject to the following conditions:
+This software is the exclusive property of Dupley Maxim Igorevich.
+
+NO RIGHTS ARE GRANTED. This software is NOT free, open-source, or licensed
+under MIT, Apache, GPL, or any other open-source license.
+
+UNAUTHORIZED USE, COPYING, MODIFICATION, DISTRIBUTION, OR COMMERCIAL
+EXPLOITATION IS STRICTLY PROHIBITED AND MAY RESULT IN LEGAL ACTION.
 
 
-1. ATTRIBUTION REQUIREMENT
+RESTRICTIONS
+------------
+
+1. NO USE: You may not use this software without explicit written permission
+   from Dupley Maxim Igorevich.
+
+2. NO COPYING: You may not copy, reproduce, or duplicate any part of this
+   software, including source code, binaries, documentation, or assets.
+
+3. NO MODIFICATION: You may not modify, adapt, translate, or create derivative
+   works based on this software.
+
+4. NO DISTRIBUTION: You may not distribute, sublicense, sell, rent, lease,
+   or otherwise transfer this software to any third party.
+
+5. NO REVERSE ENGINEERING: You may not decompile, disassemble, or reverse
+   engineer this software.
+
+6. NO COMMERCIAL USE: Any commercial use is strictly prohibited without
+   a separate commercial license agreement.
+
+
+OWNERSHIP
+---------
+
+This software and all associated intellectual property rights remain the
+exclusive property of Dupley Maxim Igorevich. Nothing in this agreement
+grants any rights to the software except as explicitly stated in a separate
+written license agreement.
+
+
+CONTACT FOR LICENSING
+---------------------
+
+For licensing inquiries, contact: Dupley Maxim Igorevich
+
+GOVERNING LAW
+-------------
+
+This agreement shall be governed by applicable intellectual property laws.
+
+
+END OF LICENSE
 --------------------------
 The above copyright notice, this permission notice, and a link to the original
 repository (https://github.com/QuadDarv1ne/FastFingers) must be included in
