@@ -452,7 +452,6 @@ export const practiceTexts: PracticeText[] = [
   },
   {
     id: 'news-5',
-    category:    id: 'news-5',
     category: 'news',
     difficulty: 7,
     title: 'Климат',

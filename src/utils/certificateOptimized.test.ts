@@ -104,7 +104,17 @@ describe('certificateOptimized', () => {
         email: 'test@example.com',
         id: 'test-id',
         createdAt: new Date().toISOString(),
-        stats: { wpm: 0, accuracy: 0, totalSessions: 0 },
+        stats: {
+          totalXp: 0,
+          level: 1,
+          bestWpm: 0,
+          bestAccuracy: 0,
+          totalWordsTyped: 0,
+          totalPracticeTime: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          completedChallenges: 0,
+        },
       }
       const result = await generateCertificate(
         {
@@ -153,7 +163,17 @@ describe('certificateOptimized', () => {
         email: 'test@example.com',
         id: 'test-id',
         createdAt: new Date().toISOString(),
-        stats: { wpm: 0, accuracy: 0, totalSessions: 0 },
+        stats: {
+          totalXp: 0,
+          level: 1,
+          bestWpm: 0,
+          bestAccuracy: 0,
+          totalWordsTyped: 0,
+          totalPracticeTime: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          completedChallenges: 0,
+        },
       }
 
       await generateCertificate(
