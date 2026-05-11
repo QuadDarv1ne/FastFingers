@@ -128,8 +128,11 @@ export function useTypingGame({
   }, [generateNewText])
 
   // Таймер для timed режима
+  const timeLeftRef = useRef(timeLeft)
+  timeLeftRef.current = timeLeft
+
   useEffect(() => {
-    if (mode !== 'timed' || !isActive || timeLeft <= 0) return
+    if (mode !== 'timed' || !isActive) return
 
     const interval = window.setInterval(() => {
       setTimeLeft(prev => {
@@ -143,7 +146,7 @@ export function useTypingGame({
     }, 1000)
 
     return () => window.clearInterval(interval)
-  }, [mode, isActive, timeLeft])
+  }, [mode, isActive])
 
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {

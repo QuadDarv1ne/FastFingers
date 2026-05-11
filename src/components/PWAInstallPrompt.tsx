@@ -30,7 +30,9 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
     // Remember user dismissed to not show again
     try {
       localStorage.setItem('fastfingers_pwa_dismissed', 'true')
-    } catch {}
+    } catch (e) {
+      console.warn('PWA dismiss storage failed:', e)
+    }
   }
 
   // Don't show if already installed or prompt not ready
@@ -40,7 +42,9 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
   try {
     const dismissed = localStorage.getItem('fastfingers_pwa_dismissed')
     if (dismissed === 'true') return null
-  } catch {}
+  } catch (e) {
+    console.warn('PWA dismissed check failed:', e)
+  }
 
   return (
     <AnimatePresence>

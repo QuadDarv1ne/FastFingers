@@ -77,7 +77,6 @@
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
-    "@types/react-query": "^1.2.8",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vitejs/plugin-react": "^5.1.4",

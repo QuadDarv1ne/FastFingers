@@ -393,7 +393,6 @@ function AppContent() {
                   streak={streak.current}
                   onSetGameMode={setGameMode}
                   onSetView={setView}
-                  _onSetSpeedTestDuration={setSpeedTestDuration}
                   onSetShowHeatmap={setShowHeatmap}
                   onSessionComplete={handleSessionCompleteWithProgress}
                   onKeyInput={updateHeatmap}
@@ -692,7 +691,16 @@ const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
     <div className="flex items-center justify-between">
       <span className="text-sm text-dark-400">{label}</span>
       <button
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
         onClick={() => onChange(!checked)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onChange(!checked)
+          }
+        }}
         className={`w-12 h-6 rounded-full transition-colors ${checked ? 'bg-primary-600' : 'bg-dark-700'}`}
       >
         <div

@@ -195,10 +195,6 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-is', 'framer-motion', '@tanstack/react-query'],
     exclude: ['@sentry/react'],
-    // Try to fix framer-motion entry issue
-    entries: [
-      'framer-motion/dist/framer-motion.mjs',
-    ],
   },
   css: {
     devSourcemap: false,

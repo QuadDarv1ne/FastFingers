@@ -92,12 +92,11 @@ interface GameModeRendererProps {
   // Callbacks
   onSetGameMode: (mode: GameMode) => void
   onSetView: (view: View) => void
-  _onSetSpeedTestDuration: (duration: SpeedTestDuration) => void
+  onCompleteChallenge: () => void
   onSetShowHeatmap: (show: boolean) => void
   onSessionComplete: (stats: TypingStats) => void
   onKeyInput: (char: string, isCorrect: boolean) => void
   onSaveCustomExercise: (exercise: CustomExercise) => void
-  onCompleteChallenge: () => void
 }
 
 export function GameModeRenderer({
@@ -118,7 +117,6 @@ export function GameModeRenderer({
   onKeyInput,
   onSaveCustomExercise,
   onCompleteChallenge,
-  _onSetSpeedTestDuration: __onSetSpeedTestDuration,
 }: GameModeRendererProps) {
   // Views
   if (view === 'history') {
