@@ -69,25 +69,24 @@ Files using raw `console.warn/error` instead of `@utils/logger` / Файлы с 
 
 ### 4. Create `.env.example` File / Создать файл `.env.example`
 
-- [ ] README references `.env.example` but the file does not exist / README упоминает `.env.example`, но файл не существует
-- [ ] Document required environment variables / Документировать обязательные переменные:
+- [x] README references `.env.example` and the file exists / README упоминает `.env.example`, файл существует
+- [x] Document required environment variables / Документированы обязательные переменные:
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
   - `VITE_SENTRY_DSN`
   - `VITE_API_URL`
+- [x] Fixed outdated migration reference (001_initial_schema.sql → full_migration.sql)
 
 ### 5. Remove `as any` in Production Code / Убрать `as any` в продакшн-коде
 
-Non-test files using `as any` / Не-тестовые файлы с `as any`:
-
-- [ ] `src/workers/stats.worker.ts:206` — dynamic metric access (use `keyof` / использовать `keyof`)
-- [ ] `src/utils/indexedDB.ts` (multiple / несколько) — define typed interfaces for IDB records / определить типизированные интерфейсы для IDB записей
-- [ ] `src/utils/contrast.ts:181` — debug helper on `window` (use `Record<string, unknown>`)
+- [x] All production code: 0 `as any` usages / Все файлы: 0 использований
+- [x] ESLint rule `@typescript-eslint/no-explicit-any` set to `error` for production
+- [x] ESLint override allows `as any` in test files via `overrides`
+- [x] Replaced `any` with `unknown` in `indexedDB.ts:migrateFromLocalStorage`
 
 ### 6. Add Vitest Coverage Thresholds / Добавить пороги покрытия в Vitest
 
-- [ ] `vitest.config.ts` has `passWithNoTests: true` without minimum coverage gates / имеет `passWithNoTests: true` без минимальных порогов
-- [ ] Add / Добавить: lines 70%, branches 65%, functions 70%, statements 70%
+- [x] Added thresholds in `vitest.config.ts`: lines 70%, branches 65%, functions 70%, statements 70%
 
 ### 7. Standardize Error Handling / Стандартизировать обработку ошибок
 
@@ -198,8 +197,8 @@ Coverage gaps / Пробелы в покрытии:
 
 ### 20. Add ESLint `no-restricted-syntax` Rule / Добавить ESLint `no-restricted-syntax` правило
 
-- [ ] Ban `any` in production code via ESLint / Запретить `any` в продакшн-коде через ESLint
-- [ ] Allow in tests via `overrides` / Разрешить в тестах через `overrides`
+- [x] Ban `any` in production code via ESLint (`@typescript-eslint/no-explicit-any`: `error`)
+- [x] Allow in tests via `overrides`
 
 ### 21. Remove Dead Documentation Files / Удалить dead documentation файлы
 
@@ -247,6 +246,15 @@ Coverage gaps / Пробелы в покрытии:
 ---
 
 ## ✅ Completed (Recent) / Выполнено (Последнее)
+
+### 2026-05-11 — Code Quality & Developer Experience / Качество кода и DX
+- ✅ ESLint `@typescript-eslint/no-explicit-any` upgraded from `warn` to `error`
+- ✅ Added ESLint `overrides` to allow `as any` in test files
+- ✅ Removed 5 unused `eslint-disable` directives from test files
+- ✅ Added Vitest coverage thresholds (lines 70%, branches 65%, functions 70%, statements 70%)
+- ✅ Fixed `.env.example` outdated migration reference
+- ✅ Replaced `any` with `unknown` in `indexedDB.ts:migrateFromLocalStorage`
+- ✅ 0 ESLint errors, 26 pre-existing warnings / 0 ошибок ESLint
 
 ### 2026-05-11 — Supabase Migration Applied / Supabase миграция применена
 - ✅ Project created: jfzqncgwoiorhvyzvrig / Проект создан

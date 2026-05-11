@@ -142,17 +142,14 @@ describe('stats utils', () => {
     })
 
     it('должен проверять достижение speed-demon', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(checkAchievement('speed-demon', progress, {} as any)).toBe(true)
     })
 
     it('должен проверять достижение accuracy-master', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(checkAchievement('accuracy-master', progress, {} as any)).toBe(true)
     })
 
     it('должен проверять достижение word-warrior', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(checkAchievement('word-warrior', progress, {} as any)).toBe(true)
     })
   })

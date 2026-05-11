@@ -279,7 +279,7 @@ export function isIndexedDBAvailable(): boolean {
 export async function migrateFromLocalStorage(
   localStorageKey: string,
   storeName: StoreName,
-  transform?: (data: any) => DBStore[StoreName]
+  transform?: (data: unknown) => DBStore[StoreName]
 ): Promise<number> {
   try {
     const data = localStorage.getItem(localStorageKey)

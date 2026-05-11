@@ -52,7 +52,6 @@ describe('exercises utils', () => {
     })
 
     it('должен возвращать упражнение при несуществующей категории', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const exercise = getRandomExercise('nonexistent' as any)
       expect(exercise).toBeDefined()
     })

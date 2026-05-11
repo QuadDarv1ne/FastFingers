@@ -24,7 +24,6 @@ describe('Keyboard', () => {
   })
 
   it('не должен рендерить невалидную раскладку', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { container } = render(<Keyboard layout={'invalid' as any} />)
     expect(container.firstChild).toBeNull()
   })
