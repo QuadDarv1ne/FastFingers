@@ -47,7 +47,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const [betAmount, setBetAmount] = useState(0)
   const [currentDuel, setCurrentDuel] = useState<DuelChallenge | null>(null)
   const [countdown, setCountdown] = useState<number | null>(null)
-  const [opponentProgress] = useState(0)
+  const [opponentWpm, setOpponentWpm] = useState(0)
   const [message, setMessage] = useState('')
 
   const {
@@ -105,8 +105,15 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           filter: `id=eq.${currentDuel.id}`,
         },
         (payload) => {
-          const updatedDuel = payload.new as DuelChallenge
-          setCurrentDuel(updatedDuel)
+          const updatedDuel = payload.new as Record<string, unknown>
+          setCurrentDuel(updatedDuel as DuelChallenge)
+
+          // Extract opponent WPM based on user role
+          const isChallenger = currentDuel?.challenger?.id === user?.id
+          const oppWpm = isChallenger
+            ? (updatedDuel.opponent_wpm as number) ?? 0
+            : (updatedDuel.challenger_wpm as number) ?? 0
+          setOpponentWpm(oppWpm)
 
           if (updatedDuel.status === 'active' && duelState === 'waiting') {
             setDuelState('active')
@@ -201,10 +208,10 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       await completeDuel.mutateAsync({
         duelId: currentDuel.id,
         winnerId: user.id, // Упрощённо - победитель тот, кто закончил
-        challengerScore: isChallenger ? score : opponentProgress,
-        opponentScore: isChallenger ? opponentProgress : score,
-        challengerWpm: isChallenger ? stats.wpm : opponentProgress,
-        opponentWpm: isChallenger ? opponentProgress : stats.wpm,
+        challengerScore: isChallenger ? score : opponentWpm,
+        opponentScore: isChallenger ? opponentWpm : score,
+        challengerWpm: isChallenger ? stats.wpm : opponentWpm,
+        opponentWpm: isChallenger ? opponentWpm : stats.wpm,
         challengerAccuracy: isChallenger ? stats.accuracy : 80,
         opponentAccuracy: isChallenger ? 80 : stats.accuracy,
       })
@@ -214,7 +221,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     } catch (err) {
       console.error('Error completing duel:', err)
     }
-  }, [currentDuel, user?.id, opponentProgress, completeDuel, onComplete])
+  }, [currentDuel, user?.id, opponentWpm, completeDuel, onComplete])
 
   // Обработка ввода с обновлением прогресса
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -414,9 +421,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             </div>
             <div className="bg-dark-800 rounded-lg p-4 text-center">
               <p className="text-sm text-dark-400">Соперник</p>
-              <p className="text-2xl font-bold text-purple-400">{opponentProgress} WPM</p>
+              <p className="text-2xl font-bold text-purple-400">{opponentWpm} WPM</p>
               <div className="mt-2 h-2 bg-dark-700 rounded-full overflow-hidden">
-                <div className="h-full bg-purple-600 transition-all" style={{ width: `${opponentProgress / 2}%` }} />
+                <div className="h-full bg-purple-600 transition-all" style={{ width: `${opponentWpm / 2}%` }} />
               </div>
             </div>
           </div>
@@ -505,7 +512,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             </div>
             <div className="bg-dark-800 rounded-lg p-4">
               <p className="text-sm text-dark-400">WPM соперника</p>
-              <p className="text-2xl font-bold text-purple-400">{opponentProgress}</p>
+              <p className="text-2xl font-bold text-purple-400">{opponentWpm}</p>
             </div>
           </div>
           <button

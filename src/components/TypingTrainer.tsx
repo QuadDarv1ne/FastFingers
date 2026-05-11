@@ -206,7 +206,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     if (!isChallenge) {
       handleSkip()
     }
-  }, { enabled: !isChallenge })
+  }, { enabled: !isChallenge, ignoreInputFocus: true })
 
   useHotkey('enter', () => {
     inputRef.current?.focus({ preventScroll: true })

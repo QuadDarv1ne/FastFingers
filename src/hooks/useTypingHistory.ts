@@ -70,6 +70,22 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   const { user } = useAuth()
   const userRef = useRef(user)
   userRef.current = user
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const debouncedSave = useCallback((historyData: HistoryData) => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      saveHistory(historyData)
+      saveTimeoutRef.current = null
+    }, 500)
+  }, [])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    }
+  }, [])
 
   const [isLoading, setIsLoading] = useState(true)
   const [error] = useState<string | null>(null)
@@ -101,7 +117,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
         totalSessions: prev.totalSessions + 1,
         totalTime: prev.totalTime + Math.floor(stats.timeElapsed / 60),
       }
-      debouncedSaveHistory(newHistory)
+      debouncedSave(newHistory)
       return newHistory
     })
 
@@ -122,7 +138,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     setHistory(prev => {
       const newHeatmap = updateKeyHeatmap({ ...prev.heatmap }, key, isCorrect)
       const newHistory = { ...prev, heatmap: newHeatmap }
-      debouncedSaveHistory(newHistory)
+      debouncedSave(newHistory)
       return newHistory
     })
   }, [])

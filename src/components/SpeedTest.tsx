@@ -26,17 +26,22 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const [accuracy, setAccuracy] = useState(100)
   
   const inputRef = useRef<HTMLInputElement>(null)
+  const inputResultsRef = useRef(inputResults)
+  const timeLeftRef = useRef(timeLeft)
+  inputResultsRef.current = inputResults
+  timeLeftRef.current = timeLeft
 
   // Завершение
   const handleFinish = useCallback(() => {
-    const correct = inputResults.filter(r => r.isCorrect).length
-    const timeElapsed = duration - timeLeft
-    const errors = inputResults.filter(r => !r.isCorrect).length
+    const results = inputResultsRef.current
+    const elapsed = duration - timeLeftRef.current
+    const correct = results.filter(r => r.isCorrect).length
+    const errors = results.filter(r => !r.isCorrect).length
 
-    const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+    const stats = calculateStats(correct, results.length, errors, elapsed)
     showToast(`Тест завершён: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 5000)
     onComplete(stats)
-  }, [inputResults, timeLeft, duration, onComplete, showToast])
+  }, [duration, onComplete, showToast])
 
   // Генерация текста
   const generateNewText = useCallback(() => {

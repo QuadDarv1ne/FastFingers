@@ -128,9 +128,6 @@ export function useTypingGame({
   }, [generateNewText])
 
   // Таймер для timed режима
-  const timeLeftRef = useRef(timeLeft)
-  timeLeftRef.current = timeLeft
-
   useEffect(() => {
     if (mode !== 'timed' || !isActive) return
 
@@ -284,14 +281,6 @@ export function useTypingGame({
     }
   }, [generateNewText])
 
-  const reset = useCallback(() => {
-    try {
-      generateNewText()
-    } catch (error) {
-      logger.error('Error in reset:', error)
-    }
-  }, [generateNewText])
-
   const focusInput = useCallback(() => {
     try {
       inputRef.current?.focus({ preventScroll: true })
@@ -324,7 +313,6 @@ export function useTypingGame({
         logger.warn('Error in handleStart:', error)
       }
     },
-    reset,
     focusInput,
     generateNewText,
   }

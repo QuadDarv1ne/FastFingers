@@ -98,7 +98,7 @@ export function useHotkey(
   handler: (e: KeyboardEvent) => void,
   options: HotkeyOptions = {}
 ) {
-  const { enabled = true } = options
+  const { enabled = true, ignoreInputFocus = false } = options
   const handlerRef = useRef(handler)
   handlerRef.current = handler
 
@@ -106,6 +106,7 @@ export function useHotkey(
     if (!enabled) return
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
       if (matchesHotkey(e, hotkey)) {
         if (options.preventDefault !== false) e.preventDefault()
         if (options.stopPropagation) e.stopPropagation()
@@ -115,7 +116,7 @@ export function useHotkey(
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [hotkey, enabled, options.preventDefault, options.stopPropagation])
+  }, [hotkey, enabled, options.preventDefault, options.stopPropagation, ignoreInputFocus])
 }
 
 export function useHotkeysContext() {
