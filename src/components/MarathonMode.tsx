@@ -12,6 +12,7 @@ import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
+import { useCountdown } from '@hooks/useCountdown'
 
 interface MarathonModeProps {
   onExit: () => void
@@ -34,7 +35,6 @@ const MILESTONE_MESSAGES = {
 export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [currentMilestone, setCurrentMilestone] = useState(0)
   const [showMilestone, setShowMilestone] = useState<string | null>(null)
   const [combo, setCombo] = useState(0)
@@ -64,21 +64,14 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     sound,
   })
 
+  const { countdown, start: startCountdown } = useCountdown({
+    onComplete: startGame,
+  })
+
   // Старт марафона с обратным отсчётом
   const handleStart = useCallback(() => {
-    setCountdown(COUNTDOWN_SECONDS)
-
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          startGame()
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [startGame])
+    startCountdown(COUNTDOWN_SECONDS)
+  }, [startCountdown])
 
   // Горячие клавиши
   useHotkey('escape', () => {

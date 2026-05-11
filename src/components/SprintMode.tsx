@@ -9,6 +9,7 @@ import { useTypingGame } from '@hooks/useTypingGame'
 import { useToast } from '@contexts/ToastContext'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useAppTranslation } from '../i18n/config'
+import { useCountdown } from '@hooks/useCountdown'
 
 interface SprintModeProps {
   onExit: () => void
@@ -23,7 +24,6 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const { user } = useAuth()
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
 
@@ -53,21 +53,14 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     sound,
   })
 
+  const { countdown, start: startCountdown } = useCountdown({
+    onComplete: startGame,
+  })
+
   // Старт спринта с обратным отсчётом
   const handleStart = useCallback(() => {
-    setCountdown(COUNTDOWN_SECONDS)
-
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          startGame()
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [startGame])
+    startCountdown(COUNTDOWN_SECONDS)
+  }, [startCountdown])
 
   // Горячие клавиши
   useHotkey('escape', () => {

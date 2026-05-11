@@ -11,6 +11,7 @@ import { useHotkey } from '../hooks/useHotkeys'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 import { practiceTexts } from '../data/practiceTexts'
+import { useCountdown } from '@hooks/useCountdown'
 
 interface CodeModeProps {
   onExit: () => void
@@ -59,7 +60,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const [language, setLanguage] = useState<CodeLanguage>('all')
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null)
 
   const codeTexts = useMemo(() => {
@@ -89,6 +89,25 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
   const [accuracy, setAccuracy] = useState(100)
 
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const startTyping = useCallback(() => {
+    setIsActive(true)
+    setStartTime(Date.now())
+    setCurrentIndex(0)
+    setInputResults([])
+    setWpm(0)
+    setAccuracy(100)
+    inputRef.current?.focus({ preventScroll: true })
+  }, [])
+
+  const { countdown, start: startCountdown } = useCountdown({
+    onComplete: startTyping,
+  })
+
+  // Старт с обратным отсчётом
+  const handleStart = useCallback(() => {
+    startCountdown(3)
+  }, [startCountdown])
 
   // Обработка ввода
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
@@ -131,27 +150,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
       }
     }
   }, [textToType, startTime, currentIndex, inputResults, wpm, accuracy, onComplete, showToast])
-
-  // Старт с обратным отсчётом
-  const handleStart = useCallback(() => {
-    setCountdown(3)
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          setIsActive(true)
-          setStartTime(Date.now())
-          setCurrentIndex(0)
-          setInputResults([])
-          setWpm(0)
-          setAccuracy(100)
-          inputRef.current?.focus({ preventScroll: true })
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [])
 
   // Горячие клавиши
   useHotkey('escape', () => {

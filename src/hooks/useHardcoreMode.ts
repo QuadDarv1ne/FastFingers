@@ -3,6 +3,7 @@ import { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from './useTypingSound'
+import { useCountdown } from './useCountdown'
 
 const COUNTDOWN_SECONDS = 3
 const TEXT_LENGTH = 30
@@ -38,7 +39,6 @@ export function useHardcoreMode({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean; char: string }>>([])
   const [isActive, setIsActive] = useState(false)
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [startTime, setStartTime] = useState<number | null>(null)
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreakLocal] = useState(0)
@@ -69,22 +69,19 @@ export function useHardcoreMode({
     generateNewText()
   }, [generateNewText])
 
-  const handleStart = useCallback(() => {
-    setCountdown(COUNTDOWN_SECONDS)
-    setStartTime(Date.now())
-
-    const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          setIsActive(true)
-          inputRef.current?.focus({ preventScroll: true })
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
+  const activateGame = useCallback(() => {
+    setIsActive(true)
+    inputRef.current?.focus({ preventScroll: true })
   }, [])
+
+  const { countdown, start: startCountdown, cancel: cancelCountdown } = useCountdown({
+    onComplete: activateGame,
+  })
+
+  const handleStart = useCallback(() => {
+    setStartTime(Date.now())
+    startCountdown(COUNTDOWN_SECONDS)
+  }, [startCountdown])
 
   const handleMistake = useCallback(() => {
     setIsActive(false)
@@ -143,11 +140,11 @@ export function useHardcoreMode({
     setBestStreak?.(prev => Math.max(prev, streak))
     generateNewText()
     setIsActive(false)
-    setCountdown(null)
+    cancelCountdown()
     setStartTime(null)
     setInputResults([])
     setCurrentIndex(0)
-  }, [streak, generateNewText, setBestStreak])
+  }, [streak, generateNewText, setBestStreak, cancelCountdown])
 
   return {
     text,

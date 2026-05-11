@@ -14,6 +14,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { supabase } from '../services/supabase'
 import { logger } from '../utils/logger'
+import { useCountdown } from '@hooks/useCountdown'
 
 interface DuelModeProps {
   onExit: () => void
@@ -49,7 +50,6 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const [duration, setDuration] = useState<DuelDuration>(60)
   const [betAmount, setBetAmount] = useState(0)
   const [currentDuel, setCurrentDuel] = useState<DuelChallenge | null>(null)
-  const [countdown, setCountdown] = useState<number | null>(null)
   const [opponentWpm, setOpponentWpm] = useState(0)
   const [message, setMessage] = useState('')
 
@@ -75,23 +75,17 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     sound,
   })
 
+  const { countdown, start: startCountdown } = useCountdown({
+    onComplete: startGame,
+  })
+
   // Загрузка дуэлей пользователя
   const { data: userDuels } = useUserDuels(user?.id)
 
-  // Старт с обратным отсчётом (объявлен здесь для использования в useEffect)
+  // Старт с обратным отсчётом
   const handleStart = useCallback(() => {
-    setCountdown(3)
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          startGame()
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [startGame])
+    startCountdown(3)
+  }, [startCountdown])
 
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
