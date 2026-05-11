@@ -309,6 +309,30 @@ button:disabled,
   cursor: not-allowed;
 }
 
+/* ============================================
+   ACCESSIBILITY: FOCUS VISIBLE
+   ============================================ */
+
+/* Global focus-visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Stronger focus ring for form elements */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
 /* Mobile optimizations — touch-friendly */
 @media (max-width: 768px) {
   /* Ensure minimum touch target size of 44x44 */
@@ -1052,6 +1076,32 @@ body {
   .typing-effect {
     animation: none;
     border-right: none;
+  }
+
+  /* Additional animations */
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-scale-in,
+  .animate-pulse-glow,
+  .animate-combo-scale,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-marquee,
+  .loading-spinner,
+  .progress-wave::before,
+  .sparkle,
+  .animate-shimmer {
+    animation: none !important;
+  }
+
+  /* Disable transitions for users preferring reduced motion */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

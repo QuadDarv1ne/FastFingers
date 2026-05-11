@@ -528,6 +528,7 @@ const ModeButton = memo<ModeButtonProps>(function ModeButton({
   return (
     <button
       onClick={onClick}
+      aria-pressed={isActive}
       className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
         isActive
           ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
@@ -574,6 +575,8 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
             : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
         }`}
         onClick={() => onGameModeChange('speedtest')}
+        aria-expanded={isActive}
+        aria-haspopup="true"
         title="Тест скорости печати"
       >
         <span className="text-lg">🕐</span>

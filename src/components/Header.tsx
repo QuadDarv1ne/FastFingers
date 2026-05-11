@@ -89,6 +89,8 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
                   onClick={() => setShowSettings(!showSettings)}
                   className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all cursor-pointer hover:scale-105"
                   aria-label={t('misc.settings')}
+                  aria-expanded={showSettings}
+                  aria-haspopup="true"
                   title={t('misc.settings')}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

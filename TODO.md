@@ -71,9 +71,11 @@
 - [ ] Импорт/экспорт упражнений
 
 ### 6. Доступность (a11y)
-- [ ] Axe-core тестирование
-- [ ] Улучшить контрастность для некоторых элементов
-- [ ] Полная поддержка screen reader для всех режимов
+- [x] Axe-core тестирование — axe-playwright E2E тесты
+- [x] Улучшить контрастность — уже улучшено в предыдущих итерациях
+- [x] Полная поддержка screen reader — aria-expanded, aria-pressed, role=switch, aria-checked
+- [x] Global :focus-visible стили для клавиатурной навигации
+- [x] Expanded prefers-reduced-motion — все анимации и переходы отключены
 
 ---
 

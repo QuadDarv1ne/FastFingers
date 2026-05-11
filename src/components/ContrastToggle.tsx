@@ -30,6 +30,8 @@ export function ContrastToggle() {
   return (
     <button
       onClick={toggleContrast}
+      role="switch"
+      aria-checked={isHighContrast}
       className={`p-2 rounded-lg transition-all ${
         isHighContrast ? 'bg-primary-600 text-white' : 'bg-dark-800 text-dark-300 hover:text-white hover:bg-dark-700'
       }`}
