@@ -10,6 +10,7 @@ import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 
 interface MarathonModeProps {
@@ -32,6 +33,7 @@ const MILESTONE_MESSAGES = {
 
 export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const [countdown, setCountdown] = useState<number | null>(null)
   const [currentMilestone, setCurrentMilestone] = useState(0)
   const [showMilestone, setShowMilestone] = useState<string | null>(null)
@@ -56,6 +58,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     mode: 'timed',
     duration: MARATHON_DURATION,
     onComplete: (stats) => {
+      showToast(`Марафон: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 5000)
       onComplete(stats)
     },
     sound,

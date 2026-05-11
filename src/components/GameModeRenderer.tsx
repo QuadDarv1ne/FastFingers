@@ -13,17 +13,40 @@ import type { GameMode, View, SpeedTestDuration } from '../hooks/useGameMode'
 import type { UserSettings, TypingStats, KeyHeatmapData, Exercise } from '../types'
 import type { CustomExercise } from './CustomExerciseEditor'
 
-const MODE_ANIMATION = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.2 },
+const ANIMATIONS = {
+  // Stats/views — subtle slide up
+  stats: {
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -16 },
+    transition: { duration: 0.18 },
+  },
+  // Game modes — slightly more dramatic
+  game: {
+    initial: { opacity: 0, scale: 0.97 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 1.02 },
+    transition: { duration: 0.2 },
+  },
+  // Hardcore — quick snap in
+  hardcore: {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.98 },
+    transition: { duration: 0.15 },
+  },
 }
 
-function ModeMotion({ children }: { children: ReactNode }) {
-  return (
-    <motion.div {...MODE_ANIMATION}>{children}</motion.div>
-  )
+function StatsMotion({ children }: { children: ReactNode }) {
+  return <motion.div {...ANIMATIONS.stats}>{children}</motion.div>
+}
+
+function GameMotion({ children }: { children: ReactNode }) {
+  return <motion.div {...ANIMATIONS.game}>{children}</motion.div>
+}
+
+function HardcoreMotion({ children }: { children: ReactNode }) {
+  return <motion.div {...ANIMATIONS.hardcore}>{children}</motion.div>
 }
 
 const LazyFallback = () => <div className="p-8 text-center">Loading...</div>
@@ -99,55 +122,55 @@ export function GameModeRenderer({
 }: GameModeRendererProps) {
   // Views
   if (view === 'history') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><TrainingHistory onBack={() => onSetView('main')} /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><TrainingHistory onBack={() => onSetView('main')} /></Suspense></StatsMotion>
   }
   if (view === 'custom-exercise') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><CustomExerciseEditor onSave={onSaveCustomExercise} onClose={() => onSetView('main')} /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><CustomExerciseEditor onSave={onSaveCustomExercise} onClose={() => onSetView('main')} /></Suspense></StatsMotion>
   }
   if (view === 'tips') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><TypingTips /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><TypingTips /></Suspense></StatsMotion>
   }
   if (view === 'weekly') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><WeeklyProgress /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><WeeklyProgress /></Suspense></StatsMotion>
   }
   if (view === 'statistics') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><StatisticsPage onBack={() => onSetView('main')} /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><StatisticsPage onBack={() => onSetView('main')} /></Suspense></StatsMotion>
   }
   if (view === 'learning') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><LearningMode onBack={() => onSetView('main')} onClose={() => onSetView('main')} onStartLesson={() => {}} /></Suspense></ModeMotion>
+    return <StatsMotion><Suspense fallback={<LazyFallback/>}><LearningMode onBack={() => onSetView('main')} onClose={() => onSetView('main')} onStartLesson={() => {}} /></Suspense></StatsMotion>
   }
 
   // Game modes
   const exitToPractice = () => { onSetGameMode('practice'); onSetView('main') }
 
   if (gameMode === 'reaction') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><ReactionGame onExit={exitToPractice} onComplete={onCompleteChallenge} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><ReactionGame onExit={exitToPractice} onComplete={onCompleteChallenge} /></Suspense></GameMotion>
   }
   if (gameMode === 'duel') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><DuelMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><DuelMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
   }
   if (gameMode === 'code') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><CodeMode onExit={exitToPractice} onComplete={onSessionComplete} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><CodeMode onExit={exitToPractice} onComplete={onSessionComplete} /></Suspense></GameMotion>
   }
   if (gameMode === 'marathon') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><MarathonMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><MarathonMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
   }
   if (gameMode === 'tournament') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><TournamentMode onExit={exitToPractice} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><TournamentMode onExit={exitToPractice} /></Suspense></GameMotion>
   }
   if (gameMode === 'sprint') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><SprintMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><SprintMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
   }
   if (gameMode === 'hardcore') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><HardcoreMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></ModeMotion>
+    return <HardcoreMotion><Suspense fallback={<LazyFallback/>}><HardcoreMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></HardcoreMotion>
   }
   if (gameMode === 'speedtest') {
-    return <ModeMotion><Suspense fallback={<LazyFallback/>}><SpeedTest duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></ModeMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><SpeedTest duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
   }
 
   // Default: practice mode
   return (
-    <ModeMotion>
+    <GameMotion>
       {todayChallenge && gameMode !== 'challenge' && (
         <Suspense fallback={<LazyFallback/>}>
           <DailyChallengeCardLazy
@@ -188,6 +211,6 @@ export function GameModeRenderer({
           skin={settings.keyboardSkin}
         />
       )}
-    </ModeMotion>
+    </GameMotion>
   )
 }

@@ -8,6 +8,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useHotkey } from '../hooks/useHotkeys'
+import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 import { practiceTexts } from '../data/practiceTexts'
 
@@ -56,6 +57,7 @@ const LANGUAGE_ICONS: Record<CodeLanguage, string> = {
 
 export function CodeMode({ onExit, onComplete }: CodeModeProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const [language, setLanguage] = useState<CodeLanguage>('all')
   const [countdown, setCountdown] = useState<number | null>(null)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null)
@@ -124,10 +126,11 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           totalChars: textToType.length,
           timeElapsed: startTime ? Date.now() - startTime : 0,
         }
+        showToast(`Код: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
         onComplete(stats)
       }
     }
-  }, [textToType, startTime, currentIndex, inputResults, wpm, accuracy, onComplete])
+  }, [textToType, startTime, currentIndex, inputResults, wpm, accuracy, onComplete, showToast])
 
   // Старт с обратным отсчётом
   const handleStart = useCallback(() => {

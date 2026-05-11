@@ -12,6 +12,7 @@ import type { User } from '../types/auth'
 import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage, type HardcoreRank } from '../utils/hardcoreRank'
 import { createAchievementNotification } from '../utils/notifications'
 import { useNotifications } from '../contexts/NotificationContext'
+import { useToast } from '../contexts/ToastContext'
 import { triggerConfetti } from '../utils/confetti'
 
 const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
@@ -46,6 +47,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 }: HardcoreModeProps) {
   const { user } = useAuth()
   const { addNotification } = useNotifications()
+  const { showToast } = useToast()
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
@@ -140,6 +142,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
       
       setLastStats(stats)
+      showToast(`Хардкор: серия ${streak}, ${stats.wpm} WPM`, streak > 10 ? 'success' : 'info', 4000)
       onComplete(stats)
 
       const saveRecord = async () => {
@@ -160,7 +163,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       saveRecord().catch(() => {})
       setShowCertificate(true)
     }
-  }, [isActive, inputResults, startTime, user, streak, onComplete])
+  }, [isActive, inputResults, startTime, user, streak, onComplete, showToast])
 
   const { wpm, accuracy } = useMemo(() => {
     if (inputResults.length === 0 || !startTime) return { wpm: 0, accuracy: 0 }

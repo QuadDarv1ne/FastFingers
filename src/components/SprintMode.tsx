@@ -6,6 +6,7 @@ import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { useToast } from '@contexts/ToastContext'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useAppTranslation } from '../i18n/config'
 
@@ -20,6 +21,7 @@ const COUNTDOWN_SECONDS = 3
 
 export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const { user } = useAuth()
   const [countdown, setCountdown] = useState<number | null>(null)
   const [showCertificate, setShowCertificate] = useState(false)
@@ -44,6 +46,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     duration: SPRINT_DURATION,
     onComplete: (stats) => {
       setLastStats(stats)
+      showToast(`Спринт: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
       onComplete(stats)
       setShowCertificate(true)
     },
