@@ -1,26 +1,38 @@
-# Netlify конфигурация для деплоя
-# Документация: https://docs.netlify.com/configure-builds/file-based-configuration/
+# Netlify configuration for FastFingers
+# Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
   command = "npm run build"
   publish = "dist"
 
-# SPA роутинг - все запросы перенаправляются на index.html
+# Environment variables
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--no-optional"
+
+# SPA routing - all requests fall back to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Кэширование для ассетов
+# Cache-busting for assets (Vite adds hashes)
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Переменные окружения
-[build.environment]
-  NODE_VERSION = "20"
+# Service worker should not be cached
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
-# Плагины (опционально)
-# [[plugins]]
-#   package = "@netlify/plugin-lighthouse"
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

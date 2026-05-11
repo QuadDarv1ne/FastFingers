@@ -403,8 +403,15 @@ VALUES
 ON CONFLICT (date) DO NOTHING;
 
 -- ============================================
+-- ЭТАП 5: Enable Realtime
+-- ============================================
+
+-- Добавляем таблицы в realtime publication для подписок на изменения
+ALTER PUBLICATION supabase_realtime ADD TABLE duels;
+ALTER PUBLICATION supabase_realtime ADD TABLE tournaments;
+ALTER PUBLICATION supabase_realtime ADD TABLE tournament_participants;
+
+-- ============================================
 -- ГОТОВО!
 -- ============================================
--- Все таблицы, индексы, политики RLS, функции и триггеры созданы.
--- Следующий шаг: включите Realtime для таблиц duels, tournaments, tournament_participants
--- в Dashboard Supabase → Database → Replication → Enable Realtime.
+-- Все таблицы, индексы, политики RLS, функции, триггеры и Realtime настроены.

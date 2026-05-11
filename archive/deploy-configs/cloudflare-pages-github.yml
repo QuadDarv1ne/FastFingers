@@ -1,5 +1,5 @@
 # GitHub Actions Workflow для деплоя на Cloudflare Pages
-# Требуется добавить секреты в GitHub:
+# Секреты GitHub:
 # - CLOUDFLARE_API_TOKEN: API токен Cloudflare
 # - CLOUDFLARE_ACCOUNT_ID: ID аккаунта Cloudflare
 
@@ -8,14 +8,16 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: 'cloudflare-pages'
-  cancel-in-progress: false
+  group: 'cloudflare-pages-${{ github.ref }}'
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -27,7 +29,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -43,3 +45,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: fastfingers
           directory: dist
+          wranglerVersion: '3'

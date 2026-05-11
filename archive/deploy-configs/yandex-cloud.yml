@@ -1,0 +1,28 @@
+# Yandex Cloud конфигурация для деплоя FastFingers
+# Docs: https://cloud.yandex.ru/docs/storage/
+
+# Деплой через Yandex Object Storage (статический сайт)
+# Требуется yc CLI настроенный
+
+variables:
+  BUCKET_NAME: fastfingers
+  FOLDER_ID: "" # Укажите ID фолдера
+
+steps:
+  - name: Build
+    uses: npm
+    with:
+      command: ci
+  - name: Build
+    run: npm run build
+
+  - name: Upload to Yandex Object Storage
+    run: |
+      yc storage put --name $BUCKET_NAME --key index.html --body dist/index.html --content-type text/html
+      for file in dist/assets/*; do
+        yc storage put --name $BUCKET_NAME --key assets/$(basename $file) --body $file --content-type application/javascript --cache-control "public, max-age=31536000, immutable"
+      done
+
+  - name: Set bucket policy
+    run: |
+      yc storage bucket set-acl --name $BUCKET_NAME --grant type=AllUsers,permission=READ

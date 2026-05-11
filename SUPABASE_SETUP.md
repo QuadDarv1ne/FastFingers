@@ -38,7 +38,7 @@
 1. В панели проекта перейдите в **SQL Editor**
 2. Нажмите "New Query"
 3. Скопируйте содержимое файла:
-   - `supabase/migrations/full_migration.sql` (объединённый скрипт всех 4 миграций)
+   - `supabase/migrations/full_migration.sql` (объединённый скрипт всех 5 миграций, включая Realtime)
 4. Вставьте в SQL Editor и нажмите "Run" (или Ctrl+Enter)
 5. Убедитесь, что все запросы выполнены без ошибок
 
@@ -51,6 +51,7 @@
    - `supabase/migrations/002_hardcore_mode.sql`
    - `supabase/migrations/003_leaderboards_duels.sql`
    - `supabase/migrations/004_user_stats_table.sql`
+   - `supabase/migrations/005_enable_realtime.sql`
 4. Выполните каждый файл (нажмите "Run" или Ctrl+Enter)
 
 ### Вариант B: Через Supabase CLI

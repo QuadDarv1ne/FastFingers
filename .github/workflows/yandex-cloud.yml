@@ -1,0 +1,55 @@
+# GitHub Actions Workflow для деплоя на Yandex Cloud
+# Секреты GitHub:
+# - YC_SA_KEY_FILE: JSON ключ сервисного аккаунта Yandex Cloud
+
+name: Deploy to Yandex Cloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 'yandex-cloud-${{ github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Yandex Cloud CLI
+        uses: yc-actions/yc-github-actions@v1
+        with:
+          version: latest
+          yc_json_key: ${{ secrets.YC_SA_KEY_FILE }}
+
+      - name: Upload to Yandex Object Storage
+        uses: BetR/gh-action-s3-static-website@v1
+        with:
+          aws_access_key_id: ${{ secrets.YC_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.YC_AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: fastfingers
+          aws_s3_endpoint: https://storage.yandexcloud.net
+          aws_region: ru-central1
+          dist_path: dist
+          cache_control_assets: "public, max-age=31536000, immutable"
