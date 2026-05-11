@@ -102,6 +102,14 @@
 
 ## ✅ Выполнено (Recent)
 
+### 2026-05-11 — Исправление ошибок и улучшение i18n
+- ✅ Исправлен deprecated poolOptions в vitest.config.ts для совместимости с Vitest 4
+- ✅ Удален неиспользуемый lastOnline state из useOnlineStatus hook
+- ✅ Заменен хардкод русского текста в Toast.tsx aria-label на i18n перевод
+- ✅ Обновлены тесты Toast для использования переведенного текста
+- ✅ Все 905 тестов проходят
+- ✅ Ветки синхронизированы
+
 ### 2026-05-06 — Оптимизация bundle size (jspdf удален)
 - ✅ Создан certificateOptimized.ts с использованием Canvas API
 - ✅ Удалена зависимость jspdf (@420KB) из package.json
