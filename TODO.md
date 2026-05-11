@@ -2,7 +2,7 @@
 
 **Автор:** Dupley Maxim Igorevich  
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 12:35
+**Последнее обновление:** 2026-05-11 13:00
 
 ---
 
@@ -44,8 +44,11 @@
 - [x] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations) — исправлено 2026-05-02
 
 ### 3. Supabase интеграция (если требуется backend)
-- [ ] Создать проект на Supabase
-- [ ] Применить миграции (001-004)
+- [x] Код полностью готов (auth, leaderboards, duels, tournaments, cloud sync)
+- [x] Создан объединённый SQL-скрипт (full_migration.sql)
+- [x] Написана пошаговая инструкция (SUPABASE_SETUP.md)
+- [ ] Создать проект на https://app.supabase.com
+- [ ] Применить миграцию (full_migration.sql)
 - [ ] Настроить `.env` с ключами
 - [ ] Протестировать leaderboards
 - [ ] Протестировать дуэли (PvP)
@@ -103,6 +106,11 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-11 — Документация Supabase
+- ✅ Создан full_migration.sql (объединённый скрипт всех 4 миграций)
+- ✅ Обновлён SUPABASE_SETUP.md с инструкциями по combined migration
+- ✅ Обновлён .env с понятными комментариями и ссылкой на гайд
 
 ### 2026-05-11 — Оптимизация charts-vendor (recharts удален)
 - ✅ Созданы hand-built SVG компоненты: SimpleBarChart, SimpleAreaChart, SimplePieChart
