@@ -15,7 +15,7 @@
 | Сборка | **~12s** | ✅ **<15s** |
 | Bundle size (core) | ~250KB gzipped | ✅ |
 | pdf-vendor | **0 KB** (удален) | ✅ |
-| charts-vendor | 532 KB (147 KB gzipped) | ⚠️ |
+| charts-vendor | **0 KB** (удален, заменен на SVG) | ✅ |
 | TypeScript ошибки | 0 | ✅ |
 | ESLint ошибки | 0 | ✅ |
 
@@ -29,10 +29,12 @@
   - ✅ Удалена зависимость jspdf из package.json
   - ✅ Все тесты проходят (916 passed)
   - ✅ Сборка успешна
-- [ ] **charts-vendor**: 532 KB → <400 KB
-  - Текущий: 531.57 KB (146.54 KB gzipped)
-  - Исследовать: lazy loading для отдельных графиков
-  - Исследовать: замена Recharts на более лёгкую альтернативу (долгосрочно)
+- [x] **charts-vendor**: 532 KB → 0 KB
+  - ✅ Заменен на hand-built SVG компоненты (SimpleBarChart, SimpleAreaChart, SimplePieChart)
+  - ✅ Удалена зависимость recharts из package.json
+  - ✅ Удален LazyRecharts.tsx
+  - ✅ Все тесты проходят (905 passed)
+  - ✅ Сборка ~8s
 
 ---
 
@@ -101,6 +103,16 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-11 — Оптимизация charts-vendor (recharts удален)
+- ✅ Созданы hand-built SVG компоненты: SimpleBarChart, SimpleAreaChart, SimplePieChart
+- ✅ Заменены все 4 графика в StatisticsPage на лёгкие SVG компоненты
+- ✅ Удален LazyRecharts.tsx
+- ✅ Удалена зависимость recharts из package.json (532 KB → 0 KB)
+- ✅ Убраны dead chunking правила для recharts и jspdf в vite.config.ts
+- ✅ Сборка ускорена: ~12s → **~8s** (-33%)
+- ✅ Все 905 тестов проходят
+- ✅ TypeScript 0 ошибок, ESLint 0 ошибок
 
 ### 2026-05-11 — Рефакторинг: удаление unused компонентов и исправление memory leaks
 - ✅ Удалены unused компоненты: CorrelationMatrix, FunnelAnalysis, PredictionCurve, SpiderChart, TypingSpeedChart (-1119 строк)
@@ -208,7 +220,7 @@
 
 ## 🎯 Следующий спринт (приоритеты)
 
-1. **Оптимизация charts-vendor** — lazy loading для Recharts
+1. **Supabase интеграция** — создать проект, применить миграции, протестировать
 2. **E2E тесты** — покрытие критических путей
 3. **Новые тексты** — 50+ упражнений
 4. **Accessibility** — a11y улучшения
@@ -235,9 +247,9 @@
 
 ### Известные ограничения
 - ~~pdf-vendor чанк большой из-за jspdf зависимостей~~ ✅ Удален
-- charts-vendor чанк большой из-за Recharts + D3 — требует lazy loading
+- ~~charts-vendor чанк большой из-за Recharts + D3~~ ✅ Заменен на hand-built SVG
 - Некоторые тесты требуют `act()` обёртки (React warnings)
 
 ---
 
-*Последнее обновление: 2026-05-06 21:00*
+*Последнее обновление: 2026-05-11 12:50*
