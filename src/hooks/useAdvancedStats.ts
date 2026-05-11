@@ -170,7 +170,7 @@ export function useAdvancedStats() {
       totalTime: history.totalTime,
       bestSession: bestWpmSession,
     }
-  }, [history])
+  }, [history.sessions, history.totalSessions, history.totalTime])
 
   // Данные для графика WPM тренда
   const wpmTrend = useMemo<WpmTrendData[]>(() => {

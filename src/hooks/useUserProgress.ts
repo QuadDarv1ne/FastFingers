@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, Dispatch, SetStateAction } from 'react';
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types';
-import { calculateLevel, xpForLevel, calculateSessionXp } from '../utils/stats';
+import { calculateLevel, xpForLevel, calculateSessionXp, updateKeyHeatmap } from '../utils/stats';
 import { calculateStreakXpBonus } from '../utils/streakBonus';
 
 interface UseUserProgressOptions {

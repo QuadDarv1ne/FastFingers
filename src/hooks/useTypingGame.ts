@@ -85,6 +85,7 @@ export function useTypingGame({
 
   const inputRef = useRef<HTMLInputElement>(null)
   const isHandlingInput = useRef(false)
+  const timeLeftRef = useRef(safeDuration)
 
   const generateNewText = useCallback(() => {
     try {
@@ -145,6 +146,11 @@ export function useTypingGame({
     return () => window.clearInterval(interval)
   }, [mode, isActive])
 
+  // Sync timeLeftRef with timeLeft state for use in callbacks
+  useEffect(() => {
+    timeLeftRef.current = timeLeft
+  }, [timeLeft])
+
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {
       if (!results || results.length === 0) {
@@ -158,7 +164,7 @@ export function useTypingGame({
       }
 
       try {
-        const elapsed = mode === 'timed' ? safeDuration - timeLeft : (Date.now() - (startTime || 0)) / 1000
+        const elapsed = mode === 'timed' ? safeDuration - timeLeftRef.current : (Date.now() - (startTime || 0)) / 1000
         const correctChars = results.filter(r => r?.isCorrect).length
         const errorCount = results.filter(r => r && !r.isCorrect).length
 
@@ -181,7 +187,7 @@ export function useTypingGame({
         setErrors(0)
       }
     },
-    [startTime, onComplete, mode, safeDuration, timeLeft]
+    [startTime, onComplete, mode, safeDuration]
   )
 
   const handleInput = useCallback(
@@ -196,7 +202,7 @@ export function useTypingGame({
         if (isPaused || isComplete) return
 
         // Авто-старт в timed режиме
-        if (mode === 'timed' && !isActive && timeLeft === safeDuration) {
+        if (mode === 'timed' && !isActive && timeLeftRef.current === safeDuration) {
           setIsActive(true)
         }
 
@@ -270,7 +276,7 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    [text, startTime, isPaused, isComplete, mode, isActive, timeLeft, safeDuration, sound, onKeyInput, generateNewText, handleComplete]
+    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, generateNewText, handleComplete]
   )
 
   const handleSkip = useCallback(() => {
@@ -289,6 +295,20 @@ export function useTypingGame({
     }
   }, [])
 
+  const reset = useCallback(() => {
+    generateNewText()
+  }, [generateNewText])
+
+  const handleStart = useCallback(() => {
+    try {
+      setIsActive(true)
+      setStartTime(Date.now())
+      inputRef.current?.focus({ preventScroll: true })
+    } catch (error) {
+      logger.warn('Error in handleStart:', error)
+    }
+  }, [])
+
   return {
     text,
     currentIndex,
@@ -304,15 +324,8 @@ export function useTypingGame({
     inputRef,
     handleInput,
     handleSkip,
-    handleStart: () => {
-      try {
-        setIsActive(true)
-        setStartTime(Date.now())
-        inputRef.current?.focus({ preventScroll: true })
-      } catch (error) {
-        logger.warn('Error in handleStart:', error)
-      }
-    },
+    handleStart,
+    reset,
     focusInput,
     generateNewText,
   }

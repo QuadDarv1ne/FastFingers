@@ -7,8 +7,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { KeystrokeData, TypingStats, TimeOfDayPerformance, FunnelStage } from '../types'
 
-interface PendingPromise {
-  resolve: (value: unknown) => void
+interface PendingPromise<T = unknown> {
+  resolve: (value: T) => void
   reject: (error: Error) => void
 }
 
@@ -48,7 +48,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
   const [error, setError] = useState<string | null>(null)
 
   const workerRef = useRef<Worker | null>(null)
-  const pendingPromises = useRef<Map<number, PendingPromise>>(new Map())
+  const pendingPromises = useRef<Map<number, PendingPromise<unknown>>>(new Map())
   const messageIdRef = useRef(0)
 
   // Инициализация воркера
@@ -93,6 +93,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           worker.terminate()
           workerRef.current = null
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         pendingPromises.current.clear()
       }
     } catch (err) {
@@ -116,7 +117,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       }
 
       const messageId = messageIdRef.current++
-      pendingPromises.current.set(messageId, { resolve, reject })
+      pendingPromises.current.set(messageId, { resolve: resolve as (value: unknown) => void, reject })
 
       setIsBusy(true)
       setError(null)

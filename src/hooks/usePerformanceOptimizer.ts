@@ -31,8 +31,8 @@ export function useDebounce<TFunc extends (...args: Parameters<TFunc>) => Return
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastCallTimeRef = useRef<number | null>(null)
   const lastInvokeTimeRef = useRef<number>(0)
-  const funcRef = useRef<T>(func)
-  const argsRef = useRef<Parameters<T> | null>(null)
+  const funcRef = useRef<TFunc>(func)
+  const argsRef = useRef<Parameters<TFunc> | null>(null)
   
   funcRef.current = func
 
@@ -54,7 +54,7 @@ export function useDebounce<TFunc extends (...args: Parameters<TFunc>) => Return
 
     if (savedArgs && savedFunc) {
       lastInvokeTimeRef.current = time
-      savedFunc(...(savedArgs as Parameters<T>))
+      savedFunc(...(savedArgs as Parameters<TFunc>))
     }
   }, [])
 
@@ -83,7 +83,7 @@ export function useDebounce<TFunc extends (...args: Parameters<TFunc>) => Return
     timeoutRef.current = setTimeout(timerExpired, Math.min(remainingWait, maxWait !== undefined ? maxWait - timeSinceLastInvoke : remainingWait))
   }, [shouldInvoke, wait, maxWait, trailingEdge])
 
-  const debounced = useCallback((...args: Parameters<T>) => {
+  const debounced = useCallback((...args: Parameters<TFunc>) => {
     const time = Date.now()
     lastCallTimeRef.current = time
     argsRef.current = args
@@ -126,7 +126,7 @@ export function useDebounce<TFunc extends (...args: Parameters<TFunc>) => Return
   }, [])
 
   // Добавляем методы cancel и flush
-  const debouncedWithMethods = debounced as T & {
+  const debouncedWithMethods = debounced as TFunc & {
     cancel: () => void
     flush: () => void
   }

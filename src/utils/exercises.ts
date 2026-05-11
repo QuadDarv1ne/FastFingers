@@ -383,7 +383,11 @@ export function getRandomPracticeText(category?: TextCategory, difficulty?: numb
 }
 
 export function getAllTextCategories(): TextCategory[] {
-  return ['literature', 'code', 'quotes', 'proverbs', 'science', 'technology', 'movies', 'news', 'philosophy', 'business']
+  const categories = new Set<TextCategory>()
+  for (const t of practiceTexts) {
+    categories.add(t.category)
+  }
+  return Array.from(categories)
 }
 
 export function getTextDifficultyLevels(): number[] {

@@ -77,7 +77,7 @@ export function MotivationalQuote({
             — {t(currentQuote.authorKey)}
           </cite>
           <span className="text-xs px-3 py-1 bg-dark-800 rounded-full text-dark-400">
-            {getCategoryLabel(currentQuote.category)}
+            {getCategoryLabel(currentQuote.category, t)}
           </span>
         </div>
       </div>

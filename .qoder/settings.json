@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Agent(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "TodoWrite(*)",
+      "NotebookEdit(*)",
+      "ImageGen(*)",
+      "EnterPlanMode(*)",
+      "ExitPlanMode(*)",
+      "AskUserQuestion(*)",
+      "Skill(*)"
+    ]
+  }
+}

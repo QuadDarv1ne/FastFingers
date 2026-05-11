@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useMemo } from 'react'
+import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'

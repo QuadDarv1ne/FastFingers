@@ -525,6 +525,10 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   return (
     prevProps.isChallenge === nextProps.isChallenge &&
     prevProps.challengeText === nextProps.challengeText &&
-    prevProps.layout === nextProps.layout
+    prevProps.layout === nextProps.layout &&
+    prevProps.onSessionComplete === nextProps.onSessionComplete &&
+    prevProps.onKeyInput === nextProps.onKeyInput &&
+    prevProps.sound === nextProps.sound &&
+    prevProps.customExercises === nextProps.customExercises
   )
 })

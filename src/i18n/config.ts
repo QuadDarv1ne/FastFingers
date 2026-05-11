@@ -231,6 +231,10 @@ export type TranslationKey =
   | 'quote.fastfingers'
   | 'quote.collier'
   | 'quote.jobs'
+  | 'quote.category.motivation'
+  | 'quote.category.practice'
+  | 'quote.category.success'
+  | 'quote.category.learning'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 
@@ -460,6 +464,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'Роберт Кольер',
       'quote.jobs': 'Стив Джобс',
+      'quote.category.motivation': 'Мотивация',
+      'quote.category.practice': 'Практика',
+      'quote.category.success': 'Успех',
+      'quote.category.learning': 'Обучение',
     }
   },
   en: {
@@ -683,6 +691,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'Robert Collier',
       'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivation',
+      'quote.category.practice': 'Practice',
+      'quote.category.success': 'Success',
+      'quote.category.learning': 'Learning',
     }
   },
   zh: {
@@ -843,6 +855,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': '罗伯特·科利尔',
       'quote.jobs': '史蒂夫·乔布斯',
+      'quote.category.motivation': '动力',
+      'quote.category.practice': '练习',
+      'quote.category.success': '成功',
+      'quote.category.learning': '学习',
     }
   },
   he: {
@@ -1003,6 +1019,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'רוברט קולייר',
       'quote.jobs': 'סטיב ג׳ובס',
+      'quote.category.motivation': 'מוטיבציה',
+      'quote.category.practice': 'תרגול',
+      'quote.category.success': 'הצלחה',
+      'quote.category.learning': 'למידה',
     }
   },
   de: {
@@ -1226,6 +1246,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'Robert Collier',
       'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivation',
+      'quote.category.practice': 'Übung',
+      'quote.category.success': 'Erfolg',
+      'quote.category.learning': 'Lernen',
     }
   },
   fr: {
@@ -1449,6 +1473,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'Robert Collier',
       'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivation',
+      'quote.category.practice': 'Pratique',
+      'quote.category.success': 'Succès',
+      'quote.category.learning': 'Apprentissage',
     }
   },
   es: {
@@ -1633,6 +1661,10 @@ const resources = {
       'quote.fastfingers': 'FastFingers',
       'quote.collier': 'Robert Collier',
       'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivación',
+      'quote.category.practice': 'Práctica',
+      'quote.category.success': 'Éxito',
+      'quote.category.learning': 'Aprendizaje',
     }
   },
   it: {
@@ -1655,6 +1687,10 @@ const resources = {
       'quote.motivation1': 'Non confrontarti con gli altri, confrontati con te stesso.', 'quote.motivation2': 'L\'unico modo per fare un grande lavoro è amare ciò che fai.', 'quote.motivation3': 'Non aver paura di sbagliare, ma di non provare.', 'quote.motivation4': 'Ogni esperto è stato un principiante.',
       'quote.success1': 'Il successo è la somma di piccoli sforzi ripetuti.', 'quote.success2': 'Il progresso può essere lento, ma la costanza paga.',
       'quote.fastfingers': 'FastFingers', 'quote.collier': 'Robert Collier', 'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivazione',
+      'quote.category.practice': 'Pratica',
+      'quote.category.success': 'Successo',
+      'quote.category.learning': 'Apprendimento',
     }
   },
   pt: {
@@ -1677,6 +1713,10 @@ const resources = {
       'quote.motivation1': 'Não se compare com outros, compare-se com você mesmo.', 'quote.motivation2': 'Único modo de fazer grande trabalho é amar o que faz.', 'quote.motivation3': 'Não tenha medo de errar, mas de não tentar.', 'quote.motivation4': 'Todo expert já foi iniciante.',
       'quote.success1': 'Sucesso é soma de pequenos esforços repetidos.', 'quote.success2': 'Progresso pode ser lento, mas consistência compensa.',
       'quote.fastfingers': 'FastFingers', 'quote.collier': 'Robert Collier', 'quote.jobs': 'Steve Jobs',
+      'quote.category.motivation': 'Motivação',
+      'quote.category.practice': 'Prática',
+      'quote.category.success': 'Sucesso',
+      'quote.category.learning': 'Aprendizado',
     }
   },
   ja: {
@@ -1699,6 +1739,10 @@ const resources = {
       'quote.motivation1': '他人と比較せず、昨日の自分と比較。', 'quote.motivation2': '偉大な仕事をする唯一の方法は愛すること。', 'quote.motivation3': '失敗を恐れるな、挑戦しないことを恐れろ。', 'quote.motivation4': 'すべての専門家は初心者だった。',
       'quote.success1': '成功は小さな努力の積み重ね。', 'quote.success2': '進歩は緩やかでも、継続は必ず報われる。',
       'quote.fastfingers': 'FastFingers', 'quote.collier': 'ロバート・コリアー', 'quote.jobs': 'スティーブ・ジョブズ',
+      'quote.category.motivation': 'モチベーション',
+      'quote.category.practice': '練習',
+      'quote.category.success': '成功',
+      'quote.category.learning': '学習',
     }
   }
 }

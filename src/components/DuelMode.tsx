@@ -31,6 +31,8 @@ interface DuelChallenge {
   status: 'pending' | 'active' | 'completed' | 'cancelled'
   duration: DuelDuration
   betAmount: number
+  challenger_wpm?: number
+  opponent_wpm?: number
 }
 
 const DURATION_LABELS: Record<DuelDuration, string> = {
@@ -106,8 +108,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           filter: `id=eq.${currentDuel.id}`,
         },
         (payload) => {
-          const updatedDuel = payload.new as Record<string, unknown>
-          setCurrentDuel(updatedDuel as DuelChallenge)
+          const updatedDuel = payload.new as DuelChallenge
+          setCurrentDuel(updatedDuel)
 
           // Extract opponent WPM based on user role
           const isChallenger = currentDuel?.challenger?.id === user?.id

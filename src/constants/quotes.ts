@@ -94,12 +94,12 @@ export function getRandomQuote(category?: Quote['category']): Quote {
   return quotes[randomIndex] ?? firstQuote
 }
 
-export function getCategoryLabel(category: Quote['category']): string {
-  const labels: Record<Quote['category'], string> = {
-    motivation: 'Мотивация',
-    practice: 'Практика',
-    success: 'Успех',
-    learning: 'Обучение',
+export function getCategoryLabel(category: Quote['category'], t: (key: string) => string): string {
+  const keyMap: Record<Quote['category'], string> = {
+    motivation: 'quote.category.motivation',
+    practice: 'quote.category.practice',
+    success: 'quote.category.success',
+    learning: 'quote.category.learning',
   }
-  return labels[category]
+  return t(keyMap[category])
 }

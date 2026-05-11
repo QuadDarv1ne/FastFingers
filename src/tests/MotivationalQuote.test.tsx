@@ -125,24 +125,34 @@ describe('getRandomQuote', () => {
 })
 
 describe('getCategoryLabel', () => {
+  const mockT = (key: string) => {
+    const map: Record<string, string> = {
+      'quote.category.motivation': 'Мотивация',
+      'quote.category.practice': 'Практика',
+      'quote.category.success': 'Успех',
+      'quote.category.learning': 'Обучение',
+    }
+    return map[key] ?? key
+  }
+
   it('должен возвращать правильную метку для motivation', async () => {
     const { getCategoryLabel } = await import('../constants/quotes')
-    expect(getCategoryLabel('motivation')).toBe('Мотивация')
+    expect(getCategoryLabel('motivation', mockT)).toBe('Мотивация')
   })
 
   it('должен возвращать правильную метку для practice', async () => {
     const { getCategoryLabel } = await import('../constants/quotes')
-    expect(getCategoryLabel('practice')).toBe('Практика')
+    expect(getCategoryLabel('practice', mockT)).toBe('Практика')
   })
 
   it('должен возвращать правильную метку для success', async () => {
     const { getCategoryLabel } = await import('../constants/quotes')
-    expect(getCategoryLabel('success')).toBe('Успех')
+    expect(getCategoryLabel('success', mockT)).toBe('Успех')
   })
 
   it('должен возвращать правильную метку для learning', async () => {
     const { getCategoryLabel } = await import('../constants/quotes')
-    expect(getCategoryLabel('learning')).toBe('Обучение')
+    expect(getCategoryLabel('learning', mockT)).toBe('Обучение')
   })
 })
 

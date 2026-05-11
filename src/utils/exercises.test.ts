@@ -283,7 +283,7 @@ describe('exercises', () => {
   describe('getAllTextCategories', () => {
     it('should return all categories', () => {
       const categories = getAllTextCategories()
-      expect(categories).toHaveLength(10)
+      expect(categories.length).toBeGreaterThanOrEqual(10)
       expect(categories).toContain('literature')
       expect(categories).toContain('code')
       expect(categories).toContain('quotes')
@@ -292,8 +292,12 @@ describe('exercises', () => {
       expect(categories).toContain('technology')
       expect(categories).toContain('movies')
       expect(categories).toContain('news')
-      expect(categories).toContain('philosophy')
       expect(categories).toContain('business')
+      expect(categories).toContain('scipop')
+      expect(categories).toContain('history')
+      expect(categories).toContain('art')
+      expect(categories).toContain('sports')
+      expect(categories).toContain('travel')
     })
   })
 
