@@ -134,8 +134,11 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     loadRecords()
   }, [user])
 
+  const hasSavedRef = useRef(false)
+
   useEffect(() => {
-    if (!isActive && inputResults.length > 0 && startTime && user && streak > 0 && supabase) {
+    if (!isActive && inputResults.length > 0 && startTime && user && streak > 0 && supabase && !hasSavedRef.current) {
+      hasSavedRef.current = true
       const correct = inputResults.filter(r => r.isCorrect).length
       const timeElapsed = (Date.now() - startTime) / 1000
       const errors = inputResults.length - correct
@@ -164,6 +167,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       setShowCertificate(true)
     }
   }, [isActive, inputResults, startTime, user, streak, onComplete, showToast])
+
+  // Reset saved flag when starting a new session
+  useEffect(() => {
+    if (isActive) {
+      hasSavedRef.current = false
+    }
+  }, [isActive])
 
   const { wpm, accuracy } = useMemo(() => {
     if (inputResults.length === 0 || !startTime) return { wpm: 0, accuracy: 0 }

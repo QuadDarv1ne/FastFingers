@@ -54,7 +54,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       )
 
       workerRef.current.onmessage = (event: MessageEvent<WorkerResult>) => {
-        const { type, payload } = event.data
+        const { type, payload, messageId } = event.data
 
         if (type === 'ERROR') {
           setError(payload)
@@ -65,14 +65,10 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           return
         }
 
-        // Находим и выполняем соответствующий промис
-        // Для простоты используем последний добавленный
-        const entries = Array.from(pendingPromises.current.entries())
-        if (entries.length > 0) {
-          const entry = entries[0]
-          if (!entry) return
-          const [id, { resolve }] = entry
-          pendingPromises.current.delete(id)
+        // Находим промис по messageId
+        if (messageId !== undefined && pendingPromises.current.has(messageId)) {
+          const { resolve } = pendingPromises.current.get(messageId)!
+          pendingPromises.current.delete(messageId)
           resolve(payload)
           setIsBusy(false)
         }
@@ -118,7 +114,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       setIsBusy(true)
       setError(null)
 
-      workerRef.current.postMessage({ type, payload })
+      workerRef.current.postMessage({ type, payload, messageId })
 
       // Таймаут на случай если воркер не ответит
       setTimeout(() => {

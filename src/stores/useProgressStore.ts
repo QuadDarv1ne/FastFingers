@@ -43,7 +43,7 @@ const calculateStreak = (lastDate: string | null, currentDate: string): number =
 
   if (diffDays === 0) return 0
   if (diffDays === 1) return 1
-  return -1
+  return 0 // Streak broken — reset
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -70,9 +70,15 @@ export const useProgressStore = create<ProgressState>()(
       updateStreak: (date) => set((state) => {
         const streakChange = calculateStreak(state.lastPracticeDate, date)
 
-        if (streakChange === 0) return state
-        if (streakChange === 1) return { streak: state.streak + 1, lastPracticeDate: date }
-        return { streak: 1, lastPracticeDate: date }
+        if (streakChange === 0) {
+          // Same day or broken streak — just update date, keep streak same for same day, reset for broken
+          const last = state.lastPracticeDate ? new Date(state.lastPracticeDate) : null
+          const current = new Date(date)
+          const diffDays = last ? Math.floor((current.getTime() - last.getTime()) / (1000 * 60 * 60 * 24)) : -1
+          if (diffDays > 1) return { streak: 1, lastPracticeDate: date } // Broken streak, reset to 1
+          return { lastPracticeDate: date } // Same day, no change
+        }
+        return { streak: state.streak + 1, lastPracticeDate: date }
       }),
 
       clearHistory: () => set({

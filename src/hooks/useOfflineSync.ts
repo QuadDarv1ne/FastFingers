@@ -55,20 +55,31 @@ export function useOfflineSync(options: {
     if (!isOnline || !onSync) return
 
     const processQueue = async () => {
-      const pendingItems = queue.filter(item => item.retryCount < MAX_RETRIES)
+      if (queue.length === 0) return
 
-      for (const item of pendingItems) {
+      const results: { id: string; success: boolean }[] = []
+
+      for (const item of queue) {
+        if (item.retryCount >= MAX_RETRIES) continue
         try {
           await onSync(item)
-          setQueue(prev => prev.filter(i => i.id !== item.id))
+          results.push({ id: item.id, success: true })
         } catch {
-          setQueue(prev =>
-            prev.map(i =>
-              i.id === item.id ? { ...i, retryCount: i.retryCount + 1 } : i
-            )
-          )
+          results.push({ id: item.id, success: false })
         }
       }
+
+      // Apply all changes in a single batch
+      setQueue(prev => {
+        const resultIdSet = new Set(results.map(r => r.id))
+        const updated = prev.map(item => {
+          if (!resultIdSet.has(item.id)) return item
+          const result = results.find(r => r.id === item.id)
+          if (!result) return item
+          return result.success ? null : { ...item, retryCount: item.retryCount + 1 }
+        }).filter(Boolean) as typeof prev
+        return updated
+      })
     }
 
     const interval = setInterval(processQueue, syncInterval)

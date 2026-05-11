@@ -164,6 +164,7 @@ export function useApi<T = unknown>(
     return () => {
       if (intervalId.current) {
         clearInterval(intervalId.current)
+        intervalId.current = null
       }
     }
   }, [refetchInterval, enabled, url, executeRequest])

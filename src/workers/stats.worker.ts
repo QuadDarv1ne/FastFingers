@@ -8,22 +8,22 @@ import type { KeystrokeData, TypingStats, TimeOfDayPerformance, FunnelStage } fr
 
 // Типы сообщений
 type WorkerMessage =
-  | { type: 'CALCULATE_RHYTHM'; payload: { keystrokes: KeystrokeData[] } }
-  | { type: 'CALCULATE_FINGER_BALANCE'; payload: { keystrokes: KeystrokeData[] } }
-  | { type: 'CALCULATE_ERROR_RECOVERY'; payload: { keystrokes: KeystrokeData[] } }
-  | { type: 'ANALYZE_TIME_OF_DAY'; payload: { sessions: TypingStats[] } }
-  | { type: 'ANALYZE_FUNNEL'; payload: { sessions: TypingStats[]; thresholds?: number[] } }
-  | { type: 'CALCULATE_CORRELATION'; payload: { sessions: TypingStats[] } }
+  | { type: 'CALCULATE_RHYTHM'; payload: { keystrokes: KeystrokeData[] }; messageId?: number }
+  | { type: 'CALCULATE_FINGER_BALANCE'; payload: { keystrokes: KeystrokeData[] }; messageId?: number }
+  | { type: 'CALCULATE_ERROR_RECOVERY'; payload: { keystrokes: KeystrokeData[] }; messageId?: number }
+  | { type: 'ANALYZE_TIME_OF_DAY'; payload: { sessions: TypingStats[] }; messageId?: number }
+  | { type: 'ANALYZE_FUNNEL'; payload: { sessions: TypingStats[]; thresholds?: number[] }; messageId?: number }
+  | { type: 'CALCULATE_CORRELATION'; payload: { sessions: TypingStats[] }; messageId?: number }
 
 // Типы результатов
 type WorkerResult =
-  | { type: 'RHYTHM_RESULT'; payload: number }
-  | { type: 'FINGER_BALANCE_RESULT'; payload: { left: number; right: number } }
-  | { type: 'ERROR_RECOVERY_RESULT'; payload: number }
-  | { type: 'TIME_OF_DAY_RESULT'; payload: TimeOfDayPerformance[] }
-  | { type: 'FUNNEL_RESULT'; payload: { stages: FunnelStage[]; conversionRates: number[] } }
-  | { type: 'CORRELATION_RESULT'; payload: number[][] }
-  | { type: 'ERROR'; payload: string }
+  | { type: 'RHYTHM_RESULT'; payload: number; messageId?: number }
+  | { type: 'FINGER_BALANCE_RESULT'; payload: { left: number; right: number }; messageId?: number }
+  | { type: 'ERROR_RECOVERY_RESULT'; payload: number; messageId?: number }
+  | { type: 'TIME_OF_DAY_RESULT'; payload: TimeOfDayPerformance[]; messageId?: number }
+  | { type: 'FUNNEL_RESULT'; payload: { stages: FunnelStage[]; conversionRates: number[] }; messageId?: number }
+  | { type: 'CORRELATION_RESULT'; payload: number[][]; messageId?: number }
+  | { type: 'ERROR'; payload: string; messageId?: number }
 
 /**
  * Расчёт Rhythm Score - равномерности печати
@@ -247,42 +247,42 @@ function calculateCorrelationMatrix(sessions: TypingStats[]): number[][] {
 // Обработка сообщений
 self.onmessage = (event: MessageEvent<WorkerMessage>) => {
   try {
-    const { type, payload } = event.data
+    const { type, payload, messageId } = event.data
 
     switch (type) {
       case 'CALCULATE_RHYTHM': {
         const result = calculateRhythmScore(payload.keystrokes)
-        self.postMessage({ type: 'RHYTHM_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'RHYTHM_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 
       case 'CALCULATE_FINGER_BALANCE': {
         const result = calculateFingerBalance(payload.keystrokes)
-        self.postMessage({ type: 'FINGER_BALANCE_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'FINGER_BALANCE_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 
       case 'CALCULATE_ERROR_RECOVERY': {
         const result = calculateErrorRecoveryTime(payload.keystrokes)
-        self.postMessage({ type: 'ERROR_RECOVERY_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'ERROR_RECOVERY_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 
       case 'ANALYZE_TIME_OF_DAY': {
         const result = analyzeTimeOfDay(payload.sessions)
-        self.postMessage({ type: 'TIME_OF_DAY_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'TIME_OF_DAY_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 
       case 'ANALYZE_FUNNEL': {
         const result = analyzeFunnel(payload.sessions, payload.thresholds)
-        self.postMessage({ type: 'FUNNEL_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'FUNNEL_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 
       case 'CALCULATE_CORRELATION': {
         const result = calculateCorrelationMatrix(payload.sessions)
-        self.postMessage({ type: 'CORRELATION_RESULT', payload: result } as WorkerResult)
+        self.postMessage({ type: 'CORRELATION_RESULT', payload: result, messageId } as WorkerResult)
         break
       }
 

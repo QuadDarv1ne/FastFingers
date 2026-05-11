@@ -42,11 +42,14 @@ const hashPassword = async (password: string): Promise<string> => {
     }
   }
   
-  // Fallback для старых браузеров
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + PASSWORD_SALT);
-  const hash = Array.from(new Uint8Array(data)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return hash;
+  // Fallback для старых браузеров — используем djb2 хеш
+  let hash = 5381
+  const str = password + PASSWORD_SALT
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    hash = hash >>> 0
+  }
+  return hash.toString(16)
 };
 
 const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
