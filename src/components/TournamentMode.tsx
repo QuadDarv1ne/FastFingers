@@ -112,7 +112,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   // Загрузка участников
   const loadParticipants = useCallback(async (tournamentId: string) => {
@@ -148,7 +148,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     } catch (error) {
       logger.error('Error loading participants:', error)
     }
-  }, [supabase, user?.id])
+  }, [user?.id])
 
   // Регистрация в турнире
   const handleRegister = useCallback(async () => {
@@ -178,7 +178,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     } catch (error) {
       logger.error('Error registering:', error)
     }
-  }, [supabase, selectedTournament, user])
+  }, [selectedTournament, user])
 
   // Отмена регистрации
   const handleUnregister = useCallback(async () => {
@@ -204,7 +204,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     } catch (error) {
       logger.error('Error unregistering:', error)
     }
-  }, [supabase, selectedTournament, user])
+  }, [selectedTournament, user])
 
   useEffect(() => {
     loadTournaments()
@@ -249,7 +249,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
         supabase.removeChannel(channel)
       }
     }
-  }, [selectedTournament, supabase, loadParticipants])
+  }, [selectedTournament, loadParticipants])
 
   if (activeMatch) {
     return (

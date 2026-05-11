@@ -207,8 +207,9 @@ export async function flushPendingSessions(): Promise<void> {
   if (pending.length === 0) return
 
   const results = await Promise.allSettled(
-    pending.map(session =>
-      supabase!.from('typing_sessions').insert({
+    pending.map(session => {
+      if (!supabase) return Promise.reject(new Error('Supabase not available'))
+      return supabase.from('typing_sessions').insert({
         user_id: session.userId,
         wpm: session.stats.wpm,
         cpm: session.stats.cpm,
@@ -219,7 +220,7 @@ export async function flushPendingSessions(): Promise<void> {
         duration: Math.floor(session.stats.timeElapsed),
         xp: session.xp,
       })
-    )
+    })
   )
 
   // Keep only failed sessions

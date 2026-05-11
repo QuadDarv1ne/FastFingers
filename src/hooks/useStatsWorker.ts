@@ -7,9 +7,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { KeystrokeData, TypingStats, TimeOfDayPerformance, FunnelStage } from '../types'
 
+interface PendingPromise {
+  resolve: (value: unknown) => void
+  reject: (error: Error) => void
+}
+
 interface WorkerResult {
   type: string
-  payload: any
+  payload: unknown
+  messageId?: number
 }
 
 interface UseStatsWorkerReturn {
@@ -42,7 +48,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
   const [error, setError] = useState<string | null>(null)
 
   const workerRef = useRef<Worker | null>(null)
-  const pendingPromises = useRef<Map<number, { resolve: Function; reject: Function }>>(new Map())
+  const pendingPromises = useRef<Map<number, PendingPromise>>(new Map())
   const messageIdRef = useRef(0)
 
   // Инициализация воркера
@@ -57,20 +63,20 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         const { type, payload, messageId } = event.data
 
         if (type === 'ERROR') {
-          setError(payload)
-          // Отклоняем все ожидающие промисы
-          pendingPromises.current.forEach(({ reject }) => reject(new Error(payload)))
+          setError(payload as string)
+          pendingPromises.current.forEach(({ reject }) => reject(new Error(payload as string)))
           pendingPromises.current.clear()
           setIsBusy(false)
           return
         }
 
-        // Находим промис по messageId
-        if (messageId !== undefined && pendingPromises.current.has(messageId)) {
-          const { resolve } = pendingPromises.current.get(messageId)!
-          pendingPromises.current.delete(messageId)
-          resolve(payload)
-          setIsBusy(false)
+        if (messageId !== undefined) {
+          const pending = pendingPromises.current.get(messageId)
+          if (pending) {
+            pendingPromises.current.delete(messageId)
+            pending.resolve(payload)
+            setIsBusy(false)
+          }
         }
       }
 
@@ -82,8 +88,9 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       setIsReady(true)
 
       return () => {
-        if (workerRef.current) {
-          workerRef.current.terminate()
+        const worker = workerRef.current
+        if (worker) {
+          worker.terminate()
           workerRef.current = null
         }
         pendingPromises.current.clear()
@@ -96,7 +103,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
   }, [])
 
   // Универсальный метод для отправки задач воркеру
-  const sendToWorker = useCallback(<T>(type: string, payload: any): Promise<T> => {
+  const sendToWorker = useCallback(<T,>(type: string, payload: unknown): Promise<T> => {
     return new Promise((resolve, reject) => {
       if (!workerRef.current || !isReady) {
         reject(new Error('Worker not ready'))

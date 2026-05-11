@@ -21,11 +21,11 @@ interface UseThrottleOptions {
 /**
  * Debounce хук с расширенными опциями
  */
-export function useDebounce<T extends (...args: any[]) => any>(
-  func: T,
+export function useDebounce<TFunc extends (...args: Parameters<TFunc>) => ReturnType<TFunc>>(
+  func: TFunc,
   wait: number,
   options: UseDebounceOptions = {}
-): T & { cancel: () => void; flush: () => void } {
+): TFunc & { cancel: () => void; flush: () => void } {
   const { leading = false, trailing = true, maxWait } = options
   
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -213,13 +213,16 @@ export function useDeepMemo<T>(value: () => T, deps: unknown[]): T {
   const shouldUpdate =
     ref.current === null ||
     deps.length !== ref.current.deps.length ||
-    !deps.every((dep, index) => isEqual(dep, ref.current!.deps[index]))
+    !deps.every((dep, index) => {
+      const currentDep = ref.current?.deps[index]
+      return currentDep !== undefined && isEqual(dep, currentDep)
+    })
 
   if (shouldUpdate) {
     ref.current = { value: value(), deps }
   }
 
-  return ref.current!.value
+  return ref.current?.value ?? (value() as T)
 }
 
 /**

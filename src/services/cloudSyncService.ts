@@ -333,14 +333,18 @@ class CloudSyncService {
           }
           case 'session': {
             const data = item.data as { userId: string } & Partial<TypingSessionRow>
+            if (data.wpm === undefined || data.cpm === undefined || data.accuracy === undefined || data.duration === undefined) {
+              logger.error('Invalid session data in offline cache')
+              break
+            }
             await this.saveTypingSession(data.userId, {
-              wpm: data.wpm!,
-              cpm: data.cpm!,
-              accuracy: data.accuracy!,
+              wpm: data.wpm,
+              cpm: data.cpm,
+              accuracy: data.accuracy,
               errors: data.errors || 0,
               correct_chars: data.correct_chars || 0,
               total_chars: data.total_chars || 0,
-              duration: data.duration!,
+              duration: data.duration,
               xp: data.xp || 0,
             })
             break

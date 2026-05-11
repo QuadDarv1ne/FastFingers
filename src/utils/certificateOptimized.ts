@@ -145,7 +145,8 @@ export async function generateCertificate(
     'sprint': language === 'ru' ? 'Спринт' : 'Sprint',
     'hardcore': language === 'ru' ? 'Без ошибок' : 'Hardcore',
   }
-  const label = testTypeLabels[data.testType!] || testTypeLabels['sprint']
+  const testType = data.testType ?? 'sprint'
+  const label = testTypeLabels[testType] || testTypeLabels['sprint']
   ctx.fillStyle = theme === 'modern' ? '#1E1B4B' : '#FFFFFF'
   ctx.font = 'bold 36px Helvetica, Arial, sans-serif'
   ctx.fillText(String(label || ''), width / 2, 470)

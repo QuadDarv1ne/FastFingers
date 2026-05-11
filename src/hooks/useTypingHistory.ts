@@ -56,16 +56,6 @@ function saveHistory(history: HistoryData): void {
   }
 }
 
-// Debounced save для оптимизации
-let saveTimeout: NodeJS.Timeout | null = null
-const debouncedSaveHistory = (history: HistoryData) => {
-  if (saveTimeout) clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(() => {
-    saveHistory(history)
-    saveTimeout = null
-  }, 500)
-}
-
 export function useTypingHistory(): UseTypingHistoryReturn {
   const { user } = useAuth()
   const userRef = useRef(user)
@@ -132,7 +122,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
           // Ignore cloud sync errors
         })
     }
-  }, [])
+  }, [debouncedSave])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
     setHistory(prev => {
@@ -141,7 +131,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       debouncedSave(newHistory)
       return newHistory
     })
-  }, [])
+  }, [debouncedSave])
 
   const clearHistory = useCallback(() => {
     setHistory({ sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 })
