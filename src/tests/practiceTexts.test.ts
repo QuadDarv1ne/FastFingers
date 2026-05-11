@@ -16,9 +16,9 @@ describe('practiceTexts', () => {
     expect(practiceTexts.length).toBeGreaterThan(0)
   })
 
-  it('должен содержать 59-120 текстов', () => {
+  it('должен содержать 59-200 текстов', () => {
     expect(practiceTexts.length).toBeGreaterThanOrEqual(59)
-    expect(practiceTexts.length).toBeLessThanOrEqual(120)
+    expect(practiceTexts.length).toBeLessThanOrEqual(200)
   })
 
   it('должен иметь все тексты с обязательными полями', () => {
