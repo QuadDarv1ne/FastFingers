@@ -4,12 +4,13 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import { useAuth } from '@hooks/useAuth'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../services/supabase'
 import { TournamentBracket } from './TournamentBracket'
+import { logger } from '../utils/logger'
 
 interface TournamentModeProps {
   onExit: () => void
@@ -50,9 +51,6 @@ export interface TournamentParticipant {
   user_wpm?: number
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-
 const TOURNAMENT_ICONS: Record<string, string> = {
   upcoming: '📅',
   registration: '📝',
@@ -83,11 +81,6 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     text: string
   } | null>(null)
 
-  const supabase = useMemo(() => {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null
-    return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  }, [])
-
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {
     if (!supabase) {
@@ -115,7 +108,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
         creator_avatar: t.creator?.avatar,
       })))
     } catch (error) {
-      console.error('[TournamentMode] Error loading tournaments:', error)
+      logger.error('Error loading tournaments:', error)
     } finally {
       setIsLoading(false)
     }
@@ -153,7 +146,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
       const isUserRegistered = data?.some(p => p.user_id === user?.id)
       setIsRegistered(!!isUserRegistered)
     } catch (error) {
-      console.error('[TournamentMode] Error loading participants:', error)
+      logger.error('Error loading participants:', error)
     }
   }, [supabase, user?.id])
 
@@ -183,7 +176,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
           : t
       ))
     } catch (error) {
-      console.error('[TournamentMode] Error registering:', error)
+      logger.error('Error registering:', error)
     }
   }, [supabase, selectedTournament, user])
 
@@ -209,7 +202,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
           : t
       ))
     } catch (error) {
-      console.error('[TournamentMode] Error unregistering:', error)
+      logger.error('Error unregistering:', error)
     }
   }, [supabase, selectedTournament, user])
 
@@ -252,7 +245,9 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      if (supabase) {
+        supabase.removeChannel(channel)
+      }
     }
   }, [selectedTournament, supabase, loadParticipants])
 

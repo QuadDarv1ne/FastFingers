@@ -1,4 +1,5 @@
 import { TypingStats } from '../types'
+import { logger } from '../utils/logger'
 
 export interface ExportData {
   date: string
@@ -34,7 +35,9 @@ export function downloadCSV(data: ExportData[], filename = 'fastfingers_stats.cs
     const csv = convertToCSV(data)
     if (!csv) return
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    // Add UTF-8 BOM for proper Cyrillic display in Excel
+    const BOM = '\uFEFF'
+    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -45,7 +48,7 @@ export function downloadCSV(data: ExportData[], filename = 'fastfingers_stats.cs
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
   } catch (error) {
-    console.error('[Export] Error downloading CSV:', error)
+    logger.error('Error downloading CSV:', error)
   }
 }
 

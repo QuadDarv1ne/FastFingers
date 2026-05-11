@@ -2,12 +2,14 @@
  * Утилиты для безопасной работы с localStorage
  */
 
+import { logger } from './logger'
+
 type StorageValue = string | number | boolean | object | null | undefined
 
 const handleStorageError = (operation: string, key?: string, error?: unknown) => {
   // Логирование ошибок в development режиме
   if (import.meta.env.DEV) {
-    console.warn(`[Storage] Error ${operation}${key ? ` for key "${key}"` : ''}:`, error)
+    logger.warn(`Error ${operation}${key ? ` for key "${key}"` : ''}:`, error)
   }
 }
 

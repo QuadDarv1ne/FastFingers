@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { logger } from '../utils/logger'
 
 /**
  * Hook для тактильной обратной связи (вибрации) на мобильных устройствах
@@ -13,7 +14,7 @@ export const useHapticFeedback = () => {
     try {
       navigator.vibrate(pattern)
     } catch (e) {
-      console.warn('Vibration API error:', e)
+      logger.warn('Vibration API error:', e)
     }
   }, [isSupported])
 

@@ -8,6 +8,7 @@ import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useAppTranslation } from '../i18n/config'
+import { logger } from '../utils/logger'
 
 interface PWAInstallPromptProps {
   onDismiss?: () => void
@@ -31,7 +32,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
     try {
       localStorage.setItem('fastfingers_pwa_dismissed', 'true')
     } catch (e) {
-      console.warn('PWA dismiss storage failed:', e)
+      logger.warn('PWA dismiss storage failed:', e)
     }
   }
 
@@ -43,7 +44,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
     const dismissed = localStorage.getItem('fastfingers_pwa_dismissed')
     if (dismissed === 'true') return null
   } catch (e) {
-    console.warn('PWA dismissed check failed:', e)
+    logger.warn('PWA dismissed check failed:', e)
   }
 
   return (

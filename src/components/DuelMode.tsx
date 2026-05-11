@@ -13,6 +13,7 @@ import { useTypingGame } from '@hooks/useTypingGame'
 import { useAuth } from '@hooks/useAuth'
 import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { supabase } from '../services/supabase'
+import { logger } from '../utils/logger'
 
 interface DuelModeProps {
   onExit: () => void
@@ -190,7 +191,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         handleStart()
       }
     } catch (err) {
-      console.error('Error finding opponent:', err)
+      logger.error('Error finding opponent:', err)
       setMessage('Ошибка поиска соперника')
       setDuelState('lobby')
     }
@@ -201,15 +202,18 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     if (!currentDuel || !user?.id) return
 
     try {
-      // Определяем победителя
       const isChallenger = currentDuel.challenger.id === user.id
-      const score = Math.round(stats.wpm * (stats.accuracy / 100))
+      const userScore = Math.round(stats.wpm * (stats.accuracy / 100))
+      const opponentScore = Math.round(opponentWpm * 0.8) // opponent accuracy assumed 80% if not received
+
+      // Determine winner by comparing scores
+      const userWon = userScore > opponentScore
 
       await completeDuel.mutateAsync({
         duelId: currentDuel.id,
-        winnerId: user.id, // Упрощённо - победитель тот, кто закончил
-        challengerScore: isChallenger ? score : opponentWpm,
-        opponentScore: isChallenger ? opponentWpm : score,
+        winnerId: userWon ? user.id : (isChallenger ? currentDuel.opponent.id : currentDuel.challenger.id),
+        challengerScore: isChallenger ? userScore : opponentScore,
+        opponentScore: isChallenger ? opponentScore : userScore,
         challengerWpm: isChallenger ? stats.wpm : opponentWpm,
         opponentWpm: isChallenger ? opponentWpm : stats.wpm,
         challengerAccuracy: isChallenger ? stats.accuracy : 80,
@@ -219,7 +223,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       onComplete(stats)
       setDuelState('completed')
     } catch (err) {
-      console.error('Error completing duel:', err)
+      logger.error('Error completing duel:', err)
     }
   }, [currentDuel, user?.id, opponentWpm, completeDuel, onComplete])
 
@@ -228,15 +232,17 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     handleInputBase(e)
     // Отправляем прогресс сопернику
     if (currentDuel?.id && supabase) {
+      const isChallenger = currentDuel.challenger?.id === user?.id
       supabase
         .from('duels')
-        .update({
-          challenger_wpm: wpm,
-          challenger_accuracy: accuracy,
-        })
+        .update(
+          isChallenger
+            ? { challenger_wpm: wpm, challenger_accuracy: accuracy }
+            : { opponent_wpm: wpm, opponent_accuracy: accuracy }
+        )
         .eq('id', currentDuel.id)
     }
-  }, [handleInputBase, currentDuel?.id, wpm, accuracy])
+  }, [handleInputBase, currentDuel?.id, currentDuel?.challenger?.id, user?.id, wpm, accuracy])
 
   // Горячие клавиши
   useHotkey('escape', () => {

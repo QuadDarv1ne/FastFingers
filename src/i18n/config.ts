@@ -129,6 +129,45 @@ export type TranslationKey =
   | 'stats.less'
   | 'stats.more'
   | 'stats.sessions'
+  | 'stats.subtitle'
+  | 'stats.totalSessionsLabel'
+  | 'stats.practiceTime'
+  | 'stats.avgAccuracy'
+  | 'stats.record'
+  | 'stats.advancedAnalytics'
+  | 'stats.analyzing'
+  | 'stats.performanceByTime'
+  | 'stats.performanceFunnel'
+  | 'stats.metricCorrelation'
+  | 'stats.metric'
+  | 'stats.correlationNote'
+  | 'stats.detailedStats'
+  | 'stats.speedProgress'
+  | 'stats.accuracyDistribution'
+  | 'stats.activityByDay'
+  | 'stats.practiceTime7days'
+  | 'stats.noData'
+  | 'stats.recentSessions'
+  | 'stats.date'
+  | 'stats.errors'
+  | 'stats.time'
+  | 'stats.avgWpm'
+  | 'stats.avgAccuracyLabel'
+  | 'stats.timeOfDay.morning'
+  | 'stats.timeOfDay.afternoon'
+  | 'stats.timeOfDay.evening'
+  | 'stats.timeOfDay.night'
+  | 'stats.day.mon'
+  | 'stats.day.tue'
+  | 'stats.day.wed'
+  | 'stats.day.thu'
+  | 'stats.day.fri'
+  | 'stats.day.sat'
+  | 'stats.day.sun'
+  | 'stats.metric.wpm'
+  | 'stats.metric.accuracy'
+  | 'stats.metric.cpm'
+  | 'stats.metric.errors'
   | 'misc.theme'
   | 'misc.themeAuto'
   | 'misc.sound'
@@ -319,6 +358,45 @@ const resources = {
       'stats.less': 'Меньше',
       'stats.more': 'Больше',
       'stats.sessions': 'сессий',
+      'stats.subtitle': 'Детальный анализ вашего прогресса',
+      'stats.totalSessionsLabel': 'Всего тренировок',
+      'stats.practiceTime': 'Время практики',
+      'stats.avgAccuracy': 'Средняя точность',
+      'stats.record': 'рекорд',
+      'stats.advancedAnalytics': 'Расширенная аналитика',
+      'stats.analyzing': 'Анализ данных через Web Worker...',
+      'stats.performanceByTime': 'Производительность по времени суток',
+      'stats.performanceFunnel': 'Воронка производительности',
+      'stats.metricCorrelation': 'Корреляция метрик',
+      'stats.metric': 'Метрика',
+      'stats.correlationNote': '* Значения близкие к 1 — сильная положительная корреляция, к -1 — сильная отрицательная',
+      'stats.detailedStats': 'Детальная статистика',
+      'stats.speedProgress': 'Прогресс скорости (WPM)',
+      'stats.accuracyDistribution': 'Распределение точности',
+      'stats.activityByDay': 'Активность по дням недели',
+      'stats.practiceTime7days': 'Время практики (последние 7 дней)',
+      'stats.noData': 'Нет данных для отображения',
+      'stats.recentSessions': 'Последние сессии',
+      'stats.date': 'Дата',
+      'stats.errors': 'Ошибки',
+      'stats.time': 'Время',
+      'stats.avgWpm': 'Средний WPM',
+      'stats.avgAccuracyLabel': 'Средняя точность',
+      'stats.timeOfDay.morning': 'Утро',
+      'stats.timeOfDay.afternoon': 'День',
+      'stats.timeOfDay.evening': 'Вечер',
+      'stats.timeOfDay.night': 'Ночь',
+      'stats.day.mon': 'Пн',
+      'stats.day.tue': 'Вт',
+      'stats.day.wed': 'Ср',
+      'stats.day.thu': 'Чт',
+      'stats.day.fri': 'Пт',
+      'stats.day.sat': 'Сб',
+      'stats.day.sun': 'Вс',
+      'stats.metric.wpm': 'WPM',
+      'stats.metric.accuracy': 'Точность',
+      'stats.metric.cpm': 'CPM',
+      'stats.metric.errors': 'Ошибки',
       'misc.theme': 'Тема',
       'misc.themeAuto': 'Авто (системная)',
       'misc.sound': 'Звук',
@@ -503,6 +581,45 @@ const resources = {
       'stats.less': 'Less',
       'stats.more': 'More',
       'stats.sessions': 'sessions',
+      'stats.subtitle': 'Detailed analysis of your progress',
+      'stats.totalSessionsLabel': 'Total sessions',
+      'stats.practiceTime': 'Practice time',
+      'stats.avgAccuracy': 'Average accuracy',
+      'stats.record': 'record',
+      'stats.advancedAnalytics': 'Advanced analytics',
+      'stats.analyzing': 'Analyzing data via Web Worker...',
+      'stats.performanceByTime': 'Performance by time of day',
+      'stats.performanceFunnel': 'Performance funnel',
+      'stats.metricCorrelation': 'Metric correlation',
+      'stats.metric': 'Metric',
+      'stats.correlationNote': '* Values close to 1 — strong positive correlation, to -1 — strong negative',
+      'stats.detailedStats': 'Detailed statistics',
+      'stats.speedProgress': 'Speed progress (WPM)',
+      'stats.accuracyDistribution': 'Accuracy distribution',
+      'stats.activityByDay': 'Activity by day of week',
+      'stats.practiceTime7days': 'Practice time (last 7 days)',
+      'stats.noData': 'No data to display',
+      'stats.recentSessions': 'Recent sessions',
+      'stats.date': 'Date',
+      'stats.errors': 'Errors',
+      'stats.time': 'Time',
+      'stats.avgWpm': 'Average WPM',
+      'stats.avgAccuracyLabel': 'Average accuracy',
+      'stats.timeOfDay.morning': 'Morning',
+      'stats.timeOfDay.afternoon': 'Afternoon',
+      'stats.timeOfDay.evening': 'Evening',
+      'stats.timeOfDay.night': 'Night',
+      'stats.day.mon': 'Mon',
+      'stats.day.tue': 'Tue',
+      'stats.day.wed': 'Wed',
+      'stats.day.thu': 'Thu',
+      'stats.day.fri': 'Fri',
+      'stats.day.sat': 'Sat',
+      'stats.day.sun': 'Sun',
+      'stats.metric.wpm': 'WPM',
+      'stats.metric.accuracy': 'Accuracy',
+      'stats.metric.cpm': 'CPM',
+      'stats.metric.errors': 'Errors',
       'misc.theme': 'Theme',
       'misc.themeAuto': 'Auto (System)',
       'misc.sound': 'Sound',
@@ -1007,6 +1124,45 @@ const resources = {
       'stats.less': 'Weniger',
       'stats.more': 'Mehr',
       'stats.sessions': 'Sitzungen',
+      'stats.subtitle': 'Detaillierte Analyse Ihres Fortschritts',
+      'stats.totalSessionsLabel': 'Gesamt-Sitzungen',
+      'stats.practiceTime': 'Übungszeit',
+      'stats.avgAccuracy': 'Durchschn. Genauigkeit',
+      'stats.record': 'Rekord',
+      'stats.advancedAnalytics': 'Erweiterte Analytik',
+      'stats.analyzing': 'Datenanalyse über Web Worker...',
+      'stats.performanceByTime': 'Leistung nach Tageszeit',
+      'stats.performanceFunnel': 'Leistungstrichter',
+      'stats.metricCorrelation': 'Metrikkorrelation',
+      'stats.metric': 'Metrik',
+      'stats.correlationNote': '* Werte nahe 1 — starke positive Korrelation, nahe -1 — starke negative',
+      'stats.detailedStats': 'Detaillierte Statistik',
+      'stats.speedProgress': 'Geschwindigkeitsfortschritt (WPM)',
+      'stats.accuracyDistribution': 'Genauigkeitsverteilung',
+      'stats.activityByDay': 'Aktivität nach Wochentag',
+      'stats.practiceTime7days': 'Übungszeit (letzte 7 Tage)',
+      'stats.noData': 'Keine Daten zum Anzeigen',
+      'stats.recentSessions': 'Letzte Sitzungen',
+      'stats.date': 'Datum',
+      'stats.errors': 'Fehler',
+      'stats.time': 'Zeit',
+      'stats.avgWpm': 'Durchschn. WPM',
+      'stats.avgAccuracyLabel': 'Durchschn. Genauigkeit',
+      'stats.timeOfDay.morning': 'Morgen',
+      'stats.timeOfDay.afternoon': 'Nachmittag',
+      'stats.timeOfDay.evening': 'Abend',
+      'stats.timeOfDay.night': 'Nacht',
+      'stats.day.mon': 'Mo',
+      'stats.day.tue': 'Di',
+      'stats.day.wed': 'Mi',
+      'stats.day.thu': 'Do',
+      'stats.day.fri': 'Fr',
+      'stats.day.sat': 'Sa',
+      'stats.day.sun': 'So',
+      'stats.metric.wpm': 'WPM',
+      'stats.metric.accuracy': 'Genauigkeit',
+      'stats.metric.cpm': 'CPM',
+      'stats.metric.errors': 'Fehler',
       'misc.theme': 'Design',
       'misc.themeAuto': 'Auto (System)',
       'misc.sound': 'Ton',
@@ -1191,6 +1347,45 @@ const resources = {
       'stats.less': 'Moins',
       'stats.more': 'Plus',
       'stats.sessions': 'sessions',
+      'stats.subtitle': 'Analyse détaillée de votre progression',
+      'stats.totalSessionsLabel': 'Total des sessions',
+      'stats.practiceTime': "Temps d'entraînement",
+      'stats.avgAccuracy': 'Précision moyenne',
+      'stats.record': 'record',
+      'stats.advancedAnalytics': 'Analyse avancée',
+      'stats.analyzing': 'Analyse des données via Web Worker...',
+      'stats.performanceByTime': 'Performance par moment de la journée',
+      'stats.performanceFunnel': "Entonnoir de performance",
+      'stats.metricCorrelation': 'Corrélation des métriques',
+      'stats.metric': 'Métrique',
+      'stats.correlationNote': '* Valeurs proches de 1 — forte corrélation positive, de -1 — forte négative',
+      'stats.detailedStats': 'Statistiques détaillées',
+      'stats.speedProgress': 'Progression de vitesse (WPM)',
+      'stats.accuracyDistribution': 'Répartition de la précision',
+      'stats.activityByDay': 'Activité par jour de la semaine',
+      'stats.practiceTime7days': "Temps d'entraînement (7 derniers jours)",
+      'stats.noData': 'Aucune donnée à afficher',
+      'stats.recentSessions': 'Sessions récentes',
+      'stats.date': 'Date',
+      'stats.errors': 'Erreurs',
+      'stats.time': 'Temps',
+      'stats.avgWpm': 'WPM moyen',
+      'stats.avgAccuracyLabel': 'Précision moyenne',
+      'stats.timeOfDay.morning': 'Matin',
+      'stats.timeOfDay.afternoon': 'Après-midi',
+      'stats.timeOfDay.evening': 'Soir',
+      'stats.timeOfDay.night': 'Nuit',
+      'stats.day.mon': 'Lun',
+      'stats.day.tue': 'Mar',
+      'stats.day.wed': 'Mer',
+      'stats.day.thu': 'Jeu',
+      'stats.day.fri': 'Ven',
+      'stats.day.sat': 'Sam',
+      'stats.day.sun': 'Dim',
+      'stats.metric.wpm': 'WPM',
+      'stats.metric.accuracy': 'Précision',
+      'stats.metric.cpm': 'CPM',
+      'stats.metric.errors': 'Erreurs',
       'misc.theme': 'Thème',
       'misc.themeAuto': 'Auto (système)',
       'misc.sound': 'Son',

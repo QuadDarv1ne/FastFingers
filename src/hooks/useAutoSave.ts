@@ -4,8 +4,9 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
+import { logger } from '../utils/logger'
 
 interface AutoSaveData {
   progress: UserProgress
@@ -47,7 +48,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     onRestore,
   } = options
 
-  const isRestoredRef = useRef(false)
+  const [isRestored, setIsRestored] = useState(false)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   /**
@@ -64,7 +65,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
       }
       localStorage.setItem(storageKey, JSON.stringify(data))
     } catch (error) {
-      console.warn('[AutoSave] Failed to save:', error)
+      logger.warn('Failed to save:', error)
     }
   }, [progress, currentSession, heatmap, settings, storageKey])
 
@@ -75,7 +76,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     try {
       const saved = localStorage.getItem(storageKey)
       if (!saved) {
-        isRestoredRef.current = true
+        setIsRestored(true)
         return
       }
 
@@ -87,7 +88,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
       if (isExpired) {
         // Сессия устарела, очищаем автосохранение
         localStorage.removeItem(storageKey)
-        isRestoredRef.current = true
+        setIsRestored(true)
         return
       }
 
@@ -96,10 +97,10 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
         onRestore(data)
       }
 
-      isRestoredRef.current = true
+      setIsRestored(true)
     } catch (error) {
-      console.warn('[AutoSave] Failed to restore:', error)
-      isRestoredRef.current = true
+      logger.warn('Failed to restore:', error)
+      setIsRestored(true)
     }
   }, [storageKey, onRestore])
 
@@ -110,7 +111,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     try {
       localStorage.removeItem(storageKey)
     } catch (error) {
-      console.warn('[AutoSave] Failed to clear:', error)
+      logger.warn('Failed to clear:', error)
     }
   }, [storageKey])
 
@@ -174,7 +175,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   }, [saveData])
 
   return {
-    isRestored: isRestoredRef.current,
+    isRestored,
     clearAutoSave,
     forceSave,
   }

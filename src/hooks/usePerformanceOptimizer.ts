@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useRef, useEffect } from 'react'
+import { logger } from '../utils/logger'
 
 interface UseDebounceOptions {
   leading?: boolean
@@ -184,37 +185,41 @@ export function useThrottle<T extends (...args: Parameters<T>) => ReturnType<T>>
 }
 
 /**
- * Хук для мемоизации callback с зависимостями по глубине
+ * Хук для мемоизации значения с зависимостями по глубине
+ * Выполняет глубокое сравнение зависимостей вместо поверхностного
  */
-export function useDeepMemo<T>(value: T, deps: unknown[]): T {
-  const ref = useRef<{ value: T; deps: unknown[] }>({ value, deps })
-  
+export function useDeepMemo<T>(value: () => T, deps: unknown[]): T {
+  const ref = useRef<{ value: T; deps: unknown[] } | null>(null)
+
   const isEqual = (a: unknown, b: unknown): boolean => {
     if (a === b) return true
     if (typeof a !== typeof b) return false
     if (a === null || b === null) return false
     if (typeof a !== 'object' || typeof b !== 'object') return false
-    
+
     if (Array.isArray(a) && Array.isArray(b)) {
       if (a.length !== b.length) return false
       return a.every((item, index) => isEqual(item, b[index]))
     }
-    
+
     const keysA = Object.keys(a as object)
     const keysB = Object.keys(b as object)
-    
+
     if (keysA.length !== keysB.length) return false
-    
+
     return keysA.every(key => isEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
   }
-  
-  const shouldUpdate = !isEqual(value, ref.current.value) || deps.some((dep, index) => dep !== ref.current.deps[index])
-  
+
+  const shouldUpdate =
+    ref.current === null ||
+    deps.length !== ref.current.deps.length ||
+    !deps.every((dep, index) => isEqual(dep, ref.current!.deps[index]))
+
   if (shouldUpdate) {
-    ref.current = { value, deps }
+    ref.current = { value: value(), deps }
   }
-  
-  return ref.current.value
+
+  return ref.current!.value
 }
 
 /**
@@ -226,25 +231,42 @@ export function useOptimizedRender(
   options: { debounceMs?: number; throttleMs?: number } = {}
 ) {
   const { debounceMs, throttleMs } = options
-  
+
   const callbackRef = useRef(callback)
   callbackRef.current = callback
-  
-  // Используем оба хука, но вызываем нужный в зависимости от опций
-  const debouncedCallback = useDebounce(callbackRef.current, debounceMs || 100)
-  const throttledCallback = useThrottle(callbackRef.current, throttleMs || 100)
-  
-  const optimizedCallback = useCallback(() => {
+
+  const optimizedCallback = useRef<(() => void) | null>(null)
+
+  if (optimizedCallback.current === null) {
     if (debounceMs !== undefined) {
-      debouncedCallback()
+      let timeout: ReturnType<typeof setTimeout> | null = null
+      optimizedCallback.current = () => {
+        if (timeout) clearTimeout(timeout)
+        timeout = setTimeout(() => callbackRef.current(), debounceMs)
+      }
     } else if (throttleMs !== undefined) {
-      throttledCallback()
+      let lastCall = 0
+      let timeout: ReturnType<typeof setTimeout> | null = null
+      optimizedCallback.current = () => {
+        const now = Date.now()
+        const timeSinceLastCall = now - lastCall
+        if (timeSinceLastCall >= throttleMs) {
+          lastCall = now
+          callbackRef.current()
+        } else if (!timeout) {
+          timeout = setTimeout(() => {
+            lastCall = Date.now()
+            callbackRef.current()
+            timeout = null
+          }, throttleMs - timeSinceLastCall)
+        }
+      }
     } else {
-      callbackRef.current()
+      optimizedCallback.current = () => callbackRef.current()
     }
-  }, [debounceMs, throttleMs, debouncedCallback, throttledCallback])
-  
-  return optimizedCallback
+  }
+
+  return optimizedCallback.current
 }
 
 /**
@@ -263,7 +285,7 @@ export function usePerformanceMeasure<T extends (...args: unknown[]) => unknown>
     const endTime = performance.now()
     
     // Используем warn вместо log
-    console.warn(`[Performance] ${label}: ${(endTime - startTime).toFixed(2)}ms`)
+    logger.warn(`[Performance] ${label}: ${(endTime - startTime).toFixed(2)}ms`)
     
     return result
   }, [label]) as T

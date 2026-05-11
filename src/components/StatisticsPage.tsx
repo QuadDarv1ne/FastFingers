@@ -2,6 +2,7 @@ import { memo, useMemo, Suspense, lazy, useState, useEffect } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useAdvancedStats } from '../hooks/useAdvancedStats'
 import { useStatsWorker } from '../hooks/useStatsWorker'
+import { useAppTranslation } from '../i18n/config'
 import { SimpleBarChart } from './SimpleBarChart'
 import { SimpleAreaChart } from './SimpleAreaChart'
 import { SimplePieChart } from './SimplePieChart'
@@ -9,6 +10,7 @@ import { PersonalRecords } from './PersonalRecords'
 import { WeeklyComparison } from './WeeklyComparison'
 import { LoadingFallback } from './LoadingFallback'
 import type { TypingStats } from '../types'
+import { logger } from '../utils/logger'
 
 // Lazy loading для тяжёлых компонентов
 const ActivityHeatmap = lazy(() => import('./ActivityHeatmap').then(module => ({ default: module.ActivityHeatmap })))
@@ -17,7 +19,17 @@ interface StatisticsPageProps {
   onBack: () => void
 }
 
+const TIME_OF_DAY_LABELS: Record<string, string> = {
+  morning: 'stats.timeOfDay.morning',
+  afternoon: 'stats.timeOfDay.afternoon',
+  evening: 'stats.timeOfDay.evening',
+  night: 'stats.timeOfDay.night',
+}
+
+const CORRELATION_METRICS = ['stats.metric.wpm', 'stats.metric.accuracy', 'stats.metric.cpm', 'stats.metric.errors']
+
 export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
+  const { t, i18n } = useAppTranslation()
   const { history, getStatsForPeriod } = useTypingHistory()
   const { wpmTrend: _wpmTrend, activityByDayOfWeek: _activityByDayOfWeek } = useAdvancedStats()
   const { isReady, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix } = useStatsWorker()
@@ -30,16 +42,21 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
   // Преобразование сессий для Web Worker
   const sessionsForWorker = useMemo<TypingStats[]>(() =>
-    history.sessions.map(s => ({
-      date: s.date,
-      wpm: s.wpm,
-      accuracy: s.accuracy,
-      cpm: s.cpm,
-      errors: s.errors,
-      correctChars: 0,
-      totalChars: 0,
-      timeElapsed: s.duration,
-    } as TypingStats)),
+    history.sessions.map(s => {
+      // Estimate chars based on WPM and duration: WPM * 5 chars/word * duration/60
+      const estimatedChars = Math.round(s.wpm * 5 * (s.duration / 60))
+      const correctChars = Math.round((s.accuracy / 100) * estimatedChars)
+      return {
+        date: s.date,
+        wpm: s.wpm,
+        accuracy: s.accuracy,
+        cpm: s.cpm,
+        errors: s.errors,
+        correctChars,
+        totalChars: estimatedChars,
+        timeElapsed: s.duration,
+      } as TypingStats
+    }),
     [history.sessions]
   )
 
@@ -59,7 +76,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         setFunnelData(funnelResult.stages)
         setCorrelationMatrix(correlationResult)
       } catch (error) {
-        console.error('Analysis error:', error)
+        logger.error('Analysis error:', error)
       } finally {
         setIsAnalyzing(false)
       }
@@ -73,6 +90,39 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   const stats7d = getStatsForPeriod(7)
   const stats30d = getStatsForPeriod(30)
 
+  // Вычисление реальных трендов
+  const trends = useMemo(() => {
+    const stats7 = getStatsForPeriod(7)
+    const stats14 = getStatsForPeriod(14)
+    const stats30 = getStatsForPeriod(30)
+
+    // Сессии: сравниваем последние 7 дней с предыдущими 7 днями
+    const sessionChange = stats7.sessions > 0 && stats14.sessions > 0 && stats7.sessions !== stats14.sessions
+      ? Math.round(((stats7.sessions - (stats14.sessions - stats7.sessions)) / (stats14.sessions - stats7.sessions)) * 100)
+      : 0
+
+    // Время практики
+    const time24h = Math.round(history.totalTime / 60)
+    const timeChange = time24h > 0 ? `+${time24h}ч` : '—'
+
+    // Лучший WPM
+    const bestWpmChange = stats30.bestWpm > 0 && stats7.bestWpm > 0 && stats30.bestWpm !== stats7.bestWpm
+      ? `${stats30.bestWpm}`
+      : 'record'
+
+    // Точность
+    const accuracyChange = stats7.avgAccuracy > 0 && stats14.avgAccuracy > 0 && stats7.avgAccuracy !== stats14.avgAccuracy
+      ? `${stats7.avgAccuracy - stats14.avgAccuracy > 0 ? '+' : ''}${(stats7.avgAccuracy - stats14.avgAccuracy).toFixed(1)}%`
+      : '—'
+
+    return {
+      sessions: sessionChange !== 0 ? `${sessionChange > 0 ? '+' : ''}${sessionChange}%` : '—',
+      time: timeChange,
+      bestWpm: bestWpmChange,
+      accuracy: accuracyChange,
+    }
+  }, [history.totalTime, getStatsForPeriod])
+
   // Данные для графика WPM по сессиям
   const wpmTrendData = useMemo(() => {
     return history.sessions
@@ -82,13 +132,14 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         index: index + 1,
         wpm: session.wpm,
         accuracy: session.accuracy,
-        date: new Date(session.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
+        date: new Date(session.date).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' }),
       }))
-  }, [history.sessions])
+  }, [history.sessions, i18n.language])
 
   // Данные для графика активности по дням недели
   const activityByDay = useMemo(() => {
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+    const dayKeys = ['stats.day.mon', 'stats.day.tue', 'stats.day.wed', 'stats.day.thu', 'stats.day.fri', 'stats.day.sat', 'stats.day.sun']
+    const days = dayKeys.map(k => t(k))
     const data = days.map(day => ({ day, sessions: 0, avgWpm: 0 }))
 
     history.sessions.forEach(session => {
@@ -105,7 +156,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
       ...d,
       avgWpm: d.sessions > 0 ? Math.round(d.avgWpm / d.sessions) : 0,
     }))
-  }, [history.sessions])
+  }, [history.sessions, t])
 
   // Данные для круговой диаграммы точности
   const accuracyDistribution = useMemo(() => {
@@ -142,7 +193,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
       date.setDate(date.getDate() - i)
       const dateStr = date.toISOString().split('T')[0]
       if (!dateStr) continue
-      const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' })
+      const dayName = date.toLocaleDateString(i18n.language, { weekday: 'short' })
 
       const sessionsOnDay = history.sessions.filter(s => s.date.startsWith(dateStr))
       const totalTime = sessionsOnDay.reduce((sum, s) => sum + s.duration, 0)
@@ -153,7 +204,16 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
       })
     }
     return last7Days
-  }, [history.sessions])
+  }, [history.sessions, i18n.language])
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString(i18n.language, {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   return (
     <div className="min-h-screen bg-dark-900 p-6">
@@ -161,43 +221,43 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gradient">Статистика</h1>
-            <p className="text-dark-400 mt-1">Детальный анализ вашего прогресса</p>
+            <h1 className="text-3xl font-bold text-gradient">{t('stats.title')}</h1>
+            <p className="text-dark-400 mt-1">{t('stats.subtitle', 'Детальный анализ вашего прогресса')}</p>
           </div>
           <button
             onClick={onBack}
             className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
           >
-            ← Назад
+            ← {t('action.back')}
           </button>
         </div>
 
         {/* Сводные карточки */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard
-            title="Всего тренировок"
+            title={t('stats.totalSessionsLabel', 'Всего тренировок')}
             value={history.totalSessions.toString()}
             icon="📊"
-            trend="+12%"
+            trend={trends.sessions}
           />
           <StatCard
-            title="Время практики"
+            title={t('stats.practiceTime', 'Время практики')}
             value={`${Math.round(history.totalTime / 60)}ч`}
             icon="⏱️"
-            trend="+5ч"
+            trend={trends.time}
           />
           <StatCard
-            title="Лучший WPM"
+            title={t('stats.bestWpm', 'Лучший WPM')}
             value={stats30d.bestWpm.toString()}
             icon="🚀"
-            trend="рекорд"
+            trend={trends.bestWpm === 'record' ? t('stats.record', 'рекорд') : trends.bestWpm}
             highlight
           />
           <StatCard
-            title="Средняя точность"
+            title={t('stats.avgAccuracy', 'Средняя точность')}
             value={`${stats30d.avgAccuracy}%`}
             icon="🎯"
-            trend="+2%"
+            trend={trends.accuracy}
           />
         </div>
 
@@ -213,32 +273,29 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         </Suspense>
 
         {/* Графики */}
-        <h2 className="text-2xl font-bold mb-4 text-gradient">📊 Расширенная аналитика</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📊 {t('stats.advancedAnalytics', 'Расширенная аналитика')}</h2>
 
         {/* Индикатор загрузки анализа */}
         {isAnalyzing && (
           <div className="glass rounded-xl p-6 mb-8 flex items-center gap-4">
             <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            <span>Анализ данных через Web Worker...</span>
+            <span>{t('stats.analyzing', 'Анализ данных через Web Worker...')}</span>
           </div>
         )}
 
         {/* Анализ времени суток */}
         {timeAnalysis.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">🕐 Производительность по времени суток</h3>
+            <h3 className="text-lg font-semibold mb-4">🕐 {t('stats.performanceByTime', 'Производительность по времени суток')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {timeAnalysis.map(slot => (
                 <div key={slot.timeOfDay} className="text-center p-4 bg-dark-800/50 rounded-lg">
                   <div className="text-sm text-dark-400 mb-1">
-                    {slot.timeOfDay === 'morning' && '🌅 Утро'}
-                    {slot.timeOfDay === 'afternoon' && '☀️ День'}
-                    {slot.timeOfDay === 'evening' && '🌆 Вечер'}
-                    {slot.timeOfDay === 'night' && '🌙 Ночь'}
+                    {t(TIME_OF_DAY_LABELS[slot.timeOfDay] || `stats.timeOfDay.${slot.timeOfDay}`)}
                   </div>
                   <div className="text-2xl font-bold text-primary-400">{slot.avgWpm} WPM</div>
-                  <div className="text-sm text-dark-500">{slot.avgAccuracy}% точности</div>
-                  <div className="text-xs text-dark-600 mt-1">{slot.sessions} сессий</div>
+                  <div className="text-sm text-dark-500">{slot.avgAccuracy}% {t('stats.accuracy', 'точности')}</div>
+                  <div className="text-xs text-dark-600 mt-1">{slot.sessions} {t('stats.sessions', 'сессий')}</div>
                 </div>
               ))}
             </div>
@@ -248,7 +305,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Воронка конверсии */}
         {funnelData && funnelData.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">📊 Воронка производительности</h3>
+            <h3 className="text-lg font-semibold mb-4">📊 {t('stats.performanceFunnel', 'Воронка производительности')}</h3>
             <div className="space-y-3">
               {funnelData.map((stage) => (
                 <div key={stage.name} className="flex items-center gap-4">
@@ -269,63 +326,47 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Матрица корреляции */}
         {correlationMatrix.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">🔗 Корреляция метрик</h3>
+            <h3 className="text-lg font-semibold mb-4">🔗 {t('stats.metricCorrelation', 'Корреляция метрик')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-dark-700">
-                    <th className="p-2 text-left text-dark-400">Метрика</th>
-                    <th className="p-2 text-center text-dark-400">WPM</th>
-                    <th className="p-2 text-center text-dark-400">Точность</th>
-                    <th className="p-2 text-center text-dark-400">CPM</th>
-                    <th className="p-2 text-center text-dark-400">Ошибки</th>
+                    <th className="p-2 text-left text-dark-400">{t('stats.metric', 'Метрика')}</th>
+                    {CORRELATION_METRICS.map((key, i) => (
+                      <th key={i} className="p-2 text-center text-dark-400">{t(key)}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-dark-800">
-                    <td className="p-2 font-medium">WPM</td>
-                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[0]?.[1]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[0]?.[2]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[0]?.[3]?.toFixed(2) || '0.00'}</td>
-                  </tr>
-                  <tr className="border-b border-dark-800">
-                    <td className="p-2 font-medium">Точность</td>
-                    <td className="p-2 text-center">{correlationMatrix[1]?.[0]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[1]?.[2]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[1]?.[3]?.toFixed(2) || '0.00'}</td>
-                  </tr>
-                  <tr className="border-b border-dark-800">
-                    <td className="p-2 font-medium">CPM</td>
-                    <td className="p-2 text-center">{correlationMatrix[2]?.[0]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[2]?.[1]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                    <td className="p-2 text-center">{correlationMatrix[2]?.[3]?.toFixed(2) || '0.00'}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2 font-medium">Ошибки</td>
-                    <td className="p-2 text-center">{correlationMatrix[3]?.[0]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[3]?.[1]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center">{correlationMatrix[3]?.[2]?.toFixed(2) || '0.00'}</td>
-                    <td className="p-2 text-center bg-primary-900/20">1.00</td>
-                  </tr>
+                  {CORRELATION_METRICS.map((key, rowIdx) => (
+                    <tr key={rowIdx} className="border-b border-dark-800">
+                      <td className="p-2 font-medium">{t(key)}</td>
+                      {CORRELATION_METRICS.map((_, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className={`p-2 text-center ${rowIdx === colIdx ? 'bg-primary-900/20' : ''}`}
+                        >
+                          {correlationMatrix[rowIdx]?.[colIdx]?.toFixed(2) || '0.00'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
             <p className="text-xs text-dark-500 mt-4">
-              * Значения близкие к 1 — сильная положительная корреляция, к -1 — сильная отрицательная
+              {t('stats.correlationNote', '* Значения близкие к 1 — сильная положительная корреляция, к -1 — сильная отрицательная')}
             </p>
           </div>
         )}
 
         {/* Существующие графики */}
-        <h2 className="text-2xl font-bold mb-4 text-gradient">📈 Детальная статистика</h2>
-        
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📈 {t('stats.detailedStats', 'Детальная статистика')}</h2>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* График WPM */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Прогресс скорости (WPM)</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.speedProgress', 'Прогресс скорости (WPM)')}</h3>
             <div className="h-64">
               {wpmTrendData.length > 0 ? (
                 <SimpleAreaChart
@@ -337,7 +378,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
-                  Нет данных для отображения
+                  {t('stats.noData', 'Нет данных для отображения')}
                 </div>
               )}
             </div>
@@ -345,13 +386,13 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График точности */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Распределение точности</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.accuracyDistribution', 'Распределение точности')}</h3>
             <div className="h-64">
               {accuracyDistribution.length > 0 ? (
                 <SimplePieChart data={accuracyDistribution} />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
-                  Нет данных для отображения
+                  {t('stats.noData', 'Нет данных для отображения')}
                 </div>
               )}
             </div>
@@ -359,7 +400,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График активности по дням */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Активность по дням недели</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.activityByDay', 'Активность по дням недели')}</h3>
             <div className="h-64">
               <SimpleBarChart
                 data={activityByDay}
@@ -373,7 +414,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График времени практики */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Время практики (последние 7 дней)</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.practiceTime7days', 'Время практики (последние 7 дней)')}</h3>
             <div className="h-64">
               <SimpleBarChart
                 data={practiceTimeData}
@@ -388,35 +429,30 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
         {/* Статистика по периодам */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <PeriodStats title="24 часа" stats={stats24h} />
-          <PeriodStats title="7 дней" stats={stats7d} />
-          <PeriodStats title="30 дней" stats={stats30d} />
+          <PeriodStats title="24 часа" stats={stats24h} t={t} />
+          <PeriodStats title="7 дней" stats={stats7d} t={t} />
+          <PeriodStats title="30 дней" stats={stats30d} t={t} />
         </div>
 
         {/* Последние сессии */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Последние сессии</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('stats.recentSessions', 'Последние сессии')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-dark-700">
-                  <th className="text-left py-3 px-4 text-dark-400 font-medium">Дата</th>
+                  <th className="text-left py-3 px-4 text-dark-400 font-medium">{t('stats.date', 'Дата')}</th>
                   <th className="text-center py-3 px-4 text-dark-400 font-medium">WPM</th>
-                  <th className="text-center py-3 px-4 text-dark-400 font-medium">Точность</th>
-                  <th className="text-center py-3 px-4 text-dark-400 font-medium">Ошибки</th>
-                  <th className="text-right py-3 px-4 text-dark-400 font-medium">Время</th>
+                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.accuracy', 'Точность')}</th>
+                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.errors', 'Ошибки')}</th>
+                  <th className="text-right py-3 px-4 text-dark-400 font-medium">{t('stats.time', 'Время')}</th>
                 </tr>
               </thead>
               <tbody>
                 {history.sessions.slice(0, 10).map((session) => (
                   <tr key={session.id} className="border-b border-dark-800/50">
                     <td className="py-3 px-4 text-dark-300">
-                      {new Date(session.date).toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatDate(session.date)}
                     </td>
                     <td className="text-center py-3 px-4">
                       <span className="text-primary-400 font-bold">{session.wpm}</span>
@@ -443,7 +479,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   return prevProps.onBack === nextProps.onBack
 })
 
-function StatCard({ title, value, icon, trend, highlight = false }: { 
+function StatCard({ title, value, icon, trend, highlight = false }: {
   title: string
   value: string
   icon: string
@@ -462,25 +498,25 @@ function StatCard({ title, value, icon, trend, highlight = false }: {
   )
 }
 
-function PeriodStats({ title, stats }: { title: string; stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number } }) {
+function PeriodStats({ title, stats, t }: { title: string; stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number }; t: (key: string, fallback: string) => string }) {
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       <div className="space-y-3">
         <div className="flex justify-between">
-          <span className="text-dark-400">Сессий</span>
+          <span className="text-dark-400">{t('stats.sessions', 'Сессий')}</span>
           <span className="font-medium">{stats.sessions}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">Средний WPM</span>
+          <span className="text-dark-400">{t('stats.avgWpm', 'Средний WPM')}</span>
           <span className="font-medium text-primary-400">{stats.avgWpm}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">Средняя точность</span>
+          <span className="text-dark-400">{t('stats.avgAccuracyLabel', 'Средняя точность')}</span>
           <span className="font-medium">{stats.avgAccuracy}%</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">Лучший WPM</span>
+          <span className="text-dark-400">{t('stats.bestWpm', 'Лучший WPM')}</span>
           <span className="font-medium text-success">{stats.bestWpm}</span>
         </div>
       </div>
