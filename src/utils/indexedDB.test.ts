@@ -163,8 +163,9 @@ describe('IndexedDB', () => {
     expect(migrated).toBe(1)
 
     const settings = await get('settings', 'settings')
-    expect(settings?.value.volume).toBe(0.5)
-    expect(settings?.value.theme).toBe('dark')
+    const value = settings?.value as Record<string, unknown> | undefined
+    expect(value?.volume).toBe(0.5)
+    expect(value?.theme).toBe('dark')
   })
 
   it('should handle errors gracefully', async () => {

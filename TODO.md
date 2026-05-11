@@ -1,301 +1,498 @@
-# FastFingers — Todo & Improvements
+# FastFingers — TODO & Improvements
 
-**Автор:** Dupley Maxim Igorevich  
-**Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 14:20
-
----
-
-## 📊 Текущий статус проекта
-
-| Метрика | Значение | Статус |
-|---------|----------|--------|
-| Unit тесты | 916 passed (56 файлов) | ✅ |
-| Test Coverage | ~91% | ✅ |
-| Сборка | **~12s** | ✅ **<15s** |
-| Bundle size (core) | ~250KB gzipped | ✅ |
-| pdf-vendor | **0 KB** (удален) | ✅ |
-| charts-vendor | **0 KB** (удален, заменен на SVG) | ✅ |
-| TypeScript ошибки | 0 | ✅ |
-| ESLint ошибки | 0 | ✅ |
+**Author:** Dupley Maxim Igorevich | **Автор:** Дулей Максим Игорович
+**Copyright:** 2025-2026 © Dupley Maxim Igorevich
+**Last updated:** 2026-05-11 19:00 (full code audit) | **Последнее обновление:** 2026-05-11 19:00 (полный аудит кода)
 
 ---
 
-## 🔴 Высокий приоритет
+## 📊 Current Project Status / Текущий статус проекта
 
-### 1. Оптимизация bundle size (долгосрочно)
-- [x] **pdf-vendor**: 390 KB → 0 KB (удален jspdf)
-  - ✅ Заменен на Canvas API (certificateOptimized.ts)
-  - ✅ Удалена зависимость jspdf из package.json
-  - ✅ Все тесты проходят (916 passed)
-  - ✅ Сборка успешна
+| Metric / Метрика | Value / Значение | Status / Статус |
+|------------------|-----------------|-----------------|
+| Unit tests / Unit-тесты | 916 passed (56 files) | ✅ |
+| Test Coverage / Покрытие тестов | ~91% | ✅ |
+| Build time / Время сборки | **~8s** (was / было 14.4s) | ✅ **<15s** |
+| Bundle size (core) / Размер бандла | ~250KB gzipped | ✅ |
+| pdf-vendor | **0 KB** (removed / удален) | ✅ |
+| charts-vendor | **0 KB** (removed, replaced with SVG / заменен на SVG) | ✅ |
+| TypeScript errors / Ошибки TypeScript | 0 | ✅ |
+| ESLint errors / Ошибки ESLint | 0 | ✅ |
+
+---
+
+## 🔴 High Priority / Высокий приоритет
+
+### 1. Bundle Size Optimization (long-term) / Оптимизация размера бандла (долгосрочно)
+
+- [x] **pdf-vendor**: 390 KB → 0 KB (removed jspdf / удален jspdf)
+  - ✅ Replaced with Canvas API (certificateOptimized.ts) / Заменен на Canvas API
+  - ✅ Removed jspdf dependency from package.json / Удалена зависимость из package.json
+  - ✅ All tests pass (916 passed) / Все тесты проходят
+  - ✅ Build successful / Сборка успешна
 - [x] **charts-vendor**: 532 KB → 0 KB
-  - ✅ Заменен на hand-built SVG компоненты (SimpleBarChart, SimpleAreaChart, SimplePieChart)
-  - ✅ Удалена зависимость recharts из package.json
-  - ✅ Удален LazyRecharts.tsx
-  - ✅ Все тесты проходят (905 passed)
-  - ✅ Сборка ~8s
+  - ✅ Replaced with hand-built SVG components (SimpleBarChart, SimpleAreaChart, SimplePieChart)
+  - ✅ Removed recharts dependency from package.json / Удалена зависимость recharts
+  - ✅ Deleted LazyRecharts.tsx / Удален LazyRecharts.tsx
+  - ✅ All tests pass (905 passed) / Все тесты проходят
+  - ✅ Build ~8s / Сборка ~8s
 
 ---
 
-## 🟡 Средний приоритет
+## 🟡 Medium Priority / Средний приоритет
 
-### 2. Исправление тестов
-- [x] act() warnings в useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations) — исправлено 2026-05-02
+### 2. Split Monolithic i18n Config into Per-Language Files / Разделить монолитный i18n config на файлы по языкам
 
-### 3. Supabase интеграция (если требуется backend)
-- [x] Код полностью готов (auth, leaderboards, duels, tournaments, cloud sync)
-- [x] Создан объединённый SQL-скрипт (full_migration.sql)
-- [x] Написана пошаговая инструкция (SUPABASE_SETUP.md)
-- [x] Проект создан: jfzqncgwoiorhvyzvrig
-- [x] Миграция применена (11 таблиц создано)
-- [x] `.env` настроен с ключами
-- [ ] Включить Realtime для duels, tournaments, tournament_participants
-- [ ] Протестировать leaderboards
-- [ ] Протестировать дуэли (PvP)
-- [ ] Протестировать cloud sync
+- [ ] `src/i18n/config.ts` — 1569 lines, all 10 languages in a single file / 1569 строк, все 10 языков в одном файле
+- [ ] IT/PT/JA translations compressed to 1-2 lines each — hard to maintain / IT/PT/JA переводы сжаты до 1-2 строк — сложно поддерживать
+- [ ] **Solution / Решение:** Extract each language into `src/i18n/locales/{en,ru,de,fr,es,it,pt,zh,ja,he}.json`
+- [ ] Load languages dynamically via `i18next.use(Backend)` / Загружать языки динамически
+- [ ] **Benefit / Выгода:** Faster cold start, smaller initial bundle, easier maintenance / быстрее холодный старт, меньше начальный бандл, проще поддержка
 
-### 4. Улучшение UX
-- [x] Анимации переходов между режимами (Framer Motion) — mode-specific animations
-- [x] Toast-уведомления для всех действий — Sprint, Hardcore, Marathon, Code, SpeedTest, Theme
-- [x] Улучшение мобильного UX для landscape режима — comprehensive CSS
-- [x] Haptic feedback для мобильных устройств
-- [x] Удалён unused useFeedbackToast hook
+### 3. Replace Direct `console` Calls with `logger` Utility / Заменить прямые `console` вызовы на утилиту `logger`
 
-### 5. Контент
-- [x] Добавить 50+ новых текстов (итого 170+) — фильмы, бизнес, наука
-  - [x] 20 цитат из фильмов/сериалов (movie-21 — movie-40)
-  - [x] 15 бизнес/профессиональных текстов (biz-21 — biz-35)
-  - [x] 15 научно-популярных текстов (sci-21 — sci-35)
-- [ ] Пользовательские тексты (CRUD)
-- [ ] Импорт/экспорт упражнений
+Files using raw `console.warn/error` instead of `@utils/logger` / Файлы с raw `console.warn/error` вместо `@utils/logger`:
 
-### 6. Доступность (a11y)
-- [x] Axe-core тестирование — axe-playwright E2E тесты
-- [x] Улучшить контрастность — уже улучшено в предыдущих итерациях
-- [x] Полная поддержка screen reader — aria-expanded, aria-pressed, role=switch, aria-checked
-- [x] Global :focus-visible стили для клавиатурной навигации
-- [x] Expanded prefers-reduced-motion — все анимации и переходы отключены
+- [ ] `src/hooks/useAutoSave.ts` (3 calls / вызова)
+- [ ] `src/hooks/useHapticFeedback.ts` (1 call / вызов)
+- [ ] `src/hooks/usePerformanceOptimizer.ts` (1 call / вызов)
+- [ ] `src/hooks/usePWAInstall.ts` (1 call / вызов)
+- [ ] `src/hooks/useTypingSoundEnhanced.ts` (1 call / вызов)
+- [ ] `src/utils/storage.ts` (1 call / вызов)
+- [ ] `src/utils/indexedDB.ts` (1 call / вызов)
+- [ ] `src/utils/export.ts` (1 call / вызов)
+- [ ] `src/utils/contrast.ts` (1 call / вызов)
+- [ ] `src/components/DuelMode.tsx` (2 calls / вызова)
+- [ ] `src/components/PWAInstallPrompt.tsx` (2 calls / вызова)
+- [ ] `src/components/TournamentMode.tsx` (4 calls / вызова)
+- [ ] `src/components/StatisticsPage.tsx` (1 call / вызов)
+
+### 4. Create `.env.example` File / Создать файл `.env.example`
+
+- [ ] README references `.env.example` but the file does not exist / README упоминает `.env.example`, но файл не существует
+- [ ] Document required environment variables / Документировать обязательные переменные:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+  - `VITE_SENTRY_DSN`
+  - `VITE_API_URL`
+
+### 5. Remove `as any` in Production Code / Убрать `as any` в продакшн-коде
+
+Non-test files using `as any` / Не-тестовые файлы с `as any`:
+
+- [ ] `src/workers/stats.worker.ts:206` — dynamic metric access (use `keyof` / использовать `keyof`)
+- [ ] `src/utils/indexedDB.ts` (multiple / несколько) — define typed interfaces for IDB records / определить типизированные интерфейсы для IDB записей
+- [ ] `src/utils/contrast.ts:181` — debug helper on `window` (use `Record<string, unknown>`)
+
+### 6. Add Vitest Coverage Thresholds / Добавить пороги покрытия в Vitest
+
+- [ ] `vitest.config.ts` has `passWithNoTests: true` without minimum coverage gates / имеет `passWithNoTests: true` без минимальных порогов
+- [ ] Add / Добавить: lines 70%, branches 65%, functions 70%, statements 70%
+
+### 7. Standardize Error Handling / Стандартизировать обработку ошибок
+
+- [ ] Currently a mix of: `try/catch` + `console.warn`, `try/catch` + `logger`, silently swallowed errors
+  / Сейчас смесь: `try/catch` + `console.warn`, `try/catch` + `logger`, проглоченные ошибки
+- [ ] Establish rule: always use `logger`, never silently swallow errors
+  / Установить правило: всегда использовать `logger`, никогда не глотать ошибки молча
+
+### 8. Add Tests for Key Modules / Добавить тесты для ключевых модулей
+
+Coverage gaps / Пробелы в покрытии:
+
+- [ ] `TypingTrainer.tsx` — core engine, no direct tests / основной движок, нет прямых тестов
+- [ ] `useHotkeys` — no tests / нет тестов
+- [ ] `useTheme` — no tests / нет тестов
+- [ ] `AuthContext` — no tests / нет тестов
+
+### 9. Decouple localStorage Auth Fallback from Supabase Service / Отделить localStorage auth fallback от Supabase сервиса
+
+- [ ] `authService.ts` mixes Supabase auth with SHA-256 client-side fallback
+  / смешивает Supabase auth с SHA-256 client-side fallback
+- [ ] Extract localStorage auth into a separate `LocalAuthProvider`
+  / Вынести localStorage auth в отдельный `LocalAuthProvider`
+- [ ] Make `authService.ts` a facade delegating to the active provider
+  / Сделать `authService.ts` фасадом, делегирующим активному провайдеру
+
+### 10. Consistent Nullable Supabase Client Handling / Консистентная обработка nullable Supabase клиента
+
+- [ ] `supabase` is conditionally created and can be `null` / создаётся условно и может быть `null`
+- [ ] Create `useSupabase()` hook with `{ client, isReady }` or a no-op stub
+  / Создать `useSupabase()` hook с `{ client, isReady }` или no-op stub
+- [ ] Centralize null-handling logic / Централизовать null-handling логику
+
+### 11. Test Fixes / Исправление тестов
+
+- [x] act() warnings in useStatsWorker.test.ts (11 warnings — rhythm score, finger balance, error recovery time, time of day, funnel, correlation matrix, worker not ready, error handling, sequential calculations) — fixed 2026-05-02 / исправлено 2026-05-02
+
+### 12. Supabase Integration (if backend is required) / Supabase интеграция (если требуется backend)
+
+- [x] Code fully ready (auth, leaderboards, duels, tournaments, cloud sync) / Код полностью готов
+- [x] Created combined SQL script (full_migration.sql) / Создан объединённый SQL-скрипт
+- [x] Written step-by-step guide (SUPABASE_SETUP.md) / Написана пошаговая инструкция
+- [x] Project created: jfzqncgwoiorhvyzvrig / Проект создан
+- [x] Migration applied (11 tables created) / Миграция применена (11 таблиц создано)
+- [x] `.env` configured with keys / `.env` настроен с ключами
+- [ ] Enable Realtime for duels, tournaments, tournament_participants / Включить Realtime для duels, tournaments, tournament_participants
+- [ ] Test leaderboards / Протестировать leaderboards
+- [ ] Test duels (PvP) / Протестировать дуэли (PvP)
+- [ ] Test cloud sync / Протестировать cloud sync
+
+### 13. UX Improvements / Улучшение UX
+
+- [x] Mode transition animations (Framer Motion) — mode-specific animations / Анимации переходов между режимами
+- [x] Toast notifications for all actions — Sprint, Hardcore, Marathon, Code, SpeedTest, Theme / Toast-уведомления для всех действий
+- [x] Mobile landscape mode UX improvements — comprehensive CSS / Улучшение мобильного UX для landscape режима
+- [x] Haptic feedback for mobile devices / Haptic feedback для мобильных устройств
+- [x] Removed unused useFeedbackToast hook / Удалён unused useFeedbackToast hook
+
+### 14. Content / Контент
+
+- [x] Add 50+ new texts (total 170+) — movies, business, science / Добавить 50+ новых текстов (итого 170+) — фильмы, бизнес, наука
+  - [x] 20 movie/series quotes (movie-21 — movie-40) / 20 цитат из фильмов/сериалов
+  - [x] 15 business/professional texts (biz-21 — biz-35) / 15 бизнес/профессиональных текстов
+  - [x] 15 popular science texts (sci-21 — sci-35) / 15 научно-популярных текстов
+- [ ] User-created texts (CRUD) / Пользовательские тексты (CRUD)
+- [ ] Exercise import/export / Импорт/экспорт упражнений
+
+### 15. Accessibility (a11y) / Доступность (a11y)
+
+- [x] Axe-core testing — axe-playwright E2E tests / Axe-core тестирование
+- [x] Improved contrast — already improved in previous iterations / Улучшить контрастность
+- [x] Full screen reader support — aria-expanded, aria-pressed, role=switch, aria-checked / Полная поддержка screen reader
+- [x] Global :focus-visible styles for keyboard navigation / Global :focus-visible стили для клавиатурной навигации
+- [x] Expanded prefers-reduced-motion — all animations and transitions disabled / все анимации и переходы отключены
 
 ---
 
-## 🟢 Низкий приоритет
+## 🟢 Low Priority / Низкий приоритет
 
-### 7. Новые режимы
-- [ ] Турниры (еженедельные)
-- [ ] Групповые челленджи с друзьями
-- [ ] Режим "Обучение" (пошаговое руководство)
-- [x] Режим "Марафон" (5 минут) — уже есть ✅
+### 16. New Game Modes / Новые режимы
 
-### 8. Аналитика
-- [ ] Трекинг пользовательских паттернов (опционально)
-- [ ] A/B тестирование UI изменений
-- [ ] Прогноз прогресса (линейная регрессия)
+- [ ] Tournaments (weekly) — TournamentMode has a stub, needs backend integration
+  / Турниры (еженедельные) — TournamentMode имеет stub, нужна backend интеграция
+- [ ] Group challenges with friends / Групповые челленджи с друзьями
+- [ ] "Learning" mode (step-by-step guide) / Режим "Обучение" (пошаговое руководство)
+- [x] "Marathon" mode (5 minutes) — already exists / Режим "Марафон" (5 минут) — уже есть ✅
 
-### 9. Эксперименты
-- [ ] Web Speech API для голосовых подсказок
-- [ ] Haptic feedback через Vibration API
-- [ ] AI-генерация персонализированных текстов (долгосрочно)
+### 17. Duel Mode — WebSocket/Realtime Implementation / Duel Mode — WebSocket/Realtime реализация
+
+- [ ] `DuelMode.tsx` has placeholder opponent search logic
+  / имеет placeholder логику поиска соперника
+- [ ] Integrate Supabase Realtime or WebSockets for live duels
+  / Интегрировать Supabase Realtime или WebSockets для live дуэлей
+- [ ] Add state machine for duel phases (searching → playing → results)
+  / Добавить state machine для фаз дуэли (searching → playing → results)
+
+### 18. Analytics / Аналитика
+
+- [ ] User pattern tracking (optional) / Трекинг пользовательских паттернов (опционально)
+- [ ] A/B testing for UI changes / A/B тестирование UI изменений
+- [ ] Progress prediction (linear regression) / Прогноз прогресса (линейная регрессия)
+
+### 19. Experiments / Эксперименты
+
+- [ ] Web Speech API for voice prompts / Web Speech API для голосовых подсказок
+- [x] Haptic feedback via Vibration API — implemented ✅ / реализовано
+- [ ] AI-generated personalized texts (long-term) / AI-генерация персонализированных текстов (долгосрочно)
+
+### 20. Add ESLint `no-restricted-syntax` Rule / Добавить ESLint `no-restricted-syntax` правило
+
+- [ ] Ban `any` in production code via ESLint / Запретить `any` в продакшн-коде через ESLint
+- [ ] Allow in tests via `overrides` / Разрешить в тестах через `overrides`
+
+### 21. Remove Dead Documentation Files / Удалить dead documentation файлы
+
+- [x] `src/workers/stats.worker.docs.ts` — removed (contained commented-out examples)
+- [x] `src/utils/indexedDB.docs.ts` — removed (same)
+
+### 22. Per-Route Error Boundaries / Per-Route Error Boundaries
+
+- [ ] Currently one global `ErrorBoundary` / Сейчас один глобальный `ErrorBoundary`
+- [ ] Add per-route boundaries so a crash in Stats doesn't take down Practice
+  / Добавить per-route boundaries чтобы краш в Stats не ронял Practice
+
+### 23. E2E Test for Offline Mode / E2E тест для offline режима
+
+- [ ] Test localStorage fallback / Проверить localStorage fallback
+- [ ] Test IndexedDB persistence / Проверить IndexedDB persistence
+- [ ] Test cloud sync reconnection / Проверить cloud sync reconnection
+
+### 24. Visual Regression Tests / Визуальные regression тесты
+
+- [ ] Playwright screenshot tests for key pages: practice, stats, settings
+  / Playwright screenshot тесты для ключевых страниц: practice, stats, settings
 
 ---
 
-## 📝 Технические долги
+## 📝 Technical Debt / Технические долги
 
-1. **App.tsx** — 735 строк, вынести логику режимов в отдельные хуки (✅ в процессе — создан useModeNavigation, GameModeRenderer)
-2. **useTypingSound** — проверить утечки памяти при частых play/stop
-3. **HardcoreMode** — оптимизирован (284 строки), но можно ещё улучшить
-4. **NotificationContext** — react-refresh warning (намеренно)
-5. **PWA** — добавить background sync для офлайн действий
+1. **App.tsx** — 735 lines, extract mode logic into separate hooks
+   / 735 строк, вынести логику режимов в отдельные хуки
+   (✅ in progress — created useModeNavigation, GameModeRenderer / в процессе — создан useModeNavigation, GameModeRenderer)
+2. **useTypingSound** — check for memory leaks on frequent play/stop
+   / проверить утечки памяти при частых play/stop
+3. **HardcoreMode** — optimized (284 lines), but can be improved further
+   / оптимизирован (284 строки), но можно ещё улучшить
+4. **NotificationContext** — react-refresh warning (intentional / намеренно)
+5. **PWA** — add background sync for offline actions
+   / добавить background sync для офлайн действий
+6. **Logging consistency** — 19 files use `console` directly instead of `logger` utility
+   / 19 файлов используют `console` напрямую вместо `logger` утилиты
+7. **`as any` in production code** — stats.worker.ts, indexedDB.ts, contrast.ts
+   / `as any` в продакшн-коде
+8. **Nullable Supabase client** — null checks scattered across codebase, need unified approach
+   / null-чеки размазаны по коду, нужен единый подход
 
 ---
 
-## ✅ Выполнено (Recent)
+## ✅ Completed (Recent) / Выполнено (Последнее)
 
-### 2026-05-11 — Supabase миграция применена
-- ✅ Проект создан: jfzqncgwoiorhvyzvrig
-- ✅ Миграция выполнена (11 таблиц: users, typing_sessions, leaderboards, duels, tournaments, и др.)
-- ✅ .env настроен с реальными ключами
-- ⏳ Осталось: включить Realtime для duels, tournaments, tournament_participants
+### 2026-05-11 — Supabase Migration Applied / Supabase миграция применена
+- ✅ Project created: jfzqncgwoiorhvyzvrig / Проект создан
+- ✅ Migration executed (11 tables: users, typing_sessions, leaderboards, duels, tournaments, etc.)
+  / Миграция выполнена (11 таблиц)
+- ✅ .env configured with real keys / .env настроен с реальными ключами
+- ⏳ Remaining: enable Realtime for duels, tournaments, tournament_participants
+  / Осталось: включить Realtime для duels, tournaments, tournament_participants
 
-### 2026-05-11 — Улучшение UX
-- ✅ Mode-specific framer-motion анимации (StatsMotion, GameMotion, HardcoreMotion)
-- ✅ Toast-уведомления при завершении сессий (Sprint, Hardcore, Marathon, Code)
-- ✅ Улучшен mobile landscape CSS (заголовки, padding, gaps, toast positioning)
-- ✅ Удалён unused useFeedbackToast hook
+### 2026-05-11 — UX Improvements / Улучшение UX
+- ✅ Mode-specific framer-motion animations (StatsMotion, GameMotion, HardcoreMotion)
+  / Mode-specific framer-motion анимации
+- ✅ Toast notifications on session completion (Sprint, Hardcore, Marathon, Code)
+  / Toast-уведомления при завершении сессий
+- ✅ Improved mobile landscape CSS (headings, padding, gaps, toast positioning)
+  / Улучшен mobile landscape CSS
+- ✅ Removed unused useFeedbackToast hook / Удалён unused useFeedbackToast hook
 
-### 2026-05-11 — Документация Supabase
-- ✅ Создан full_migration.sql (объединённый скрипт всех 4 миграций)
-- ✅ Обновлён SUPABASE_SETUP.md с инструкциями по combined migration
-- ✅ Обновлён .env с понятными комментариями и ссылкой на гайд
+### 2026-05-11 — Supabase Documentation / Документация Supabase
+- ✅ Created full_migration.sql (combined script of all 4 migrations)
+  / Создан full_migration.sql (объединённый скрипт всех 4 миграций)
+- ✅ Updated SUPABASE_SETUP.md with combined migration instructions
+  / Обновлён SUPABASE_SETUP.md
+- ✅ Updated .env with clear comments and guide link
+  / Обновлён .env с понятными комментариями
 
-### 2026-05-11 — Оптимизация charts-vendor (recharts удален)
-- ✅ Созданы hand-built SVG компоненты: SimpleBarChart, SimpleAreaChart, SimplePieChart
-- ✅ Заменены все 4 графика в StatisticsPage на лёгкие SVG компоненты
-- ✅ Удален LazyRecharts.tsx
-- ✅ Удалена зависимость recharts из package.json (532 KB → 0 KB)
-- ✅ Убраны dead chunking правила для recharts и jspdf в vite.config.ts
-- ✅ Сборка ускорена: ~12s → **~8s** (-33%)
-- ✅ Все 905 тестов проходят
-- ✅ TypeScript 0 ошибок, ESLint 0 ошибок
+### 2026-05-11 — Charts Optimization (recharts removed) / Оптимизация charts-vendor (recharts удален)
+- ✅ Created hand-built SVG components: SimpleBarChart, SimpleAreaChart, SimplePieChart
+- ✅ Replaced all 4 charts in StatisticsPage with lightweight SVG components
+  / Заменены все 4 графика в StatisticsPage на лёгкие SVG компоненты
+- ✅ Deleted LazyRecharts.tsx / Удален LazyRecharts.tsx
+- ✅ Removed recharts dependency from package.json (532 KB → 0 KB)
+  / Удалена зависимость recharts из package.json
+- ✅ Removed dead chunking rules for recharts and jspdf in vite.config.ts
+  / Убраны dead chunking правила
+- ✅ Build accelerated: ~12s → **~8s** (-33%) / Сборка ускорена
+- ✅ All 905 tests pass / Все 905 тестов проходят
+- ✅ TypeScript 0 errors, ESLint 0 errors / TypeScript 0 ошибок, ESLint 0 ошибок
 
-### 2026-05-11 — Рефакторинг: удаление unused компонентов и исправление memory leaks
-- ✅ Удалены unused компоненты: CorrelationMatrix, FunnelAnalysis, PredictionCurve, SpiderChart, TypingSpeedChart (-1119 строк)
-- ✅ Перенесены lazy-компоненты из App.tsx в GameModeRenderer с Suspense fallback
-- ✅ Удалены unused экспорты из LazyRecharts (LineChart, Line, Legend, Radar и др.)
-- ✅ Добавлены toast-уведомления при смене темы и завершении SpeedTest
-- ✅ Исправлены memory leaks в useTypingSound (isMountedRef, cleanup timeouts)
-- ✅ Добавлен cleanup в useMusicGenerator при unmount
-- ✅ Исправлены eslint-disable warnings в GameModeRenderer
-- ✅ Все 905 тестов проходят
-- ✅ TypeScript 0 ошибок, ESLint 0 ошибок в изменённых файлах
+### 2026-05-11 — Refactoring: Removed Unused Components & Fixed Memory Leaks
+/ Рефакторинг: удаление unused компонентов и исправление memory leaks
+- ✅ Removed unused components: CorrelationMatrix, FunnelAnalysis, PredictionCurve, SpiderChart, TypingSpeedChart (-1119 lines)
+  / Удалены unused компоненты
+- ✅ Moved lazy components from App.tsx to GameModeRenderer with Suspense fallback
+  / Перенесены lazy-компоненты из App.tsx в GameModeRenderer
+- ✅ Removed unused exports from LazyRecharts (LineChart, Line, Legend, Radar, etc.)
+  / Удалены unused экспорты из LazyRecharts
+- ✅ Added toast notifications on theme change and SpeedTest completion
+  / Добавлены toast-уведомления при смене темы и завершении SpeedTest
+- ✅ Fixed memory leaks in useTypingSound (isMountedRef, cleanup timeouts)
+  / Исправлены memory leaks в useTypingSound
+- ✅ Added cleanup in useMusicGenerator on unmount
+  / Добавлен cleanup в useMusicGenerator при unmount
+- ✅ Fixed eslint-disable warnings in GameModeRenderer
+  / Исправлены eslint-disable warnings в GameModeRenderer
+- ✅ All 905 tests pass / Все 905 тестов проходят
+- ✅ TypeScript 0 errors, ESLint 0 errors in changed files
+  / TypeScript 0 ошибок, ESLint 0 ошибок в изменённых файлах
 
-### 2026-05-11 — Исправление ошибок и улучшение i18n
-- ✅ Исправлен deprecated poolOptions в vitest.config.ts для совместимости с Vitest 4
-- ✅ Удален неиспользуемый lastOnline state из useOnlineStatus hook
-- ✅ Заменен хардкод русского текста в Toast.tsx aria-label на i18n перевод
-- ✅ Обновлены тесты Toast для использования переведенного текста
-- ✅ Все 905 тестов проходят
-- ✅ Ветки синхронизированы
+### 2026-05-11 — Bug Fixes & i18n Improvements / Исправление ошибок и улучшение i18n
+- ✅ Fixed deprecated poolOptions in vitest.config.ts for Vitest 4 compatibility
+  / Исправлен deprecated poolOptions в vitest.config.ts
+- ✅ Removed unused lastOnline state from useOnlineStatus hook
+  / Удален неиспользуемый lastOnline state из useOnlineStatus hook
+- ✅ Replaced hardcoded Russian text in Toast.tsx aria-label with i18n translation
+  / Заменен хардкод русского текста в Toast.tsx aria-label на i18n перевод
+- ✅ Updated Toast tests to use translated text
+  / Обновлены тесты Toast для использования переведенного текста
+- ✅ All 905 tests pass / Все 905 тестов проходят
+- ✅ Branches synchronized / Ветки синхронизированы
 
-### 2026-05-06 — Оптимизация bundle size (jspdf удален)
-- ✅ Создан certificateOptimized.ts с использованием Canvas API
-- ✅ Удалена зависимость jspdf (@420KB) из package.json
-- ✅ Удалены certificate.ts и pdfExport.ts
-- ✅ pdf-vendor чанк удален (экономия 390 KB)
-- ✅ Все тесты проходят (916 passed)
-- ✅ Сборка ~12s
+### 2026-05-06 — Bundle Size Optimization (jspdf removed) / Оптимизация bundle size (jspdf удален)
+- ✅ Created certificateOptimized.ts using Canvas API / Создан certificateOptimized.ts с использованием Canvas API
+- ✅ Removed jspdf dependency (@420KB) from package.json
+  / Удалена зависимость jspdf из package.json
+- ✅ Deleted certificate.ts and pdfExport.ts / Удалены certificate.ts и pdfExport.ts
+- ✅ pdf-vendor chunk removed (390 KB saved) / pdf-vendor чанк удален (экономия 390 KB)
+- ✅ All tests pass (916 passed) / Все тесты проходят (916 passed)
+- ✅ Build ~12s / Сборка ~12s
 
-### 2026-05-06 — Рефакторинг App.tsx (этап 1)
-- ✅ Создан хук useModeNavigation для управления навигацией по режимам
-- ✅ Создан компонент GameModeRenderer для рендеринга игровых режимов
-- ✅ Добавлены тесты для useModeNavigation
-- ✅ Все 909 тестов проходят
-- ✅ Сборка ~8.9s
+### 2026-05-06 — App.tsx Refactoring (Phase 1) / Рефакторинг App.tsx (этап 1)
+- ✅ Created useModeNavigation hook for mode navigation management
+  / Создан хук useModeNavigation для управления навигацией по режимам
+- ✅ Created GameModeRenderer component for rendering game modes
+  / Создан компонент GameModeRenderer для рендеринга игровых режимов
+- ✅ Added tests for useModeNavigation / Добавлены тесты для useModeNavigation
+- ✅ All 909 tests pass / Все 909 тестов проходят
+- ✅ Build ~8.9s / Сборка ~8.9s
 
-### 2026-05-06 — Исправление TypeScript и улучшение тестов
-- ✅ Добавлен интерфейс DuelsData для типизации данных дуэлей
-- ✅ Исправлена логика подсчета ошибок в HardcoreMode (только текущая ошибка считается)
-- ✅ Обновлен pdfExport: исправлен вызов getNumberOfPages() для совместимости с jspdf 4.x
-- ✅ Обновлены зависимости: framer-motion 12.38.0, vite 6.4.2, @types/react 18.3.28
-- ✅ Добавлены типы @types/jspdf, @types/react-query для лучшей типизации
-- ✅ Исправлены тесты useHardcoreMode.test.ts: добавлены фейковые таймеры, исправлены типы FormEvent
-- ✅ Все 906 тестов проходят без ошибок
-- ✅ Сборка ~9.75s
+### 2026-05-06 — TypeScript Fixes & Test Improvements / Исправление TypeScript и улучшение тестов
+- ✅ Added DuelsData interface for typing duel data
+  / Добавлен интерфейс DuelsData для типизации данных дуэлей
+- ✅ Fixed error counting logic in HardcoreMode (only current error counts)
+  / Исправлена логика подсчета ошибок в HardcoreMode
+- ✅ Updated pdfExport: fixed getNumberOfPages() call for jspdf 4.x compatibility
+  / Обновлен pdfExport: исправлен вызов getNumberOfPages() для совместимости с jspdf 4.x
+- ✅ Updated dependencies: framer-motion 12.38.0, vite 6.4.2, @types/react 18.3.28
+  / Обновлены зависимости
+- ✅ Added @types/jspdf, @types/react-query for better typing
+  / Добавлены типы для лучшей типизации
+- ✅ Fixed useHardcoreMode.test.ts: added fake timers, fixed FormEvent types
+  / Исправлены тесты useHardcoreMode.test.ts
+- ✅ All 906 tests pass without errors / Все 906 тестов проходят без ошибок
+- ✅ Build ~9.75s / Сборка ~9.75s
 
-### 2026-05-05 — Добавлена тактильная обратная связь (haptic feedback) для виртуальной клавиатуры
-- ✅ Создан хук useHapticFeedback для доступа к Vibration API
-- ✅ Интегрирована тактильная обратная связь в компонент Keyboard для нажатий клавиш
-- ✅ Все тесты проходят без регрессий
-- ✅ Сборка успешна, размеры чанков остаются в пределах целей
+### 2026-05-05 — Added Haptic Feedback for Virtual Keyboard
+/ Добавлена тактильная обратная связь (haptic feedback) для виртуальной клавиатуры
+- ✅ Created useHapticFeedback hook for Vibration API access
+  / Создан хук useHapticFeedback для доступа к Vibration API
+- ✅ Integrated haptic feedback into Keyboard component for key presses
+  / Интегрирована тактильная обратная связь в компонент Keyboard для нажатий клавиш
+- ✅ All tests pass without regressions / Все тесты проходят без регрессий
+- ✅ Build successful, chunk sizes remain within targets
+  / Сборка успешна, размеры чанков остаются в пределах целей
 
-### 2026-05-04 — Исправление типа funnel data и оптимизация chunking
-- ✅ Исправлена ошибка типа в StatisticsPage.tsx: setFunnelData ожидает массив стадий, а не объект с stages и conversionRates
-- ✅ Изменена стратегия chunking для recharts: все модули теперь в единый charts-vendor чанк для уменьшения количества чанков
-- ✅ Production сборка: 10.57s (близко к цели <10s, дальнейшая оптимизация возможна)
-- ✅ Все 900 тестов проходят без ошибок
+### 2026-05-04 — Fixed Funnel Data Type & Chunking Optimization
+/ Исправление типа funnel data и оптимизация chunking
+- ✅ Fixed type error in StatisticsPage.tsx: setFunnelData expects array of stages, not object with stages and conversionRates
+  / Исправлена ошибка типа в StatisticsPage.tsx
+- ✅ Changed recharts chunking strategy: all modules now in a single charts-vendor chunk to reduce chunk count
+  / Изменена стратегия chunking для recharts
+- ✅ Production build: 10.57s (close to <10s target, further optimization possible)
+  / Production сборка: 10.57s
+- ✅ All 900 tests pass without errors / Все 900 тестов проходят без ошибок
 
-### 2026-05-02 — Исследование оптимизации bundle size
-- ✅ Проанализирована структура recharts для улучшения chunking
-- ✅ Тестировался granular chunking recharts, но привел к круговым зависимостям
-- ✅ Возвращен к исходному двухчанковому делению (charts-vendor/charts-core)
-- ✅ Исследован jspdf: текущая версия 4.2.1 уже последняя, значительное уменьшение маловероятно без кастомной сборки
-- ✅ Все 900 тестов проходят без warnings
+### 2026-05-02 — Bundle Size Optimization Research / Исследование оптимизации bundle size
+- ✅ Analyzed recharts structure for improved chunking
+  / Проанализирована структура recharts для улучшения chunking
+- ✅ Tested granular recharts chunking, but it caused circular dependencies
+  / Тестировался granular chunking recharts, но привел к круговым зависимостям
+- ✅ Reverted to original two-chunk split (charts-vendor/charts-core)
+  / Возвращен к исходному двухчанковому делению
+- ✅ Investigated jspdf: current version 4.2.1 is already the latest, significant reduction unlikely without custom build
+  / Исследован jspdf: текущая версия 4.2.1 уже последняя
+- ✅ All 900 tests pass without warnings / Все 900 тестов проходят без warnings
 
-### 2026-05-02 — Исправление тестов
-- ✅ Исправлены act() warnings в useStatsWorker.test.ts
-- ✅ Все 900 тестов проходят без warnings
+### 2026-05-02 — Test Fixes / Исправление тестов
+- ✅ Fixed act() warnings in useStatsWorker.test.ts / Исправлены act() warnings в useStatsWorker.test.ts
+- ✅ All 900 tests pass without warnings / Все 900 тестов проходят без warnings
 
-### 2026-04-30 — Оптимизация сборки
-- ✅ Удалён Brotli compression plugin из production сборки
-- ✅ Сборка ускорена: 14.4s → **9.5s** (-34%)
-- ✅ Цель <10s достигнута
+### 2026-04-30 — Build Optimization / Оптимизация сборки
+- ✅ Removed Brotli compression plugin from production build
+  / Удалён Brotli compression plugin из production сборки
+- ✅ Build accelerated: 14.4s → **9.5s** (-34%) / Сборка ускорена: 14.4s → **9.5s** (-34%)
+- ✅ <10s target achieved / Цель <10s достигнута
 
-### 2026-04-30 — Исправление тестов
-- ✅ Исправлены act() warnings в useStatsWorker.test.ts
-- ✅ Все 900 тестов проходят без warnings
-- ✅ Сборка оптимизирована: 14.4s → 13.3s
+### 2026-04-30 — Test Fixes / Исправление тестов
+- ✅ Fixed act() warnings in useStatsWorker.test.ts / Исправлены act() warnings в useStatsWorker.test.ts
+- ✅ All 900 tests pass without warnings / Все 900 тестов проходят без warnings
+- ✅ Build optimized: 14.4s → 13.3s / Сборка оптимизирована: 14.4s → 13.3s
 
-### 2026-03-25 — День стабильности
-- ✅ 900 тестов проходят (100% pass rate)
-- ✅ Coverage >90% (91%)
-- ✅ TypeScript 0 ошибок
-- ✅ ESLint 0 ошибок
-- ✅ i18n: 10 языков (ru, en, zh, he, de, fr, es, it, pt, ja)
-- ✅ Mobile-first адаптация (Apple HIG compliance)
-- ✅ 9 режимов игры (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
-- ✅ Supabase интеграция готова (миграции 001-004)
-- ✅ Кроссплатформенная сборка (Capacitor + Tauri)
-- ✅ Build time оптимизирована (~14s)
-- ✅ Test duration оптимизирована (~10s, -60% от ~21s)
-- ✅ pdf-vendor: 390 KB (-25 KB от 415 KB)
-- ✅ charts-vendor: 434 KB (-98 KB от 532 KB)
+### 2026-03-25 — Stability Day / День стабильности
+- ✅ 900 tests pass (100% pass rate) / 900 тестов проходят
+- ✅ Coverage >90% (91%) / Покрытие >90% (91%)
+- ✅ TypeScript 0 errors / TypeScript 0 ошибок
+- ✅ ESLint 0 errors / ESLint 0 ошибок
+- ✅ i18n: 10 languages (ru, en, zh, he, de, fr, es, it, pt, ja) / 10 языков
+- ✅ Mobile-first adaptation (Apple HIG compliance) / Mobile-first адаптация
+- ✅ 9 game modes (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament) / 9 режимов игры
+- ✅ Supabase integration ready (migrations 001-004) / Supabase интеграция готова
+- ✅ Cross-platform build (Capacitor + Tauri) / Кроссплатформенная сборка
+- ✅ Build time optimized (~14s) / Build time оптимизирована
+- ✅ Test duration optimized (~10s, -60% from ~21s) / Test duration оптимизирована
+- ✅ pdf-vendor: 390 KB (-25 KB from 415 KB)
+- ✅ charts-vendor: 434 KB (-98 KB from 532 KB)
 
-### 2026-03-21 — Спринт стабильности
-- ✅ PerformanceInsights компонент (418 строк)
-- ✅ usePerformanceOptimizer хуки (286 строк)
-- ✅ Web Workers для статистики
-- ✅ IndexedDB для большой истории
-- ✅ E2E тесты критических путей (20+ тестов)
-- ✅ Lighthouse CI настроен
-- ✅ Адаптивная сложность (алгоритм + интеграция)
+### 2026-03-21 — Stability Sprint / Спринт стабильности
+- ✅ PerformanceInsights component (418 lines) / PerformanceInsights компонент (418 строк)
+- ✅ usePerformanceOptimizer hooks (286 lines) / usePerformanceOptimizer хуки (286 строк)
+- ✅ Web Workers for statistics / Web Workers для статистики
+- ✅ IndexedDB for large history / IndexedDB для большой истории
+- ✅ E2E tests for critical paths (20+ tests) / E2E тесты критических путей (20+ тестов)
+- ✅ Lighthouse CI configured / Lighthouse CI настроен
+- ✅ Adaptive difficulty (algorithm + integration) / Адаптивная сложность
 - ✅ ComboCounter, FeedbackToast, AriaAnnouncer, SkipLink
 
 ---
 
-## 🎯 Следующий спринт (приоритеты)
+## 🎯 Next Sprint Priorities / Следующий спринт (приоритеты)
 
-1. **Supabase интеграция** — создать проект, применить миграции, протестировать
-2. **E2E тесты** — покрытие критических путей
-3. **Новые тексты** — 50+ упражнений
-4. **Accessibility** — a11y улучшения
+1. **Split i18n config** — Break 1569-line config.ts into per-language JSON files
+   / Разбить 1569-строчный config.ts на per-language JSON файлы
+2. **Replace console with logger** — 19 files, quick win for consistency
+   / 19 файлов, быстрый win для консистентности
+3. **Create .env.example** — simple task, blocks new developers
+   / простая задача, блокирует новых разработчиков
+4. **Supabase Realtime** — Enable for duels, tournaments, tournament_participants
+   / Включить для duels, tournaments, tournament_participants
+5. **Vitest coverage thresholds** — Add minimum coverage gates
+   / Добавить минимальные пороги
+6. **E2E tests** — Critical path coverage + offline mode
+   / Покрытие критических путей + offline mode
 
 ---
 
-## 📌 Заметки
+## 📌 Notes / Заметки
 
-### Критические пути (покрыты E2E)
-- ✅ HardcoreMode (запуск, счётчик серии, завершение при ошибке)
-- ✅ Certificate Generator (генерация, ранги)
-- ✅ Export (CSV, PNG)
-- ✅ AutoSave (сохранение при перезагрузке)
-- ✅ Performance (время загрузки, размер бандла)
-- ✅ Accessibility (навигация с клавиатуры, ARIA)
+### Critical Paths (Covered by E2E) / Критические пути (покрыты E2E)
+- ✅ HardcoreMode (start, streak counter, completion on error)
+  / HardcoreMode (запуск, счётчик серии, завершение при ошибке)
+- ✅ Certificate Generator (generation, ranks)
+  / Certificate Generator (генерация, ранги)
+- ✅ Export (CSV, PNG) / Export (CSV, PNG)
+- ✅ AutoSave (save on reload) / AutoSave (сохранение при перезагрузке)
+- ✅ Performance (load time, bundle size) / Performance (время загрузки, размер бандла)
+- ✅ Accessibility (keyboard navigation, ARIA)
+  / Accessibility (навигация с клавиатуры, ARIA)
 
-### Архитектурные решения
+### Architectural Decisions / Архитектурные решения
 - **State Management**: React Query + Zustand
 - **i18n**: i18next + react-i18next
 - **Styling**: Tailwind CSS + Framer Motion
 - **Testing**: Vitest + Playwright
-- **CI/CD**: GitHub Actions + Netlify
-- **Monitoring**: Sentry (интегрирован)
+- **CI/CD**: GitHub Actions + Cloudflare Pages
+- **Monitoring**: Sentry (integrated / интегрирован)
 
-### Известные ограничения
-- ~~pdf-vendor чанк большой из-за jspdf зависимостей~~ ✅ Удален
-- ~~charts-vendor чанк большой из-за Recharts + D3~~ ✅ Заменен на hand-built SVG
-- Некоторые тесты требуют `act()` обёртки (React warnings)
+### Known Limitations / Известные ограничения
+- ~~pdf-vendor chunk large due to jspdf dependencies~~ ✅ Removed / Удален
+- ~~charts-vendor chunk large due to Recharts + D3~~ ✅ Replaced with hand-built SVG / Заменен на hand-built SVG
+- Some tests require `act()` wrapper (React warnings)
+  / Некоторые тесты требуют `act()` обёртки (React warnings)
 
-### Метрики проекта (2026-05-11)
-- **Тесты**: 905 passed, 8 skipped (56 файлов)
-- **Coverage**: ~91%
-- **Сборка**: ~8s (было 14.4s, оптимизация -44%)
-- **Bundle**: animations-vendor 125KB gzipped, settings 85KB, game-modes 67KB
-- **Удалено зависимостей**: jspdf (390KB), recharts (532KB) = 922KB экономии
-- **i18n**: 10 языков (ru, en, zh, he, de, fr, es, it, pt, ja)
-- **Режимы**: 9 (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
-- **Тексты**: 170+ в 15 категориях
-- **E2E**: 20+ тестов критических путей + accessibility
+### Project Metrics (2026-05-11) / Метрики проекта
 
-### Зависимости (key)
+- **Tests / Тесты**: 905 passed, 8 skipped (56 files / файлов)
+- **Coverage / Покрытие**: ~91%
+- **Build / Сборка**: ~8s (was / было 14.4s, optimization -44%)
+- **Bundle / Бандл**: animations-vendor 125KB gzipped, settings 85KB, game-modes 67KB
+- **Removed dependencies / Удалено зависимостей**: jspdf (390KB), recharts (532KB) = 922KB saved / экономии
+- **i18n**: 10 languages / языков (ru, en, zh, he, de, fr, es, it, pt, ja)
+- **Game Modes / Режимы**: 9 (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
+- **Texts / Тексты**: 170+ in 15 categories / в 15 категориях
+- **E2E**: 20+ critical path tests + accessibility / 20+ тестов критических путей + accessibility
+
+### Dependencies (key) / Зависимости (ключевые)
 - React 18.3, TypeScript 5.3, Vite 6.4
 - Framer Motion 12.38, Tailwind 3.4
 - i18next 25.8, Zustand 5.0
 - Supabase JS 2.98, TanStack Query 5.90
 - Vitest 4.0, Playwright 1.58
-- axe-playwright (добавлен 2026-05-11)
+- axe-playwright (added 2026-05-11 / добавлен 2026-05-11)
 
-### Структура чанков (production)
-| Чанк | Размер | Gzip |
-|------|--------|------|
+### Chunk Structure (production) / Структура чанков (production)
+
+| Chunk / Чанк | Size / Размер | Gzip |
+|---|---|---|
 | animations-vendor | 125 KB | 41 KB |
 | settings | 85 KB | 27 KB |
 | typing-core | 67 KB | 21 KB |
@@ -307,4 +504,4 @@
 
 ---
 
-*Последнее обновление: 2026-05-11 14:20*
+*Last updated: 2026-05-11 19:00 | Последнее обновление: 2026-05-11 19:00*

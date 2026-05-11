@@ -14,25 +14,26 @@ import {
   add,
   isIndexedDBAvailable,
 } from '../utils/indexedDB'
+import type { DBStore } from '../utils/indexedDB'
 
-type StoreName = 'sessions' | 'settings' | 'progress' | 'achievements'
+type StoreName = keyof DBStore
 
 interface UseIndexedDBReturn<T> {
   data: T | undefined
   loading: boolean
   error: Error | null
-  add: (item: T) => Promise<string>
-  update: (item: T) => Promise<string>
+  add: (item: DBStore[StoreName]) => Promise<string>
+  update: (item: DBStore[StoreName]) => Promise<string>
   remove: (key: string) => Promise<void>
   refresh: () => Promise<void>
 }
 
-interface UseIndexedDBAllReturn<T> {
+interface UseIndexedDBAllReturn<T extends { id: string }> {
   data: T[]
   loading: boolean
   error: Error | null
-  add: (item: T) => Promise<string>
-  update: (item: T) => Promise<string>
+  add: (item: DBStore[StoreName]) => Promise<string>
+  update: (item: DBStore[StoreName]) => Promise<string>
   remove: (key: string) => Promise<void>
   clear: () => Promise<void>
   refresh: () => Promise<void>
@@ -75,8 +76,8 @@ export function useIndexedDB<T>(
   }, [loadData])
 
   const handleAdd = useCallback(
-    async (newItem: T) => {
-      const id = await add(storeName, newItem as any)
+    async (newItem: DBStore[StoreName]) => {
+      const id = await add(storeName, newItem)
       await loadData()
       return id
     },
@@ -84,8 +85,8 @@ export function useIndexedDB<T>(
   )
 
   const handleUpdate = useCallback(
-    async (newItem: T) => {
-      const id = await put(storeName, newItem as any)
+    async (newItem: DBStore[StoreName]) => {
+      const id = await put(storeName, newItem)
       await loadData()
       return id
     },
@@ -147,8 +148,8 @@ export function useIndexedDBAll<T extends { id: string }>(
   }, [loadData])
 
   const handleAdd = useCallback(
-    async (item: T) => {
-      const id = await add(storeName, item as any)
+    async (item: DBStore[StoreName]) => {
+      const id = await add(storeName, item)
       await loadData()
       return id
     },
@@ -156,8 +157,8 @@ export function useIndexedDBAll<T extends { id: string }>(
   )
 
   const handleUpdate = useCallback(
-    async (item: T) => {
-      const id = await put(storeName, item as any)
+    async (item: DBStore[StoreName]) => {
+      const id = await put(storeName, item)
       await loadData()
       return id
     },

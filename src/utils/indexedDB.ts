@@ -4,6 +4,8 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
+import { logger } from './logger'
+
 const DB_NAME = 'fastfingers-db'
 const DB_VERSION = 1
 const STORES = {
@@ -25,11 +27,14 @@ interface DBStore {
     totalChars: number
     timeElapsed: number
     mode: string
-    [key: string]: any
+    rhythmScore?: number
+    fingerBalance?: { left: number; right: number }
+    errorRecoveryTime?: number
+    sessionEfficiency?: number
   }
   settings: {
     key: string
-    value: any
+    value: unknown
     updatedAt: number
   }
   progress: {
@@ -45,7 +50,8 @@ interface DBStore {
   achievements: {
     id: string
     unlockedAt: number
-    [key: string]: any
+    name?: string
+    description?: string
   }
 }
 
@@ -113,10 +119,11 @@ export async function add<T extends StoreName>(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, 'readwrite')
     const store = transaction.objectStore(storeName)
-    const request = store.add(data as any)
+    const request = store.add(data)
 
     request.onsuccess = () => {
-      resolve((data as any).id || (request.result as string))
+      const id = 'id' in data ? (data.id as string) : (request.result as IDBValidKey)
+      resolve(String(id))
     }
 
     request.onerror = () => {
@@ -159,10 +166,11 @@ export async function put<T extends StoreName>(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, 'readwrite')
     const store = transaction.objectStore(storeName)
-    const request = store.put(data as any)
+    const request = store.put(data)
 
     request.onsuccess = () => {
-      resolve((data as any).id || (request.result as string))
+      const id = 'id' in data ? (data.id as string) : (request.result as IDBValidKey)
+      resolve(String(id))
     }
 
     request.onerror = () => {
@@ -284,17 +292,17 @@ export async function migrateFromLocalStorage(
 
     let migrated = 0
     for (const item of dataArray) {
-      const transformed = transform ? transform(item) : item
-      await add(storeName, transformed as any)
+      const transformed: DBStore[StoreName] = transform ? transform(item) : item
+      await add(storeName, transformed)
       migrated++
     }
 
     return migrated
   } catch (error) {
-    console.error('Migration error:', error)
+    logger.error('Migration error:', error)
     return 0
   }
 }
 
 // Экспортируем типы
-export type { StoreName }
+export type { DBStore, StoreName }

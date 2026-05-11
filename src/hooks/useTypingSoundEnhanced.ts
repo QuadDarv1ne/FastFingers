@@ -5,6 +5,7 @@
  */
 import { useRef, useCallback, useEffect, useState } from 'react'
 import { SoundTheme } from '../types'
+import { logger } from '../utils/logger'
 
 interface SoundOptions {
   enabled: boolean
@@ -79,7 +80,7 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
     if (audioContextRef.current) return
 
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext || window.AudioContext
       const audioContext = new AudioContextClass()
 
       // Создаём цепочку узлов
@@ -119,7 +120,7 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
       gainNode.gain.value = options.volume
       setIsReady(true)
     } catch (err) {
-      console.error('[useTypingSound] Failed to initialize audio:', err)
+      logger.error('Failed to initialize audio:', err)
       setError('Failed to initialize audio')
     }
   }, [options.volume])

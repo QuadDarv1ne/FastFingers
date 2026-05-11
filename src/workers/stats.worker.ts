@@ -198,12 +198,12 @@ function analyzeFunnel(
 function calculateCorrelationMatrix(sessions: TypingStats[]): number[][] {
   if (sessions.length < 2) return [[1]]
 
-  const metrics = ['wpm', 'accuracy', 'cpm', 'errors']
+  const metrics: (keyof TypingStats)[] = ['wpm', 'accuracy', 'cpm', 'errors']
   const n = sessions.length
 
   // Извлекаем значения метрик
   const values: number[][] = metrics.map((metric) =>
-    sessions.map((s) => (s ? (s as any)[metric] || 0 : 0))
+    sessions.map((s) => (s ? (s[metric] as number) || 0 : 0))
   )
 
   // Вычисляем средние значения

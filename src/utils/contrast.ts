@@ -3,6 +3,8 @@
  * https://www.w3.org/WAI/GL/wiki/Contrast_ratio
  */
 
+import { logger } from './logger'
+
 /**
  * Парсит hex цвет в RGB
  */
@@ -177,8 +179,7 @@ export function generateContrastReport(): string {
 
 // Экспорт для использования в консоли
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(window as any).checkContrast = () => {
-    console.warn(generateContrastReport())
+  ;(window as unknown as Record<string, unknown>).checkContrast = () => {
+    logger.warn(generateContrastReport())
   }
 }
