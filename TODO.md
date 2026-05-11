@@ -2,7 +2,7 @@
 
 **Автор:** Dupley Maxim Igorevich  
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 11:25
+**Последнее обновление:** 2026-05-11 12:35
 
 ---
 
@@ -101,6 +101,17 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-11 — Рефакторинг: удаление unused компонентов и исправление memory leaks
+- ✅ Удалены unused компоненты: CorrelationMatrix, FunnelAnalysis, PredictionCurve, SpiderChart, TypingSpeedChart (-1119 строк)
+- ✅ Перенесены lazy-компоненты из App.tsx в GameModeRenderer с Suspense fallback
+- ✅ Удалены unused экспорты из LazyRecharts (LineChart, Line, Legend, Radar и др.)
+- ✅ Добавлены toast-уведомления при смене темы и завершении SpeedTest
+- ✅ Исправлены memory leaks в useTypingSound (isMountedRef, cleanup timeouts)
+- ✅ Добавлен cleanup в useMusicGenerator при unmount
+- ✅ Исправлены eslint-disable warnings в GameModeRenderer
+- ✅ Все 905 тестов проходят
+- ✅ TypeScript 0 ошибок, ESLint 0 ошибок в изменённых файлах
 
 ### 2026-05-11 — Исправление ошибок и улучшение i18n
 - ✅ Исправлен deprecated poolOptions в vitest.config.ts для совместимости с Vitest 4
