@@ -5,15 +5,14 @@
  */
 
 import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { TypingTrainer } from './components/TypingTrainer'
+import { AnimatePresence } from 'framer-motion'
 import { Header } from './components/Header'
-import { Keyboard } from './components/Keyboard'
 import { LoadingFallback } from './components/LoadingFallback'
 import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { ToastContainer } from './components/ToastContainer'
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
+import { GameModeRenderer } from './components/GameModeRenderer'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -42,13 +41,6 @@ import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
 
-const SprintMode = lazy(() => import('./components/SprintMode').then((module) => ({ default: module.SprintMode })))
-const SpeedTest = lazy(() => import('./components/SpeedTest').then((module) => ({ default: module.SpeedTest })))
-const ReactionGame = lazy(() => import('./components/ReactionGame').then((module) => ({ default: module.ReactionGame })))
-const HardcoreMode = lazy(() => import('./components/HardcoreMode').then((module) => ({ default: module.HardcoreMode })))
-const TrainingHistory = lazy(() => import('./components/TrainingHistory').then((module) => ({ default: module.TrainingHistory })))
-const WeeklyProgress = lazy(() => import('./components/WeeklyProgress').then((module) => ({ default: module.WeeklyProgress })))
-const DailyChallengeCard = lazy(() => import('./components/DailyChallengeCard').then((module) => ({ default: module.DailyChallengeCard })))
 const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then((module) => ({ default: module.CustomExerciseEditor })))
 const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
 const TypingTips = lazy(() => import('./components/TypingTips').then((module) => ({ default: module.TypingTips })))
@@ -67,10 +59,6 @@ const MusicControls = lazy(() => import('./components/MusicControls').then((modu
 const ClockWidget = lazy(() => import('./components/ClockWidget').then((module) => ({ default: module.ClockWidget })))
 const MotivationalQuote = lazy(() => import('./components/MotivationalQuote').then((module) => ({ default: module.MotivationalQuote })))
 const OnlineStatus = lazy(() => import('./components/OnlineStatus').then((module) => ({ default: module.OnlineStatus })))
-const MarathonMode = lazy(() => import('./components/MarathonMode').then((module) => ({ default: module.MarathonMode })))
-const CodeMode = lazy(() => import('./components/CodeMode').then((module) => ({ default: module.CodeMode })))
-const DuelMode = lazy(() => import('./components/DuelMode').then((module) => ({ default: module.DuelMode })))
-const TournamentMode = lazy(() => import('./components/TournamentMode').then((module) => ({ default: module.TournamentMode })))
 
 function AppContent() {
   const { t } = useAppTranslation()
@@ -148,7 +136,7 @@ function AppContent() {
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, themeOption, setTheme, setThemeOption } = useTheme()
 
-  const { handleSessionCompleteWithProgress, handleReactionGameComplete } = useSessionHandlers({
+  const { handleSessionCompleteWithProgress } = useSessionHandlers({
     addSession,
     activeChallenge,
     todayChallenge: todayChallenge || null,
@@ -396,232 +384,32 @@ function AppContent() {
           <div className="lg:col-span-2 space-y-6">
             <Suspense fallback={<LoadingFallback />}>
               <AnimatePresence mode="wait">
-                {view === 'history' ? (
-                  <motion.div
-                    key="history"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <TrainingHistory onBack={() => setView('main')} />
-                  </motion.div>
-                ) : view === 'custom-exercise' ? (
-                  <motion.div
-                    key="custom-exercise"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <CustomExerciseEditor
-                      onSave={handleSaveCustomExercise}
-                      onClose={() => setView('main')}
-                    />
-                  </motion.div>
-                ) : view === 'tips' ? (
-                  <motion.div
-                    key="tips"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <TypingTips />
-                  </motion.div>
-                ) : view === 'weekly' ? (
-                  <motion.div
-                    key="weekly"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <WeeklyProgress />
-                  </motion.div>
-                ) : gameMode === 'reaction' ? (
-                  <motion.div
-                    key="reaction"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ReactionGame
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleReactionGameComplete}
-                    />
-                  </motion.div>
-                ) : view === 'statistics' ? (
-                  <motion.div
-                    key="statistics"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <StatisticsPage onBack={() => setView('main')} />
-                  </motion.div>
-                ) : view === 'learning' ? (
-                  <motion.div
-                    key="learning"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <LearningMode
-                      onBack={() => setView('main')}
-                      onClose={() => setView('main')}
-                      onStartLesson={() => {}}
-                    />
-                  </motion.div>
-                ) : gameMode === 'duel' ? (
-                  <motion.div
-                    key="duel"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <DuelMode
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                      sound={sound}
-                    />
-                  </motion.div>
-                ) : gameMode === 'code' ? (
-                  <motion.div
-                    key="code"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <CodeMode
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                    />
-                  </motion.div>
-                ) : gameMode === 'marathon' ? (
-                  <motion.div
-                    key="marathon"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <MarathonMode
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                      sound={sound}
-                    />
-                  </motion.div>
-                ) : gameMode === 'tournament' ? (
-                  <motion.div
-                    key="tournament"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <TournamentMode
-                      onExit={() => setGameMode('practice')}
-                    />
-                  </motion.div>
-                ) : gameMode === 'sprint' ? (
-                  <motion.div
-                    key="sprint"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <SprintMode
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                      sound={sound}
-                    />
-                  </motion.div>
-                ) : gameMode === 'hardcore' ? (
-                  <motion.div
-                    key="hardcore"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <HardcoreMode
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                      sound={sound}
-                    />
-                  </motion.div>
-                ) : gameMode === 'speedtest' ? (
-                  <motion.div
-                    key="speedtest"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <SpeedTest
-                      duration={speedTestDuration}
-                      onExit={() => setGameMode('practice')}
-                      onComplete={handleSessionCompleteWithProgress}
-                      sound={sound}
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="practice"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {todayChallenge && gameMode !== 'challenge' && (
-                      <DailyChallengeCard
-                        challenge={{
-                          id: todayChallenge.id,
-                          date: todayChallenge.date,
-                          title: 'Челлендж дня',
-                          description: todayChallenge.text,
-                          goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
-                          reward: { points: 100, badge: '🏆' },
-                          difficulty: 'medium' as const,
-                          completed: todayChallenge.completed,
-                          progress: 0,
-                        }}
-                        streak={streak.current}
-                        onComplete={completeChallenge}
-                      />
-                    )}
-
-                    <TypingTrainer
-                      layout={settings.layout}
-                      onSessionComplete={handleSessionCompleteWithProgress}
-                      onKeyInput={updateHeatmap}
-                      sound={sound}
-                      customExercises={customExercises}
-                      isChallenge={gameMode === 'challenge'}
-                      challengeText={
-                        gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined
-                      }
-                    />
-
-                    {settings.showKeyboard && (
-                      <Keyboard
-                        layout={settings.layout}
-                        highlightKey={null}
-                        heatmap={heatmap}
-                        showHeatmap={showHeatmap}
-                        onToggleHeatmap={setShowHeatmap}
-                        skin={settings.keyboardSkin}
-                      />
-                    )}
-                  </motion.div>
-                )}
+                <GameModeRenderer
+                  gameMode={gameMode}
+                  view={view}
+                  speedTestDuration={speedTestDuration}
+                  settings={settings}
+                  heatmap={heatmap}
+                  showHeatmap={showHeatmap}
+                  todayChallenge={todayChallenge}
+                  customExercises={customExercises}
+                  sound={sound}
+                  streak={streak.current}
+                  onSetGameMode={setGameMode}
+                  onSetView={setView}
+                  onSetSpeedTestDuration={setSpeedTestDuration}
+                  onSetShowHeatmap={setShowHeatmap}
+                  onSessionComplete={handleSessionCompleteWithProgress}
+                  onKeyInput={updateHeatmap}
+                  onSaveCustomExercise={handleSaveCustomExercise}
+                  onCompleteChallenge={() => {
+                    if (todayChallenge) {
+                      completeChallenge(todayChallenge.id)
+                      setGameMode('practice')
+                      setView('main')
+                    }
+                  }}
+                />
               </AnimatePresence>
             </Suspense>
           </div>

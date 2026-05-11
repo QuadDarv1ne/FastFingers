@@ -9,6 +9,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
+  cacheDir: './node_modules/.vitest',
   plugins: [react()],
   resolve: {
     alias: {
@@ -30,15 +31,12 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['**/e2e/**', '**/node_modules/**', '**/indexedDB.test.ts'],
     pool: 'threads',
+    minThreads: 6,
+    maxThreads: 12,
     poolOptions: {
       threads: {
-        minThreads: 6,
-        maxThreads: 12,
         useAtomics: true,
       },
-    },
-    cache: {
-      dir: './node_modules/.vitest',
     },
     deps: {
       optimizer: {
