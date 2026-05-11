@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { ThemeColor } from '../utils/themes'
 import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
+import { useToast } from '@contexts/ToastContext'
 
 type ThemeOption = ThemeColor | 'auto'
 
@@ -14,18 +15,13 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOptionChange }: ThemeToggleProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   useClickOutside(menuRef, () => setShowMenu(false))
-
-  const handleThemeOptionChange = useCallback((option: ThemeOption) => {
-    if (onThemeOptionChange) {
-      onThemeOptionChange(option)
-    }
-  }, [onThemeOptionChange])
 
   const themes = useMemo(() => [
     {
@@ -71,6 +67,14 @@ export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOption
       gradient: 'from-pink-900 to-yellow-600'
     },
   ], [t])
+
+  const handleThemeOptionChange = useCallback((option: ThemeOption) => {
+    if (onThemeOptionChange) {
+      onThemeOptionChange(option)
+      const themeLabel = themes.find(th => th.value === option)?.label || option
+      showToast(`${t('misc.theme')}: ${themeLabel}`, 'info', 2000)
+    }
+  }, [onThemeOptionChange, showToast, t, themes])
 
   const currentTheme = useMemo(
     () => themes.find(t => t.value === themeOption) ?? themes[0],

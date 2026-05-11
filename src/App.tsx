@@ -41,15 +41,11 @@ import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
 
-const CustomExerciseEditor = lazy(() => import('./components/CustomExerciseEditor').then((module) => ({ default: module.CustomExerciseEditor })))
 const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
-const TypingTips = lazy(() => import('./components/TypingTips').then((module) => ({ default: module.TypingTips })))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
 const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
-const StatisticsPage = lazy(() => import('./components/StatisticsPage').then((module) => ({ default: module.StatisticsPage })))
-const LearningMode = lazy(() => import('./components/LearningMode').then((module) => ({ default: module.LearningMode })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
 const Stats = lazy(() => import('./components/Stats').then((module) => ({ default: module.Stats })))
@@ -397,14 +393,14 @@ function AppContent() {
                   streak={streak.current}
                   onSetGameMode={setGameMode}
                   onSetView={setView}
-                  onSetSpeedTestDuration={setSpeedTestDuration}
+                  _onSetSpeedTestDuration={setSpeedTestDuration}
                   onSetShowHeatmap={setShowHeatmap}
                   onSessionComplete={handleSessionCompleteWithProgress}
                   onKeyInput={updateHeatmap}
                   onSaveCustomExercise={handleSaveCustomExercise}
                   onCompleteChallenge={() => {
                     if (todayChallenge) {
-                      completeChallenge(todayChallenge.id)
+                      completeChallenge(todayChallenge.id, 0, 0)
                       setGameMode('practice')
                       setView('main')
                     }

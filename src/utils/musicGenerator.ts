@@ -104,6 +104,15 @@ export class MusicGenerator {
     this.activeNotes.clear()
   }
 
+  destroy(): void {
+    this.stop()
+    if (this.audioContext) {
+      this.audioContext.close()
+      this.audioContext = null
+      this.masterGain = null
+    }
+  }
+
   private scheduler(): void {
     if (!this.isPlaying || !this.audioContext) return
 

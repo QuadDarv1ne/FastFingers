@@ -77,6 +77,10 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
       }
       initializedRef.current = true
     }
+
+    return () => {
+      musicGenerator.stop()
+    }
   }, [])
 
   useEffect(() => {

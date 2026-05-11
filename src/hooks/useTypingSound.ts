@@ -49,8 +49,10 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   const gainNodeRef = useRef<GainNode | null>(null)
   const lastPlayTimeRef = useRef<number>(0)
   const activeOscillatorsRef = useRef<Set<OscillatorNode>>(new Set())
+  const cleanupTimeoutsRef = useRef<Set<number>>(new Set())
   const throttleMs = 30
   const isInitialisedRef = useRef(false)
+  const isMountedRef = useRef(true)
 
   const [options, setOptions] = useState<SoundOptions>(initialOptions)
   const [isReady, setIsReady] = useState(false)
@@ -80,12 +82,16 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         gainNodeRef.current = audioContextRef.current.createGain()
         gainNodeRef.current.connect(audioContextRef.current.destination)
         gainNodeRef.current.gain.value = options.volume
-        setIsReady(true)
-        setError(null)
+        if (isMountedRef.current) {
+          setIsReady(true)
+          setError(null)
+        }
       }
     } catch {
-      setIsReady(false)
-      setError('Audio initialisation failed')
+      if (isMountedRef.current) {
+        setIsReady(false)
+        setError('Audio initialisation failed')
+      }
     }
   }, [options.volume])
 
@@ -148,20 +154,30 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       oscillator.stop(ctxNow + baseConfig.duration)
 
       // Cleanup after sound completes
-      setTimeout(() => {
+      const timeoutId = window.setTimeout(() => {
+        cleanupTimeoutsRef.current.delete(timeoutId)
         cleanupOscillator(oscillator)
       }, (baseConfig.duration + baseConfig.decay) * 1000)
+      cleanupTimeoutsRef.current.add(timeoutId)
     } catch {
-      setError('Audio play failed')
+      if (isMountedRef.current) {
+        setError('Audio play failed')
+      }
     }
   }, [options.enabled, options.volume, options.theme, isReady, initAudio, cleanupOscillator])
 
   useEffect(() => {
+    isMountedRef.current = true
     initAudio()
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const oscillators = activeOscillatorsRef.current
+      isMountedRef.current = false
+      // Clear all pending cleanup timeouts
+      const timeouts = cleanupTimeoutsRef.current
+      timeouts.forEach(clearTimeout)
+      timeouts.clear()
+
       // Cleanup all active oscillators
+      const oscillators = activeOscillatorsRef.current
       oscillators.forEach(osc => {
         try {
           osc.stop()
@@ -170,7 +186,6 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
           // Ignore cleanup errors
         }
       })
-      // Use the copied variable instead of ref
       oscillators.clear()
 
       if (audioContextRef.current) {

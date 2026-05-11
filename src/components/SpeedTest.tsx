@@ -4,6 +4,7 @@ import { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
+import { useToast } from '../contexts/ToastContext'
 
 type TestDuration = 15 | 30 | 60
 
@@ -15,6 +16,7 @@ interface SpeedTestProps {
 }
 
 export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProps) {
+  const { showToast } = useToast()
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean; char: string }>>([])
@@ -32,8 +34,9 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     const errors = inputResults.filter(r => !r.isCorrect).length
 
     const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
+    showToast(`Тест завершён: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 5000)
     onComplete(stats)
-  }, [inputResults, timeLeft, duration, onComplete])
+  }, [inputResults, timeLeft, duration, onComplete, showToast])
 
   // Генерация текста
   const generateNewText = useCallback(() => {

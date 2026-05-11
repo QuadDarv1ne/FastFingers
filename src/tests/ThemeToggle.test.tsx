@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { ToastProvider } from '@contexts/ToastContext'
+
+function renderWithToast(ui: React.ReactElement) {
+  return render(<ToastProvider>{ui}</ToastProvider>)
+}
 
 describe('ThemeToggle', () => {
   const mockOnThemeChange = vi.fn()
@@ -13,7 +18,7 @@ describe('ThemeToggle', () => {
   })
 
   it('должен рендерить кнопку выбора темы', () => {
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -24,7 +29,7 @@ describe('ThemeToggle', () => {
   })
 
   it('должен показывать текущую тему', () => {
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -37,7 +42,7 @@ describe('ThemeToggle', () => {
   it('должен открывать меню при клике', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -57,7 +62,7 @@ describe('ThemeToggle', () => {
   it('должен вызывать onThemeChange при выборе темы', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -76,7 +81,7 @@ describe('ThemeToggle', () => {
   it('должен закрывать меню после выбора темы', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -95,7 +100,7 @@ describe('ThemeToggle', () => {
   it('должен отображать иконки для каждой темы', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -115,7 +120,7 @@ describe('ThemeToggle', () => {
   it('должен вызывать onThemeOptionChange при выборе auto', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         themeOption="dark"
@@ -137,7 +142,7 @@ describe('ThemeToggle', () => {
   it('должен вызывать onThemeOptionChange при выборе темы', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         themeOption="dark"
@@ -159,7 +164,7 @@ describe('ThemeToggle', () => {
   it('должен закрывать меню при клике вне', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -179,7 +184,7 @@ describe('ThemeToggle', () => {
   it('должен переключаться стрелками клавиатуры', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -199,7 +204,7 @@ describe('ThemeToggle', () => {
   it('должен выбирать тему по Enter', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -218,7 +223,7 @@ describe('ThemeToggle', () => {
   it('должен выбирать тему по Space', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -237,7 +242,7 @@ describe('ThemeToggle', () => {
   it('должен показывать галочку у выбранной темы', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -254,7 +259,7 @@ describe('ThemeToggle', () => {
   })
 
   it('должен иметь правильные ARIA атрибуты', () => {
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -269,7 +274,7 @@ describe('ThemeToggle', () => {
   it('должен менять aria-expanded при открытии меню', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -288,7 +293,7 @@ describe('ThemeToggle', () => {
   it('должен переключаться стрелками внутри меню', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -314,7 +319,7 @@ describe('ThemeToggle', () => {
   it('должен переключаться стрелкой вверх внутри меню', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithToast(
       <ThemeToggle
         theme="dark"
         onThemeChange={mockOnThemeChange}
@@ -337,7 +342,7 @@ describe('ThemeToggle', () => {
   it('должен возвращать null если currentTheme не найден', () => {
     // Этот тест покрывает строку "if (!currentTheme) return null"
     // currentTheme всегда находится благодаря themes.find, но тест полезен для edge case
-    render(
+    renderWithToast(
       <ThemeToggle
         theme={'invalid_theme' as any}
         onThemeChange={mockOnThemeChange}
