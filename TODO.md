@@ -2,7 +2,7 @@
 
 **Автор:** Dupley Maxim Igorevich  
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 13:00
+**Последнее обновление:** 2026-05-11 13:25
 
 ---
 
@@ -55,10 +55,11 @@
 - [ ] Протестировать cloud sync
 
 ### 4. Улучшение UX
-- [ ] Анимации переходов между режимами (Framer Motion)
-- [ ] Toast-уведомления для всех действий
-- [ ] Улучшение мобильного UX для landscape режима
+- [x] Анимации переходов между режимами (Framer Motion) — mode-specific animations
+- [x] Toast-уведомления для всех действий — Sprint, Hardcore, Marathon, Code, SpeedTest, Theme
+- [x] Улучшение мобильного UX для landscape режима — comprehensive CSS
 - [x] Haptic feedback для мобильных устройств
+- [x] Удалён unused useFeedbackToast hook
 
 ### 5. Контент
 - [ ] Добавить 50+ новых текстов (итого 110+)
@@ -106,6 +107,12 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-11 — Улучшение UX
+- ✅ Mode-specific framer-motion анимации (StatsMotion, GameMotion, HardcoreMotion)
+- ✅ Toast-уведомления при завершении сессий (Sprint, Hardcore, Marathon, Code)
+- ✅ Улучшен mobile landscape CSS (заголовки, padding, gaps, toast positioning)
+- ✅ Удалён unused useFeedbackToast hook
 
 ### 2026-05-11 — Документация Supabase
 - ✅ Создан full_migration.sql (объединённый скрипт всех 4 миграций)
