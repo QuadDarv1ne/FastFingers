@@ -2,7 +2,7 @@
 
 **Автор:** Dupley Maxim Igorevich  
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 13:35
+**Последнее обновление:** 2026-05-11 14:20
 
 ---
 
@@ -274,6 +274,37 @@
 - ~~charts-vendor чанк большой из-за Recharts + D3~~ ✅ Заменен на hand-built SVG
 - Некоторые тесты требуют `act()` обёртки (React warnings)
 
+### Метрики проекта (2026-05-11)
+- **Тесты**: 905 passed, 8 skipped (56 файлов)
+- **Coverage**: ~91%
+- **Сборка**: ~8s (было 14.4s, оптимизация -44%)
+- **Bundle**: animations-vendor 125KB gzipped, settings 85KB, game-modes 67KB
+- **Удалено зависимостей**: jspdf (390KB), recharts (532KB) = 922KB экономии
+- **i18n**: 10 языков (ru, en, zh, he, de, fr, es, it, pt, ja)
+- **Режимы**: 9 (Practice, Sprint, Hardcore, SpeedTest, Reaction, Marathon, Code, Duel, Tournament)
+- **Тексты**: 170+ в 15 категориях
+- **E2E**: 20+ тестов критических путей + accessibility
+
+### Зависимости (key)
+- React 18.3, TypeScript 5.3, Vite 6.4
+- Framer Motion 12.38, Tailwind 3.4
+- i18next 25.8, Zustand 5.0
+- Supabase JS 2.98, TanStack Query 5.90
+- Vitest 4.0, Playwright 1.58
+- axe-playwright (добавлен 2026-05-11)
+
+### Структура чанков (production)
+| Чанк | Размер | Gzip |
+|------|--------|------|
+| animations-vendor | 125 KB | 41 KB |
+| settings | 85 KB | 27 KB |
+| typing-core | 67 KB | 21 KB |
+| game-modes | 67 KB | 18 KB |
+| auth-components | 34 KB | 7 KB |
+| main | 33 KB | 11 KB |
+| stats-pages | 35 KB | 9 KB |
+| i18n-vendor | 43 KB | 13 KB |
+
 ---
 
-*Последнее обновление: 2026-05-11 12:50*
+*Последнее обновление: 2026-05-11 14:20*
