@@ -2,7 +2,7 @@
 
 **Автор:** Dupley Maxim Igorevich  
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich  
-**Последнее обновление:** 2026-05-11 13:25
+**Последнее обновление:** 2026-05-11 13:35
 
 ---
 
@@ -47,9 +47,10 @@
 - [x] Код полностью готов (auth, leaderboards, duels, tournaments, cloud sync)
 - [x] Создан объединённый SQL-скрипт (full_migration.sql)
 - [x] Написана пошаговая инструкция (SUPABASE_SETUP.md)
-- [ ] Создать проект на https://app.supabase.com
-- [ ] Применить миграцию (full_migration.sql)
-- [ ] Настроить `.env` с ключами
+- [x] Проект создан: jfzqncgwoiorhvyzvrig
+- [x] Миграция применена (11 таблиц создано)
+- [x] `.env` настроен с ключами
+- [ ] Включить Realtime для duels, tournaments, tournament_participants
 - [ ] Протестировать leaderboards
 - [ ] Протестировать дуэли (PvP)
 - [ ] Протестировать cloud sync
@@ -107,6 +108,12 @@
 ---
 
 ## ✅ Выполнено (Recent)
+
+### 2026-05-11 — Supabase миграция применена
+- ✅ Проект создан: jfzqncgwoiorhvyzvrig
+- ✅ Миграция выполнена (11 таблиц: users, typing_sessions, leaderboards, duels, tournaments, и др.)
+- ✅ .env настроен с реальными ключами
+- ⏳ Осталось: включить Realtime для duels, tournaments, tournament_participants
 
 ### 2026-05-11 — Улучшение UX
 - ✅ Mode-specific framer-motion анимации (StatsMotion, GameMotion, HardcoreMotion)
