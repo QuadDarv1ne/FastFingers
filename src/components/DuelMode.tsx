@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
@@ -227,22 +227,42 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     }
   }, [currentDuel, user?.id, opponentWpm, completeDuel, onComplete])
 
-  // Обработка ввода с обновлением прогресса
+  // Throttled Supabase progress updates (max once per 500ms)
+  const lastUpdateRef = useRef(0)
+  const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
+
+  const flushDuelProgress = useCallback(() => {
+    const pending = pendingUpdateRef.current
+    if (!pending || !currentDuel?.id || !supabase) return
+    const isChallenger = currentDuel.challenger?.id === user?.id
+    supabase
+      .from('duels')
+      .update(
+        isChallenger
+          ? { challenger_wpm: pending.wpm, challenger_accuracy: pending.accuracy }
+          : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
+      )
+      .eq('id', currentDuel.id)
+    pendingUpdateRef.current = null
+  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id])
+
+  // Обработка ввода с обновлением прогресса (throttled)
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     handleInputBase(e)
-    // Отправляем прогресс сопернику
-    if (currentDuel?.id && supabase) {
-      const isChallenger = currentDuel.challenger?.id === user?.id
-      supabase
-        .from('duels')
-        .update(
-          isChallenger
-            ? { challenger_wpm: wpm, challenger_accuracy: accuracy }
-            : { opponent_wpm: wpm, opponent_accuracy: accuracy }
-        )
-        .eq('id', currentDuel.id)
+    pendingUpdateRef.current = { wpm, accuracy }
+    const now = Date.now()
+    if (now - lastUpdateRef.current >= 500) {
+      lastUpdateRef.current = now
+      flushDuelProgress()
     }
-  }, [handleInputBase, currentDuel?.id, currentDuel?.challenger?.id, user?.id, wpm, accuracy])
+  }, [handleInputBase, wpm, accuracy, flushDuelProgress])
+
+  // Flush pending updates when duel ends
+  useEffect(() => {
+    if (duelState === 'completed') {
+      flushDuelProgress()
+    }
+  }, [duelState, flushDuelProgress])
 
   // Горячие клавиши
   useHotkey('escape', () => {

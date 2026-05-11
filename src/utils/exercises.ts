@@ -6,6 +6,23 @@ const logger = createScopedLogger('exercises')
 
 type Layout = 'qwerty' | 'jcuken' | 'dvorak';
 
+interface ExerciseFilters {
+  category?: string
+  difficulty?: number
+  layout?: Layout
+}
+
+function filterExercises(filters: ExerciseFilters): Exercise[] {
+  const { category, difficulty, layout } = filters
+  const result = exercises.filter(e => {
+    if (category && e.category !== category) return false
+    if (difficulty && e.difficulty > difficulty) return false
+    if (layout && e.layout && e.layout !== layout) return false
+    return true
+  })
+  return result.length > 0 ? result : exercises
+}
+
 const EASY_WORDS = [
   'он', 'она', 'оно', 'мы', 'вы', 'они', 'там', 'тут', 'вот', 'как', 'так', 'где', 'кто', 'что',
   'мир', 'дом', 'лес', 'кот', 'год', 'рот', 'нос', 'лёд', 'мёд', 'сон', 'дым'
@@ -272,146 +289,19 @@ export const exercises: Exercise[] = [
 ];
 
 export function getRandomExercise(category?: string, difficulty?: number, layout?: Layout): Exercise {
-  let pool = exercises
-
-  if (category && difficulty && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (e.category === category || !e.category) && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (category && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (e.category === category || !e.category) && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (category && difficulty) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.category === category && e.difficulty <= difficulty) {
-        pool.push(e)
-      }
-    }
-  } else if (category) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.category === category) {
-        pool.push(e)
-      }
-    }
-  } else if (difficulty && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (difficulty) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.difficulty <= difficulty) {
-        pool.push(e)
-      }
-    }
-  } else if (layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  }
-
-  if (pool.length === 0) {
-    pool = exercises
-  }
-
+  const pool = filterExercises({ category, difficulty, layout })
   if (pool.length === 0) {
     throw new Error('No exercises available for the specified filters')
   }
-
-  const randomIndex = Math.floor(Math.random() * pool.length)
-  const selectedExercise = pool[randomIndex]
-
+  const selectedExercise = pool[Math.floor(Math.random() * pool.length)]
   if (!selectedExercise) {
     throw new Error('Failed to select exercise')
   }
-
   return selectedExercise
 }
 
 export function getRandomExercises(count: number, category?: string, difficulty?: number, layout?: Layout): Exercise[] {
-  let pool = exercises
-
-  if (category && difficulty && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (e.category === category || !e.category) && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (category && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (e.category === category || !e.category) && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (category && difficulty) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.category === category && e.difficulty <= difficulty) {
-        pool.push(e)
-      }
-    }
-  } else if (category) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.category === category) {
-        pool.push(e)
-      }
-    }
-  } else if (difficulty && layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.difficulty <= difficulty && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  } else if (difficulty) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && e.difficulty <= difficulty) {
-        pool.push(e)
-      }
-    }
-  } else if (layout) {
-    pool = []
-    for (let i = 0; i < exercises.length; i++) {
-      const e = exercises[i]
-      if (e && (!e.layout || e.layout === layout)) {
-        pool.push(e)
-      }
-    }
-  }
-
-  if (pool.length === 0) pool = exercises
+  const pool = filterExercises({ category, difficulty, layout })
   const shuffled: Exercise[] = []
   const indices: number[] = pool.map((_, i) => i)
   // Fisher-Yates shuffle

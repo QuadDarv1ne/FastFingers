@@ -71,6 +71,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const textContainerRef = useRef<HTMLDivElement>(null)
   const textLengthRef = useRef(0)
   const completionRef = useRef<HTMLDivElement>(null)
+  const correctCountRef = useRef(0)
 
   useFocusTrap(completionRef, isComplete)
 
@@ -137,6 +138,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setInputResults([])
       setStartTime(null)
       setIsComplete(false)
+      correctCountRef.current = 0
       textLengthRef.current = exerciseText.length
     } catch (error) {
       logger.error('Error initializing exercise:', error)
@@ -170,6 +172,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     if (!expectedChar) return
 
     const isCorrect = newChar === expectedChar
+
+    if (isCorrect) correctCountRef.current++
 
     if (sound) {
       isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
@@ -258,11 +262,10 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     return result
   }, [text, currentIndex, inputResults, isComplete])
 
-  // Статистика для live region (мемоизация)
+  // Статистика для live region (O(1) via ref counter)
   const liveRegionText = useMemo(() => {
-    const correctCount = inputResults.reduce((sum, r) => sum + (r?.isCorrect ? 1 : 0), 0)
-    return `${currentIndex} из ${text.length} символов. Точность: ${correctCount} из ${inputResults.length}`
-  }, [currentIndex, text.length, inputResults])
+    return `${currentIndex} из ${text.length} символов. Точность: ${correctCountRef.current} из ${inputResults.length}`
+  }, [currentIndex, text.length, inputResults.length])
 
   return (
     <div className="space-y-4 sm:space-y-6" role="region" aria-label="Тренажёр печати">

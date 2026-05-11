@@ -270,36 +270,23 @@ export function useLeaderboardStats(gameMode: GameMode = 'classic') {
     queryFn: async () => {
       if (!supabase) throw new Error('Supabase not configured')
 
-      // Get total players
-      const { count: totalPlayers } = await supabase
-        .from('leaderboards')
-        .select('*', { count: 'exact', head: true })
-        .eq('game_mode', gameMode)
+      const [totalResult, wpmResult, topResult] = await Promise.all([
+        supabase.from('leaderboards').select('*', { count: 'exact', head: true }).eq('game_mode', gameMode),
+        supabase.from('leaderboards').select('wpm').eq('game_mode', gameMode),
+        supabase.from('leaderboards').select('score, wpm').eq('game_mode', gameMode).order('score', { ascending: false }).limit(1),
+      ])
 
-      // Get average WPM
-      const { data: wpmData } = await supabase
-        .from('leaderboards')
-        .select('wpm')
-        .eq('game_mode', gameMode)
+      const { count: totalPlayers } = totalResult
 
-      const avgWpm =
-        wpmData && wpmData.length > 0
-          ? Math.round(wpmData.reduce((sum, e) => sum + e.wpm, 0) / wpmData.length)
-          : 0
-
-      // Get top score
-      const { data: topData } = await supabase
-        .from('leaderboards')
-        .select('score, wpm')
-        .eq('game_mode', gameMode)
-        .order('score', { ascending: false })
-        .limit(1)
+      const avgWpm = wpmResult.data && wpmResult.data.length > 0
+        ? Math.round(wpmResult.data.reduce((sum, e) => sum + e.wpm, 0) / wpmResult.data.length)
+        : 0
 
       return {
         totalPlayers: totalPlayers || 0,
         avgWpm,
-        topScore: topData?.[0]?.score || 0,
-        topWpm: topData?.[0]?.wpm || 0,
+        topScore: topResult.data?.[0]?.score || 0,
+        topWpm: topResult.data?.[0]?.wpm || 0,
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

@@ -206,14 +206,9 @@ export async function flushPendingSessions(): Promise<void> {
   const pending: PendingSession[] = JSON.parse(localStorage.getItem(PENDING_SESSIONS_KEY) || '[]')
   if (pending.length === 0) return
 
-  const succeededIndexes = new Set<number>()
-
-  for (let i = 0; i < pending.length; i++) {
-    const session = pending[i]
-    if (!session) continue
-
-    try {
-      const { error } = await supabase.from('typing_sessions').insert({
+  const results = await Promise.allSettled(
+    pending.map(session =>
+      supabase!.from('typing_sessions').insert({
         user_id: session.userId,
         wpm: session.stats.wpm,
         cpm: session.stats.cpm,
@@ -224,15 +219,11 @@ export async function flushPendingSessions(): Promise<void> {
         duration: Math.floor(session.stats.timeElapsed),
         xp: session.xp,
       })
+    )
+  )
 
-      if (!error) succeededIndexes.add(i)
-    } catch {
-      // Ignore individual failures
-    }
-  }
-
-  // Remove succeeded sessions - O(n) вместо O(n²)
-  const remaining = pending.filter((_, i) => !succeededIndexes.has(i))
+  // Keep only failed sessions
+  const remaining = pending.filter((_, i) => results[i]?.status === 'rejected')
   localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))
 }
 

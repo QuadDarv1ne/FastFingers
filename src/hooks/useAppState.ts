@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { UserProgress, UserSettings, TypingStats, Exercise, KeyHeatmapData } from '../types'
+import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
@@ -131,8 +132,8 @@ export function useAppState(
 
     setProgressState(prev => {
       const newXp = prev.xp + xp
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
-      const prevLevel = Math.floor(Math.sqrt(prev.xp / 100)) + 1
+      const newLevel = calculateLevel(newXp)
+      const prevLevel = calculateLevel(prev.xp)
 
       if (newLevel > prevLevel) {
         addNotification({
@@ -149,7 +150,7 @@ export function useAppState(
         ...prev,
         xp: newXp,
         level: newLevel,
-        xpToNextLevel: Math.pow(newLevel + 1, 2) * 100,
+        xpToNextLevel: xpForLevel(newLevel + 1),
         totalWordsTyped: prev.totalWordsTyped + Math.floor(stats.correctChars / 5),
         bestWpm: Math.max(prev.bestWpm, stats.wpm),
         bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
@@ -163,32 +164,19 @@ export function useAppState(
 
     setProgressState(prev => {
       const newXp = prev.xp + xp
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
+      const newLevel = calculateLevel(newXp)
 
       return {
         ...prev,
         xp: newXp,
         level: newLevel,
-        xpToNextLevel: Math.pow(newLevel + 1, 2) * 100,
+        xpToNextLevel: xpForLevel(newLevel + 1),
       }
     })
   }, [])
 
   const handleKeyInput = useCallback((key: string, isCorrect: boolean) => {
-    setHeatmap(prev => {
-      const newHeatmap = { ...prev }
-      if (!newHeatmap[key]) {
-        newHeatmap[key] = { errors: 0, total: 0, accuracy: 100 }
-      }
-      newHeatmap[key].total++
-      if (!isCorrect) {
-        newHeatmap[key].errors++
-      }
-      newHeatmap[key].accuracy = Math.round(
-        ((newHeatmap[key].total - newHeatmap[key].errors) / newHeatmap[key].total) * 100
-      )
-      return newHeatmap
-    })
+    setHeatmap(prev => updateKeyHeatmap(prev, key, isCorrect))
   }, [])
 
   const handleSaveCustomExercise = useCallback((exercise: Exercise) => {

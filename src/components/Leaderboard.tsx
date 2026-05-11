@@ -75,26 +75,21 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
-  // Данные уже отфильтрованы и отсортированы хуком useLeaderboard
-  const filteredAndSorted = useMemo(() => {
-    return entries
-  }, [entries])
-
   // Use rank from Supabase hook with fallback
   const currentUserRank = useMemo(() => {
     if (userRankData?.rank) return userRankData.rank
     if (!currentUser) return null
-    const index = filteredAndSorted.findIndex(e => e.id === currentUser.id)
+    const index = entries.findIndex(e => e.id === currentUser.id)
     return index >= 0 ? index + 1 : null
-  }, [filteredAndSorted, currentUser, userRankData])
+  }, [entries, currentUser, userRankData])
 
   const currentUserPercentile = useMemo(() => {
-    if (!currentUser || filteredAndSorted.length === 0) return null
-    const betterThan = filteredAndSorted.filter(e =>
+    if (!currentUser || entries.length === 0) return null
+    const betterThan = entries.filter(e =>
       e.wpm < currentUser.wpm || (e.wpm === currentUser.wpm && e.accuracy < currentUser.accuracy)
     ).length
-    return Math.round((betterThan / filteredAndSorted.length) * 100)
-  }, [filteredAndSorted, currentUser])
+    return Math.round((betterThan / entries.length) * 100)
+  }, [entries, currentUser])
 
   return (
     <div
@@ -150,7 +145,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
           )}
 
           {/* Пустое состояние (нет данных) */}
-          {!isLoading && !error && filteredAndSorted.length === 0 && (
+          {!isLoading && !error && entries.length === 0 && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🏆</div>
               <h3 className="text-xl font-semibold mb-2">Нет данных</h3>
@@ -160,7 +155,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
             </div>
           )}
 
-          {!isLoading && !error && filteredAndSorted.length > 0 && (
+          {!isLoading && !error && entries.length > 0 && (
             <>
           {/* Фильтры */}
           <div className="flex flex-wrap gap-4">
@@ -256,9 +251,9 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
           )}
 
           {/* Топ-3 */}
-          {filteredAndSorted.length >= 3 && (
+          {entries.length >= 3 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {filteredAndSorted.slice(0, 3).map((entry, index) => (
+              {entries.slice(0, 3).map((entry, index) => (
                 <TopCard
                   key={entry.id}
                   entry={entry}
@@ -271,11 +266,11 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
           )}
 
           {/* Остальные */}
-          {filteredAndSorted.length > 3 && (
+          {entries.length > 3 && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold mb-4">Остальные участники</h3>
               <VirtualLeaderboardList
-                entries={filteredAndSorted.slice(3)}
+                entries={entries.slice(3)}
                 startRank={4}
                 sortBy={sortBy}
                 currentUserId={currentUser?.id}

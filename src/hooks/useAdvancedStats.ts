@@ -47,6 +47,22 @@ interface WpmTrendData {
 export function useAdvancedStats() {
   const { history, getStatsForPeriod } = useTypingHistory()
 
+  // Bucket sessions by date string for O(1) day lookup
+  const sessionsByDate = useMemo(() => {
+    const map = new Map<string, typeof history.sessions>()
+    for (const s of history.sessions) {
+      const dateStr = new Date(s.date).toISOString().split('T')[0] || ''
+      if (!dateStr) continue
+      const bucket = map.get(dateStr)
+      if (bucket) {
+        bucket.push(s)
+      } else {
+        map.set(dateStr, [s])
+      }
+    }
+    return map
+  }, [history.sessions])
+
   // Ежедневная статистика за последние 30 дней
   const dailyStats = useMemo<DailyStats[]>(() => {
     const days = 30
@@ -57,14 +73,9 @@ export function useAdvancedStats() {
     for (let i = days - 1; i >= 0; i--) {
       const dayStart = new Date(now - i * dayMs)
       dayStart.setHours(0, 0, 0, 0)
-      const dayEnd = new Date(dayStart.getTime() + dayMs)
-
-      const sessions = history.sessions.filter(s => {
-        const sessionDate = new Date(s.date)
-        return sessionDate >= dayStart && sessionDate < dayEnd
-      })
-
       const dateStr = dayStart.toISOString().split('T')[0] || ''
+      const sessions = sessionsByDate.get(dateStr) || []
+
       if (sessions.length > 0) {
         const avgWpm = Math.round(sessions.reduce((sum, s) => sum + s.wpm, 0) / sessions.length)
         const avgAccuracy = Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length)
@@ -89,7 +100,7 @@ export function useAdvancedStats() {
     }
 
     return stats
-  }, [history.sessions])
+  }, [sessionsByDate])
 
   // Сравнение с прошлой неделей
   const weeklyComparison = useMemo<WeeklyComparison>(() => {
@@ -171,12 +182,8 @@ export function useAdvancedStats() {
     for (let i = days - 1; i >= 0; i--) {
       const dayStart = new Date(now - i * dayMs)
       dayStart.setHours(0, 0, 0, 0)
-      const dayEnd = new Date(dayStart.getTime() + dayMs)
-
-      const sessions = history.sessions.filter(s => {
-        const sessionDate = new Date(s.date)
-        return sessionDate >= dayStart && sessionDate < dayEnd
-      })
+      const dateStr = dayStart.toISOString().split('T')[0] || ''
+      const sessions = sessionsByDate.get(dateStr) || []
 
       if (sessions.length > 0) {
         const avgWpm = Math.round(sessions.reduce((sum, s) => sum + s.wpm, 0) / sessions.length)
@@ -190,7 +197,7 @@ export function useAdvancedStats() {
     }
 
     return trend
-  }, [history.sessions])
+  }, [sessionsByDate])
 
   // Активность по дням недели
   const activityByDayOfWeek = useMemo(() => {

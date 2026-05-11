@@ -81,21 +81,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   }, [options]);
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
-    setHeatmap(prev => {
-      const newHeatmap = { ...prev };
-      if (!newHeatmap[key]) {
-        newHeatmap[key] = { errors: 0, total: 0, accuracy: 100 };
-      }
-      newHeatmap[key].total++;
-      if (!isCorrect) {
-        newHeatmap[key].errors++;
-      }
-      newHeatmap[key].accuracy = Math.round(
-        ((newHeatmap[key].total - newHeatmap[key].errors) / newHeatmap[key].total) * 100
-      );
-      return newHeatmap;
-    });
-  }, []);
+    setHeatmap(prev => updateKeyHeatmap(prev, key, isCorrect))
+  }, [])
 
   const updateSetting = useCallback(<K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     setSettings(prev => ({ ...prev, [key]: value }));

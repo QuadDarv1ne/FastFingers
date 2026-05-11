@@ -166,7 +166,11 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const getBestSession = useMemo(() => {
     if (history.sessions.length === 0) return null
-    return [...history.sessions].sort((a, b) => b.wpm - a.wpm)[0] ?? null
+    let best: SessionData | null = null
+    for (const s of history.sessions) {
+      if (!best || s.wpm > best.wpm) best = s
+    }
+    return best
   }, [history.sessions])
 
   const getRecentSessions = useCallback((count: number) => {
