@@ -2,20 +2,9 @@ import { memo, useMemo, Suspense, lazy, useState, useEffect } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useAdvancedStats } from '../hooks/useAdvancedStats'
 import { useStatsWorker } from '../hooks/useStatsWorker'
-import {
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from './LazyRecharts'
+import { SimpleBarChart } from './SimpleBarChart'
+import { SimpleAreaChart } from './SimpleAreaChart'
+import { SimplePieChart } from './SimplePieChart'
 import { PersonalRecords } from './PersonalRecords'
 import { WeeklyComparison } from './WeeklyComparison'
 import { LoadingFallback } from './LoadingFallback'
@@ -339,24 +328,13 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
             <h3 className="text-lg font-semibold mb-4">Прогресс скорости (WPM)</h3>
             <div className="h-64">
               {wpmTrendData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={wpmTrendData}>
-                    <defs>
-                      <linearGradient id="wpmGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis dataKey="index" stroke="#64748b" fontSize={12} />
-                    <YAxis stroke="#64748b" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                      labelStyle={{ color: '#94a3b8' }}
-                    />
-                    <Area type="monotone" dataKey="wpm" stroke="#8b5cf6" fillOpacity={1} fill="url(#wpmGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <SimpleAreaChart
+                  data={wpmTrendData}
+                  dataKey="wpm"
+                  xAxisKey="date"
+                  stroke="#8b5cf6"
+                  fillGradientId="wpmGradient"
+                />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
@@ -370,27 +348,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
             <h3 className="text-lg font-semibold mb-4">Распределение точности</h3>
             <div className="h-64">
               {accuracyDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={accuracyDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }: { name: string; percent: number }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {accuracyDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <SimplePieChart data={accuracyDistribution} />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
                   Нет данных для отображения
@@ -403,17 +361,13 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           <div className="glass rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4">Активность по дням недели</h3>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={activityByDay}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="sessions" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <SimpleBarChart
+                data={activityByDay}
+                dataKey="sessions"
+                xAxisKey="day"
+                fill="#8b5cf6"
+                radius={[4, 4, 0, 0]}
+              />
             </div>
           </div>
 
@@ -421,17 +375,13 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           <div className="glass rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4">Время практики (последние 7 дней)</h3>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={practiceTimeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="minutes" fill="#a78bfa" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <SimpleBarChart
+                data={practiceTimeData}
+                dataKey="minutes"
+                xAxisKey="day"
+                fill="#a78bfa"
+                radius={[4, 4, 0, 0]}
+              />
             </div>
           </div>
         </div>

@@ -169,15 +169,18 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   useEffect(() => {
     isMountedRef.current = true
     initAudio()
+
+    // Copy refs to local variables before cleanup runs
+    const timeouts = cleanupTimeoutsRef.current
+    const oscillators = activeOscillatorsRef.current
+
     return () => {
       isMountedRef.current = false
       // Clear all pending cleanup timeouts
-      const timeouts = cleanupTimeoutsRef.current
       timeouts.forEach(clearTimeout)
       timeouts.clear()
 
       // Cleanup all active oscillators
-      const oscillators = activeOscillatorsRef.current
       oscillators.forEach(osc => {
         try {
           osc.stop()

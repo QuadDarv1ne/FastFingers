@@ -157,15 +157,8 @@ export default defineConfig({
             if (id.includes('@sentry')) {
               return 'monitoring-vendor'
             }
-            if (id.includes('jspdf')) {
-              return 'pdf-vendor'
-            }
             if (id.includes('html2canvas')) {
               return 'html2canvas-vendor'
-            }
-            if (id.includes('recharts')) {
-              // Put all recharts modules into a single vendor chunk to reduce the size of the core chunk
-              return 'charts-vendor'
             }
           }
           // App чанки
@@ -174,12 +167,11 @@ export default defineConfig({
             if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
             if (id.includes('Mode')) return 'game-modes'
             if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
-            if (id.includes('Recharts') || id.includes('Chart') || id.includes('LazyRecharts')) return 'charts'
             if (id.includes('auth/')) return 'auth-components'
             if (id.includes('Panel') || id.includes('History')) return 'panels'
             if (id.includes('Setting') || id.includes('Toggle') || id.includes('Selector')) return 'settings'
             if (id.includes('Exercise') || id.includes('Challenge') || id.includes('Learning')) return 'exercises'
-            if (id.includes('Statistic') || id.includes('Weekly')) return 'stats-pages'
+            if (id.includes('Statistic') || id.includes('Weekly') || id.includes('Simple')) return 'stats-pages'
             if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
             if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
             if (id.includes('Certificate')) return 'certificate'
