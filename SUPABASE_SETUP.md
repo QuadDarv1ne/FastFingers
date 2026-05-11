@@ -33,11 +33,20 @@
 
 ## Шаг 4: Применение миграций базы данных
 
-### Вариант A: Через Supabase Dashboard (рекомендуется)
+### Вариант A: Через Supabase Dashboard (рекомендуется — один скрипт)
 
 1. В панели проекта перейдите в **SQL Editor**
 2. Нажмите "New Query"
-3. Скопируйте содержимое файлов миграции по порядку:
+3. Скопируйте содержимое файла:
+   - `supabase/migrations/full_migration.sql` (объединённый скрипт всех 4 миграций)
+4. Вставьте в SQL Editor и нажмите "Run" (или Ctrl+Enter)
+5. Убедитесь, что все запросы выполнены без ошибок
+
+### Вариант B: Пошаговое применение отдельных миграций
+
+1. В панели проекта перейдите в **SQL Editor**
+2. Нажмите "New Query"
+3. Скопируйте содержимое файлов миграции **по порядку**:
    - `supabase/migrations/001_initial_schema.sql`
    - `supabase/migrations/002_hardcore_mode.sql`
    - `supabase/migrations/003_leaderboards_duels.sql`
