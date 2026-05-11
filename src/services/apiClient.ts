@@ -47,20 +47,12 @@ export class NetworkError extends Error {
     super(message)
     this.name = 'NetworkError'
   }
-
-  static isNetworkError(error: unknown): error is NetworkError {
-    return error instanceof NetworkError
-  }
 }
 
 export class TimeoutError extends Error {
   constructor() {
     super('Request timeout')
     this.name = 'TimeoutError'
-  }
-
-  static isTimeoutError(error: unknown): error is TimeoutError {
-    return error instanceof TimeoutError
   }
 }
 

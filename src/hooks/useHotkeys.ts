@@ -1,19 +1,11 @@
-import { useEffect, useCallback, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 
-interface HotkeyOptions {
+export interface HotkeyOptions {
   enabled?: boolean
   ignoreInputFocus?: boolean
   preventDefault?: boolean
   stopPropagation?: boolean
 }
-
-interface HotkeyRegistry {
-  combination: string
-  handler: (e: KeyboardEvent) => void
-  options?: HotkeyOptions
-}
-
-const hotkeyRegistry = new Map<string, HotkeyRegistry>()
 
 function normalizeKey(key: string): string {
   return key.toLowerCase().replace(/key|digit|numpad/g, '')
@@ -37,11 +29,13 @@ function parseHotkey(hotkey: string): { modifiers: string[]; key: string } {
 function matchesHotkey(event: KeyboardEvent, hotkey: string): boolean {
   const { modifiers, key } = parseHotkey(hotkey)
   const eventModifiers = getEventModifiers(event)
-  const eventKey = normalizeKey(event.key)
-  
   if (modifiers.length !== eventModifiers.length) return false
   if (!modifiers.every(m => eventModifiers.includes(m))) return false
-  return eventKey === key
+  return normalizeKey(event.key) === key
+}
+
+function isInputElement(target: HTMLElement): boolean {
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
 }
 
 export function useHotkeys(
@@ -117,56 +111,4 @@ export function useHotkey(
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [hotkey, enabled, options.preventDefault, options.stopPropagation, ignoreInputFocus])
-}
-
-export function useHotkeysContext() {
-  const [registeredHotkeys, setRegisteredHotkeys] = useState<HotkeyRegistry[]>([])
-
-  const register = useCallback((combination: string, handler: (e: KeyboardEvent) => void, options?: HotkeyOptions) => {
-    hotkeyRegistry.set(combination, { combination, handler, options })
-    setRegisteredHotkeys(prev => [...prev, { combination, handler, options }])
-  }, [])
-
-  const unregister = useCallback((combination: string) => {
-    hotkeyRegistry.delete(combination)
-    setRegisteredHotkeys(prev => prev.filter(h => h.combination !== combination))
-  }, [])
-
-  const getRegistered = useCallback(() => {
-    return Array.from(hotkeyRegistry.values())
-  }, [])
-
-  return { registeredHotkeys, register, unregister, getRegistered }
-}
-
-// Предустановленные горячие клавиши для приложения
-export function useAppHotkeys(actions: {
-  practice?: () => void
-  sprint?: () => void
-  test?: () => void
-  statistics?: () => void
-  learning?: () => void
-  tips?: () => void
-  profile?: () => void
-  newExercise?: () => void
-  toggleKeyboard?: () => void
-  toggleSound?: () => void
-}) {
-  useHotkeys({
-    'ctrl+1': () => actions.practice?.(),
-    'ctrl+2': () => actions.sprint?.(),
-    'ctrl+3': () => actions.statistics?.(),
-    'ctrl+4': () => actions.learning?.(),
-    'ctrl+5': () => actions.tips?.(),
-    'ctrl+p': () => actions.profile?.(),
-    'ctrl+n': () => actions.newExercise?.(),
-    'ctrl+k': () => actions.toggleKeyboard?.(),
-    'ctrl+s': (e) => {
-      e.preventDefault() // Предотвращаем сохранение страницы
-      actions.toggleSound?.()
-    },
-    '?': () => {
-      // Показ справки по горячим клавишам
-    },
-  })
 }
