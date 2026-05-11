@@ -33,22 +33,7 @@ export default defineConfig({
     pool: 'threads',
     minThreads: 6,
     maxThreads: 12,
-    poolOptions: {
-      threads: {
-        useAtomics: true,
-      },
-    },
-    deps: {
-      optimizer: {
-        web: {
-          include: ['react', 'react-dom'],
-        },
-      },
-    },
-    snapshotFormat: {
-      escapeString: true,
-      printBasicPrototype: true,
-    },
+    useAtomics: true,
     bail: 0,
     retry: 0,
     testTimeout: 10000,

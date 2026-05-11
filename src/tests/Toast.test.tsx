@@ -52,7 +52,7 @@ describe('Toast', () => {
     const toast = createToast('info', 'Тест')
     render(<Toast toast={toast} onDismiss={onDismiss} />)
 
-    fireEvent.click(screen.getByLabelText('Закрыть уведомление'))
+    fireEvent.click(screen.getByLabelText('Закрыть'))
 
     expect(onDismiss).toHaveBeenCalledWith('test-id')
     expect(onDismiss).toHaveBeenCalledTimes(1)
@@ -78,7 +78,7 @@ describe('Toast', () => {
     const toast = createToast('info', 'Тест')
     render(<Toast toast={toast} onDismiss={vi.fn()} />)
 
-    const button = screen.getByLabelText('Закрыть уведомление')
-    expect(button).toHaveAttribute('aria-label', 'Закрыть уведомление')
+    const button = screen.getByLabelText('Закрыть')
+    expect(button).toHaveAttribute('aria-label', 'Закрыть')
   })
 })

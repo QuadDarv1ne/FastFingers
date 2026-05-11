@@ -3,12 +3,10 @@ import { useState, useEffect } from 'react'
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
   const [lastOffline, setLastOffline] = useState<Date | null>(null)
-  const [lastOnline, setLastOnline] = useState<Date | null>(null)
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
-      setLastOnline(new Date())
     }
 
     const handleOffline = () => {
@@ -28,7 +26,6 @@ export function useOnlineStatus() {
   return {
     isOnline,
     lastOffline,
-    lastOnline,
     isOffline: !isOnline,
   }
 }

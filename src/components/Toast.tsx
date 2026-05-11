@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { Toast as ToastType } from '@contexts/ToastContext'
+import { useAppTranslation } from '@i18n/config'
 
 interface ToastProps {
   toast: ToastType
@@ -23,6 +24,8 @@ const toastIcons: Record<ToastKind, string> = {
 }
 
 export function Toast({ toast, onDismiss }: ToastProps) {
+  const { t } = useAppTranslation()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20, scale: 0.9 }}
@@ -36,7 +39,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       <button
         onClick={() => onDismiss(toast.id)}
         className="p-1 hover:bg-white/20 rounded transition-colors"
-        aria-label="Закрыть уведомление"
+        aria-label={t('action.close')}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
           <line x1="18" y1="6" x2="6" y2="18" />
