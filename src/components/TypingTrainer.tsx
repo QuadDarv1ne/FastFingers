@@ -82,6 +82,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const textLengthRef = useRef(0)
   const completionRef = useRef<HTMLDivElement>(null)
   const correctCountRef = useRef(0)
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useFocusTrap(completionRef, isComplete)
 
@@ -120,14 +121,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         const exercise = customExercises[randomIndex]
         exerciseText = exercise ? exercise.text : ''
       } else if (selectedCategory !== 'all') {
-        // Используем адаптивную сложность для выбора текста
-        if (adaptive.isEnabled && selectedCategory === 'all') {
-          const adaptiveText = adaptive.getNextText()
-          exerciseText = adaptiveText ? adaptiveText.text : ''
-        } else {
-          const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
-          exerciseText = exercise ? exercise.text : ''
-        }
+        const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
+        exerciseText = exercise ? exercise.text : ''
       } else {
         // Используем адаптивную сложность для выбора текста
         if (adaptive.isEnabled) {
@@ -164,6 +159,13 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   useEffect(() => {
     initExercise()
   }, [initExercise])
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
+    }
+  }, [])
 
   // Обработка ввода — оптимизировано с использованием refs
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
@@ -378,7 +380,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           className="sr-only"
           aria-hidden="true"
           onInput={handleInput}
-          onBlur={() => !isComplete && setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)}
+          onBlur={() => {
+            if (isComplete) return
+            if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
+            blurTimerRef.current = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)
+          }}
           disabled={isComplete}
           aria-label="Поле ввода для печати"
           autoComplete="off"

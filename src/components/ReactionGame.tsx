@@ -26,6 +26,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
   const [isPlaying, setIsPlaying] = useState(false)
   const [missed, setMissed] = useState(0)
+  const [hits, setHits] = useState(0)
   const [combo, setCombo] = useState(0)
   const [maxCombo, setMaxCombo] = useState(0)
   
@@ -76,7 +77,9 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       setTimeLeft(time => {
         if (time <= 1) {
           setIsPlaying(false)
-          onComplete(score, Math.round((score / (score + missed)) * 100) || 0)
+          const totalAttempts = hits + missed
+          const accuracy = totalAttempts > 0 ? Math.round((hits / totalAttempts) * 100) : 0
+          onComplete(score, accuracy)
           return 0
         }
         return time - 1
@@ -93,13 +96,14 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       clearInterval(gameInterval)
       clearInterval(spawnInterval)
     }
-  }, [isPlaying, targets.length, spawnTarget, score, missed, onComplete])
+  }, [isPlaying, targets.length, spawnTarget, score, missed, hits, onComplete])
 
   // Старт игры
   const handleStart = () => {
     setIsPlaying(true)
     setScore(0)
     setMissed(0)
+    setHits(0)
     setCombo(0)
     setMaxCombo(0)
     setTimeLeft(GAME_DURATION)
@@ -112,6 +116,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     if (!isPlaying) return
 
     setTargets(prev => prev.filter(t => t.id !== id))
+    setHits(h => h + 1)
     setScore(s => s + 10 + combo)
     setCombo(c => {
       const newCombo = c + 1
@@ -303,7 +308,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 <div className="bg-dark-800 rounded-lg p-4">
                   <p className="text-sm text-dark-400">Точность</p>
                   <p className="text-3xl font-bold text-success">
-                    {Math.round((score / (score + missed * 10)) * 100) || 0}%
+                    {hits + missed > 0 ? Math.round((hits / (hits + missed)) * 100) : 0}%
                   </p>
                 </div>
                 <div className="bg-dark-800 rounded-lg p-4">
@@ -340,7 +345,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
         <div className="flex justify-center gap-8 text-sm">
           <div className="text-center">
             <span className="text-dark-400">Попал: </span>
-            <span className="text-success font-bold">{Math.floor(score / 10)}</span>
+            <span className="text-success font-bold">{hits}</span>
           </div>
           <div className="text-center">
             <span className="text-dark-400">Промах: </span>

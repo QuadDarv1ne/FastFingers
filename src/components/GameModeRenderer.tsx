@@ -9,6 +9,7 @@ import { type ReactNode, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { TypingTrainer } from './TypingTrainer'
 import { Keyboard } from './Keyboard'
+import { useTypingSound } from '../hooks/useTypingSound'
 import type { GameMode, View, SpeedTestDuration } from '../hooks/useGameMode'
 import type { UserSettings, TypingStats, KeyHeatmapData, Exercise } from '../types'
 import type { CustomExercise } from './CustomExerciseEditor'
@@ -86,8 +87,7 @@ interface GameModeRendererProps {
   showHeatmap: boolean
   todayChallenge: DailyChallengeData | undefined
   customExercises: Exercise[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sound: any
+  sound: ReturnType<typeof useTypingSound> | undefined
   streak: number
   // Callbacks
   onSetGameMode: (mode: GameMode) => void

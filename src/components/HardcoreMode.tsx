@@ -56,6 +56,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const [previousStreak, setPreviousStreak] = useState(0)
   const [showRankUp, setShowRankUp] = useState(false)
   const [currentRank, setCurrentRank] = useState<HardcoreRank>('C')
+  const rankUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const {
     text,
@@ -75,7 +76,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   useEffect(() => {
     const rank = getRankByStreak(streak)
     setCurrentRank(rank.rank)
-    
+
     // Проверка на повышение ранга
     if (checkRankUp(previousStreak, streak) && streak > 0) {
       const newRank = getRankByStreak(streak)
@@ -85,16 +86,21 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         description: getRankUpMessage(newRank),
         icon: newRank.rank,
       }))
-      
+
       if (['S', 'S+', 'SS', 'SS+', '👑'].includes(newRank.rank)) {
         triggerConfetti({ type: 'celebration', duration: 3000 })
       }
-      
-      setTimeout(() => setShowRankUp(false), 4000)
+
+      if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)
+      rankUpTimerRef.current = setTimeout(() => setShowRankUp(false), 4000)
     }
-    
+
     if (streak !== previousStreak) {
       setPreviousStreak(streak)
+    }
+
+    return () => {
+      if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)
     }
   }, [streak, previousStreak, addNotification])
 

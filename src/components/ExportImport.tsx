@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { UserProgress } from '@/types'
 import { useToast } from '@contexts/ToastContext'
 
@@ -29,6 +29,13 @@ function validateBackupData(data: unknown): data is BackupData {
 export function ExportImport({ progress: _progress, onImport: _onImport }: ExportImportProps) {
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
+  const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
+    }
+  }, [])
 
   const handleExport = () => {
     try {
@@ -112,7 +119,8 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         })
 
         showToast('Данные успешно импортированы', 'success')
-        setTimeout(() => {
+        if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
+        reloadTimerRef.current = setTimeout(() => {
           window.location.reload()
         }, 1000)
       } catch {
@@ -154,7 +162,8 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
       keysToRemove.forEach((key) => localStorage.removeItem(key))
 
       showToast('Все данные удалены', 'success')
-      setTimeout(() => {
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
+      reloadTimerRef.current = setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch {

@@ -27,6 +27,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   const emailInputRef = useRef<HTMLInputElement>(null)
   const tokenInputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const backTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (lastResetToken?.token) {
@@ -66,6 +67,13 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       tokenInputRef.current?.focus()
     }
   }, [step])
+
+  // Cleanup backTimer on unmount
+  useEffect(() => {
+    return () => {
+      if (backTimerRef.current) clearTimeout(backTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (email && !EMAIL_REGEX.test(email)) {
@@ -125,7 +133,8 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     try {
       await confirmPasswordReset({ token, newPassword, confirmPassword })
       setSuccessMessage('Пароль успешно изменён!')
-      setTimeout(() => onBack(), 2000)
+      if (backTimerRef.current) clearTimeout(backTimerRef.current)
+      backTimerRef.current = setTimeout(() => onBack(), 2000)
     } catch {
       // Ошибка уже установлена в контексте
     }

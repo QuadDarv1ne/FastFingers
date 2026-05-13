@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 interface ComboCounterProps {
   combo: number
@@ -10,17 +10,29 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
   const [isAnimating, setIsAnimating] = useState(false)
   const [prevCombo, setPrevCombo] = useState(combo)
   const [showBreak, setShowBreak] = useState(false)
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const breakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    // Clear any existing timers
+    if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
+    if (breakTimerRef.current) clearTimeout(breakTimerRef.current)
+
     if (combo > prevCombo) {
       setIsAnimating(true)
-      setTimeout(() => setIsAnimating(false), 300)
+      animationTimerRef.current = setTimeout(() => setIsAnimating(false), 300)
     } else if (combo === 0 && prevCombo > 0) {
       setShowBreak(true)
       onComboBreak?.()
-      setTimeout(() => setShowBreak(false), 2000)
+      breakTimerRef.current = setTimeout(() => setShowBreak(false), 2000)
     }
     setPrevCombo(combo)
+
+    // Cleanup on unmount or re-run
+    return () => {
+      if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
+      if (breakTimerRef.current) clearTimeout(breakTimerRef.current)
+    }
   }, [combo, prevCombo, onComboBreak])
 
   if (combo === 0 && !showBreak) return null

@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
@@ -39,6 +39,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
   const [showMilestone, setShowMilestone] = useState<string | null>(null)
   const [combo, setCombo] = useState(0)
   const [maxCombo, setMaxCombo] = useState(0)
+  const milestoneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const {
     text,
@@ -89,23 +90,29 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
   // Отслеживание майлстоунов
   useEffect(() => {
     if (!isActive) return
-    
+
     const elapsed = MARATHON_DURATION - timeLeft
     const nextMilestoneIndex = MILESTONE_INTERVALS.findIndex(interval => interval > elapsed)
-    
+
+    if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
+
     if (nextMilestoneIndex === -1 && currentMilestone < MILESTONE_INTERVALS.length) {
       // Достигнут последний майлстоун
       setCurrentMilestone(MILESTONE_INTERVALS.length)
       const message = MILESTONE_MESSAGES[300 as keyof typeof MILESTONE_MESSAGES]
       setShowMilestone(message)
-      setTimeout(() => setShowMilestone(null), 3000)
+      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
     } else if (nextMilestoneIndex !== -1 && nextMilestoneIndex > currentMilestone) {
       // Достигнут промежуточный майлстоун
       setCurrentMilestone(nextMilestoneIndex)
       const milestone = MILESTONE_INTERVALS[nextMilestoneIndex]
       const message = MILESTONE_MESSAGES[milestone as keyof typeof MILESTONE_MESSAGES]
       setShowMilestone(message)
-      setTimeout(() => setShowMilestone(null), 3000)
+      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
+    }
+
+    return () => {
+      if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
     }
   }, [timeLeft, isActive, currentMilestone])
 
