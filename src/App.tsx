@@ -399,9 +399,9 @@ function AppContent() {
                   onSessionComplete={handleSessionCompleteWithProgress}
                   onKeyInput={updateHeatmap}
                   onSaveCustomExercise={handleSaveCustomExercise}
-                  onCompleteChallenge={() => {
+                  onCompleteChallenge={(_challengeId, wpm, accuracy) => {
                     if (todayChallenge) {
-                      completeChallenge(todayChallenge.id, 0, 0)
+                      completeChallenge(todayChallenge.id, wpm, accuracy)
                       setGameMode('practice')
                       setView('main')
                     }

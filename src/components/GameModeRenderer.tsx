@@ -92,7 +92,7 @@ interface GameModeRendererProps {
   // Callbacks
   onSetGameMode: (mode: GameMode) => void
   onSetView: (view: View) => void
-  onCompleteChallenge: () => void
+  onCompleteChallenge: (_challengeId: string, wpm: number, accuracy: number) => void
   onSetShowHeatmap: (show: boolean) => void
   onSessionComplete: (stats: TypingStats) => void
   onKeyInput: (char: string, isCorrect: boolean) => void
@@ -142,7 +142,7 @@ export function GameModeRenderer({
   const exitToPractice = () => { onSetGameMode('practice'); onSetView('main') }
 
   if (gameMode === 'reaction') {
-    return <GameMotion><Suspense fallback={<LazyFallback/>}><ReactionGame onExit={exitToPractice} onComplete={onCompleteChallenge} /></Suspense></GameMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><ReactionGame onExit={exitToPractice} onComplete={(wpm, accuracy) => onCompleteChallenge('', wpm, accuracy)} /></Suspense></GameMotion>
   }
   if (gameMode === 'duel') {
     return <GameMotion><Suspense fallback={<LazyFallback/>}><DuelMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>

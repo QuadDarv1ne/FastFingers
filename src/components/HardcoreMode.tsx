@@ -13,6 +13,7 @@ import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage, type H
 import { createAchievementNotification } from '../utils/notifications'
 import { useNotifications } from '../contexts/NotificationContext'
 import { useToast } from '../contexts/ToastContext'
+import { logger } from '../utils/logger'
 import { triggerConfetti } from '../utils/confetti'
 
 const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
@@ -169,7 +170,10 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         }
       }
 
-      saveRecord().catch(() => {})
+      saveRecord().catch((error) => {
+        logger.error('Failed to save hardcore record:', error)
+        showToast('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+      })
       setShowCertificate(true)
     }
   }, [isActive, inputResults, startTime, user, streak, onComplete, showToast])
