@@ -215,19 +215,24 @@ function calculateCorrelationMatrix(sessions: TypingStats[]): number[][] {
     .map(() => Array(metrics.length).fill(0))
 
   for (let i = 0; i < metrics.length; i++) {
+    const matrixRow = matrix[i]
+    if (!matrixRow) continue
     for (let j = 0; j < metrics.length; j++) {
       if (i === j) {
-        matrix[i]![j] = 1
+        matrixRow[j] = 1
       } else {
         let numerator = 0
         let denomI = 0
         let denomJ = 0
 
+        const rowI = values[i]
+        const rowJ = values[j]
+        const meanI = means[i] ?? 0
+        const meanJ = means[j] ?? 0
+
         for (let k = 0; k < n; k++) {
-          const valI: number = values[i]![k]!
-          const valJ: number = values[j]![k]!
-          const meanI: number = means[i]!
-          const meanJ: number = means[j]!
+          const valI: number = rowI?.[k] ?? 0
+          const valJ: number = rowJ?.[k] ?? 0
           const diffI = valI - meanI
           const diffJ = valJ - meanJ
           numerator += diffI * diffJ
@@ -236,7 +241,7 @@ function calculateCorrelationMatrix(sessions: TypingStats[]): number[][] {
         }
 
         const denominator = Math.sqrt(denomI * denomJ)
-        matrix[i]![j] = denominator > 0 ? numerator / denominator : 0
+        matrixRow[j] = denominator > 0 ? numerator / denominator : 0
       }
     }
   }

@@ -51,21 +51,9 @@
 
 ### 3. Replace Direct `console` Calls with `logger` Utility / Заменить прямые `console` вызовы на утилиту `logger`
 
-Files using raw `console.warn/error` instead of `@utils/logger` / Файлы с raw `console.warn/error` вместо `@utils/logger`:
-
-- [ ] `src/hooks/useAutoSave.ts` (3 calls / вызова)
-- [ ] `src/hooks/useHapticFeedback.ts` (1 call / вызов)
-- [ ] `src/hooks/usePerformanceOptimizer.ts` (1 call / вызов)
-- [ ] `src/hooks/usePWAInstall.ts` (1 call / вызов)
-- [ ] `src/hooks/useTypingSoundEnhanced.ts` (1 call / вызов)
-- [ ] `src/utils/storage.ts` (1 call / вызов)
-- [ ] `src/utils/indexedDB.ts` (1 call / вызов)
-- [ ] `src/utils/export.ts` (1 call / вызов)
-- [ ] `src/utils/contrast.ts` (1 call / вызов)
-- [ ] `src/components/DuelMode.tsx` (2 calls / вызова)
-- [ ] `src/components/PWAInstallPrompt.tsx` (2 calls / вызова)
-- [ ] `src/components/TournamentMode.tsx` (4 calls / вызова)
-- [ ] `src/components/StatisticsPage.tsx` (1 call / вызов)
+- [x] All raw `console.warn/error` calls replaced with `@utils/logger` utility
+- [x] Only `logger.ts` itself and service worker (`sw-enhanced.js`) use console directly
+- [x] Service worker console calls are acceptable (runs in separate context) / вызовы допустимы (работает в отдельном контексте)
 
 ### 4. Create `.env.example` File / Создать файл `.env.example`
 
@@ -236,9 +224,9 @@ Coverage gaps / Пробелы в покрытии:
 4. **NotificationContext** — react-refresh warning (intentional / намеренно)
 5. **PWA** — add background sync for offline actions
    / добавить background sync для офлайн действий
-6. **Logging consistency** — 19 files use `console` directly instead of `logger` utility
-   / 19 файлов используют `console` напрямую вместо `logger` утилиты
-7. **`as any` in production code** — stats.worker.ts, indexedDB.ts, contrast.ts
+6. **Logging consistency** — all production code uses `logger` utility; only SW uses console directly
+   / весь продакшн-код использует `logger`; только SW использует console напрямую
+7. **`as any` in production code** — indexedDB.ts, contrast.ts (stats.worker.ts cleaned up)
    / `as any` в продакшн-коде
 8. **Nullable Supabase client** — null checks scattered across codebase, need unified approach
    / null-чеки размазаны по коду, нужен единый подход

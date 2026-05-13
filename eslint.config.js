@@ -66,7 +66,7 @@ export default [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'off',
       'react-hooks/exhaustive-deps': 'warn',
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      'no-console': ['error'],
       ...pluginJsxA11y.configs.recommended.rules,
     },
   },
@@ -74,6 +74,13 @@ export default [
     files: ['**/*.test.{ts,tsx}', 'src/tests/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off',
+    },
+  },
+  {
+    files: ['src/utils/logger.ts'],
+    rules: {
+      'no-console': 'off',
     },
   },
 ]

@@ -11,6 +11,18 @@ const STATIC_CACHE = 'fastfingers-static-v1'
 const DYNAMIC_CACHE = 'fastfingers-dynamic-v1'
 const IMAGE_CACHE = 'fastfingers-images-v1'
 
+// Debug mode: only log in development
+const IS_DEBUG = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1'
+
+/** @param {unknown[]} args */
+function debugLog(...args) {
+  if (IS_DEBUG) console.log('[SW]', ...args)
+}
+/** @param {unknown[]} args */
+function debugError(...args) {
+  if (IS_DEBUG) console.error('[SW]', ...args)
+}
+
 // Ресурсы для пре-кэширования
 const STATIC_ASSETS = [
   '/',
@@ -27,16 +39,16 @@ const CACHE_LIMITS = {
 
 // Установка сервис-воркера
 self.addEventListener('install', /** @param {ExtendableEvent} event */ (event) => {
-  console.log('[SW] Installing service worker...')
+  debugLog('Installing service worker...')
 
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Pre-caching static assets')
+        debugLog('Pre-caching static assets')
         return cache.addAll(STATIC_ASSETS)
       })
       .catch((err) => {
-        console.error('[SW] Pre-cache failed:', err)
+        debugError('Pre-cache failed:', err)
       })
   )
 
@@ -45,7 +57,7 @@ self.addEventListener('install', /** @param {ExtendableEvent} event */ (event) =
 
 // Активация сервис-воркера
 self.addEventListener('activate', /** @param {ExtendableEvent} event */ (event) => {
-  console.log('[SW] Activating service worker...')
+  debugLog('Activating service worker...')
   
   event.waitUntil(
     Promise.all([
@@ -59,7 +71,7 @@ self.addEventListener('activate', /** @param {ExtendableEvent} event */ (event) 
                      cacheName !== IMAGE_CACHE
             })
             .map((cacheName) => {
-              console.log('[SW] Deleting old cache:', cacheName)
+              debugLog('Deleting old cache:', cacheName)
               return caches.delete(cacheName)
             })
         )
@@ -68,7 +80,7 @@ self.addEventListener('activate', /** @param {ExtendableEvent} event */ (event) 
       trimCache(DYNAMIC_CACHE, CACHE_LIMITS.dynamic),
       trimCache(IMAGE_CACHE, CACHE_LIMITS.images),
     ]).then(() => {
-      console.log('[SW] Service worker activated')
+      debugLog('Service worker activated')
       return self.clients.claim()
     })
   )
@@ -119,7 +131,7 @@ async function handleRequest(request) {
     // Для остальных запросов используем Stale While Revalidate
     return await handleDynamicRequest(request)
   } catch (error) {
-    console.error('[SW] Request failed:', error)
+    debugError('Request failed:', error)
     return await caches.match('/offline.html') || new Response('Offline', { status: 503 })
   }
 }
@@ -266,7 +278,7 @@ async function trimCache(cacheName, limit) {
     const keys = await cache.keys()
     
     if (keys.length > limit) {
-      console.log(`[SW] Trimming ${cacheName} cache from ${keys.length} to ${limit} items`)
+      debugLog(`Trimming ${cacheName} cache from ${keys.length} to ${limit} items`)
       
       const deleteCount = keys.length - limit
       await Promise.all(
@@ -274,13 +286,13 @@ async function trimCache(cacheName, limit) {
       )
     }
   } catch (error) {
-    console.error('[SW] Cache trim failed:', error)
+    debugError('Cache trim failed:', error)
   }
 }
 
 // Background sync для офлайн действий
 self.addEventListener('sync', /** @param {SyncEvent} event */ (event) => {
-  console.log('[SW] Sync event:', event.tag)
+  debugLog('Sync event:', event.tag)
   
   if (event.tag === 'sync-typing-data') {
     event.waitUntil(syncTypingData())
@@ -289,7 +301,7 @@ self.addEventListener('sync', /** @param {SyncEvent} event */ (event) => {
 
 async function syncTypingData() {
   // Логика синхронизации данных печати
-  console.log('[SW] Syncing typing data...')
+  debugLog('Syncing typing data...')
   
   try {
     const db = await openDatabase()
@@ -304,9 +316,9 @@ async function syncTypingData() {
       await removePendingData(db, data.id)
     }
     
-    console.log('[SW] Typing data synced successfully')
+    debugLog('Typing data synced successfully')
   } catch (error) {
-    console.error('[SW] Sync failed:', error)
+    debugError('Sync failed:', error)
   }
 }
 
@@ -363,7 +375,7 @@ function removePendingData(db, id) {
 
 // Push notifications
 self.addEventListener('push', /** @param {PushEvent} event */ (event) => {
-  console.log('[SW] Push received:', event)
+  debugLog('Push received:', event)
   
   const data = event.data?.json() || {}
   const title = data.title || 'FastFingers'
@@ -383,7 +395,7 @@ self.addEventListener('push', /** @param {PushEvent} event */ (event) => {
 
 // Notification click handler
 self.addEventListener('notificationclick', /** @param {NotificationEvent} event */ (event) => {
-  console.log('[SW] Notification clicked:', event.action)
+  debugLog('Notification clicked:', event.action)
   
   event.notification.close()
   
@@ -404,7 +416,7 @@ self.addEventListener('notificationclick', /** @param {NotificationEvent} event 
 
 // Message handler для коммуникации с приложением
 self.addEventListener('message', /** @param {ExtendableMessageEvent} event */ (event) => {
-  console.log('[SW] Message received:', event.data)
+  debugLog('Message received:', event.data)
   
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
@@ -426,4 +438,4 @@ self.addEventListener('message', /** @param {ExtendableMessageEvent} event */ (e
   }
 })
 
-console.log('[SW] Service worker script loaded')
+debugLog('Service worker script loaded')
