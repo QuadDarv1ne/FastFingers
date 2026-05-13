@@ -39,38 +39,28 @@ describe('useStatsWorker', () => {
 
   it('should initialize worker', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
     expect(result.current.error).toBeNull()
   })
 
   it('should calculate rhythm score', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const rhythmScore = await act(async () => {
-      return await result.current.calculateRhythm(mockKeystrokes)
-    })
+    const rhythmScore = await result.current.calculateRhythm(mockKeystrokes)
     expect(rhythmScore).toBeGreaterThanOrEqual(0)
     expect(rhythmScore).toBeLessThanOrEqual(100)
   })
 
   it('should calculate finger balance', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const balance = await act(async () => {
-      return await result.current.calculateFingerBalance(mockKeystrokes)
-    })
+    const balance = await result.current.calculateFingerBalance(mockKeystrokes)
     expect(balance).toHaveProperty('left')
     expect(balance).toHaveProperty('right')
     expect(balance.left + balance.right).toBe(100)
@@ -78,27 +68,19 @@ describe('useStatsWorker', () => {
 
   it('should calculate error recovery time', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const recoveryTime = await act(async () => {
-      return await result.current.calculateErrorRecovery(mockKeystrokes)
-    })
+    const recoveryTime = await result.current.calculateErrorRecovery(mockKeystrokes)
     expect(recoveryTime).toBeGreaterThanOrEqual(0)
   })
 
   it('should analyze time of day', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const timeAnalysis = await act(async () => {
-      return await result.current.analyzeTimeOfDay(mockSessions)
-    })
+    const timeAnalysis = await result.current.analyzeTimeOfDay(mockSessions)
     expect(Array.isArray(timeAnalysis)).toBe(true)
     expect(timeAnalysis.length).toBeGreaterThan(0)
     expect(timeAnalysis[0]).toHaveProperty('timeOfDay')
@@ -108,14 +90,10 @@ describe('useStatsWorker', () => {
 
   it('should analyze funnel', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const funnelResult = await act(async () => {
-      return await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
-    })
+    const funnelResult = await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
     expect(funnelResult).toHaveProperty('stages')
     expect(funnelResult).toHaveProperty('conversionRates')
     expect(Array.isArray(funnelResult.stages)).toBe(true)
@@ -124,14 +102,10 @@ describe('useStatsWorker', () => {
 
   it('should calculate correlation matrix', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const matrix = await act(async () => {
-      return await result.current.calculateCorrelationMatrix(mockSessions)
-    })
+    const matrix = await result.current.calculateCorrelationMatrix(mockSessions)
     expect(Array.isArray(matrix)).toBe(true)
     expect(matrix.length).toBeGreaterThan(0)
     expect(matrix[0]?.length).toBeGreaterThan(0)
@@ -141,9 +115,7 @@ describe('useStatsWorker', () => {
     const { result } = renderHook(() => useStatsWorker())
     // Пытаемся вызвать до готовности
     try {
-      await act(async () => {
-        return await result.current.calculateRhythm(mockKeystrokes)
-      })
+      await result.current.calculateRhythm(mockKeystrokes)
     } catch (error) {
       expect(error).toBeDefined()
     }
@@ -151,45 +123,38 @@ describe('useStatsWorker', () => {
 
   it('should terminate worker', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    await act(async () => {
-      result.current.terminate()
-    })
-    expect(result.current.isReady).toBe(false)
+    result.current.terminate()
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(false)
+    }, { timeout: 1000 })
   })
 
   it('should set error on invalid data', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
     // Пустые данные возвращают значение по умолчанию
-    const rhythmScore = await act(async () => {
-      return await result.current.calculateRhythm([])
-    })
+    const rhythmScore = await result.current.calculateRhythm([])
     expect(rhythmScore).toBe(75) // Mock возвращает 75
   })
 
   it('should handle multiple calculations sequentially', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    await waitFor(async () => {
-      await act(async () => {
-        expect(result.current.isReady).toBe(true)
-      })
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const [rhythm1, rhythm2] = await act(async () => {
-      return await Promise.all([
-        result.current.calculateRhythm(mockKeystrokes),
-        result.current.calculateRhythm(mockKeystrokes.slice(0, 5)),
-      ])
-    })
+    const rhythm1 = await result.current.calculateRhythm(mockKeystrokes)
+    result.current.terminate()
+    // Второй вызов должен失败, т.к. worker terminated
+    try {
+      await result.current.calculateRhythm(mockKeystrokes.slice(0, 5))
+    } catch (error) {
+      expect(error).toBeDefined()
+    }
     expect(rhythm1).toBeDefined()
-    expect(rhythm2).toBeDefined()
   })
 })

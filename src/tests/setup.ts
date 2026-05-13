@@ -130,19 +130,19 @@ class MockWorker {
     // Имитируем обработку сообщений
     setTimeout(() => {
       if (this.onmessage) {
-        const { type } = message
+        const { type, messageId } = message
         let result: any
 
         try {
           switch (type) {
             case 'CALCULATE_RHYTHM':
-              result = { type: 'RHYTHM_RESULT', payload: 75 }
+              result = { type: 'RHYTHM_RESULT', payload: 75, messageId }
               break
             case 'CALCULATE_FINGER_BALANCE':
-              result = { type: 'FINGER_BALANCE_RESULT', payload: { left: 50, right: 50 } }
+              result = { type: 'FINGER_BALANCE_RESULT', payload: { left: 50, right: 50 }, messageId }
               break
             case 'CALCULATE_ERROR_RECOVERY':
-              result = { type: 'ERROR_RECOVERY_RESULT', payload: 150 }
+              result = { type: 'ERROR_RECOVERY_RESULT', payload: 150, messageId }
               break
             case 'ANALYZE_TIME_OF_DAY':
               result = {
@@ -153,6 +153,7 @@ class MockWorker {
                   { timeOfDay: 'evening', sessions: 1, avgWpm: 60, avgAccuracy: 95 },
                   { timeOfDay: 'night', sessions: 1, avgWpm: 50, avgAccuracy: 88 },
                 ],
+                messageId,
               }
               break
             case 'ANALYZE_FUNNEL':
@@ -166,6 +167,7 @@ class MockWorker {
                   ],
                   conversionRates: [100, 75, 33],
                 },
+                messageId,
               }
               break
             case 'CALCULATE_CORRELATION':
@@ -177,10 +179,11 @@ class MockWorker {
                   [0.3, 0.6, 1, -0.3],
                   [-0.2, -0.1, -0.3, 1],
                 ],
+                messageId,
               }
               break
             default:
-              result = { type: 'ERROR', payload: 'Unknown message type' }
+              result = { type: 'ERROR', payload: 'Unknown message type', messageId }
           }
           this.onmessage({ data: result } as MessageEvent)
         } catch (error) {
@@ -188,6 +191,7 @@ class MockWorker {
             data: {
               type: 'ERROR',
               payload: error instanceof Error ? error.message : 'Unknown error',
+              messageId,
             },
           } as MessageEvent)
         }

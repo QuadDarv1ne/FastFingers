@@ -50,6 +50,8 @@ export function useStatsWorker(): UseStatsWorkerReturn {
   const workerRef = useRef<Worker | null>(null)
   const pendingPromises = useRef<Map<number, PendingPromise<unknown>>>(new Map())
   const messageIdRef = useRef(0)
+  const isReadyRef = useRef(false)
+  const isBusyRef = useRef(false)
 
   // Инициализация воркера
   useEffect(() => {
@@ -66,6 +68,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           setError(payload as string)
           pendingPromises.current.forEach(({ reject }) => reject(new Error(payload as string)))
           pendingPromises.current.clear()
+          isBusyRef.current = false
           setIsBusy(false)
           return
         }
@@ -75,6 +78,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           if (pending) {
             pendingPromises.current.delete(messageId)
             pending.resolve(payload)
+            isBusyRef.current = false
             setIsBusy(false)
           }
         }
@@ -82,9 +86,11 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
       workerRef.current.onerror = (event) => {
         setError(`Worker error: ${event.message}`)
+        isBusyRef.current = false
         setIsBusy(false)
       }
 
+      isReadyRef.current = true
       setIsReady(true)
 
       return () => {
@@ -93,11 +99,13 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           worker.terminate()
           workerRef.current = null
         }
+        isReadyRef.current = false
         // eslint-disable-next-line react-hooks/exhaustive-deps
         pendingPromises.current.clear()
       }
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      isReadyRef.current = false
       setIsReady(false)
       return
     }
@@ -106,12 +114,12 @@ export function useStatsWorker(): UseStatsWorkerReturn {
   // Универсальный метод для отправки задач воркеру
   const sendToWorker = useCallback(<T,>(type: string, payload: unknown): Promise<T> => {
     return new Promise((resolve, reject) => {
-      if (!workerRef.current || !isReady) {
+      if (!workerRef.current || !isReadyRef.current) {
         reject(new Error('Worker not ready'))
         return
       }
 
-      if (isBusy) {
+      if (isBusyRef.current) {
         reject(new Error('Worker is busy'))
         return
       }
@@ -133,7 +141,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         }
       }, 30000) // 30 секунд
     })
-  }, [isReady, isBusy])
+  }, []) // Теперь не зависит от isReady/isBusy — используем refs
 
   // Методы расчёта
   const calculateRhythm = useCallback(
@@ -176,6 +184,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
     if (workerRef.current) {
       workerRef.current.terminate()
       workerRef.current = null
+      isReadyRef.current = false
       setIsReady(false)
       pendingPromises.current.clear()
     }

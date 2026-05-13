@@ -189,7 +189,7 @@ describe('useAutoSave', () => {
       settings: mockSettings,
     }))
 
-    // isRestored должен быть false до восстановления
-    expect(result.current.isRestored).toBe(false)
+    // isRestored становится true после попытки восстановления (даже если данных нет)
+    expect(result.current.isRestored).toBe(true)
   })
 })
