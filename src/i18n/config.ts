@@ -168,6 +168,32 @@ export type TranslationKey =
   | 'stats.metric.accuracy'
   | 'stats.metric.cpm'
   | 'stats.metric.errors'
+  | 'profile.tab.overview'
+  | 'profile.tab.heatmap'
+  | 'profile.tab.goals'
+  | 'profile.toNextLevel'
+  | 'profile.learningVelocity'
+  | 'profile.totalWords'
+  | 'profile.practiceTime'
+  | 'profile.skillProfile'
+  | 'profile.avgWpm'
+  | 'profile.rhythm'
+  | 'profile.errorRecovery'
+  | 'profile.consistency'
+  | 'profile.quickNav'
+  | 'profile.goals'
+  | 'profile.completed'
+  | 'profile.heatmapTitle'
+  | 'profile.heatmapLegend'
+  | 'profile.noHeatmapData'
+  | 'profile.completeSessions'
+  | 'profile.goalsTitle'
+  | 'profile.done'
+  | 'profile.noGoals'
+  | 'profile.setGoals'
+  | 'profile.accountInfo'
+  | 'profile.registered'
+  | 'profile.lastLogin'
   | 'misc.theme'
   | 'misc.themeAuto'
   | 'misc.sound'
@@ -401,6 +427,32 @@ const resources = {
       'stats.metric.accuracy': 'Точность',
       'stats.metric.cpm': 'CPM',
       'stats.metric.errors': 'Ошибки',
+      'profile.tab.overview': 'Обзор',
+      'profile.tab.heatmap': 'Раскладка',
+      'profile.tab.goals': 'Цели',
+      'profile.toNextLevel': 'до следующего уровня',
+      'profile.learningVelocity': 'скорость обучения',
+      'profile.totalWords': 'Всего слов',
+      'profile.practiceTime': 'Время практики',
+      'profile.skillProfile': 'Профиль навыков',
+      'profile.avgWpm': 'Средний WPM',
+      'profile.rhythm': 'Ритм',
+      'profile.errorRecovery': 'Реакция на ошибки',
+      'profile.consistency': 'Стабильность',
+      'profile.quickNav': 'Быстрая навигация',
+      'profile.goals': 'Цели',
+      'profile.completed': 'выполнено',
+      'profile.heatmapTitle': 'Тепловая карта клавиш',
+      'profile.heatmapLegend': 'Точность',
+      'profile.noHeatmapData': 'Нет данных для тепловой карты',
+      'profile.completeSessions': 'Завершите несколько тренировок',
+      'profile.goalsTitle': 'Цели и достижения',
+      'profile.done': 'Выполнено',
+      'profile.noGoals': 'Нет целей',
+      'profile.setGoals': 'Установите цели для отслеживания прогресса',
+      'profile.accountInfo': 'Информация об аккаунте',
+      'profile.registered': 'Зарегистрирован',
+      'profile.lastLogin': 'Последний вход',
       'misc.theme': 'Тема',
       'misc.themeAuto': 'Авто (системная)',
       'misc.sound': 'Звук',
@@ -628,6 +680,32 @@ const resources = {
       'stats.metric.accuracy': 'Accuracy',
       'stats.metric.cpm': 'CPM',
       'stats.metric.errors': 'Errors',
+      'profile.tab.overview': 'Overview',
+      'profile.tab.heatmap': 'Layout',
+      'profile.tab.goals': 'Goals',
+      'profile.toNextLevel': 'to next level',
+      'profile.learningVelocity': 'learning velocity',
+      'profile.totalWords': 'Total words',
+      'profile.practiceTime': 'Practice time',
+      'profile.skillProfile': 'Skill Profile',
+      'profile.avgWpm': 'Average WPM',
+      'profile.rhythm': 'Rhythm',
+      'profile.errorRecovery': 'Error Recovery',
+      'profile.consistency': 'Consistency',
+      'profile.quickNav': 'Quick Navigation',
+      'profile.goals': 'Goals',
+      'profile.completed': 'completed',
+      'profile.heatmapTitle': 'Keyboard Heatmap',
+      'profile.heatmapLegend': 'Accuracy',
+      'profile.noHeatmapData': 'No heatmap data available',
+      'profile.completeSessions': 'Complete several practice sessions',
+      'profile.goalsTitle': 'Goals & Achievements',
+      'profile.done': 'Done',
+      'profile.noGoals': 'No goals set',
+      'profile.setGoals': 'Set goals to track your progress',
+      'profile.accountInfo': 'Account Information',
+      'profile.registered': 'Registered',
+      'profile.lastLogin': 'Last login',
       'misc.theme': 'Theme',
       'misc.themeAuto': 'Auto (System)',
       'misc.sound': 'Sound',

@@ -48,6 +48,7 @@ const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
+const GoalsPanel = lazy(() => import('./components/GoalsPanel').then((module) => ({ default: module.GoalsPanel })))
 const Stats = lazy(() => import('./components/Stats').then((module) => ({ default: module.Stats })))
 const ThemeToggle = lazy(() => import('./components/ThemeToggle').then((module) => ({ default: module.ThemeToggle })))
 const KeyboardSkinSelector = lazy(() => import('./components/KeyboardSkinSelector').then((module) => ({ default: module.KeyboardSkinSelector })))
@@ -65,6 +66,7 @@ function AppContent() {
   const [showSessionSummary, setShowSessionSummary] = useState(false)
   const [showStreakRewards, setShowStreakRewards] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showGoals, setShowGoals] = useState(false)
   const [lastSessionXp, setLastSessionXp] = useState(0)
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null)
 
@@ -128,7 +130,7 @@ function AppContent() {
     theme: settings.soundTheme,
   })
 
-  const { addSession } = useTypingHistory()
+  const { addSession, history } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
   const { theme, themeOption, setTheme, setThemeOption } = useTheme()
 
@@ -499,7 +501,31 @@ function AppContent() {
 
       {showProfile && (
         <Suspense fallback={<LoadingFallback />}>
-          <UserProfile onClose={() => setShowProfile(false)} />
+          <UserProfile
+            onClose={() => setShowProfile(false)}
+            onNavigate={(view) => {
+              setShowProfile(false)
+              if (view === 'statistics') setView('statistics')
+              else if (view === 'history') setView('history')
+              else if (view === 'achievements') setShowAchievements(true)
+              else if (view === 'goals') setShowGoals(true)
+            }}
+          />
+        </Suspense>
+      )}
+
+      {showGoals && (
+        <Suspense fallback={<LoadingFallback />}>
+          <GoalsPanel
+            onClose={() => setShowGoals(false)}
+            currentProgress={{
+              wpm: progress.bestWpm,
+              accuracy: progress.bestAccuracy,
+              totalWords: progress.totalWordsTyped,
+              totalSessions: history.totalSessions,
+              streak: progress.streak,
+            }}
+          />
         </Suspense>
       )}
 
