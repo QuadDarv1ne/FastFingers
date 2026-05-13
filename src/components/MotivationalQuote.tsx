@@ -31,7 +31,7 @@ export function MotivationalQuote({
   }
 
   return (
-    <div className="card p-6 relative overflow-hidden" role="complementary" aria-label={t('notification.achievement')}>
+    <div className="card p-6 relative overflow-hidden" role="complementary" aria-label={t('quote.motivational')}>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 text-6xl opacity-10 select-none" aria-hidden="true">
         💭

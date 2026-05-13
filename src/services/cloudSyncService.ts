@@ -1,5 +1,5 @@
 import { User, UserStats } from '../types/auth'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 import { createScopedLogger } from '../utils/logger'
 
@@ -380,15 +380,18 @@ export const cloudSyncService = new CloudSyncService()
 
 // Hook for auto-sync
 export function useAutoSync(user: User | null, stats: UserStats) {
+  const statsRef = useRef(stats)
+  statsRef.current = stats
+
   useEffect(() => {
     if (!user) return
 
     const interval = setInterval(async () => {
-      await cloudSyncService.saveProgress(user, stats).catch((err) => {
+      await cloudSyncService.saveProgress(user, statsRef.current).catch((err) => {
         logger.error('Auto-sync failed:', err)
       })
     }, SYNC_INTERVAL)
 
     return () => clearInterval(interval)
-  }, [user, stats])
+  }, [user])
 }

@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo, Dispatch, SetStateAction } from 'react';
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types';
+import { useState, useCallback, useMemo } from 'react';
+import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize } from '../types';
 import { calculateLevel, xpForLevel, calculateSessionXp, updateKeyHeatmap } from '../utils/stats';
 import { calculateStreakXpBonus } from '../utils/streakBonus';
+import { useAppStore } from '../stores/useAppStore';
 
 interface UseUserProgressOptions {
   initialLevel?: number;
@@ -15,12 +16,12 @@ interface UseUserProgressReturn {
   heatmap: KeyHeatmapData;
   showHeatmap: boolean;
   settings: UserSettings;
-  setProgress: Dispatch<SetStateAction<UserProgress>>;
   handleSessionComplete: (stats: TypingStats, streak?: number) => void;
   updateHeatmap: (key: string, isCorrect: boolean) => void;
   setShowHeatmap: (show: boolean) => void;
   resetHeatmap: () => void;
   updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
+  importProgress: (data: UserProgress) => void;
 }
 
 export function useUserProgress(options?: UseUserProgressOptions): UseUserProgressReturn {
@@ -40,17 +41,29 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   const [heatmap, setHeatmap] = useState<KeyHeatmapData>({});
   const [showHeatmap, setShowHeatmap] = useState(false);
 
-  const [settings, setSettings] = useState<UserSettings>({
-    layout: 'jcuken',
-    soundEnabled: true,
-    soundVolume: 0.5,
-    soundTheme: 'default',
-    fontSize: 'medium',
-    theme: 'dark',
-    keyboardSkin: 'classic',
-    showKeyboard: true,
-    showStats: true,
-  });
+  const [fontSize, setFontSize] = useState<FontSize>('medium');
+
+  // Persisted settings from Zustand store
+  const layout = useAppStore(s => s.layout);
+  const soundEnabled = useAppStore(s => s.soundEnabled);
+  const soundVolume = useAppStore(s => s.soundVolume);
+  const soundTheme = useAppStore(s => s.soundTheme);
+  const theme = useAppStore(s => s.theme);
+  const keyboardSkin = useAppStore(s => s.keyboardSkin);
+  const showKeyboard = useAppStore(s => s.showKeyboard);
+  const showStats = useAppStore(s => s.showStats);
+
+  const settings = useMemo<UserSettings>(() => ({
+    layout,
+    soundEnabled,
+    soundVolume,
+    soundTheme,
+    fontSize,
+    theme,
+    keyboardSkin,
+    showKeyboard,
+    showStats,
+  }), [layout, soundEnabled, soundVolume, soundTheme, fontSize, theme, keyboardSkin, showKeyboard, showStats]);
 
   const handleSessionComplete = useCallback((stats: TypingStats, streak = 0) => {
     setCurrentStats(stats);
@@ -76,6 +89,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         totalWordsTyped: prev.totalWordsTyped + Math.floor(stats.correctChars / 5),
         bestWpm: Math.max(prev.bestWpm, stats.wpm),
         bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
+        totalPracticeTime: prev.totalPracticeTime + Math.round(stats.timeElapsed),
       };
     });
   }, [options]);
@@ -85,12 +99,31 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   }, [])
 
   const updateSetting = useCallback(<K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    if (key === 'fontSize') {
+      setFontSize(value as FontSize);
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const setters: Record<string, (...args: any[]) => void> = {
+      layout: useAppStore.getState().setLayout,
+      soundEnabled: useAppStore.getState().setSoundEnabled,
+      soundVolume: useAppStore.getState().setSoundVolume,
+      soundTheme: useAppStore.getState().setSoundTheme,
+      theme: useAppStore.getState().setTheme,
+      keyboardSkin: useAppStore.getState().setKeyboardSkin,
+      showKeyboard: useAppStore.getState().setShowKeyboard,
+      showStats: useAppStore.getState().setShowStats,
+    };
+    setters[key]?.(value);
   }, []);
 
   const resetHeatmap = useCallback(() => {
     setHeatmap({});
     setShowHeatmap(false);
+  }, []);
+
+  const importProgress = useCallback((data: UserProgress) => {
+    setProgress(data);
   }, []);
 
   return useMemo(() => ({
@@ -99,11 +132,11 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     heatmap,
     showHeatmap,
     settings,
-    setProgress,
     handleSessionComplete,
     updateHeatmap,
     setShowHeatmap,
     resetHeatmap,
     updateSetting,
-  }), [progress, currentStats, heatmap, showHeatmap, settings, setProgress, handleSessionComplete, updateHeatmap, resetHeatmap, updateSetting]);
+    importProgress,
+  }), [progress, currentStats, heatmap, showHeatmap, settings, handleSessionComplete, updateHeatmap, resetHeatmap, updateSetting, importProgress]);
 }

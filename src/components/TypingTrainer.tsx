@@ -532,7 +532,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     prevProps.layout === nextProps.layout &&
     prevProps.onSessionComplete === nextProps.onSessionComplete &&
     prevProps.onKeyInput === nextProps.onKeyInput &&
-    prevProps.sound === nextProps.sound &&
+    prevProps.sound?.isEnabled === nextProps.sound?.isEnabled &&
     prevProps.customExercises === nextProps.customExercises
   )
 })

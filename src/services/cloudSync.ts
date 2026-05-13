@@ -7,6 +7,7 @@ const PENDING_SESSIONS_KEY = 'fastfingers_pending_sessions'
 const BACKEND_STATUS_KEY = 'fastfingers_backend_status'
 
 interface CloudSession {
+  id?: string
   wpm: number
   cpm: number
   accuracy: number

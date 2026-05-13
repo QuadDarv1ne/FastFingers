@@ -99,7 +99,7 @@ function AppContent() {
     updateHeatmap,
     setShowHeatmap,
     updateSetting,
-    setProgress,
+    importProgress,
   } = useUserProgress({
     onLevelUp: (newLevel) => {
       addNotification(createLevelUpNotification(newLevel))
@@ -202,9 +202,9 @@ function AppContent() {
 
   const handleImportProgress = useCallback(
     (data: { progress: UserProgress }) => {
-      setProgress(data.progress)
+      importProgress(data.progress)
     },
-    [setProgress]
+    [importProgress]
   )
 
   if (authLoading) {
