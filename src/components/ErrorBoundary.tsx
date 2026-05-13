@@ -1,4 +1,4 @@
-import { Component, ErrorInfo, ReactNode, type MutableRefObject } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import * as Sentry from '@sentry/react'
 
 interface Props {
@@ -15,13 +15,30 @@ interface State {
   errorInfo: ErrorInfo | null
 }
 
-const prevResetKeysRef: MutableRefObject<unknown[] | null> = { current: null }
-
 export class ErrorBoundary extends Component<Props, State> {
+  // Instance-level ref to avoid sharing state between ErrorBoundary instances
+  private prevResetKeys: unknown[] | null = null
+
   public state: State = {
     hasError: false,
     error: null,
     errorInfo: null,
+  }
+
+  public componentDidUpdate(_prevProps: Props) {
+    // Check resetKeys to auto-reset error state
+    if (this.props.resetKeys && this.props.resetKeys.length > 0) {
+      const currentKey = JSON.stringify(this.props.resetKeys)
+      const prevKey = this.prevResetKeys !== null
+        ? JSON.stringify(this.prevResetKeys)
+        : null
+      this.prevResetKeys = this.props.resetKeys
+      if (prevKey !== null && currentKey !== prevKey && this.state.hasError) {
+        this.setState({ hasError: false, error: null, errorInfo: null })
+      }
+    } else {
+      this.prevResetKeys = this.props.resetKeys ?? null
+    }
   }
 
   public static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
@@ -34,20 +51,6 @@ export class ErrorBoundary extends Component<Props, State> {
     }
     this.setState({ errorInfo })
     this.props.onError?.(error, errorInfo)
-  }
-
-  public static getDerivedStateFromProps(nextProps: Props, prevState: State): Pick<State, 'hasError' | 'error' | 'errorInfo'> | null {
-    if (nextProps.resetKeys && nextProps.resetKeys.length > 0) {
-      const currentKey = JSON.stringify(nextProps.resetKeys)
-      const prevKey = prevResetKeysRef.current !== null
-        ? JSON.stringify(prevResetKeysRef.current)
-        : null
-      prevResetKeysRef.current = nextProps.resetKeys
-      if (prevKey !== null && currentKey !== prevKey && prevState.hasError) {
-        return { hasError: false, error: null, errorInfo: null }
-      }
-    }
-    return null
   }
 
   public handleRetry = () => {

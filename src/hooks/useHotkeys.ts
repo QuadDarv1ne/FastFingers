@@ -100,7 +100,7 @@ export function useHotkey(
     if (!enabled) return
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
+      if (ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
       if (matchesHotkey(e, hotkey)) {
         if (options.preventDefault !== false) e.preventDefault()
         if (options.stopPropagation) e.stopPropagation()

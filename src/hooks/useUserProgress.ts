@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
 import { calculateLevel, xpForLevel, calculateSessionXp, updateKeyHeatmap } from '../utils/stats';
 import { calculateStreakXpBonus } from '../utils/streakBonus';
@@ -43,6 +43,17 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
 
   const [fontSize, setFontSize] = useState<FontSize>('medium');
 
+  // Track previous level to detect level-ups without side effects in setState
+  const prevLevelRef = useRef(options?.initialLevel ?? 1);
+
+  // Detect level-up and call callback as a side effect
+  useEffect(() => {
+    if (progress.level > prevLevelRef.current) {
+      options?.onLevelUp?.(progress.level);
+    }
+    prevLevelRef.current = progress.level;
+  }, [progress.level, options]);
+
   // Persisted settings from Zustand store
   const layout = useAppStore(s => s.layout);
   const soundEnabled = useAppStore(s => s.soundEnabled);
@@ -75,11 +86,6 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     setProgress(prev => {
       const newXp = prev.xp + totalXp;
       const newLevel = calculateLevel(newXp);
-      const prevLevel = calculateLevel(prev.xp);
-
-      if (newLevel > prevLevel) {
-        options?.onLevelUp?.(newLevel);
-      }
 
       return {
         ...prev,
@@ -92,7 +98,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         totalPracticeTime: prev.totalPracticeTime + Math.round(stats.timeElapsed),
       };
     });
-  }, [options]);
+  }, []);
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
     setHeatmap(prev => updateKeyHeatmap(prev, key, isCorrect))

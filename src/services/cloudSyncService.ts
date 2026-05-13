@@ -43,17 +43,30 @@ class CloudSyncService {
   private isSyncing = false
   private isOnline = true
   private offlineCache: Array<{ type: string; data: unknown }> = []
+  private onlineHandler: () => void
+  private offlineHandler: () => void
 
   constructor() {
     // Monitor online status
+    this.onlineHandler = () => {
+      this.isOnline = true
+      this.flushOfflineCache()
+    }
+    this.offlineHandler = () => {
+      this.isOnline = false
+    }
+
     if (typeof window !== 'undefined') {
-      window.addEventListener('online', () => {
-        this.isOnline = true
-        this.flushOfflineCache()
-      })
-      window.addEventListener('offline', () => {
-        this.isOnline = false
-      })
+      window.addEventListener('online', this.onlineHandler)
+      window.addEventListener('offline', this.offlineHandler)
+    }
+  }
+
+  // Clean up event listeners
+  destroy(): void {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('online', this.onlineHandler)
+      window.removeEventListener('offline', this.offlineHandler)
     }
   }
 

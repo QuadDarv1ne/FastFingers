@@ -322,43 +322,45 @@ function getcurrentSeason(): string {
 }
 
 /**
+ * Hook для получения дуэлей пользователя
+ */
+export function useUserDuels(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['duels', userId],
+    queryFn: async () => {
+      if (!supabase || !userId) return []
+
+      const { data, error } = await supabase
+        .from('duels')
+        .select(`
+          *,
+          challenger:challenger_id (
+            id,
+            name,
+            avatar
+          ),
+          opponent:opponent_id (
+            id,
+            name,
+            avatar
+          )
+        `)
+        .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return data || []
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 30,
+  })
+}
+
+/**
  * Hook для дуэлей
  */
 export function useDuels() {
   const queryClient = useQueryClient()
-
-  // Get user's duels
-  const useUserDuels = (userId: string | undefined) => {
-    return useQuery({
-      queryKey: ['duels', userId],
-      queryFn: async () => {
-        if (!supabase || !userId) return []
-
-        const { data, error } = await supabase
-          .from('duels')
-          .select(`
-            *,
-            challenger:challenger_id (
-              id,
-              name,
-              avatar
-            ),
-            opponent:opponent_id (
-              id,
-              name,
-              avatar
-            )
-          `)
-          .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-        return data || []
-      },
-      enabled: !!userId,
-      staleTime: 1000 * 30,
-    })
-  }
 
   // Create duel challenge
   const createDuel = useMutation({
