@@ -1,4 +1,4 @@
-import { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode, type MutableRefObject } from 'react'
 import * as Sentry from '@sentry/react'
 
 interface Props {
@@ -13,15 +13,15 @@ interface State {
   hasError: boolean
   error: Error | null
   errorInfo: ErrorInfo | null
-  key: number
 }
+
+const prevResetKeysRef: MutableRefObject<unknown[] | null> = { current: null }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
     errorInfo: null,
-    key: 0,
   }
 
   public static getDerivedStateFromError(error: Error): Pick<State, 'hasError' | 'error'> {
@@ -38,8 +38,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public static getDerivedStateFromProps(nextProps: Props, prevState: State): Pick<State, 'hasError' | 'error' | 'errorInfo'> | null {
     if (nextProps.resetKeys && nextProps.resetKeys.length > 0) {
-      const keysChanged = prevState.key !== nextProps.resetKeys.length
-      if (keysChanged && prevState.hasError) {
+      const currentKey = JSON.stringify(nextProps.resetKeys)
+      const prevKey = prevResetKeysRef.current !== null
+        ? JSON.stringify(prevResetKeysRef.current)
+        : null
+      prevResetKeysRef.current = nextProps.resetKeys
+      if (prevKey !== null && currentKey !== prevKey && prevState.hasError) {
         return { hasError: false, error: null, errorInfo: null }
       }
     }
@@ -48,12 +52,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public handleRetry = () => {
     this.props.onRetry?.()
-    this.setState(prev => ({
+    this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
-      key: prev.key + 1,
-    }))
+    })
   }
 
   public resetError = () => {
