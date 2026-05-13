@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
@@ -21,6 +21,16 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    const currentTimeouts = timeoutsRef.current;
+    return () => {
+      currentTimeouts.forEach(id => clearTimeout(id))
+      currentTimeouts.clear()
+    }
+  }, [])
 
   const showToast = useCallback(
     (message: string, type: ToastType = 'info', duration = 3000) => {
@@ -30,9 +40,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToasts((prev) => [...prev, toast])
 
       if (duration > 0) {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
+          timeoutsRef.current.delete(id)
           setToasts((prev) => prev.filter((t) => t.id !== id))
         }, duration)
+        timeoutsRef.current.set(id, timeoutId)
       }
     },
     []

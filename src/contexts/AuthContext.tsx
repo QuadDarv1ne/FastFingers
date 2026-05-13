@@ -78,9 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const withActionState = useCallback(async <T,>(action: Promise<T>): Promise<T> => {
     setIsActionPending(true);
-    await new Promise(resolve => setTimeout(resolve, ACTION_DELAY));
+    const startTime = Date.now();
     try {
       const result = await action;
+      // Ensure minimum pending duration for UX
+      const elapsed = Date.now() - startTime;
+      if (elapsed < ACTION_DELAY) {
+        await new Promise(resolve => setTimeout(resolve, ACTION_DELAY - elapsed));
+      }
       return result;
     } finally {
       setIsActionPending(false);

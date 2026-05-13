@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useSessionTimer } from '@hooks/useSessionTimer'
 import { useNotifications } from '@hooks/useNotifications'
 
@@ -27,11 +28,13 @@ export function SessionTimerWidget({
   })
 
   // Автоматический старт/пауза при печати
-  if (isTyping && !timer.isActive) {
-    timer.start()
-  } else if (!isTyping && timer.isActive) {
-    timer.pause()
-  }
+  useEffect(() => {
+    if (isTyping && !timer.isActive) {
+      timer.start()
+    } else if (!isTyping && timer.isActive) {
+      timer.pause()
+    }
+  }, [isTyping, timer])
 
   return (
     <div className="card p-4">

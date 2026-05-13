@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface TooltipProps {
@@ -10,20 +10,22 @@ interface TooltipProps {
 
 export function Tooltip({ content, children, position = 'top', delay = 300 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const timeoutIdRef = useRef<ReturnType<typeof setTimeout>>()
 
-  const handleMouseEnter = () => {
-    const id = setTimeout(() => setIsVisible(true), delay)
-    setTimeoutId(id)
-  }
+  const handleMouseEnter = useCallback(() => {
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current)
+    }
+    timeoutIdRef.current = setTimeout(() => setIsVisible(true), delay)
+  }, [delay])
 
-  const handleMouseLeave = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-      setTimeoutId(null)
+  const handleMouseLeave = useCallback(() => {
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current)
+      timeoutIdRef.current = undefined
     }
     setIsVisible(false)
-  }
+  }, [])
 
   const positionClasses = {
     top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
