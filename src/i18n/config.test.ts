@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest'
 import i18n from 'i18next'
 import {
   useAppTranslation,
@@ -7,8 +7,20 @@ import {
   type TranslationKey,
   type SupportedLanguage,
 } from './config'
+import ruJson from './locales/ru.json'
+import enJson from './locales/en.json'
+import zhJson from './locales/zh.json'
+import heJson from './locales/he.json'
 
 describe('i18n config', () => {
+  beforeAll(async () => {
+    // Preload translations for tests
+    i18n.addResourceBundle('ru', 'translation', ruJson, true, true)
+    i18n.addResourceBundle('en', 'translation', enJson, true, true)
+    i18n.addResourceBundle('zh', 'translation', zhJson, true, true)
+    i18n.addResourceBundle('he', 'translation', heJson, true, true)
+  })
+
   beforeEach(async () => {
     vi.clearAllMocks()
     await i18n.changeLanguage('ru')
