@@ -126,37 +126,75 @@ export class ApiClient {
 
     for (let attempt = 0; attempt <= this.retryAttempts; attempt++) {
       try {
+        // Use caller's signal or create our own AbortController for timeout
+        if (signal !== undefined) {
+          // Caller provided their own signal - just set timeout cleanup
+          const timeoutId = setTimeout(() => {}, timeout || this.timeout)
+
+          try {
+            const response = await fetch(this.baseURL + url, {
+              method,
+              headers: {
+                ...this.defaultHeaders,
+                ...headers,
+              },
+              body: body ? JSON.stringify(body) : undefined,
+              signal,
+            })
+
+            if (!response.ok) {
+              const errorData = await this.parseErrorResponse(response)
+              throw new ApiError(
+                errorData.message || `HTTP ${response.status}`,
+                response.status,
+                errorData.code,
+                errorData.details
+              )
+            }
+
+            if (response.status === 204) {
+              return {} as T
+            }
+
+            return await response.json()
+          } finally {
+            clearTimeout(timeoutId)
+          }
+        }
+
+        // No caller signal - create our own controller for timeout
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), timeout || this.timeout)
 
-        const response = await fetch(this.baseURL + url, {
-          method,
-          headers: {
-            ...this.defaultHeaders,
-            ...headers,
-          },
-          body: body ? JSON.stringify(body) : undefined,
-          signal: signal || controller.signal,
-        })
+        try {
+          const response = await fetch(this.baseURL + url, {
+            method,
+            headers: {
+              ...this.defaultHeaders,
+              ...headers,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+            signal: controller.signal,
+          })
 
-        clearTimeout(timeoutId)
+          if (!response.ok) {
+            const errorData = await this.parseErrorResponse(response)
+            throw new ApiError(
+              errorData.message || `HTTP ${response.status}`,
+              response.status,
+              errorData.code,
+              errorData.details
+            )
+          }
 
-        if (!response.ok) {
-          const errorData = await this.parseErrorResponse(response)
-          throw new ApiError(
-            errorData.message || `HTTP ${response.status}`,
-            response.status,
-            errorData.code,
-            errorData.details
-          )
+          if (response.status === 204) {
+            return {} as T
+          }
+
+          return await response.json()
+        } finally {
+          clearTimeout(timeoutId)
         }
-
-        // Пустой ответ для 204 No Content
-        if (response.status === 204) {
-          return {} as T
-        }
-
-        return await response.json()
       } catch (error) {
         lastError = error as Error
 

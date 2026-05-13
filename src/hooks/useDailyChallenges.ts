@@ -101,9 +101,10 @@ export function useDailyChallenges() {
   const checkStreak = useCallback((today: string) => {
     setStreak(prev => {
       const lastDate = prev.lastPracticeDate
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]
+      // Compute yesterday relative to the provided today date
+      const todayDate = new Date(today + 'T00:00:00')
+      todayDate.setDate(todayDate.getDate() - 1)
+      const yesterdayStr = todayDate.toISOString().split('T')[0]
 
       let newCurrent = prev.current
       let newLongest = prev.longest

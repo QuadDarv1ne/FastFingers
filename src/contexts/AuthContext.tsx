@@ -189,10 +189,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...prev,
         user: updatedUser,
       }));
-    } catch {
-      clearError();
+    } catch (error) {
+      const authError = getAuthError(error);
+      setState(prev => ({
+        ...prev,
+        error: authError.message,
+      }));
     }
-  }, [state.user, clearError]);
+  }, [state.user]);
 
   const contextValue = useMemo<AuthContextType>(() => ({
     ...state,

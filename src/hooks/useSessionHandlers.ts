@@ -8,7 +8,7 @@ interface UseSessionHandlersOptions {
   activeChallenge: string | null
   todayChallenge: ChallengeWithProgress | null
   completeChallenge: (id: string, wpm: number, accuracy: number) => void
-  handleSessionComplete: (stats: TypingStats, streak: number) => void
+  handleSessionComplete: (stats: TypingStats, totalXp: number) => void
   streak: { current: number }
   setLastSessionXp: (xp: number) => void
   setShowSessionSummary: (show: boolean) => void
@@ -42,7 +42,7 @@ export function useSessionHandlers({
         completeChallenge(activeChallenge, stats.wpm, stats.accuracy)
       }
 
-      handleSessionComplete(stats, streak.current)
+      handleSessionComplete(stats, totalXp)
       setShowSessionSummary(true)
     },
     [

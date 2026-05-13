@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
-import { calculateLevel, xpForLevel, calculateSessionXp, updateKeyHeatmap } from '../utils/stats';
-import { calculateStreakXpBonus } from '../utils/streakBonus';
+import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
 import { useAppStore } from '../stores/useAppStore';
 
 interface UseUserProgressOptions {
@@ -16,7 +15,7 @@ interface UseUserProgressReturn {
   heatmap: KeyHeatmapData;
   showHeatmap: boolean;
   settings: UserSettings;
-  handleSessionComplete: (stats: TypingStats, streak?: number) => void;
+  handleSessionComplete: (stats: TypingStats, totalXp: number) => void;
   updateHeatmap: (key: string, isCorrect: boolean) => void;
   setShowHeatmap: (show: boolean) => void;
   resetHeatmap: () => void;
@@ -76,12 +75,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     showStats,
   }), [layout, soundEnabled, soundVolume, soundTheme, fontSize, theme, keyboardSkin, showKeyboard, showStats]);
 
-  const handleSessionComplete = useCallback((stats: TypingStats, streak = 0) => {
+  const handleSessionComplete = useCallback((stats: TypingStats, totalXp: number) => {
     setCurrentStats(stats);
-
-    const xp = calculateSessionXp(stats);
-    const streakBonus = calculateStreakXpBonus(streak);
-    const totalXp = xp + streakBonus;
 
     setProgress(prev => {
       const newXp = prev.xp + totalXp;

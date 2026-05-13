@@ -467,9 +467,9 @@ function AppContent() {
               maxWpm: progress.bestWpm,
               maxAccuracy: progress.bestAccuracy,
               totalWords: progress.totalWordsTyped,
-              totalSessions: 0,
+              totalSessions: history.totalSessions,
               currentStreak: progress.streak,
-              perfectSessions: 0,
+              perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
             }}
             onClose={() => setShowAchievements(false)}
           />
