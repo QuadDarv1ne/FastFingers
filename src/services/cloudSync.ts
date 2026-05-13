@@ -184,14 +184,46 @@ export async function saveTypingSession(
 }
 
 function _saveSessionToLocal(stats: TypingStats, xp: number) {
-  const sessions = JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
-  sessions.unshift({
-    id: Date.now().toString(),
-    date: new Date().toISOString(),
-    ...stats,
-    xp,
-  })
-  localStorage.setItem('fastfingers_history', JSON.stringify(sessions.slice(0, 100)))
+  try {
+    const stored = localStorage.getItem('fastfingers_history')
+    let totalSessions = 0
+    let sessions: CloudSession[] = []
+
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed)) {
+        // Backwards compatibility: migrate old array format
+        sessions = parsed
+        totalSessions = parsed.length
+      } else if (parsed && typeof parsed === 'object') {
+        sessions = parsed.sessions || []
+        totalSessions = parsed.totalSessions || 0
+      }
+    }
+
+    sessions.unshift({
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      wpm: stats.wpm,
+      cpm: stats.cpm,
+      accuracy: stats.accuracy,
+      errors: stats.errors,
+      correctChars: stats.correctChars,
+      totalChars: stats.totalChars,
+      duration: Math.floor(stats.timeElapsed),
+      xp,
+    })
+
+    const historyData = {
+      sessions: sessions.slice(0, 100),
+      heatmap: {} as Record<string, unknown>,
+      totalSessions: totalSessions + 1,
+      totalTime: 0,
+    }
+    localStorage.setItem('fastfingers_history', JSON.stringify(historyData))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
@@ -234,7 +266,8 @@ export async function loadUserSessions(
 ): Promise<{ sessions: CloudSession[]; isOffline: boolean }> {
   if (!supabase) {
     // Fallback на localStorage
-    const localSessions = JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    const stored = JSON.parse(localStorage.getItem('fastfingers_history') || '{}')
+    const localSessions = Array.isArray(stored) ? stored : (stored.sessions || [])
     return { sessions: localSessions, isOffline: true }
   }
 
@@ -263,7 +296,8 @@ export async function loadUserSessions(
     return { sessions, isOffline: false }
   } catch {
     // Fallback на localStorage
-    const localSessions = JSON.parse(localStorage.getItem('fastfingers_history') || '[]')
+    const stored = JSON.parse(localStorage.getItem('fastfingers_history') || '{}')
+    const localSessions = Array.isArray(stored) ? stored : (stored.sessions || [])
     updateBackendStatus({ sync: false })
     return { sessions: localSessions, isOffline: true }
   }
