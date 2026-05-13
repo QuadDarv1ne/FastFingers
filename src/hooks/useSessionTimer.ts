@@ -68,7 +68,9 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
     }
   })
 
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+  const onBreakReminderRef = useRef(onBreakReminder)
+  onBreakReminderRef.current = onBreakReminder
 
   // Сохранение в localStorage
   useEffect(() => {
@@ -108,7 +110,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
         const needsBreak = timeSinceBreak >= breakInterval
 
         if (needsBreak && !prev.needsBreak) {
-          onBreakReminder?.()
+          onBreakReminderRef.current?.()
         }
 
         return {
@@ -125,7 +127,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [enabled, state.isActive, breakInterval, onBreakReminder])
+  }, [enabled, state.isActive, breakInterval])
 
   const start = useCallback(() => {
     setState(prev => ({ ...prev, isActive: true }))

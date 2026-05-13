@@ -133,11 +133,12 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
         query = query.gte('created_at', dateFilter)
       }
 
-      // Order by sort field
-      query = query.order(sortBy === 'level' ? 'users' : sortBy, {
-        ascending: false,
-        foreignTable: sortBy === 'level' ? 'users' : undefined,
-      })
+      // Order by sort field (level is stored in nested users.stats, so we skip server-side ordering for it)
+      if (sortBy !== 'level') {
+        query = query.order(sortBy, {
+          ascending: false,
+        })
+      }
 
       // Limit
       query = query.limit(limit)
@@ -147,7 +148,7 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
       if (error) throw error
 
       // Transform data
-      const entries: LeaderboardEntry[] = (data || []).map((item, index) => {
+      const entries: LeaderboardEntry[] = (data || []).map((item) => {
         const users = getusers(item.users)
         return {
           id: item.id,
@@ -157,21 +158,23 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
           wpm: item.wpm,
           accuracy: item.accuracy,
           score: item.score,
-          level: sortBy === 'level'
-            ? Number.parseInt(String(users.stats?.level)) || 1
-            : 1,
-          rank: index + 1,
+          level: Number.parseInt(String(users.stats?.level)) || 1,
+          rank: 0, // Will be set after sorting
           game_mode: item.game_mode,
           season: item.season,
           created_at: item.created_at,
         }
       })
 
+      // Client-side sorting for level (since it's nested in users.stats)
+      if (sortBy === 'level') {
+        entries.sort((a, b) => b.level - a.level)
+      }
+
       // Recalculate ranks properly
       return entries.map((entry, index) => ({
         ...entry,
         rank: index + 1,
-        level: entry.level || 1,
       }))
     },
     staleTime: 1000 * 60, // 1 minute

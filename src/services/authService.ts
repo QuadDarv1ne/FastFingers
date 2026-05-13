@@ -263,6 +263,16 @@ export const authService = {
       throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
     }
 
+    // Check lockout before any auth attempt (applies to both Supabase and localStorage)
+    const lockoutTime = checkLockout(sanitizedEmail);
+    if (lockoutTime) {
+      const minutes = Math.ceil(lockoutTime / 60000);
+      throw {
+        code: 'locked-out',
+        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.`
+      } as AuthError;
+    }
+
     if (supabase) {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
@@ -270,6 +280,8 @@ export const authService = {
       });
 
       if (error) {
+        // Track failed attempt for lockout
+        saveLoginAttempt(sanitizedEmail);
         if (error.status === 401) {
           throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
         }
@@ -280,6 +292,7 @@ export const authService = {
       }
 
       if (data.user) {
+        clearLoginAttempts(sanitizedEmail);
         const user: User = {
           id: data.user.id,
           email: sanitizedEmail,
@@ -301,15 +314,6 @@ export const authService = {
         saveCurrentUser(user, credentials.rememberMe ?? true);
         return user;
       }
-    }
-
-    const lockoutTime = checkLockout(sanitizedEmail);
-    if (lockoutTime) {
-      const minutes = Math.ceil(lockoutTime / 60000);
-      throw {
-        code: 'locked-out',
-        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.`
-      } as AuthError;
     }
 
     const users = getUsers();
