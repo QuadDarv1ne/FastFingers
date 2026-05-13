@@ -32,6 +32,12 @@ export interface DuelsData {
   }
 }
 
+interface UsersRelation {
+  name: string
+  avatar: string | null
+  stats?: Record<string, unknown>
+}
+
 export interface LeaderboardEntry {
   id: string
   user_id: string
@@ -141,22 +147,25 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
       if (error) throw error
 
       // Transform data
-      const entries: LeaderboardEntry[] = (data || []).map((item, index) => ({
-        id: item.id,
-        user_id: item.user_id,
-        name: (item.users as unknown as { name: string }).name,
-        avatar: (item.users as unknown as { avatar: string | null }).avatar,
-        wpm: item.wpm,
-        accuracy: item.accuracy,
-        score: item.score,
-        level: sortBy === 'level'
-          ? Number.parseInt((item.users as unknown as { stats: string }).stats) || 1
-          : 1,
-        rank: index + 1,
-        game_mode: item.game_mode,
-        season: item.season,
-        created_at: item.created_at,
-      }))
+      const entries: LeaderboardEntry[] = (data || []).map((item, index) => {
+        const users = getusers(item.users)
+        return {
+          id: item.id,
+          user_id: item.user_id,
+          name: users.name,
+          avatar: users.avatar,
+          wpm: item.wpm,
+          accuracy: item.accuracy,
+          score: item.score,
+          level: sortBy === 'level'
+            ? Number.parseInt(String(users.stats?.level)) || 1
+            : 1,
+          rank: index + 1,
+          game_mode: item.game_mode,
+          season: item.season,
+          created_at: item.created_at,
+        }
+      })
 
       // Recalculate ranks properly
       return entries.map((entry, index) => ({
@@ -291,6 +300,15 @@ export function useLeaderboardStats(gameMode: GameMode = 'classic') {
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
+}
+
+/**
+ * Helper to extract typed users relation from Supabase response
+ * Supabase select with relations returns untyped nested objects
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getusers(raw: any): UsersRelation {
+  return raw as unknown as UsersRelation
 }
 
 /**

@@ -16,7 +16,7 @@ interface UseApiOptions<T> {
   /** Кэширование данных */
   cacheTime?: number
   /** Функция для преобразования данных */
-  transform?: (data: unknown) => T
+  transform?: (data: T) => T
   /** Колбэк при успехе */
   onSuccess?: (data: T) => void
   /** Колбэк при ошибке */
@@ -109,7 +109,7 @@ export function useApi<T = unknown>(
         signal: abortControllerRef.current.signal,
       })
 
-      const transformedData = transform ? transform(response as unknown) : (response as T)
+      const transformedData = transform ? transform(response) : response
 
       // Сохранение в кэш
       cacheRef.current = { data: transformedData, timestamp: Date.now() }

@@ -8,7 +8,6 @@ import { supabase } from '../services/supabase'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
 import { useHotkey } from '../hooks/useHotkeys'
-import type { User } from '../types/auth'
 import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage, type HardcoreRank } from '../utils/hardcoreRank'
 import { createAchievementNotification } from '../utils/notifications'
 import { useNotifications } from '../contexts/NotificationContext'
@@ -377,7 +376,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       {showCertificate && lastStats && user && (
         <CertificateGenerator
-          user={user as unknown as User}
+          user={user}
           wpm={lastStats.wpm}
           accuracy={lastStats.accuracy}
           cpm={lastStats.cpm}

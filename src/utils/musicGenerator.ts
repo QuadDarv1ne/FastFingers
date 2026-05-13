@@ -60,7 +60,9 @@ export class MusicGenerator {
 
   init(): void {
     if (!this.audioContext) {
-      const AudioContextClass = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext) as typeof AudioContext
+      // Safari uses webkitAudioContext
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext
       this.audioContext = new AudioContextClass()
       this.masterGain = this.audioContext.createGain()
       this.masterGain.connect(this.audioContext.destination)
