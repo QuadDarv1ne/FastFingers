@@ -186,7 +186,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
           className="sr-only"
           aria-hidden="true"
           onInput={handleInput}
-          disabled={!isActive && timeLeft < SPRINT_DURATION}
+          disabled={!isActive || countdown !== null}
           aria-label={t('exercise.custom')}
           autoComplete="off"
           autoCorrect="off"
