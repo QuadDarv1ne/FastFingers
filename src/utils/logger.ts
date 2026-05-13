@@ -1,7 +1,9 @@
 /**
  * Безопасный логгер для приложения
- * В production режиме логи не выводятся в консоль
+ * В production режиме ошибки отправляются в Sentry
  */
+
+import * as Sentry from '@sentry/react'
 
 const isDevelopment = import.meta.env.DEV
 
@@ -26,10 +28,33 @@ const createLogger = (namespace?: string): Logger => {
       if (isDevelopment) {
         console.warn(`${prefix} ⚠️`, ...args)
       }
+      // In production, send warnings to Sentry as breadcrumbs
+      if (!isDevelopment && args.length > 0) {
+        Sentry.addBreadcrumb({
+          category: 'warn',
+          message: String(args[0]),
+          level: 'warning',
+          data: args.length > 1 ? { extra: JSON.stringify(args.slice(1)) } : undefined,
+        })
+      }
     },
     error: (...args: unknown[]) => {
       if (isDevelopment) {
         console.error(`${prefix} ❌`, ...args)
+      }
+      // In production, send errors to Sentry
+      if (!isDevelopment && args.length > 0) {
+        const error = args.find((arg) => arg instanceof Error) as Error | undefined
+        if (error) {
+          Sentry.captureException(error, {
+            extra: { context: args.filter((arg) => !(arg instanceof Error)) },
+          })
+        } else {
+          Sentry.captureMessage(String(args[0]), {
+            level: 'error',
+            extra: { context: args.slice(1) },
+          })
+        }
       }
     },
     info: (...args: unknown[]) => {
