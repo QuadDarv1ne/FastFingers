@@ -83,4 +83,10 @@ export default [
       'no-console': 'off',
     },
   },
+  {
+    files: ['src/i18n/config.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 ]

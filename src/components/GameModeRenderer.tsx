@@ -43,7 +43,7 @@ function StatsMotion({ children }: { children: ReactNode }) {
 }
 
 function GameMotion({ children }: { children: ReactNode }) {
-  return <div>{children}</div>
+  return <motion.div {...ANIMATIONS.game}>{children}</motion.div>
 }
 
 function HardcoreMotion({ children }: { children: ReactNode }) {
