@@ -42,7 +42,7 @@ function StatsMotion({ children }: { children: ReactNode }) {
 }
 
 function GameMotion({ children }: { children: ReactNode }) {
-  return <motion.div {...ANIMATIONS.game}>{children}</motion.div>
+  return <div>{children}</div>
 }
 
 function HardcoreMotion({ children }: { children: ReactNode }) {
@@ -203,7 +203,7 @@ export function GameModeRenderer({
         <Keyboard
           layout={settings.layout}
           highlightKey={null}
-          heatmap={heatmap}
+          heatmap={showHeatmap ? heatmap : {}}
           showHeatmap={showHeatmap}
           onToggleHeatmap={onSetShowHeatmap}
           skin={settings.keyboardSkin}

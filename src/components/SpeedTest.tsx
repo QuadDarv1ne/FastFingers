@@ -231,7 +231,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
             return (
               <span
                 key={index}
-                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded transition-all duration-100 ${
+                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded ${
                   status === 'correct' ? 'bg-green-500/20 text-green-500' :
                   status === 'incorrect' ? 'bg-red-500/20 text-red-500' :
                   status === 'current' ? 'bg-violet-500/30 text-violet-500 border-2 border-violet-500 animate-pulse' :

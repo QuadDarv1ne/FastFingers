@@ -397,6 +397,7 @@ function AppContent() {
                   onSetView={setView}
                   onSetShowHeatmap={setShowHeatmap}
                   onSessionComplete={handleSessionCompleteWithProgress}
+                  // eslint-disable-next-line react/jsx-no-bind
                   onKeyInput={updateHeatmap}
                   onSaveCustomExercise={handleSaveCustomExercise}
                   onCompleteChallenge={() => {

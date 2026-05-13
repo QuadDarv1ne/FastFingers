@@ -49,6 +49,16 @@ const DIFFICULTY_OPTIONS = [
   { value: 9, label: '⭐⭐⭐⭐⭐ Очень сложно' },
 ] as const
 
+// Отдельный компонент для каждого символа — мемоизирован, перерисовывается только при изменении своего статуса
+const CharDisplay = memo<{
+  char: string
+  status: 'correct' | 'incorrect' | 'current' | 'pending'
+}>(({ char, status }) => {
+  return <TypingChar char={char} status={status} />
+}, (prev, next) => prev.status === next.status && prev.char === next.char)
+
+CharDisplay.displayName = 'CharDisplay'
+
 export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   onSessionComplete,
   onKeyInput,
@@ -237,29 +247,25 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   // Опции сложности с мемоизацией
   const difficultyOptions = useMemo(() => DIFFICULTY_OPTIONS, [])
 
-  // Рендеринг символов текста (мемоизация)
+  // Рендеринг символов текста — мемоизирован, перерисовывается только при изменении статуса символов
   const renderedChars = useMemo(() => {
-    const chars = text.split('')
-    const result: JSX.Element[] = []
-    const textLen = text.length
-
-    for (let i = 0; i < textLen; i++) {
-      const char = chars[i]
-      if (!char) continue
-
+    return text.split('').map((char, i) => {
+      if (!char) return null
       let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-
       if (i < currentIndex) {
-        const resultItem = inputResults[i]
-        status = resultItem?.isCorrect ? 'correct' : 'incorrect'
+        const result = inputResults[i]
+        status = result?.isCorrect ? 'correct' : 'incorrect'
       } else if (i === currentIndex && !isComplete) {
         status = 'current'
       }
-
-      result.push(<TypingChar key={`${i}-${char}`} char={char} status={status} />)
-    }
-
-    return result
+      return (
+        <CharDisplay
+          key={i}
+          char={char}
+          status={status}
+        />
+      )
+    })
   }, [text, currentIndex, inputResults, isComplete])
 
   // Статистика для live region (O(1) via ref counter)
@@ -398,11 +404,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex-1 w-full h-3 sm:h-3 bg-dark-800 rounded-full overflow-hidden shadow-inner">
-              <motion.div
+              <div
                 className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 shadow-glow"
-                initial={{ width: 0 }}
-                animate={{ width: `${(currentIndex / text.length) * 100}%` }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                style={{ width: `${(currentIndex / text.length) * 100}%` }}
               />
             </div>
             <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-center sm:text-right">
@@ -504,20 +508,14 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       {/* Подсказка по текущей клавише */}
       {currentKey && !isComplete && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="card text-center"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <div className="card text-center" aria-live="polite" aria-atomic="true">
           <div className="flex items-center justify-center gap-3">
             <span className="text-sm text-dark-400 font-medium">Следующая клавиша:</span>
             <div className="px-4 py-2 bg-primary-500/20 rounded-lg border border-primary-500/30">
               <span className="text-primary-400 font-mono text-2xl font-bold">{currentKey}</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   )

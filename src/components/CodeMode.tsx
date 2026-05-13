@@ -353,7 +353,7 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
             return (
               <span
                 key={index}
-                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded transition-all duration-100 ${
+                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded ${
                   status === 'correct' ? 'bg-green-500/20 text-green-400' :
                   status === 'incorrect' ? 'bg-red-500/20 text-red-400' :
                   status === 'current' ? 'bg-violet-500/30 text-violet-400 border-2 border-violet-500 animate-pulse' :

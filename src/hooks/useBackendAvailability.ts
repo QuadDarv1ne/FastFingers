@@ -29,15 +29,18 @@ export function useBackendAvailability(options: {
   })
 
   const checkBackend = useCallback(async () => {
-    setStatus(prev => ({ ...prev, isChecking: true }))
+    // Не проверяем, если уже максимальное количество попыток
+    setStatus(prev => {
+      if (prev.retryCount >= MAX_RETRY_COUNT && !prev.isAvailable) {
+        return prev
+      }
+      return { ...prev, isChecking: true }
+    })
 
     try {
-      // Проверяем наличие Supabase клиента
       const available = isBackendAvailable()
 
       if (available) {
-        // Дополнительная проверка — попробуем сделать лёгкий запрос
-        // Если Supabase настроен, но недоступен — это обнаружится здесь
         setStatus({
           isAvailable: true,
           isChecking: false,
@@ -69,13 +72,11 @@ export function useBackendAvailability(options: {
     if (!autoCheck) return
 
     const interval = setInterval(() => {
-      // Не проверяем, если уже максимальное количество попыток
-      if (status.retryCount >= MAX_RETRY_COUNT) return
       checkBackend()
     }, checkInterval)
 
     return () => clearInterval(interval)
-  }, [checkBackend, autoCheck, checkInterval, status.retryCount])
+  }, [checkBackend, autoCheck, checkInterval])
 
   const resetStatus = useCallback(() => {
     setStatus({

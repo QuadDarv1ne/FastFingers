@@ -65,10 +65,9 @@ export function TypingProgress({ current, total, wpm, accuracy }: TypingProgress
             <span className="text-blue-400">⚡</span>
             <span className="text-dark-400">WPM:</span>
             <motion.span
-              key={wpm}
-              initial={{ scale: 1.2, color: '#60a5fa' }}
-              animate={{ scale: 1, color: '#94a3b8' }}
-              className="font-bold"
+              animate={current > 0 ? { scale: [1.05, 1] } : {}}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-blue-400"
             >
               {wpm}
             </motion.span>
@@ -78,10 +77,9 @@ export function TypingProgress({ current, total, wpm, accuracy }: TypingProgress
             <span className="text-green-400">🎯</span>
             <span className="text-dark-400">Точность:</span>
             <motion.span
-              key={accuracy}
-              initial={{ scale: 1.2, color: '#34d399' }}
-              animate={{ scale: 1, color: '#94a3b8' }}
-              className="font-bold"
+              animate={current > 0 ? { scale: [1.05, 1] } : {}}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-green-400"
             >
               {accuracy}%
             </motion.span>

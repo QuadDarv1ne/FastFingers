@@ -113,13 +113,17 @@ CREATE POLICY "Users can insert own challenges" ON user_challenges
 
 -- Function to create user profile on signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SET search_path = public
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
   INSERT INTO public.users (id, email, name, created_at)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'name', NEW.created_at);
+  VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'name', NEW.email), NEW.created_at);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- Trigger for new user creation
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
