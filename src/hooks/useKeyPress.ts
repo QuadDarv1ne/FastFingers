@@ -128,6 +128,5 @@ export function useKeyCombo(
       targetElement.removeEventListener(event, handleKeyDown)
       targetElement.removeEventListener('keyup', handleKeyUp)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [combo, callback, event, target, preventDefault, stopPropagation])
+  }, [combo, callback, event, target, preventDefault, stopPropagation, target])
 }

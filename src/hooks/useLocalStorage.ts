@@ -44,8 +44,7 @@ export function useLocalStorage<T>(
   // Синхронизация при изменении key или initialValue
   useEffect(() => {
     setStoredValue(readValue())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+  }, [readValue])
 
   // Слушать изменения в других вкладках
   useEffect(() => {

@@ -100,7 +100,6 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           workerRef.current = null
         }
         isReadyRef.current = false
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         pendingPromises.current.clear()
       }
     } catch (err) {

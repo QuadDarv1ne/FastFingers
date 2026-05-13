@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize } from '../types';
+import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
 import { calculateLevel, xpForLevel, calculateSessionXp, updateKeyHeatmap } from '../utils/stats';
 import { calculateStreakXpBonus } from '../utils/streakBonus';
 import { useAppStore } from '../stores/useAppStore';
@@ -103,18 +103,16 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
       setFontSize(value as FontSize);
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const setters: Record<string, (...args: any[]) => void> = {
-      layout: useAppStore.getState().setLayout,
-      soundEnabled: useAppStore.getState().setSoundEnabled,
-      soundVolume: useAppStore.getState().setSoundVolume,
-      soundTheme: useAppStore.getState().setSoundTheme,
-      theme: useAppStore.getState().setTheme,
-      keyboardSkin: useAppStore.getState().setKeyboardSkin,
-      showKeyboard: useAppStore.getState().setShowKeyboard,
-      showStats: useAppStore.getState().setShowStats,
-    };
-    setters[key]?.(value);
+    switch (key) {
+      case 'layout': useAppStore.getState().setLayout(value as KeyboardLayout); break;
+      case 'soundEnabled': useAppStore.getState().setSoundEnabled(value as boolean); break;
+      case 'soundVolume': useAppStore.getState().setSoundVolume(value as number); break;
+      case 'soundTheme': useAppStore.getState().setSoundTheme(value as SoundTheme); break;
+      case 'theme': useAppStore.getState().setTheme(value as Theme); break;
+      case 'keyboardSkin': useAppStore.getState().setKeyboardSkin(value as KeyboardSkin); break;
+      case 'showKeyboard': useAppStore.getState().setShowKeyboard(value as boolean); break;
+      case 'showStats': useAppStore.getState().setShowStats(value as boolean); break;
+    }
   }, []);
 
   const resetHeatmap = useCallback(() => {

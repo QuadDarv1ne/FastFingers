@@ -250,7 +250,6 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
   // Очистка при размонтировании
   useEffect(() => {
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       const oscillators = activeOscillatorsRef.current
       oscillators.forEach(osc => {
         try {

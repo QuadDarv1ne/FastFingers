@@ -78,7 +78,7 @@ describe('MotivationalQuote', () => {
     render(<MotivationalQuote />)
 
     const complementary = screen.getByRole('complementary')
-    expect(complementary).toHaveAttribute('aria-label', 'Достижение')
+    expect(complementary).toHaveAttribute('aria-label', 'quote.motivational')
   })
 
   it('должен иметь декоративный элемент фона', () => {

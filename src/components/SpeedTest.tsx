@@ -76,8 +76,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     return () => {
       if (interval) window.clearInterval(interval)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isActive, handleFinish])
+  }, [isActive, handleFinish, duration])
 
   // Старт при первом нажатии
   const handleStart = () => {

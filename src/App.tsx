@@ -277,7 +277,7 @@ function AppContent() {
               }}
               icon="⚡"
               label={t('nav.sprint')}
-              title="60 секунд на максимальную скорость"
+              title={t('tooltip.sprint')}
             />
             <ModeButton
               isActive={gameMode === 'hardcore'}
@@ -287,7 +287,7 @@ function AppContent() {
               }}
               icon="💀"
               label={t('mode.hardcore')}
-              title="Режим без ошибок - любая ошибка завершает сессию"
+              title={t('tooltip.hardcore')}
             />
             <SpeedTestDropdown
               isActive={gameMode === 'speedtest'}
@@ -341,29 +341,29 @@ function AppContent() {
               isActive={gameMode === 'marathon'}
               onClick={() => setGameMode('marathon')}
               icon="🏃"
-              label="Марафон"
-              title="5 минут непрерывной печати на выносливость"
+              label={t('label.marathon')}
+              title={t('tooltip.marathon')}
             />
             <ModeButton
               isActive={gameMode === 'code'}
               onClick={() => setGameMode('code')}
               icon="💻"
-              label="Код"
-              title="Печать кода на разных языках программирования"
+              label={t('label.code')}
+              title={t('tooltip.code')}
             />
             <ModeButton
               isActive={gameMode === 'duel'}
               onClick={() => setGameMode('duel')}
               icon="⚔️"
-              label="Дуэль"
-              title="Сразись с другим игроком 1 на 1"
+              label={t('label.duel')}
+              title={t('tooltip.duel')}
             />
             <ModeButton
               isActive={gameMode === 'tournament'}
               onClick={() => setGameMode('tournament')}
               icon="🏆"
-              label="Турнир"
-              title="Участвуй в турнирах и побеждай"
+              label={t('label.tournament')}
+              title={t('tooltip.tournament')}
             />
           </nav>
 
@@ -579,10 +579,12 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
   onDurationChange,
   onGameModeChange,
 }) {
+  const { t } = useAppTranslation()
+
   const durationLabels: Record<SpeedTestDuration, string> = {
-    15: '15 секунд',
-    30: '30 секунд',
-    60: '60 секунд',
+    15: `15 ${t('common.seconds')}`,
+    30: `30 ${t('common.seconds')}`,
+    60: `60 ${t('common.seconds')}`,
   }
 
   const durationIcons: Record<SpeedTestDuration, string> = {
@@ -602,10 +604,10 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
         onClick={() => onGameModeChange('speedtest')}
         aria-expanded={isActive}
         aria-haspopup="true"
-        title="Тест скорости печати"
+        title={t('tooltip.speedtest')}
       >
         <span className="text-lg">🕐</span>
-        <span className="hidden sm:inline">Тест</span>
+        <span className="hidden sm:inline">{t('label.test')}</span>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -656,9 +658,9 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             aria-label={t('misc.keyboard')}
           >
-            <option value="jcuken">ЙЦУКЕН</option>
-            <option value="qwerty">QWERTY</option>
-            <option value="dvorak">Dvorak</option>
+            <option value="jcuken">{t('layout.jcuken')}</option>
+            <option value="qwerty">{t('layout.qwerty')}</option>
+            <option value="dvorak">{t('layout.dvorak')}</option>
           </select>
         </div>
 
@@ -674,10 +676,10 @@ const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
             aria-label={t('misc.sound')}
           >
             <option value="default">🔊 {t('misc.theme')}</option>
-            <option value="piano">🎹 Пианино</option>
-            <option value="mechanical">⌨️ Механическая</option>
-            <option value="soft">🌸 Мягкий</option>
-            <option value="retro">👾 Ретро</option>
+            <option value="piano">🎹 {t('sound.piano')}</option>
+            <option value="mechanical">⌨️ {t('sound.mechanical')}</option>
+            <option value="soft">🌸 {t('sound.soft')}</option>
+            <option value="retro">👾 {t('sound.retro')}</option>
           </select>
         </div>
 
