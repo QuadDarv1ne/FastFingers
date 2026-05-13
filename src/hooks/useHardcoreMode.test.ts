@@ -196,7 +196,8 @@ describe('useHardcoreMode', () => {
 
     // Fill the entire text with correct characters
     for (let i = 0; i < mockText.length; i++) {
-      const char = mockText[i]!
+      const char = mockText[i]
+      if (!char) continue
       act(() => {
         result.current.handleInput(createInputEvent(char))
       })

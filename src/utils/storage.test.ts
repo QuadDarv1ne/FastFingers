@@ -126,7 +126,7 @@ describe('storage utils', () => {
     it('should set object in localStorage', () => {
       const obj = { name: 'test', value: 123 }
       setToStorage('data', obj)
-      expect(JSON.parse(localStorage.getItem('data')!)).toEqual(obj)
+      expect(JSON.parse(localStorage.getItem('data') as string)).toEqual(obj)
     })
 
     it('should remove item when value is null', () => {

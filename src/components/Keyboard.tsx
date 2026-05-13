@@ -42,11 +42,6 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
     onKeyTouch?.(key)
   }, [vibrate, onKeyTouch])
 
-  // Ключи heatmap для сравнения — не пересчитываем если showHeatmap false
-  const heatmapKeys = useMemo(() =>
-    showHeatmap ? Object.keys(heatmap).sort().join(',') : '',
-    [heatmap, showHeatmap])
-
   // Мемоизация вычисления подсветки и тепловой карты
   // heatmap стабилизирован — пересчитываем только когда реально изменились ключи
   const keyStyles = useMemo(() => {
@@ -92,7 +87,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
     })
 
     return styles
-  }, [layoutData, highlightKey, heatmapKeys, showHeatmap, skinColors, t])
+  }, [layoutData, highlightKey, heatmap, showHeatmap, skinColors, t])
 
   if (!layoutData) return null
 

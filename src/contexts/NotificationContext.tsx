@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
 import { createContext, useState, useEffect, ReactNode, useCallback, useContext } from 'react'
 import { useAuth } from '@hooks/useAuth'
 

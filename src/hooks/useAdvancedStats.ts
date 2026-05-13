@@ -46,11 +46,12 @@ interface WpmTrendData {
 
 export function useAdvancedStats() {
   const { history, getStatsForPeriod } = useTypingHistory()
+  const { sessions } = history
 
   // Bucket sessions by date string for O(1) day lookup
   const sessionsByDate = useMemo(() => {
-    const map = new Map<string, typeof history.sessions>()
-    for (const s of history.sessions) {
+    const map = new Map<string, typeof sessions>()
+    for (const s of sessions) {
       const dateStr = new Date(s.date).toISOString().split('T')[0] || ''
       if (!dateStr) continue
       const bucket = map.get(dateStr)
@@ -61,7 +62,7 @@ export function useAdvancedStats() {
       }
     }
     return map
-  }, [history.sessions])
+  }, [sessions])
 
   // Ежедневная статистика за последние 30 дней
   const dailyStats = useMemo<DailyStats[]>(() => {
@@ -110,15 +111,15 @@ export function useAdvancedStats() {
     const currentWeekStart = new Date(now - weekMs)
     const previousWeekStart = new Date(now - 2 * weekMs)
 
-    const currentWeekSessions = history.sessions.filter(s => new Date(s.date) >= currentWeekStart)
-    const previousWeekSessions = history.sessions.filter(
+    const currentWeekSessions = sessions.filter(s => new Date(s.date) >= currentWeekStart)
+    const previousWeekSessions = sessions.filter(
       s => new Date(s.date) >= previousWeekStart && new Date(s.date) < currentWeekStart
     )
 
-    const calcStats = (sessions: typeof history.sessions) => ({
-      avgWpm: sessions.length > 0 ? Math.round(sessions.reduce((sum, s) => sum + s.wpm, 0) / sessions.length) : 0,
-      sessions: sessions.length,
-      totalChars: Math.round(sessions.reduce((sum, s) => sum + s.cpm * s.duration / 60, 0)),
+    const calcStats = (sessionList: typeof sessions) => ({
+      avgWpm: sessionList.length > 0 ? Math.round(sessionList.reduce((sum, item) => sum + item.wpm, 0) / sessionList.length) : 0,
+      sessions: sessionList.length,
+      totalChars: Math.round(sessionList.reduce((sum, item) => sum + item.cpm * item.duration / 60, 0)),
     })
 
     const currentWeek = calcStats(currentWeekSessions)
@@ -131,11 +132,10 @@ export function useAdvancedStats() {
       sessionsChange: previousWeek.sessions > 0 ? Math.round(((currentWeek.sessions - previousWeek.sessions) / previousWeek.sessions) * 100) : 0,
       charsChange: previousWeek.totalChars > 0 ? Math.round(((currentWeek.totalChars - previousWeek.totalChars) / previousWeek.totalChars) * 100) : 0,
     }
-  }, [history.sessions])
+  }, [sessions])
 
   // Персональные рекорды
   const personalRecords = useMemo<PersonalRecords>(() => {
-    const sessions = history.sessions
     if (sessions.length === 0) {
       return {
         bestWpm: 0,
@@ -170,7 +170,7 @@ export function useAdvancedStats() {
       totalTime: history.totalTime,
       bestSession: bestWpmSession,
     }
-  }, [history.sessions, history.totalSessions, history.totalTime])
+  }, [sessions, history.totalSessions, history.totalTime])
 
   // Данные для графика WPM тренда
   const wpmTrend = useMemo<WpmTrendData[]>(() => {
@@ -210,7 +210,7 @@ export function useAdvancedStats() {
       avgWpm: 0,
     }))
 
-    history.sessions.forEach(session => {
+    sessions.forEach(session => {
       const dayIndex = new Date(session.date).getDay()
       const dayActivity = activity[dayIndex]
       if (dayActivity) {
@@ -226,7 +226,7 @@ export function useAdvancedStats() {
     })
 
     return activity
-  }, [history.sessions])
+  }, [sessions])
 
   return {
     dailyStats,

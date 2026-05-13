@@ -166,7 +166,7 @@ describe('useLocalStorageState', () => {
     })
     
     expect(result.current[0]).toEqual([4, 5, 6])
-    expect(JSON.parse(localStorage.getItem('array-key')!)).toEqual([4, 5, 6])
+    expect(JSON.parse(localStorage.getItem('array-key') as string)).toEqual([4, 5, 6])
   })
 
   it('should handle null values', () => {

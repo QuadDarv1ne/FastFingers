@@ -140,7 +140,7 @@ describe('useAutoSave', () => {
 
     const saved = localStorage.getItem('fastfingers-autosave')
     expect(saved).toBeTruthy()
-    const parsed = JSON.parse(saved!)
+    const parsed = JSON.parse(saved as string)
     expect(parsed.progress).toEqual(mockProgress)
   })
 

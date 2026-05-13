@@ -47,7 +47,11 @@ function copyRoutesPlugin() {
 }
 
 export default defineConfig({
-  base: process.env.VITE_BASE_PATH || '/',
+  // Ensure base path always starts with '/' (Vite requirement)
+  base: (() => {
+    const raw = process.env.VITE_BASE_PATH || '/'
+    return raw.startsWith('/') ? raw : `/${raw}`
+  })(),
   plugins: [
     react({
       // Оптимизация React компонентов

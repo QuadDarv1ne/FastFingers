@@ -124,7 +124,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         supabase.removeChannel(channel)
       }
     }
-  }, [currentDuel?.id, duelState, user?.id])
+  }, [currentDuel?.id, currentDuel?.challenger?.id, duelState, user?.id])
 
   // Поиск случайного соперника
   const findRandomOpponent = useCallback(async () => {

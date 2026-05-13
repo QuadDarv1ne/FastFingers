@@ -36,6 +36,7 @@ describe('ToastContainer', () => {
   it('должен иметь правильные aria-атрибуты', () => {
     function TestComponent() {
       const { showToast } = useToast()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       React.useEffect(() => { showToast('Тест', 'info') }, [])
        
       return <ToastContainer />
@@ -51,6 +52,7 @@ describe('ToastContainer', () => {
   it('должен позиционироваться в правом верхнем углу', () => {
     function TestComponent() {
       const { showToast } = useToast()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       React.useEffect(() => { showToast('Тест', 'info') }, [])
        
       return <ToastContainer />
@@ -64,6 +66,7 @@ describe('ToastContainer', () => {
   it('должен иметь z-index для отображения поверх других элементов', () => {
     function TestComponent() {
       const { showToast } = useToast()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       React.useEffect(() => { showToast('Тест', 'info') }, [])
 
       return <ToastContainer />

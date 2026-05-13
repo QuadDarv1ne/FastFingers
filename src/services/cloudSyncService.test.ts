@@ -50,7 +50,7 @@ describe('cloudSyncService', () => {
       const stored = localStorage.getItem('fastfingers_cloud_sync')
       expect(stored).not.toBeNull()
 
-      const saves = JSON.parse(stored!)
+      const saves = JSON.parse(stored as string)
       expect(saves[mockUser.id]).toBeDefined()
       expect(saves[mockUser.id].stats).toEqual(mockStats)
     })
@@ -70,7 +70,7 @@ describe('cloudSyncService', () => {
       await cloudSyncService.saveProgress(mockUser, mockStats)
 
       const stored = localStorage.getItem('fastfingers_cloud_sync')
-      const saves = JSON.parse(stored!)
+      const saves = JSON.parse(stored as string)
       const save: CloudSave = saves[mockUser.id]
 
       expect(save.userId).toBe(mockUser.id)

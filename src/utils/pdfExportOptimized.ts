@@ -14,6 +14,28 @@ interface ExportData {
 }
 
 /**
+ * Download a canvas as a PNG file
+ */
+async function downloadCanvas(canvas: HTMLCanvasElement, filename: string): Promise<void> {
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((b) => {
+      if (b) resolve(b)
+      else reject(new Error('Failed to create canvas blob'))
+    }, 'image/png', 0.95)
+  })
+  const link = document.createElement('a')
+  link.download = filename
+  link.href = URL.createObjectURL(blob)
+  link.click()
+  URL.revokeObjectURL(link.href)
+}
+
+/** Format date as YYYY-MM-DD for filenames */
+function dateStamp(): string {
+  return new Date().toISOString().split('T')[0] ?? 'unknown'
+}
+
+/**
  * Экспорт статистики в PNG через Canvas API
  */
 export async function exportStatsToPNG(data: ExportData): Promise<void> {
@@ -150,14 +172,7 @@ export async function exportStatsToPNG(data: ExportData): Promise<void> {
   ctx.fillText('Тренажёр слепой печати', width / 2, y)
 
   // Сохранение
-  const blob = await new Promise<Blob>((resolve) => {
-    canvas.toBlob((b) => resolve(b!), 'image/png', 0.95)
-  })
-  const link = document.createElement('a')
-  link.download = `fastfingers-stats-${new Date().toISOString().split('T')[0]}.png`
-  link.href = URL.createObjectURL(blob)
-  link.click()
-  URL.revokeObjectURL(link.href)
+  await downloadCanvas(canvas, `fastfingers-stats-${dateStamp()}.png`)
 }
 
 function formatMinutes(minutes: number): string {
@@ -244,12 +259,5 @@ export async function exportCertificatePNG(data: {
   ctx.fillText('FastFingers', width / 2, height - 60)
 
   // Сохранение
-  const blob = await new Promise<Blob>((resolve) => {
-    canvas.toBlob((b) => resolve(b!), 'image/png', 0.95)
-  })
-  const link = document.createElement('a')
-  link.download = `fastfingers-certificate-${new Date().toISOString().split('T')[0]}.png`
-  link.href = URL.createObjectURL(blob)
-  link.click()
-  URL.revokeObjectURL(link.href)
+  await downloadCanvas(canvas, `fastfingers-certificate-${dateStamp()}.png`)
 }
