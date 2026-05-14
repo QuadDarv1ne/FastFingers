@@ -587,6 +587,8 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
     60: `60 ${t('common.seconds')}`,
   }
 
+  const [showDropdown, setShowDropdown] = useState(false)
+
   const durationIcons: Record<SpeedTestDuration, string> = {
     15: '⚡',
     30: '⭐',
@@ -594,14 +596,17 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
   }
 
   return (
-    <div className="relative group">
+    <div className="relative">
       <button
         className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
           isActive
             ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
             : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
         }`}
-        onClick={() => onGameModeChange('speedtest')}
+        onClick={() => {
+          onGameModeChange('speedtest')
+          setShowDropdown((prev) => !prev)
+        }}
         aria-expanded={isActive}
         aria-haspopup="true"
         title={t('tooltip.speedtest')}
@@ -612,18 +617,23 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
-        {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
-          <button
-            key={d}
-            onClick={() => onDurationChange(d)}
-            className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
-          >
-            <span>{durationLabels[d]}</span>
-            <span className="text-xs text-dark-500">{durationIcons[d]}</span>
-          </button>
-        ))}
-      </div>
+      {showDropdown && (
+        <div className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
+          {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
+            <button
+              key={d}
+              onClick={() => {
+                onDurationChange(d)
+                setShowDropdown(false)
+              }}
+              className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
+            >
+              <span>{durationLabels[d]}</span>
+              <span className="text-xs text-dark-500">{durationIcons[d]}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 })

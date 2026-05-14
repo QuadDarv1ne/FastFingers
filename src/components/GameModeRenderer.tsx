@@ -157,7 +157,7 @@ export function GameModeRenderer({
     return <GameMotion><Suspense fallback={<LazyFallback/>}><TournamentMode onExit={exitToPractice} /></Suspense></GameMotion>
   }
   if (gameMode === 'sprint') {
-    return <GameMotion><Suspense fallback={<LazyFallback/>}><SprintMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
+    return <GameMotion><Suspense fallback={<LazyFallback/>}><SprintMode duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
   }
   if (gameMode === 'hardcore') {
     return <HardcoreMotion><Suspense fallback={<LazyFallback/>}><HardcoreMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></HardcoreMotion>

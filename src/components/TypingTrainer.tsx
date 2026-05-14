@@ -200,17 +200,17 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       timestamp: Date.now(),
     }
 
-    setCurrentIndex(prev => prev + 1)
-    setInputResults(prev => {
-      const newResults = [...prev, result]
-      if (currentIndex >= textLengthRef.current - 1) {
-        handleComplete(newResults)
-      }
-      return newResults
-    })
+    const nextIndex = currentIndex + 1
+    setCurrentIndex(nextIndex)
+    setInputResults(prev => [...prev, result])
+
+    if (nextIndex >= textLengthRef.current) {
+      const newResults = [...inputResults, result]
+      handleComplete(newResults)
+    }
 
     e.currentTarget.value = ''
-  }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
+  }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete, inputResults])
 
   // Пропуск упражнения
   const handleSkip = useCallback(() => {
@@ -526,6 +526,10 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     </div>
   )
 }, (prevProps, nextProps) => {
+  const exercisesEqual =
+    prevProps.customExercises.length === nextProps.customExercises.length &&
+    prevProps.customExercises.every((ex, i) => ex.id === nextProps.customExercises[i].id && ex.text === nextProps.customExercises[i].text)
+
   return (
     prevProps.isChallenge === nextProps.isChallenge &&
     prevProps.challengeText === nextProps.challengeText &&
@@ -533,6 +537,6 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     prevProps.onSessionComplete === nextProps.onSessionComplete &&
     prevProps.onKeyInput === nextProps.onKeyInput &&
     prevProps.sound?.isEnabled === nextProps.sound?.isEnabled &&
-    prevProps.customExercises === nextProps.customExercises
+    exercisesEqual
   )
 })

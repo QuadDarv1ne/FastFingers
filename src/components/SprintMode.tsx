@@ -12,15 +12,15 @@ import { useAppTranslation } from '../i18n/config'
 import { useCountdown } from '@hooks/useCountdown'
 
 interface SprintModeProps {
+  duration: number
   onExit: () => void
   onComplete: (stats: TypingStats) => void
   sound?: ReturnType<typeof useTypingSound>
 }
 
-const SPRINT_DURATION = 60
 const COUNTDOWN_SECONDS = 3
 
-export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
+export function SprintMode({ duration, onExit, onComplete, sound }: SprintModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const { user } = useAuth()
@@ -43,7 +43,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
     initialWordCount: 50,
     initialDifficulty: 5,
     mode: 'timed',
-    duration: SPRINT_DURATION,
+    duration,
     onComplete: (stats) => {
       setLastStats(stats)
       showToast(`Спринт: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
@@ -82,7 +82,7 @@ export function SprintMode({ onExit, onComplete, sound }: SprintModeProps) {
   }, [handleSkip, inputRef])
 
   // Прогресс времени
-  const timeProgress = ((SPRINT_DURATION - timeLeft) / SPRINT_DURATION) * 100
+  const timeProgress = ((duration - timeLeft) / duration) * 100
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden">
