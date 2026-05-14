@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 export type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction' | 'hardcore' | 'marathon' | 'code' | 'duel' | 'tournament'
 export type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
@@ -14,15 +14,20 @@ export function useGameMode(options?: UseGameModeOptions) {
   const [view, setView] = useState<View>('main')
   const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
 
+  const optionsRef = useRef(options)
+  useEffect(() => {
+    optionsRef.current = options
+  }, [options])
+
   const handleGameModeChange = useCallback((mode: GameMode) => {
     setGameMode(mode)
-    options?.onModeChange?.(mode)
-  }, [options])
+    optionsRef.current?.onModeChange?.(mode)
+  }, [])
 
   const handleViewChange = useCallback((newView: View) => {
     setView(newView)
-    options?.onViewChange?.(newView)
-  }, [options])
+    optionsRef.current?.onViewChange?.(newView)
+  }, [])
 
   const handleSpeedTestDurationChange = useCallback((duration: SpeedTestDuration) => {
     setSpeedTestDuration(duration)

@@ -149,7 +149,7 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
 
       // Transform data
       const entries: LeaderboardEntry[] = (data || []).map((item) => {
-        const users = getusers(item.users)
+        const users = getUsers(item.users)
         return {
           id: item.id,
           user_id: item.user_id,
@@ -257,7 +257,7 @@ export function useSaveLeaderboardEntry() {
           cpm,
           accuracy,
           score,
-          season: season || getcurrentSeason(),
+          season: season || getCurrentSeason(),
         })
         .select()
         .single()
@@ -310,14 +310,14 @@ export function useLeaderboardStats(gameMode: GameMode = 'classic') {
  * Supabase select with relations returns untyped nested objects
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getusers(raw: any): UsersRelation {
+function getUsers(raw: any): UsersRelation {
   return raw as unknown as UsersRelation
 }
 
 /**
  * Helper to get current season
  */
-function getcurrentSeason(): string {
+function getCurrentSeason(): string {
   const now = new Date()
   const year = now.getFullYear()
   const quarter = Math.floor(now.getMonth() / 3) + 1
