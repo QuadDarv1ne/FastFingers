@@ -249,17 +249,19 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
 
   // Очистка при размонтировании
   useEffect(() => {
+    const activeOscillators = activeOscillatorsRef.current
+    const audioContext = audioContextRef.current
+
     return () => {
-      const oscillators = activeOscillatorsRef.current
-      oscillators.forEach(osc => {
+      activeOscillators.forEach(osc => {
         try {
           osc.stop()
         } catch {
           // Игнорируем ошибки остановки
         }
       })
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
+      if (audioContext) {
+        audioContext.close()
       }
     }
   }, [])

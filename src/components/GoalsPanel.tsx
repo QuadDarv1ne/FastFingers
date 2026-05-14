@@ -104,7 +104,7 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
       }
     })
     setGoals(updatedGoals)
-  }, [currentProgress, goals, setGoals]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentProgress, goals, setGoals])
 
   const activeGoals = goals.filter(g => !g.completed)
   const completedGoals = goals.filter(g => g.completed)

@@ -76,7 +76,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     return () => {
       if (interval) window.clearInterval(interval)
     }
-  }, [isActive, handleFinish, duration])
+  }, [isActive, timeLeft, handleFinish])
 
   // Старт при первом нажатии
   const handleStart = () => {

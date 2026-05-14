@@ -78,6 +78,8 @@ export function useKeyCombo(
   } = options
 
   const comboKeys = combo.toLowerCase().split('+').map(k => k.trim())
+  const comboKeysRef = useRef(comboKeys)
+  comboKeysRef.current = comboKeys
 
   const pressedKeys = useRef<Set<string>>(new Set())
 
@@ -87,17 +89,18 @@ export function useKeyCombo(
       const key = keyboardEvent.key.toLowerCase()
       pressedKeys.current.add(key)
 
-      const needsCtrl = comboKeys.includes('ctrl') || comboKeys.includes('control')
-      const needsShift = comboKeys.includes('shift')
-      const needsAlt = comboKeys.includes('alt')
-      const needsMeta = comboKeys.includes('meta') || comboKeys.includes('cmd')
+      const currentComboKeys = comboKeysRef.current
+      const needsCtrl = currentComboKeys.includes('ctrl') || currentComboKeys.includes('control')
+      const needsShift = currentComboKeys.includes('shift')
+      const needsAlt = currentComboKeys.includes('alt')
+      const needsMeta = currentComboKeys.includes('meta') || currentComboKeys.includes('cmd')
 
       const hasCtrl = needsCtrl ? (keyboardEvent.ctrlKey || keyboardEvent.metaKey) : true
       const hasShift = needsShift ? keyboardEvent.shiftKey : true
       const hasAlt = needsAlt ? keyboardEvent.altKey : true
       const hasMeta = needsMeta ? (keyboardEvent.metaKey || keyboardEvent.ctrlKey) : true
 
-      const mainKey = comboKeys.find(
+      const mainKey = currentComboKeys.find(
         k => !['ctrl', 'control', 'shift', 'alt', 'meta', 'cmd'].includes(k)
       )
 
@@ -128,5 +131,5 @@ export function useKeyCombo(
       targetElement.removeEventListener(event, handleKeyDown)
       targetElement.removeEventListener('keyup', handleKeyUp)
     }
-  }, [combo, callback, event, target, preventDefault, stopPropagation, target])
+  }, [combo, callback, event, target, preventDefault, stopPropagation])
 }

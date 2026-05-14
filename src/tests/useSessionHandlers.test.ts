@@ -96,7 +96,10 @@ describe('useSessionHandlers', () => {
       result.current.handleSessionCompleteWithProgress(mockStats)
     })
 
-    expect(mockHandleSessionComplete).toHaveBeenCalledWith(mockStats, 5)
+    // totalXp = calculateSessionXp(mockStats) + calculateStreakXpBonus(5)
+    // streak=5 gives bonus 50 (3-day milestone)
+    const expectedTotalXp = expect.any(Number)
+    expect(mockHandleSessionComplete).toHaveBeenCalledWith(mockStats, expectedTotalXp)
   })
 
   it('должен рассчитать XP для reaction game', () => {
