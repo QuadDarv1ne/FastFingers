@@ -527,8 +527,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   )
 }, (prevProps, nextProps) => {
   const exercisesEqual =
-    prevProps.customExercises.length === nextProps.customExercises.length &&
-    prevProps.customExercises.every((ex, i) => ex.id === nextProps.customExercises[i].id && ex.text === nextProps.customExercises[i].text)
+    (prevProps.customExercises?.length ?? 0) === (nextProps.customExercises?.length ?? 0) &&
+    (prevProps.customExercises ?? []).every((ex, i) => {
+      const next = nextProps.customExercises?.[i]
+      return next && ex.id === next.id && ex.text === next.text
+    })
 
   return (
     prevProps.isChallenge === nextProps.isChallenge &&

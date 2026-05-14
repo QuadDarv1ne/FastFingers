@@ -55,12 +55,16 @@ export function useOfflineSync(options: {
     if (!isOnline || !onSync) return
 
     const processQueue = async () => {
-      if (queue.length === 0) return
+      const validQueue = queue.filter(item => item.retryCount < MAX_RETRIES)
+      if (validQueue.length === 0) {
+        // Clean up any exhausted items
+        setQueue(prev => prev.filter(item => item.retryCount < MAX_RETRIES))
+        return
+      }
 
       const results: { id: string; success: boolean }[] = []
 
-      for (const item of queue) {
-        if (item.retryCount >= MAX_RETRIES) continue
+      for (const item of validQueue) {
         try {
           await onSync(item)
           results.push({ id: item.id, success: true })
@@ -78,7 +82,8 @@ export function useOfflineSync(options: {
           if (!result) return item
           return result.success ? null : { ...item, retryCount: item.retryCount + 1 }
         }).filter(Boolean) as typeof prev
-        return updated
+        // Remove exhausted items that exceeded max retries
+        return updated.filter(item => item.retryCount < MAX_RETRIES)
       })
     }
 

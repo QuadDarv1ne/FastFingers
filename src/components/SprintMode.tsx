@@ -222,7 +222,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
         </div>
 
         {/* Оверлей старта */}
-        {!isActive && timeLeft === SPRINT_DURATION && (
+        {!isActive && timeLeft === duration && (
           <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
             <div className="text-center">
               <svg className="w-16 h-16 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

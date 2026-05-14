@@ -144,7 +144,14 @@ export function useTypingGame({
     }, 1000)
 
     return () => window.clearInterval(interval)
-  }, [mode, isActive])
+  }, [mode, isActive, safeDuration])
+
+  // Синхронизация timeLeft при изменении duration
+  useEffect(() => {
+    if (mode === 'timed' && !isActive) {
+      setTimeLeft(safeDuration)
+    }
+  }, [safeDuration, mode, isActive])
 
   // Sync timeLeftRef with timeLeft state for use in callbacks
   useEffect(() => {

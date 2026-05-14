@@ -85,6 +85,9 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   }
 
   // Обработка ввода
+  const currentIndexRef = useRef(currentIndex)
+  currentIndexRef.current = currentIndex
+
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     if (!isActive && timeLeft === duration) {
       handleStart()
@@ -92,26 +95,27 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
     const value = e.currentTarget.value
     const newChar = value[value.length - 1]
-    
-    if (newChar && currentIndex < text.length) {
-      const expectedChar = text[currentIndex]
+    const idx = currentIndexRef.current
+
+    if (newChar && idx < text.length) {
+      const expectedChar = text[idx]
       const isCorrect = newChar === expectedChar
-      
+
       if (sound) {
-        isCorrect ? sound.playCorrect() : sound.playError()
+        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
       }
-      
+
       setInputResults(prev => [...prev, { isCorrect, char: newChar }])
       setCurrentIndex(prev => prev + 1)
-      
+
       // Если текст заканчивается, генерируем новый
-      if (currentIndex >= text.length - 10) {
+      if (idx >= text.length - 10) {
         generateNewText()
       }
     }
-    
+
     e.currentTarget.value = ''
-  }, [isActive, timeLeft, text, currentIndex, sound, generateNewText, duration])
+  }, [isActive, timeLeft, text, sound, generateNewText, duration])
 
   // Подсчёт статистики в реальном времени
   useEffect(() => {
