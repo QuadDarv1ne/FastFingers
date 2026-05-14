@@ -327,11 +327,13 @@ class CloudSyncService {
     }
   }
 
-  // Flush offline cache when back online
+  // Flush offline cache when back online — only remove successfully flushed items
   private async flushOfflineCache(): Promise<void> {
     if (this.offlineCache.length === 0) return
 
     logger.info(`Flushing ${this.offlineCache.length} cached operations`)
+
+    const remaining: Array<{ type: string; data: unknown }> = []
 
     for (const item of this.offlineCache) {
       try {
@@ -347,8 +349,8 @@ class CloudSyncService {
           case 'session': {
             const data = item.data as { userId: string } & Partial<TypingSessionRow>
             if (data.wpm === undefined || data.cpm === undefined || data.accuracy === undefined || data.duration === undefined) {
-              logger.error('Invalid session data in offline cache')
-              break
+              logger.error('Invalid session data in offline cache, skipping')
+              break // skip invalid data permanently
             }
             await this.saveTypingSession(data.userId, {
               wpm: data.wpm,
@@ -364,11 +366,12 @@ class CloudSyncService {
           }
         }
       } catch (error) {
-        logger.error('Failed to flush cached operation:', error)
+        logger.error('Failed to flush cached operation, will retry:', error)
+        remaining.push(item) // keep failed items for retry
       }
     }
 
-    this.offlineCache = []
+    this.offlineCache = remaining
   }
 
   // Get pending sync count
@@ -378,9 +381,13 @@ class CloudSyncService {
 
   // Clear user data
   clearUser(userId: string): void {
-    const saves = this.getAllSaves()
-    delete saves[userId]
-    localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
+    try {
+      const saves = this.getAllSaves()
+      delete saves[userId]
+      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
+    } catch (error) {
+      logger.error('Failed to clear user data:', error)
+    }
   }
 
   // Check if online
