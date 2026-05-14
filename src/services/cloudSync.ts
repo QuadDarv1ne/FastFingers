@@ -188,6 +188,8 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
   try {
     const stored = localStorage.getItem('fastfingers_history')
     let totalSessions = 0
+    let totalTime = 0
+    let heatmap: Record<string, unknown> = {}
     let sessions: CloudSession[] = []
 
     if (stored) {
@@ -199,6 +201,8 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
       } else if (parsed && typeof parsed === 'object') {
         sessions = parsed.sessions || []
         totalSessions = parsed.totalSessions || 0
+        totalTime = parsed.totalTime || 0
+        heatmap = parsed.heatmap || {}
       }
     }
 
@@ -217,9 +221,9 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
 
     const historyData = {
       sessions: sessions.slice(0, 100),
-      heatmap: {} as Record<string, unknown>,
+      heatmap,
       totalSessions: totalSessions + 1,
-      totalTime: 0,
+      totalTime,
     }
     localStorage.setItem('fastfingers_history', JSON.stringify(historyData))
   } catch {
