@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 
@@ -90,22 +90,40 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   }, [goals.length, setGoals]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Обновление прогресса целей при изменении currentProgress
+  const prevProgressRef = useRef<GoalsPanelProps['currentProgress'] | null>(null)
+
   useEffect(() => {
     if (goals.length === 0) return
-    const updatedGoals = goals.map(goal => {
-      const current = getCurrentValue(goal.unit, currentProgress)
-      const wasCompleted = goal.completed
-      const isCompleted = current >= goal.target
 
-      return {
-        ...goal,
-        current,
-        completed: isCompleted,
-        completedAt: !wasCompleted && isCompleted ? new Date().toISOString() : goal.completedAt,
-      }
-    })
-    setGoals(updatedGoals)
-  }, [currentProgress, goals, setGoals])
+    // Only update if progress values actually changed
+    const prev = prevProgressRef.current
+    const hasChanged =
+      !prev ||
+      prev.wpm !== currentProgress.wpm ||
+      prev.accuracy !== currentProgress.accuracy ||
+      prev.totalWords !== currentProgress.totalWords ||
+      prev.totalSessions !== currentProgress.totalSessions ||
+      prev.streak !== currentProgress.streak
+
+    if (!hasChanged) return
+
+    setGoals(goals =>
+      goals.map(goal => {
+        const current = getCurrentValue(goal.unit, currentProgress)
+        const wasCompleted = goal.completed
+        const isCompleted = current >= goal.target
+
+        return {
+          ...goal,
+          current,
+          completed: isCompleted,
+          completedAt: !wasCompleted && isCompleted ? new Date().toISOString() : goal.completedAt,
+        }
+      })
+    )
+
+    prevProgressRef.current = currentProgress
+  }, [currentProgress, goals.length, setGoals])
 
   const activeGoals = goals.filter(g => !g.completed)
   const completedGoals = goals.filter(g => g.completed)
@@ -118,7 +136,7 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
       completed: false,
       createdAt: new Date().toISOString(),
     }
-    setGoals([...goals, goal])
+    setGoals(prev => [...prev, goal])
     setShowAddGoal(false)
   }
 

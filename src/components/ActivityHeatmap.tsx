@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useAppTranslation } from '../i18n/config'
+import i18n from 'i18next'
 
 interface ActivityHeatmapProps {
   months?: number
