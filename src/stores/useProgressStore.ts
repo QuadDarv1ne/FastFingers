@@ -107,7 +107,7 @@ export const useProgressStore = create<ProgressState>()(
     {
       name: 'fastfingers-progress',
       partialize: (state) => ({
-        sessions: state.sessions.slice(0, 100),
+        sessions: state.sessions.slice(0, MAX_SESSIONS),
         totalXp: state.totalXp,
         level: state.level,
         streak: state.streak,
