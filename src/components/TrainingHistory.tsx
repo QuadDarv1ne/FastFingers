@@ -3,6 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useExport } from '../hooks/useExport'
 import { formatDurationLong } from '../utils/format'
+import i18n from 'i18next'
 import type { ExportData } from '../utils/export'
 
 interface TrainingHistoryProps {
@@ -325,7 +326,7 @@ function VirtualSessionList({ sessions }: { sessions: Array<{ id: string; wpm: n
                 <div>
                   <p className="font-medium">{session.wpm} WPM</p>
                   <p className="text-xs text-dark-500">
-                    {new Date(session.date).toLocaleDateString('ru-RU', {
+                    {new Date(session.date).toLocaleDateString(i18n.language, {
                       day: 'numeric',
                       month: 'short',
                       hour: '2-digit',

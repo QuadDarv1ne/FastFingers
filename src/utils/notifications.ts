@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { Notification as BellNotification } from '../components/NotificationBell'
 import { Notification as ContextNotification } from '../contexts/NotificationContext'
 
@@ -90,7 +91,7 @@ export function formatNotificationTimestamp(timestamp: string): string {
   if (diffHours < 24) return `${diffHours} ч назад`
   if (diffDays < 7) return `${diffDays} д назад`
 
-  return date.toLocaleDateString('ru-RU', {
+  return date.toLocaleDateString(i18n.language, {
     day: 'numeric',
     month: 'short',
   })

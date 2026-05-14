@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingHistory } from '@hooks/useTypingHistory'
 import { useAppTranslation } from '@i18n/config'
+import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import type { Goal } from '@components/GoalsPanel'
 
@@ -512,12 +513,12 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-dark-400">{t('profile.registered', 'Зарегистрирован')}:</span>
-                <span>{new Date(user.createdAt).toLocaleDateString('ru-RU')}</span>
+                <span>{new Date(user.createdAt).toLocaleDateString(i18n.language)}</span>
               </div>
               {user.lastLogin && (
                 <div className="flex justify-between">
                   <span className="text-dark-400">{t('profile.lastLogin', 'Последний вход')}:</span>
-                  <span>{new Date(user.lastLogin).toLocaleDateString('ru-RU')}</span>
+                  <span>{new Date(user.lastLogin).toLocaleDateString(i18n.language)}</span>
                 </div>
               )}
             </div>

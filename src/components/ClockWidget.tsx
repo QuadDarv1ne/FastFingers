@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAppTranslation } from '../i18n/config'
+import i18n from 'i18next'
 
 interface ClockWidgetProps {
   showSeconds?: boolean
@@ -45,7 +46,7 @@ export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidge
       day: 'numeric',
       month: 'short',
     }
-    return date.toLocaleDateString('ru-RU', options)
+    return date.toLocaleDateString(i18n.language, options)
   }
 
   return (

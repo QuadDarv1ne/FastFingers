@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTypingHistory } from './useTypingHistory'
+import i18n from 'i18next'
 
 interface SessionData {
   id: string
@@ -189,7 +190,7 @@ export function useAdvancedStats() {
         const avgWpm = Math.round(sessions.reduce((sum, s) => sum + s.wpm, 0) / sessions.length)
         const avgAccuracy = Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length)
         trend.push({
-          date: dayStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
+          date: dayStart.toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' }),
           wpm: avgWpm,
           accuracy: avgAccuracy,
         })

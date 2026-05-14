@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import i18n from 'i18next'
 
 export interface Goal {
   id: string
@@ -325,7 +326,7 @@ function GoalCard({ goal }: { goal: Goal }) {
 
           {goal.completedAt && (
             <p className="text-xs text-green-400 mt-2">
-              Выполнено {new Date(goal.completedAt).toLocaleDateString('ru-RU')}
+              Выполнено {new Date(goal.completedAt).toLocaleDateString(i18n.language)}
             </p>
           )}
         </div>

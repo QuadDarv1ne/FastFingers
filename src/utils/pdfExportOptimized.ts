@@ -6,6 +6,7 @@
  */
 
 import type { UserProgress, TypingStats } from '../types'
+import i18n from 'i18next'
 
 interface ExportData {
   progress: UserProgress
@@ -70,7 +71,7 @@ export async function exportStatsToPNG(data: ExportData): Promise<void> {
   y += 30
   ctx.fillStyle = '#808080'
   ctx.font = '16px Helvetica, Arial, sans-serif'
-  ctx.fillText(`Сгенерировано: ${new Date().toLocaleDateString('ru-RU')}`, width / 2, y)
+  ctx.fillText(`Сгенерировано: ${new Date().toLocaleDateString(i18n.language)}`, width / 2, y)
   y += 50
 
   // Общий прогресс
@@ -130,7 +131,7 @@ export async function exportStatsToPNG(data: ExportData): Promise<void> {
     y += 30
 
     const sessionsData: [string, string, string, string][] = data.recentSessions.slice(0, 10).map(session => [
-      new Date(session.timestamp).toLocaleDateString('ru-RU'),
+      new Date(session.timestamp).toLocaleDateString(i18n.language),
       session.wpm.toString(),
       `${session.accuracy}%`,
       session.correctChars.toString(),
@@ -251,7 +252,7 @@ export async function exportCertificatePNG(data: {
   // Дата
   ctx.fillStyle = '#808080'
   ctx.font = '20px Helvetica, Arial, sans-serif'
-  ctx.fillText(`Дата: ${new Date().toLocaleDateString('ru-RU')}`, width / 2, height - 100)
+  ctx.fillText(`Дата: ${new Date().toLocaleDateString(i18n.language)}`, width / 2, height - 100)
 
   // Подпись
   ctx.fillStyle = '#7C3AED'

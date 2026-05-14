@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import i18n from 'i18next'
 
 export interface Achievement {
   id: string
@@ -406,7 +407,7 @@ function AchievementCard({
 
           {achievement.unlockedAt && (
             <p className="text-xs text-yellow-400 mt-2">
-              Разблокировано {new Date(achievement.unlockedAt).toLocaleDateString('ru-RU')}
+              Разблокировано {new Date(achievement.unlockedAt).toLocaleDateString(i18n.language)}
             </p>
           )}
         </div>

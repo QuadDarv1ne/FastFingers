@@ -7,6 +7,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
+import i18n from 'i18next'
 import { useAuth } from '@hooks/useAuth'
 import { supabase } from '../services/supabase'
 import { TournamentBracket } from './TournamentBracket'
@@ -371,7 +372,7 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
                     {TOURNAMENT_LABELS[tournament.status]}
                   </span>
                   <p className="text-xs text-dark-500 mt-2">
-                    {new Date(tournament.start_time).toLocaleDateString('ru-RU', {
+                    {new Date(tournament.start_time).toLocaleDateString(i18n.language, {
                       day: 'numeric',
                       month: 'long',
                       hour: '2-digit',

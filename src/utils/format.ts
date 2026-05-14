@@ -1,4 +1,5 @@
 import { formatDuration as formatDurationNum } from './number'
+import i18n from 'i18next'
 
 const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: 'numeric',
@@ -33,7 +34,7 @@ export function formatDate(date: Date | string | number): string {
   try {
     const d = new Date(date)
     if (isNaN(d.getTime())) return '—'
-    return d.toLocaleDateString('ru-RU', DATE_FORMAT_OPTIONS)
+    return d.toLocaleDateString(i18n.language, DATE_FORMAT_OPTIONS)
   } catch {
     return '—'
   }
@@ -43,7 +44,7 @@ export function formatDateTime(date: Date | string | number): string {
   try {
     const d = new Date(date)
     if (isNaN(d.getTime())) return '—'
-    return d.toLocaleDateString('ru-RU', DATE_TIME_OPTIONS)
+    return d.toLocaleDateString(i18n.language, DATE_TIME_OPTIONS)
   } catch {
     return '—'
   }
@@ -54,7 +55,7 @@ export function formatRelativeTime(date: Date | string | number): string {
     const now = new Date()
     const then = new Date(date)
     if (isNaN(then.getTime())) return '—'
-    
+
     const diffMs = now.getTime() - then.getTime()
     const diffSecs = Math.floor(diffMs / 1000)
     const diffMins = Math.floor(diffSecs / 60)

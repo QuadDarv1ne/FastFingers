@@ -174,7 +174,7 @@ export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
 function Tooltip({ day, children }: { day: DayData; children: React.ReactNode }) {
   const { t } = useAppTranslation()
   const date = new Date(day.date)
-  const dateStr = date.toLocaleDateString('ru-RU', {
+  const dateStr = date.toLocaleDateString(i18n.language, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
