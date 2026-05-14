@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
 export interface Achievement {
@@ -215,16 +215,18 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
   )
 
   // Initialize achievements
-  if (achievements.length === 0) {
-    const initialAchievements: Achievement[] = ACHIEVEMENTS.map(ach => ({
-      ...ach,
-      unlocked: false,
-    }))
-    setAchievements(initialAchievements)
-  }
+  useEffect(() => {
+    if (achievements.length === 0) {
+      const initialAchievements: Achievement[] = ACHIEVEMENTS.map(ach => ({
+        ...ach,
+        unlocked: false,
+      }))
+      setAchievements(initialAchievements)
+    }
+  }, [achievements.length, setAchievements])
 
   // Check and unlock achievements
-  useMemo(() => {
+  useEffect(() => {
     const updated = achievements.map(ach => {
       if (ach.unlocked) return ach
 

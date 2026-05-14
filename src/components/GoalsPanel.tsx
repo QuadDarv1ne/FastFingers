@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 
 export interface Goal {
@@ -75,19 +75,22 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   const [showAddGoal, setShowAddGoal] = useState(false)
 
   // Инициализация целей по умолчанию
-  if (goals.length === 0) {
-    const initialGoals: Goal[] = DEFAULT_GOALS.map((goal, index) => ({
-      ...goal,
-      id: `goal-${Date.now()}-${index}`,
-      current: getCurrentValue(goal.unit, currentProgress),
-      completed: false,
-      createdAt: new Date().toISOString(),
-    }))
-    setGoals(initialGoals)
-  }
+  useEffect(() => {
+    if (goals.length === 0) {
+      const initialGoals: Goal[] = DEFAULT_GOALS.map((goal, index) => ({
+        ...goal,
+        id: `goal-${Date.now()}-${index}`,
+        current: getCurrentValue(goal.unit, currentProgress),
+        completed: false,
+        createdAt: new Date().toISOString(),
+      }))
+      setGoals(initialGoals)
+    }
+  }, [goals.length, setGoals]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Обновление прогресса целей
-  const updateGoalsProgress = () => {
+  // Обновление прогресса целей при изменении currentProgress
+  useEffect(() => {
+    if (goals.length === 0) return
     const updatedGoals = goals.map(goal => {
       const current = getCurrentValue(goal.unit, currentProgress)
       const wasCompleted = goal.completed
@@ -101,12 +104,7 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
       }
     })
     setGoals(updatedGoals)
-  }
-
-  // Вызываем обновление при изменении прогресса
-  useState(() => {
-    updateGoalsProgress()
-  })
+  }, [currentProgress, goals, setGoals]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeGoals = goals.filter(g => !g.completed)
   const completedGoals = goals.filter(g => g.completed)
