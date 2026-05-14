@@ -32,6 +32,16 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const targetIdRef = useRef(0)
+  const scoreRef = useRef(score)
+  const missedRef = useRef(missed)
+  const hitsRef = useRef(hits)
+  const targetsRef = useRef(targets)
+
+  // Keep refs in sync
+  useEffect(() => { scoreRef.current = score }, [score])
+  useEffect(() => { missedRef.current = missed }, [missed])
+  useEffect(() => { hitsRef.current = hits }, [hits])
+  useEffect(() => { targetsRef.current = targets }, [targets])
 
   // Генерация случайной позиции
   const getRandomPosition = useCallback(() => {
@@ -77,9 +87,9 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       setTimeLeft(time => {
         if (time <= 1) {
           setIsPlaying(false)
-          const totalAttempts = hits + missed
-          const accuracy = totalAttempts > 0 ? Math.round((hits / totalAttempts) * 100) : 0
-          onComplete(score, accuracy)
+          const totalAttempts = hitsRef.current + missedRef.current
+          const accuracy = totalAttempts > 0 ? Math.round((hitsRef.current / totalAttempts) * 100) : 0
+          onComplete(scoreRef.current, accuracy)
           return 0
         }
         return time - 1
@@ -87,7 +97,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     }, 1000)
 
     const spawnInterval = setInterval(() => {
-      if (targets.length < 3) {
+      if (targetsRef.current.length < 3) {
         spawnTarget()
       }
     }, 800)
@@ -96,7 +106,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       clearInterval(gameInterval)
       clearInterval(spawnInterval)
     }
-  }, [isPlaying, targets.length, spawnTarget, score, missed, hits, onComplete])
+  }, [isPlaying, spawnTarget, onComplete])
 
   // Старт игры
   const handleStart = () => {
