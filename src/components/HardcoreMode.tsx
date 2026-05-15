@@ -141,25 +141,42 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   }, [user])
 
   const hasSavedRef = useRef(false)
+  const inputResultsRef = useRef(inputResults)
+  const startTimeRef = useRef(startTime)
+  const streakRef = useRef(streak)
+  const onCompleteRef = useRef(onComplete)
+  const showToastRef = useRef(showToast)
+
+  // Sync refs — single effect instead of 5 separate ones
+  useEffect(() => {
+    inputResultsRef.current = inputResults
+    startTimeRef.current = startTime
+    streakRef.current = streak
+    onCompleteRef.current = onComplete
+    showToastRef.current = showToast
+  }, [inputResults, startTime, streak, onComplete, showToast])
 
   useEffect(() => {
-    if (!isActive && inputResults.length > 0 && startTime && user && streak > 0 && supabase && !hasSavedRef.current) {
+    if (!isActive && inputResultsRef.current.length > 0 && startTimeRef.current && user && streakRef.current > 0 && supabase && !hasSavedRef.current) {
       hasSavedRef.current = true
-      const correct = inputResults.filter(r => r.isCorrect).length
-      const timeElapsed = (Date.now() - startTime) / 1000
-      const errors = inputResults.length - correct
-      const stats = calculateStats(correct, inputResults.length, errors, timeElapsed)
-      
+      const results = inputResultsRef.current
+      const start = startTimeRef.current
+      const currentStreak = streakRef.current
+      const correct = results.filter(r => r.isCorrect).length
+      const timeElapsed = (Date.now() - start) / 1000
+      const errors = results.length - correct
+      const stats = calculateStats(correct, results.length, errors, timeElapsed)
+
       setLastStats(stats)
-      showToast(`Хардкор: серия ${streak}, ${stats.wpm} WPM`, streak > 10 ? 'success' : 'info', 4000)
-      onComplete(stats)
+      showToastRef.current(`Хардкор: серия ${currentStreak}, ${stats.wpm} WPM`, currentStreak > 10 ? 'success' : 'info', 4000)
+      onCompleteRef.current(stats)
 
       const saveRecord = async () => {
         let retries = 3
         while (retries > 0) {
           const result = await supabase?.from('hardcore_records').insert({
             user_id: user.id,
-            streak,
+            streak: currentStreak,
             wpm: stats.wpm,
             accuracy: stats.accuracy,
           })
@@ -171,11 +188,11 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       saveRecord().catch((error) => {
         logger.error('Failed to save hardcore record:', error)
-        showToast('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+        showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
       })
       setShowCertificate(true)
     }
-  }, [isActive, inputResults, startTime, user, streak, onComplete, showToast])
+  }, [isActive, user])
 
   // Reset saved flag when starting a new session
   useEffect(() => {
