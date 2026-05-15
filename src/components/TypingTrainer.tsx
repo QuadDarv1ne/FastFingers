@@ -83,6 +83,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const completionRef = useRef<HTMLDivElement>(null)
   const correctCountRef = useRef(0)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const resultsRef = useRef<KeyInputResult[]>([])
 
   useFocusTrap(completionRef, isComplete)
 
@@ -141,6 +142,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setText(exerciseText)
       setCurrentIndex(0)
       setInputResults([])
+      resultsRef.current = []
       setStartTime(null)
       setIsComplete(false)
       correctCountRef.current = 0
@@ -150,6 +152,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setText('ошибка генерации текста')
       setCurrentIndex(0)
       setInputResults([])
+      resultsRef.current = []
       setStartTime(null)
       setIsComplete(false)
       textLengthRef.current = 0
@@ -202,15 +205,24 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
     const nextIndex = currentIndex + 1
     setCurrentIndex(nextIndex)
-    setInputResults(prev => [...prev, result])
+    setInputResults(prev => {
+      const newResults = [...prev, result]
+      resultsRef.current = newResults
+      return newResults
+    })
 
     if (nextIndex >= textLengthRef.current) {
-      const newResults = [...inputResults, result]
-      handleComplete(newResults)
+      // Use a microtask to ensure state has flushed
+      queueMicrotask(() => {
+        setInputResults(prev => {
+          handleComplete(prev)
+          return prev
+        })
+      })
     }
 
     e.currentTarget.value = ''
-  }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete, inputResults])
+  }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
   const handleSkip = useCallback(() => {

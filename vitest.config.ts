@@ -7,6 +7,13 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import fg from 'fast-glob'
+
+// Workaround for vitest 4 glob resolution bug on Windows/Git Bash
+const testFiles = fg.sync('src/**/*.test.{ts,tsx}', {
+  cwd: process.cwd(),
+  ignore: ['**/e2e/**', '**/indexedDB.test.ts'],
+}).map(f => f.replace(/\\/g, '/'))
 
 export default defineConfig({
   cacheDir: './node_modules/.vitest',
@@ -28,9 +35,9 @@ export default defineConfig({
     environment: 'happy-dom',
     setupFiles: ['./src/tests/setup.ts'],
     css: true,
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: testFiles,
     exclude: ['**/e2e/**', '**/node_modules/**', '**/indexedDB.test.ts'],
-    pool: 'threads',
+    pool: 'forks',
     minThreads: 6,
     maxThreads: 12,
     useAtomics: true,

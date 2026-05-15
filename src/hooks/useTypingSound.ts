@@ -67,6 +67,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     }
   }, [])
 
+  /* eslint-disable react-hooks/exhaustive-deps -- volume is applied via gainNodeRef in setVolume;
+     including it here would destroy/recreate AudioContext on every volume change */
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
 
@@ -93,7 +95,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setError('Audio initialisation failed')
       }
     }
-  }, [options.volume])
+  }, [])
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const setVolume = useCallback((volume: number) => {
     setOptions(prev => ({ ...prev, volume }))
