@@ -47,6 +47,8 @@ export function useHardcoreMode({
 
   const inputRef = useRef<HTMLInputElement>(null)
   const textLengthRef = useRef(0)
+  const streakRef = useRef(0)
+  streakRef.current = streak
 
   const calculateCorrectCount = useCallback((results: Array<{ isCorrect: boolean }>): number => {
     let count = 0
@@ -137,14 +139,14 @@ export function useHardcoreMode({
 
   const resetGame = useCallback(() => {
     setStreak(0)
-    setBestStreak?.(prev => Math.max(prev, streak))
+    setBestStreak?.(prev => Math.max(prev, streakRef.current))
     generateNewText()
     setIsActive(false)
     cancelCountdown()
     setStartTime(null)
     setInputResults([])
     setCurrentIndex(0)
-  }, [streak, generateNewText, setBestStreak, cancelCountdown])
+  }, [generateNewText, setBestStreak, cancelCountdown])
 
   return {
     text,

@@ -31,6 +31,9 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   inputResultsRef.current = inputResults
   timeLeftRef.current = timeLeft
 
+  // Track that timer reached zero via useEffect to avoid side effects in setState
+  const shouldFinishRef = useRef(false)
+
   // Завершение
   const handleFinish = useCallback(() => {
     const results = inputResultsRef.current
@@ -64,8 +67,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
       interval = window.setInterval(() => {
         setTimeLeft((prev: number) => {
           if (prev <= 1) {
+            shouldFinishRef.current = true
             setIsActive(false)
-            handleFinish()
             return 0
           }
           return prev - 1
@@ -76,7 +79,16 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     return () => {
       if (interval) window.clearInterval(interval)
     }
-  }, [isActive, timeLeft, handleFinish])
+  }, [isActive, timeLeft])
+
+  // Finish when timer reaches 0 (avoid calling handleFinish inside setState updater)
+  const hasFinishedRef = useRef(false)
+  useEffect(() => {
+    if (timeLeft === 0 && !isActive && shouldFinishRef.current && !hasFinishedRef.current) {
+      hasFinishedRef.current = true
+      handleFinish()
+    }
+  }, [timeLeft, isActive, handleFinish])
 
   // Старт при первом нажатии
   const handleStart = () => {

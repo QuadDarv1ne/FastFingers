@@ -24,6 +24,8 @@ export function usePerformanceMonitor({
   const frameCountRef = useRef(0)
   const lastTimeRef = useRef(performance.now())
   const rafIdRef = useRef<number>()
+  const onMetricsUpdateRef = useRef(onMetricsUpdate)
+  onMetricsUpdateRef.current = onMetricsUpdate
 
   useEffect(() => {
     if (!enabled) return
@@ -43,7 +45,6 @@ export function usePerformanceMonitor({
         renderTime: elapsed / frameCountRef.current,
       }
 
-      // Добавляем информацию о памяти если доступна
       if ('memory' in performance) {
         const memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory
         if (memory) {
@@ -51,7 +52,7 @@ export function usePerformanceMonitor({
         }
       }
 
-      onMetricsUpdate?.(metrics)
+      onMetricsUpdateRef.current?.(metrics)
 
       // Сброс счётчиков
       frameCountRef.current = 0
@@ -67,5 +68,5 @@ export function usePerformanceMonitor({
       }
       clearInterval(intervalId)
     }
-  }, [enabled, onMetricsUpdate, sampleInterval])
+  }, [enabled, sampleInterval])
 }
