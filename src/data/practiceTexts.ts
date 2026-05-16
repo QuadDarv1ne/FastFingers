@@ -129,7 +129,7 @@ export const practiceTexts: PracticeText[] = [
     category: 'code',
     difficulty: 7,
     title: 'Python — Класс',
-    text: 'class User: def __init__(self, name, email): self.name = name self.email = email',
+    text: 'class User: def __init__(self, name, email): self.name = name; self.email = email',
   },
   {
     id: 'code-10',
@@ -1150,7 +1150,7 @@ export const practiceTexts: PracticeText[] = [
     category: 'news',
     difficulty: 5,
     title: 'Наука',
-    text: 'Учёные обнаружили новую экзопланету в зоне обитаемости, где可能存在 жидкая вода и условия для жизни.',
+    text: 'Учёные обнаружили новую экзопланету в зоне обитаемости, где может существовать жидкая вода и условия для жизни.',
   },
   {
     id: 'news-4',

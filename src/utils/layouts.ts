@@ -10,16 +10,16 @@ export const layouts: Record<string, KeyboardLayoutData> = {
     ],
     keyToFinger: {
       // Левая рука
-      q: 'pinky-left', 'a': 'pinky-left', 'z': 'pinky-left',
-      w: 'ring-left', 's': 'ring-left', 'x': 'ring-left',
-      e: 'middle-left', 'd': 'middle-left', 'c': 'middle-left',
-      r: 'index-left', 'f': 'index-left', 'v': 'index-left', 't': 'index-left', 'g': 'index-left', 'b': 'index-left',
+      q: 'left-pinky', 'a': 'left-pinky', 'z': 'left-pinky',
+      w: 'left-ring', 's': 'left-ring', 'x': 'left-ring',
+      e: 'left-middle', 'd': 'left-middle', 'c': 'left-middle',
+      r: 'left-index', 'f': 'left-index', 'v': 'left-index', 't': 'left-index', 'g': 'left-index', 'b': 'left-index',
       // Правая рука
-      y: 'index-right', 'h': 'index-right', 'n': 'index-right', 'u': 'index-right', 'j': 'index-right', 'm': 'index-right',
-      i: 'middle-right', 'k': 'middle-right', ',': 'middle-right',
-      o: 'ring-right', 'l': 'ring-right', '.': 'ring-right',
-      p: 'pinky-right', ';': 'pinky-right', '/': 'pinky-right',
-      '[': 'pinky-right', ']': 'pinky-right', "'": 'pinky-right',
+      y: 'right-index', 'h': 'right-index', 'n': 'right-index', 'u': 'right-index', 'j': 'right-index', 'm': 'right-index',
+      i: 'right-middle', 'k': 'right-middle', ',': 'right-middle',
+      o: 'right-ring', 'l': 'right-ring', '.': 'right-ring',
+      p: 'right-pinky', ';': 'right-pinky', '/': 'right-pinky',
+      '[': 'right-pinky', ']': 'right-pinky', "'": 'right-pinky',
     },
   },
   jcuken: {
@@ -31,16 +31,16 @@ export const layouts: Record<string, KeyboardLayoutData> = {
     ],
     keyToFinger: {
       // Левая рука
-      й: 'pinky-left', 'ф': 'pinky-left', 'я': 'pinky-left',
-      ц: 'ring-left', 'ы': 'ring-left', 'ч': 'ring-left',
-      у: 'middle-left', 'в': 'middle-left', 'с': 'middle-left',
-      к: 'index-left', 'а': 'index-left', 'м': 'index-left', 'е': 'index-left', 'п': 'index-left', 'и': 'index-left',
+      й: 'left-pinky', 'ф': 'left-pinky', 'я': 'left-pinky',
+      ц: 'left-ring', 'ы': 'left-ring', 'ч': 'left-ring',
+      у: 'left-middle', 'в': 'left-middle', 'с': 'left-middle',
+      к: 'left-index', 'а': 'left-index', 'м': 'left-index', 'е': 'left-index', 'п': 'left-index', 'и': 'left-index',
       // Правая рука
-      н: 'index-right', 'р': 'index-right', 'т': 'index-right', 'г': 'index-right', 'о': 'index-right', 'ь': 'index-right',
-      ш: 'middle-right', 'л': 'middle-right', 'б': 'middle-right',
-      щ: 'ring-right', 'д': 'ring-right', 'ю': 'ring-right',
-      з: 'pinky-right', 'ж': 'pinky-right', '.': 'pinky-right',
-      х: 'pinky-right', 'э': 'pinky-right', 'ъ': 'pinky-right',
+      н: 'right-index', 'р': 'right-index', 'т': 'right-index', 'г': 'right-index', 'о': 'right-index', 'ь': 'right-index',
+      ш: 'right-middle', 'л': 'right-middle', 'б': 'right-middle',
+      щ: 'right-ring', 'д': 'right-ring', 'ю': 'right-ring',
+      з: 'right-pinky', 'ж': 'right-pinky', '.': 'right-pinky',
+      х: 'right-pinky', 'э': 'right-pinky', 'ъ': 'right-pinky',
     },
   },
   dvorak: {
@@ -52,40 +52,40 @@ export const layouts: Record<string, KeyboardLayoutData> = {
     ],
     keyToFinger: {
       // Левая рука
-      "'": 'pinky-left', 'a': 'pinky-left', ';': 'pinky-left',
-      ',': 'ring-left', 'o': 'ring-left', 'q': 'ring-left',
-      '.': 'middle-left', 'e': 'middle-left', 'j': 'middle-left',
-      p: 'index-left', 'u': 'index-left', 'k': 'index-left', 'y': 'index-left', 'i': 'index-left', 'x': 'index-left',
+      "'": 'left-pinky', 'a': 'left-pinky', ';': 'left-pinky',
+      ',': 'left-ring', 'o': 'left-ring', 'q': 'left-ring',
+      '.': 'left-middle', 'e': 'left-middle', 'j': 'left-middle',
+      p: 'left-index', 'u': 'left-index', 'k': 'left-index', 'y': 'left-index', 'i': 'left-index', 'x': 'left-index',
       // Правая рука
-      f: 'index-right', 'd': 'index-right', 'b': 'index-right', 'g': 'index-right', 'h': 'index-right', 'm': 'index-right',
-      c: 'middle-right', 't': 'middle-right', 'w': 'middle-right',
-      r: 'ring-right', 'n': 'ring-right', 'v': 'ring-right',
-      l: 'pinky-right', 's': 'pinky-right', 'z': 'pinky-right',
-      '/': 'pinky-right', '-': 'pinky-right', '=': 'pinky-right',
+      f: 'right-index', 'd': 'right-index', 'b': 'right-index', 'g': 'right-index', 'h': 'right-index', 'm': 'right-index',
+      c: 'right-middle', 't': 'right-middle', 'w': 'right-middle',
+      r: 'right-ring', 'n': 'right-ring', 'v': 'right-ring',
+      l: 'right-pinky', 's': 'right-pinky', 'z': 'right-pinky',
+      '/': 'right-pinky', '-': 'right-pinky', '=': 'right-pinky',
     },
   },
 };
 
 // Зоны пальцев для визуализации
 export const fingerZones: Record<string, string> = {
-  'pinky-left': 'Мизинец (левый)',
-  'ring-left': 'Безымянный (левый)',
-  'middle-left': 'Средний (левый)',
-  'index-left': 'Указательный (левый)',
-  'index-right': 'Указательный (правый)',
-  'middle-right': 'Средний (правый)',
-  'ring-right': 'Безымянный (правый)',
-  'pinky-right': 'Мизинец (правый)',
+  'left-pinky': 'Мизинец (левый)',
+  'left-ring': 'Безымянный (левый)',
+  'left-middle': 'Средний (левый)',
+  'left-index': 'Указательный (левый)',
+  'right-index': 'Указательный (правый)',
+  'right-middle': 'Средний (правый)',
+  'right-ring': 'Безымянный (правый)',
+  'right-pinky': 'Мизинец (правый)',
 };
 
 // Цвета для зон пальцев
 export const fingerColors: Record<string, string> = {
-  'pinky-left': '#8b5cf6',
-  'ring-left': '#a78bfa',
-  'middle-left': '#c4b5fd',
-  'index-left': '#ddd6fe',
-  'index-right': '#ddd6fe',
-  'middle-right': '#c4b5fd',
-  'ring-right': '#a78bfa',
-  'pinky-right': '#8b5cf6',
+  'left-pinky': '#8b5cf6',
+  'left-ring': '#a78bfa',
+  'left-middle': '#c4b5fd',
+  'left-index': '#ddd6fe',
+  'right-index': '#ddd6fe',
+  'right-middle': '#c4b5fd',
+  'right-ring': '#a78bfa',
+  'right-pinky': '#8b5cf6',
 };

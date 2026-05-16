@@ -42,9 +42,9 @@ const FAILURE_THRESHOLD = 2 // Понижаем уровень после 2 пр
  */
 export function createAdaptiveState(): AdaptiveDifficultyState {
   return {
-    currentLevel: 5, // Начинаем со среднего уровня
-    targetWpm: 40,
-    targetAccuracy: 90,
+    currentLevel: 3, // Начинаем с уровня для новичков
+    targetWpm: 25,
+    targetAccuracy: 85,
     consecutiveSuccesses: 0,
     consecutiveFailures: 0,
     history: [],

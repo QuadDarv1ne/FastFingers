@@ -25,9 +25,9 @@ describe('adaptiveDifficulty', () => {
     it('should create initial state with default values', () => {
       const state = createAdaptiveState()
 
-      expect(state.currentLevel).toBe(5)
-      expect(state.targetWpm).toBe(40)
-      expect(state.targetAccuracy).toBe(90)
+      expect(state.currentLevel).toBe(3)
+      expect(state.targetWpm).toBe(25)
+      expect(state.targetAccuracy).toBe(85)
       expect(state.consecutiveSuccesses).toBe(0)
       expect(state.consecutiveFailures).toBe(0)
       expect(state.history).toEqual([])
@@ -62,11 +62,11 @@ describe('adaptiveDifficulty', () => {
       const stats = {
         wpm: 50,
         cpm: 200,
-        accuracy: 70,
-        errors: 30,
+        accuracy: 65,
+        errors: 35,
         timeElapsed: 60,
         totalChars: 100,
-        correctChars: 70,
+        correctChars: 65,
         date: new Date().toISOString(),
       }
 
@@ -91,8 +91,8 @@ describe('adaptiveDifficulty', () => {
 
       const result = evaluateSession(stats, state)
 
-      // WPM score низкий, но accuracy высокий, поэтому overall может быть >= 0.7
-      expect(result.metrics.wpmScore).toBe(0.5)
+      // WPM score низкий (20/25 = 0.8), но accuracy высокий, поэтому overall может быть >= 0.7
+      expect(result.metrics.wpmScore).toBe(0.8)
       expect(result.metrics.accuracyScore).toBe(1)
     })
   })
@@ -120,7 +120,7 @@ describe('adaptiveDifficulty', () => {
 
       expect(state.currentLevel).toBe(initialLevel + 1)
       expect(state.consecutiveSuccesses).toBe(0)
-      expect(state.targetWpm).toBeGreaterThan(40)
+      expect(state.targetWpm).toBeGreaterThan(25)
     })
 
     it('should decrease level after FAILURE_THRESHOLD failed sessions', () => {
@@ -223,8 +223,8 @@ describe('adaptiveDifficulty', () => {
 
       expect(state.history.length).toBeGreaterThan(0)
       const firstAdjustment = state.history[0]
-      expect(firstAdjustment?.previousLevel).toBe(5)
-      expect(firstAdjustment?.newLevel).toBe(6)
+      expect(firstAdjustment?.previousLevel).toBe(3)
+      expect(firstAdjustment?.newLevel).toBe(4)
     })
   })
 
@@ -327,8 +327,8 @@ describe('adaptiveDifficulty', () => {
       const state = createAdaptiveState()
       const serialized = serializeAdaptiveState(state)
 
-      expect(serialized).toContain('"currentLevel":5')
-      expect(serialized).toContain('"targetWpm":40')
+      expect(serialized).toContain('"currentLevel":3')
+      expect(serialized).toContain('"targetWpm":25')
     })
   })
 
@@ -346,8 +346,8 @@ describe('adaptiveDifficulty', () => {
     it('should return default state for invalid JSON', () => {
       const deserialized = deserializeAdaptiveState('invalid json')
 
-      expect(deserialized.currentLevel).toBe(5)
-      expect(deserialized.targetWpm).toBe(40)
+      expect(deserialized.currentLevel).toBe(3)
+      expect(deserialized.targetWpm).toBe(25)
     })
   })
 
@@ -355,8 +355,8 @@ describe('adaptiveDifficulty', () => {
     it('should reset state to initial values', () => {
       const resetState = resetAdaptiveState()
 
-      expect(resetState.currentLevel).toBe(5)
-      expect(resetState.targetWpm).toBe(40)
+      expect(resetState.currentLevel).toBe(3)
+      expect(resetState.targetWpm).toBe(25)
       expect(resetState.consecutiveSuccesses).toBe(0)
     })
   })
