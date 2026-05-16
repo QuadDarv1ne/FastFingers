@@ -87,34 +87,23 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     }
   }, { enabled: true })
 
-  // Отслеживание майлстоунов
+  // Отслеживание майлстоунов — only trigger when crossing a boundary
+  const shownMilestonesRef = useRef<Set<number>>(new Set())
   useEffect(() => {
     if (!isActive) return
 
     const elapsed = MARATHON_DURATION - timeLeft
-    const nextMilestoneIndex = MILESTONE_INTERVALS.findIndex(interval => interval > elapsed)
+    const currentInterval = MILESTONE_INTERVALS.find(interval => interval <= elapsed && !shownMilestonesRef.current.has(interval))
 
-    if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
-
-    if (nextMilestoneIndex === -1 && currentMilestone < MILESTONE_INTERVALS.length) {
-      // Достигнут последний майлстоун
-      setCurrentMilestone(MILESTONE_INTERVALS.length)
-      const message = MILESTONE_MESSAGES[300 as keyof typeof MILESTONE_MESSAGES]
+    if (currentInterval !== undefined) {
+      shownMilestonesRef.current.add(currentInterval)
+      const message = MILESTONE_MESSAGES[currentInterval as keyof typeof MILESTONE_MESSAGES]
       setShowMilestone(message)
-      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
-    } else if (nextMilestoneIndex !== -1 && nextMilestoneIndex > currentMilestone) {
-      // Достигнут промежуточный майлстоун
-      setCurrentMilestone(nextMilestoneIndex)
-      const milestone = MILESTONE_INTERVALS[nextMilestoneIndex]
-      const message = MILESTONE_MESSAGES[milestone as keyof typeof MILESTONE_MESSAGES]
-      setShowMilestone(message)
-      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
-    }
-
-    return () => {
       if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
+      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
+      setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
     }
-  }, [timeLeft, isActive, currentMilestone])
+  }, [timeLeft, isActive])
 
   // Подсчёт комбо
   useEffect(() => {

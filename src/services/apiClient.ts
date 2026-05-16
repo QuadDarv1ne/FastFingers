@@ -126,39 +126,14 @@ export class ApiClient {
 
     for (let attempt = 0; attempt <= this.retryAttempts; attempt++) {
       try {
-        // Use caller's signal or create our own AbortController for timeout
-        if (signal !== undefined) {
-          // Caller provided their own signal - use it directly
-          const response = await fetch(this.baseURL + url, {
-            method,
-            headers: {
-              ...this.defaultHeaders,
-              ...headers,
-            },
-            body: body ? JSON.stringify(body) : undefined,
-            signal,
-          })
+        // Create timeout controller regardless of caller signal
+        const timeoutController = new AbortController()
+        const timeoutId = setTimeout(() => timeoutController.abort(), timeout ?? this.timeout)
 
-          if (!response.ok) {
-            const errorData = await this.parseErrorResponse(response)
-            throw new ApiError(
-              errorData.message || `HTTP ${response.status}`,
-              response.status,
-              errorData.code,
-              errorData.details
-            )
-          }
-
-          if (response.status === 204) {
-            return {} as T
-          }
-
-          return await response.json()
-        }
-
-        // No caller signal - create our own controller for timeout
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), timeout || this.timeout)
+        // Combine caller's signal with timeout signal
+        const combinedSignal = signal
+          ? AbortSignal.any([signal, timeoutController.signal])
+          : timeoutController.signal
 
         try {
           const response = await fetch(this.baseURL + url, {
@@ -168,7 +143,7 @@ export class ApiClient {
               ...headers,
             },
             body: body ? JSON.stringify(body) : undefined,
-            signal: controller.signal,
+            signal: combinedSignal,
           })
 
           if (!response.ok) {

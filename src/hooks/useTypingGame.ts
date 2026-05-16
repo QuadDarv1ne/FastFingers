@@ -86,6 +86,8 @@ export function useTypingGame({
   const inputRef = useRef<HTMLInputElement>(null)
   const isHandlingInput = useRef(false)
   const timeLeftRef = useRef(safeDuration)
+  const inputResultsRef = useRef<KeyInputResult[]>([])
+  const pendingCompletionRef = useRef<{ results: KeyInputResult[]; shouldGenerateText: boolean } | null>(null)
 
   const generateNewText = useCallback(() => {
     try {
@@ -157,6 +159,11 @@ export function useTypingGame({
   useEffect(() => {
     timeLeftRef.current = timeLeft
   }, [timeLeft])
+
+  // Sync inputResultsRef for use in handleInput closure
+  useEffect(() => {
+    inputResultsRef.current = inputResults
+  }, [inputResults])
 
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {
@@ -259,19 +266,18 @@ export function useTypingGame({
 
           setInputResults(prev => {
             const newResults = [...prev, result]
-
-            // Авто-генерация нового текста когда дошли до конца
-            if (prevIndex >= text.length - 5) {
-              generateNewText()
-            }
-
-            // Завершение в practice режиме
-            if (mode === 'practice' && prevIndex >= text.length - 1) {
-              handleComplete(newResults)
-            }
-
             return newResults
           })
+
+          // Queue completion work to be handled by useEffect (avoid side effects in setState)
+          const shouldGenerateText = prevIndex >= text.length - 5
+          const isComplete = mode === 'practice' && prevIndex >= text.length - 1
+          if (shouldGenerateText || isComplete) {
+            pendingCompletionRef.current = {
+              results: [...inputResultsRef.current, result],
+              shouldGenerateText,
+            }
+          }
 
           return prevIndex + 1
         })
@@ -285,6 +291,22 @@ export function useTypingGame({
     },
     [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, generateNewText, handleComplete]
   )
+
+  // Process completion side effects outside of setState updaters
+  useEffect(() => {
+    const pending = pendingCompletionRef.current
+    if (!pending) return
+
+    pendingCompletionRef.current = null
+
+    if (pending.shouldGenerateText) {
+      generateNewText()
+    }
+
+    if (mode === 'practice') {
+      handleComplete(pending.results)
+    }
+  }, [currentIndex, mode, generateNewText, handleComplete])
 
   const handleSkip = useCallback(() => {
     try {
