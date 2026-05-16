@@ -222,7 +222,9 @@ export function useDeepMemo<T>(value: () => T, deps: unknown[]): T {
     ref.current = { value: value(), deps }
   }
 
-  return ref.current?.value ?? (value() as T)
+  // Use explicit null check instead of nullish coalescing to avoid
+  // double-calling value() when the memoized result is falsy (0, '', false, null)
+  return ref.current !== null ? ref.current.value : (value() as T)
 }
 
 /**

@@ -32,21 +32,21 @@ interface TypingTrainerProps {
 }
 
 const CATEGORY_OPTIONS = [
-  { value: 'all', label: '🎲 Случайные слова' },
-  { value: 'basic', label: '⌨️ Основной ряд' },
-  { value: 'upper', label: '⬆️ Верхний ряд' },
-  { value: 'lower', label: '⬇️ Нижний ряд' },
-  { value: 'words', label: '📝 Слова' },
-  { value: 'sentences', label: '📄 Предложения' },
-  { value: 'code', label: '💻 Код' },
+  { value: 'all', labelKey: 'trainer.randomWords', icon: '🎲' },
+  { value: 'basic', labelKey: 'trainer.basicRow', icon: '⌨️' },
+  { value: 'upper', labelKey: 'trainer.upperRow', icon: '⬆️' },
+  { value: 'lower', labelKey: 'trainer.lowerRow', icon: '⬇️' },
+  { value: 'words', labelKey: 'exercise.words', icon: '📝' },
+  { value: 'sentences', labelKey: 'exercise.sentences', icon: '📄' },
+  { value: 'code', labelKey: 'exercise.code', icon: '💻' },
 ] as const
 
 const DIFFICULTY_OPTIONS = [
-  { value: 1, label: '⭐ Очень легко' },
-  { value: 3, label: '⭐⭐ Легко' },
-  { value: 5, label: '⭐⭐⭐ Средне' },
-  { value: 7, label: '⭐⭐⭐⭐ Сложно' },
-  { value: 9, label: '⭐⭐⭐⭐⭐ Очень сложно' },
+  { value: 1, labelKey: 'trainer.difficulty.veryEasy', stars: 1 },
+  { value: 3, labelKey: 'trainer.difficulty.easy', stars: 2 },
+  { value: 5, labelKey: 'trainer.difficulty.medium', stars: 3 },
+  { value: 7, labelKey: 'trainer.difficulty.hard', stars: 4 },
+  { value: 9, labelKey: 'trainer.difficulty.veryHard', stars: 5 },
 ] as const
 
 // Отдельный компонент для каждого символа — мемоизирован, перерисовывается только при изменении своего статуса
@@ -136,7 +136,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       if (!exerciseText || exerciseText.trim().length === 0) {
         logger.warn('Empty exercise text, using fallback')
-        exerciseText = 'текст для печати'
+        exerciseText = t('trainer.fallbackText')
       }
 
       setText(exerciseText)
@@ -149,7 +149,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       textLengthRef.current = exerciseText.length
     } catch (error) {
       logger.error('Error initializing exercise:', error)
-      setText('ошибка генерации текста')
+      setText(t('trainer.errorText'))
       setCurrentIndex(0)
       setInputResults([])
       resultsRef.current = []
@@ -251,15 +251,24 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Опции категории с мемоизацией
   const categoryOptions = useMemo(() => {
-    const options: Array<{ value: string; label: string }> = [...CATEGORY_OPTIONS]
+    const options: Array<{ value: string; label: string }> = CATEGORY_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: `${opt.icon} ${t(opt.labelKey as any)}`,
+    }))
     if (customExercises.length > 0) {
-      options.push({ value: 'custom', label: `✏️ Мои упражнения (${customExercises.length})` })
+      options.push({ value: 'custom', label: `✏️ ${t('trainer.myExercises')} (${customExercises.length})` })
     }
     return options
-  }, [customExercises.length])
+  }, [customExercises.length, t])
 
   // Опции сложности с мемоизацией
-  const difficultyOptions = useMemo(() => DIFFICULTY_OPTIONS, [])
+  const difficultyOptions = useMemo(() =>
+    DIFFICULTY_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: `${'⭐'.repeat(opt.stars)} ${t(opt.labelKey as any)}`,
+    })),
+    [t],
+  )
 
   // Рендеринг символов текста — мемоизирован, перерисовывается только при изменении статуса символов
   const renderedChars = useMemo(() => {
@@ -284,13 +293,14 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Статистика для live region (O(1) via ref counter)
   const liveRegionText = useMemo(() => {
-    return `${currentIndex} из ${text.length} символов. Точность: ${correctCountRef.current} из ${inputResults.length}`
-  }, [currentIndex, text.length, inputResults.length])
+    const label = t('trainer.liveRegion')
+    return `${currentIndex} / ${text.length} ${label} ${correctCountRef.current} / ${inputResults.length}`
+  }, [currentIndex, text.length, inputResults.length, t])
 
   return (
-    <div className="space-y-4 sm:space-y-6" role="region" aria-label="Тренажёр печати">
+    <div className="space-y-4 sm:space-y-6" role="region" aria-label={t('trainer.aria.practiceArea')}>
       {/* Выбор режима — mobile-first stacked layout */}
-      <div className="card" role="group" aria-label="Настройки упражнения">
+      <div className="card" role="group" aria-label={t('trainer.aria.settings')}>
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-end">
           <div className="flex-1 min-w-[200px] w-full sm:w-auto">
             <label htmlFor="category-select" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
@@ -304,7 +314,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 min-h-touch touch-manipulation"
               disabled={isChallenge}
               aria-disabled={isChallenge}
-              aria-label="Категория упражнения"
+              aria-label={t('trainer.aria.category')}
             >
               {categoryOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -322,7 +332,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(Number(e.target.value))}
               className="w-full bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5 text-base sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all hover:border-dark-600 min-h-touch touch-manipulation"
-              aria-label="Выберите сложность"
+              aria-label={t('trainer.aria.difficulty')}
             >
               {difficultyOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -334,19 +344,19 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           <div className="flex-1 min-w-[180px] w-full sm:w-auto mt-3 sm:mt-0">
             <label htmlFor="adaptive-toggle" className="block text-sm font-medium text-dark-300 mb-2 flex items-center gap-2">
               <span>📈</span>
-              Адаптация
+              {t('trainer.adaptation')}
             </label>
             <div className="flex items-center gap-2 bg-dark-800 border border-dark-700 rounded-xl px-4 py-3 sm:py-2.5">
               <span className="text-xl" title={adaptive.levelDescription}>{adaptive.levelBadge}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-xs text-dark-400 truncate">Уровень {adaptive.level}</div>
+                <div className="text-xs text-dark-400 truncate">{t('common.level')} {adaptive.level}</div>
                 <div className="text-xs font-medium truncate">{adaptive.levelDescription}</div>
               </div>
               <button
                 id="adaptive-toggle"
                 onClick={adaptive.toggleEnabled}
                 className={`w-10 h-5 rounded-full transition-colors ${adaptive.isEnabled ? 'bg-primary-600' : 'bg-dark-700'}`}
-                aria-label={adaptive.isEnabled ? 'Отключить адаптивную сложность' : 'Включить адаптивную сложность'}
+                aria-label={adaptive.isEnabled ? t('trainer.aria.adaptiveToggle') : t('trainer.aria.adaptiveToggle')}
               >
                 <div className={`w-4 h-4 bg-white rounded-full transition-transform ${adaptive.isEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
               </button>
@@ -356,14 +366,14 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           <button
             onClick={initExercise}
             className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-2 min-h-touch touch-manipulation active:scale-95 mt-3 sm:mt-0"
-            title="Сгенерировать новое упражнение"
-            aria-label="Новое упражнение"
+            title={t('action.restart')}
+            aria-label={t('action.restart')}
           >
             <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span className="hidden sm:inline">{t('action.restart')}</span>
-            <span className="sm:hidden">Новое</span>
+            <span className="sm:hidden">{t('trainer.newBtn')}</span>
           </button>
         </div>
       </div>
@@ -382,7 +392,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
             </svg>
-            Кликните или нажмите Enter
+            {t('trainer.clickOrEnter')}
           </div>
         )}
 
@@ -398,7 +408,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             blurTimerRef.current = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)
           }}
           disabled={isComplete}
-          aria-label="Поле ввода для печати"
+          aria-label={t('trainer.aria.inputField')}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -415,9 +425,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         </div>
         
         {/* Индикатор прогресса */}
-        <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс упражнения">
+        <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label={t('trainer.aria.progress')}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
-            <span className="text-dark-400 font-medium">Прогресс</span>
+            <span className="text-dark-400 font-medium">{t('trainer.progressLabel')}</span>
             <span className="text-primary-400 font-bold">{Math.round((currentIndex / text.length) * 100)}%</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -434,17 +444,17 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         </div>
 
         {/* Кнопки управления */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mt-6 pt-6 border-t border-dark-700/50" role="group" aria-label="Управление упражнением">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mt-6 pt-6 border-t border-dark-700/50" role="group" aria-label={t('trainer.aria.controls')}>
           <button
             onClick={handleSkip}
             className="w-full sm:w-auto px-4 py-3 sm:py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 min-h-touch"
-            title="Пропустить это упражнение"
-            aria-label="Пропустить упражнение"
+            title={t('trainer.aria.skip')}
+            aria-label={t('trainer.aria.skip')}
           >
             <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
             </svg>
-            <span className="sm:hidden">Пропустить</span>
+            <span className="sm:hidden">{t('action.skip')}</span>
             <span className="hidden sm:inline">{t('action.skip')}</span>
           </button>
 
@@ -454,7 +464,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               animate={{ scale: 1, opacity: 1 }}
               onClick={initExercise}
               className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-2 min-h-touch"
-              aria-label="Продолжить следующее упражнение"
+              aria-label={t('trainer.aria.nextExercise')}
             >
               {t('action.continue')}
               <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -503,7 +513,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                   transition={{ delay: 0.4 }}
                   className="text-dark-300 mb-8 text-lg"
                 >
-                  {t('exercise.custom').split(' ')[0]} {t('status.completed')}. {t('action.continue')}!
+                  {t('trainer.exerciseComplete')}
                 </motion.p>
                 <motion.button
                   initial={{ opacity: 0, y: 20 }}
@@ -511,9 +521,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                   transition={{ delay: 0.5 }}
                   onClick={initExercise}
                   className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:shadow-primary-500/30 flex items-center gap-2 mx-auto"
-                  aria-label="Следующее упражнение"
+                  aria-label={t('trainer.nextExercise')}
                 >
-                  Следующее упражнение
+                  {t('trainer.nextExercise')}
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -528,7 +538,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       {currentKey && !isComplete && (
         <div className="card text-center" aria-live="polite" aria-atomic="true">
           <div className="flex items-center justify-center gap-3">
-            <span className="text-sm text-dark-400 font-medium">Следующая клавиша:</span>
+            <span className="text-sm text-dark-400 font-medium">{t('trainer.nextKey')}:</span>
             <div className="px-4 py-2 bg-primary-500/20 rounded-lg border border-primary-500/30">
               <span className="text-primary-400 font-mono text-2xl font-bold">{currentKey}</span>
             </div>

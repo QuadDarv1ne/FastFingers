@@ -197,7 +197,10 @@ export function calculateStreak(dates: number[]): number {
 
   if (!hasToday && !hasYesterday) return 0;
 
-  while (true) {
+  // Safety guard: streak cannot exceed 365 days (1 year)
+  const MAX_STREAK_LIMIT = 365;
+
+  while (streak < MAX_STREAK_LIMIT) {
     const dateStr = currentDate.toDateString();
     const hasActivity = uniqueDates.some(d => new Date(d).toDateString() === dateStr);
 

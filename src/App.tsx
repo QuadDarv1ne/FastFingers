@@ -191,13 +191,13 @@ function AppContent() {
     (exercise: CustomExercise) => {
       addExercise({
         ...exercise,
-        description: 'Пользовательское упражнение',
+        description: t('exercise.custom'),
         focusKeys: [],
       })
       setView('main')
       setGameMode('practice')
     },
-    [addExercise, setView, setGameMode]
+    [addExercise, setView, setGameMode, t]
   )
 
   const handleImportProgress = useCallback(
