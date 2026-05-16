@@ -51,6 +51,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   )
 
   const dismissToast = useCallback((id: string) => {
+    const timeoutId = timeoutsRef.current.get(id)
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId)
+      timeoutsRef.current.delete(id)
+    }
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 

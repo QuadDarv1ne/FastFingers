@@ -87,7 +87,7 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   } | null>(null)
 
   // Sound for typing feedback
-  const sound = useTypingSound()
+  const sound = useTypingSound({ enabled: true, volume: 0.5, theme: 'soft' })
 
   // Typing engine for active match
   const {
@@ -99,11 +99,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
     accuracy,
     inputRef,
     handleInput,
-    handleStart: startMatch,
   } = useTypingGame({
     initialWordCount: 50,
     initialDifficulty: 5,
-    mode: 'words',
+    mode: 'practice',
     onComplete: (stats: TypingStats) => {
       onComplete?.(stats)
       setActiveMatch(null)

@@ -415,3 +415,16 @@ export function useAutoSync(user: User | null, stats: UserStats) {
     return () => clearInterval(interval)
   }, [user])
 }
+
+// Hook to ensure cloudSyncService event listeners are cleaned up on unmount
+// Use this once at the app root level to prevent memory leaks
+const cleanupRegistered = { current: false }
+export function useCloudSyncCleanup() {
+  useEffect(() => {
+    if (cleanupRegistered.current) return
+    cleanupRegistered.current = true
+    return () => {
+      cloudSyncService.destroy()
+    }
+  }, [])
+}

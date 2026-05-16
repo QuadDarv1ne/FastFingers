@@ -128,38 +128,32 @@ export class ApiClient {
       try {
         // Use caller's signal or create our own AbortController for timeout
         if (signal !== undefined) {
-          // Caller provided their own signal - just set timeout cleanup
-          const timeoutId = setTimeout(() => {}, timeout || this.timeout)
+          // Caller provided their own signal - use it directly
+          const response = await fetch(this.baseURL + url, {
+            method,
+            headers: {
+              ...this.defaultHeaders,
+              ...headers,
+            },
+            body: body ? JSON.stringify(body) : undefined,
+            signal,
+          })
 
-          try {
-            const response = await fetch(this.baseURL + url, {
-              method,
-              headers: {
-                ...this.defaultHeaders,
-                ...headers,
-              },
-              body: body ? JSON.stringify(body) : undefined,
-              signal,
-            })
-
-            if (!response.ok) {
-              const errorData = await this.parseErrorResponse(response)
-              throw new ApiError(
-                errorData.message || `HTTP ${response.status}`,
-                response.status,
-                errorData.code,
-                errorData.details
-              )
-            }
-
-            if (response.status === 204) {
-              return {} as T
-            }
-
-            return await response.json()
-          } finally {
-            clearTimeout(timeoutId)
+          if (!response.ok) {
+            const errorData = await this.parseErrorResponse(response)
+            throw new ApiError(
+              errorData.message || `HTTP ${response.status}`,
+              response.status,
+              errorData.code,
+              errorData.details
+            )
           }
+
+          if (response.status === 204) {
+            return {} as T
+          }
+
+          return await response.json()
         }
 
         // No caller signal - create our own controller for timeout
