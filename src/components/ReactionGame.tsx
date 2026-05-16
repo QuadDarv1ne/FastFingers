@@ -38,6 +38,8 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const targetsRef = useRef(targets)
   const comboRef = useRef(combo)
   const isPlayingRef = useRef(isPlaying)
+  const timeoutIdsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+  const targetTimeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
 
   // Keep refs in sync
   useEffect(() => { scoreRef.current = score }, [score])
@@ -71,7 +73,9 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     setTargets(prev => [...prev, newTarget])
     
     // Цель исчезает через 1.5 секунды
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      timeoutIdsRef.current.delete(timeoutId)
+      targetTimeoutsRef.current.delete(newTarget.id)
       setTargets(prev => {
         const exists = prev.find(t => t.id === newTarget.id)
         if (exists && isPlayingRef.current) {
@@ -81,6 +85,8 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
         return prev.filter(t => t.id !== newTarget.id)
       })
     }, 1500)
+    timeoutIdsRef.current.add(timeoutId)
+    targetTimeoutsRef.current.set(newTarget.id, timeoutId)
   }, [getRandomPosition])
 
   // Игровой цикл
@@ -109,6 +115,11 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     return () => {
       clearInterval(gameInterval)
       clearInterval(spawnInterval)
+      for (const id of timeoutIdsRef.current) {
+        clearTimeout(id)
+      }
+      timeoutIdsRef.current.clear()
+      targetTimeoutsRef.current.clear()
     }
   }, [isPlaying, spawnTarget, onComplete])
 
@@ -128,6 +139,14 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   // Клик по цели
   const handleTargetClick = useCallback((id: number) => {
     if (!isPlayingRef.current) return
+
+    // Clear the target's expiration timeout
+    const timeoutId = targetTimeoutsRef.current.get(id)
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      timeoutIdsRef.current.delete(timeoutId)
+      targetTimeoutsRef.current.delete(id)
+    }
 
     setTargets(prev => prev.filter(t => t.id !== id))
     setHits(h => h + 1)
@@ -158,6 +177,17 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isPlaying, handleTargetClick])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      for (const id of timeoutIdsRef.current) {
+        clearTimeout(id)
+      }
+      timeoutIdsRef.current.clear()
+      targetTimeoutsRef.current.clear()
+    }
+  }, [])
 
   const progress = ((GAME_DURATION - timeLeft) / GAME_DURATION) * 100
 
