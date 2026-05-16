@@ -36,12 +36,16 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const missedRef = useRef(missed)
   const hitsRef = useRef(hits)
   const targetsRef = useRef(targets)
+  const comboRef = useRef(combo)
+  const isPlayingRef = useRef(isPlaying)
 
   // Keep refs in sync
   useEffect(() => { scoreRef.current = score }, [score])
   useEffect(() => { missedRef.current = missed }, [missed])
   useEffect(() => { hitsRef.current = hits }, [hits])
   useEffect(() => { targetsRef.current = targets }, [targets])
+  useEffect(() => { comboRef.current = combo }, [combo])
+  useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
 
   // Генерация случайной позиции
   const getRandomPosition = useCallback(() => {
@@ -70,14 +74,14 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     setTimeout(() => {
       setTargets(prev => {
         const exists = prev.find(t => t.id === newTarget.id)
-        if (exists && isPlaying) {
+        if (exists && isPlayingRef.current) {
           setMissed(m => m + 1)
           setCombo(0)
         }
         return prev.filter(t => t.id !== newTarget.id)
       })
     }, 1500)
-  }, [getRandomPosition, isPlaying])
+  }, [getRandomPosition])
 
   // Игровой цикл
   useEffect(() => {
@@ -123,17 +127,17 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
   // Клик по цели
   const handleTargetClick = useCallback((id: number) => {
-    if (!isPlaying) return
+    if (!isPlayingRef.current) return
 
     setTargets(prev => prev.filter(t => t.id !== id))
     setHits(h => h + 1)
-    setScore(s => s + 10 + combo)
+    setScore(s => s + 10 + comboRef.current)
     setCombo(c => {
       const newCombo = c + 1
       setMaxCombo(m => Math.max(m, newCombo))
       return newCombo
     })
-  }, [isPlaying, combo])
+  }, [])
 
   // Обработка клавиатуры
   useEffect(() => {
@@ -141,10 +145,10 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase()
-      const targetIndex = targets.findIndex(t => t.key === key)
+      const targetIndex = targetsRef.current.findIndex(t => t.key === key)
 
       if (targetIndex !== -1) {
-        const target = targets[targetIndex]
+        const target = targetsRef.current[targetIndex]
         if (target) {
           handleTargetClick(target.id)
         }
@@ -153,7 +157,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isPlaying, targets, handleTargetClick])
+  }, [isPlaying, handleTargetClick])
 
   const progress = ((GAME_DURATION - timeLeft) / GAME_DURATION) * 100
 

@@ -62,11 +62,11 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
   }, [handleKeyDown])
 
   // Сброс фокуса при открытии меню
-  useState(() => {
+  useEffect(() => {
     if (showMenu) {
       setFocusedIndex(keyboardSkinPresets.findIndex(t => t.value === skin))
     }
-  })
+  }, [showMenu, skin])
 
   return (
     <div className="relative">

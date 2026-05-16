@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
+const DEFAULT_EVENTS = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
+
 interface UseIdleDetectionOptions {
   timeout?: number
   onIdle?: () => void
@@ -11,8 +13,9 @@ export function useIdleDetection({
   timeout = 60000,
   onIdle,
   onActive,
-  events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'],
+  events,
 }: UseIdleDetectionOptions = {}) {
+  const resolvedEvents = events ?? DEFAULT_EVENTS
   const [isIdle, setIsIdle] = useState(false)
   const timeoutIdRef = useRef<ReturnType<typeof setTimeout>>()
   const isIdleRef = useRef(isIdle)
@@ -38,7 +41,7 @@ export function useIdleDetection({
     // Initialize the timer
     handleActivity()
 
-    events.forEach(event => {
+    resolvedEvents.forEach(event => {
       window.addEventListener(event, handleActivity)
     })
 
@@ -46,11 +49,11 @@ export function useIdleDetection({
       if (timeoutIdRef.current) {
         clearTimeout(timeoutIdRef.current)
       }
-      events.forEach(event => {
+      resolvedEvents.forEach(event => {
         window.removeEventListener(event, handleActivity)
       })
     }
-  }, [timeout, onIdle, onActive, events, handleActivity])
+  }, [timeout, onIdle, onActive, resolvedEvents, handleActivity])
 
   return isIdle
 }
