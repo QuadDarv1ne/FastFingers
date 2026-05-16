@@ -212,13 +212,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     })
 
     if (nextIndex >= textLengthRef.current) {
-      // Use a microtask to ensure state has flushed
-      queueMicrotask(() => {
-        setInputResults(prev => {
-          handleComplete(prev)
-          return prev
-        })
-      })
+      // resultsRef.current was just updated by setInputResults above
+      handleComplete(resultsRef.current)
     }
 
     e.currentTarget.value = ''
