@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, FontSize, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
+import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
 import { useAppStore } from '../stores/useAppStore';
 
@@ -40,18 +40,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   const [heatmap, setHeatmap] = useState<KeyHeatmapData>({});
   const [showHeatmap, setShowHeatmap] = useState(false);
 
-  const [fontSize, setFontSize] = useState<FontSize>('medium');
-
   // Track previous level to detect level-ups without side effects in setState
   const prevLevelRef = useRef(options?.initialLevel ?? 1);
-
-  // Detect level-up and call callback as a side effect
-  useEffect(() => {
-    if (progress.level > prevLevelRef.current) {
-      options?.onLevelUp?.(progress.level);
-    }
-    prevLevelRef.current = progress.level;
-  }, [progress.level, options]);
 
   // Persisted settings from Zustand store
   const layout = useAppStore(s => s.layout);
@@ -62,6 +52,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   const keyboardSkin = useAppStore(s => s.keyboardSkin);
   const showKeyboard = useAppStore(s => s.showKeyboard);
   const showStats = useAppStore(s => s.showStats);
+  const fontSize = useAppStore(s => s.fontSize);
 
   const settings = useMemo<UserSettings>(() => ({
     layout,
@@ -74,6 +65,14 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     showKeyboard,
     showStats,
   }), [layout, soundEnabled, soundVolume, soundTheme, fontSize, theme, keyboardSkin, showKeyboard, showStats]);
+
+  // Detect level-up and call callback as a side effect
+  useEffect(() => {
+    if (progress.level > prevLevelRef.current) {
+      options?.onLevelUp?.(progress.level);
+    }
+    prevLevelRef.current = progress.level;
+  }, [progress.level, options]);
 
   const handleSessionComplete = useCallback((stats: TypingStats, totalXp: number) => {
     setCurrentStats(stats);
@@ -100,11 +99,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   }, [])
 
   const updateSetting = useCallback(<K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
-    if (key === 'fontSize') {
-      setFontSize(value as FontSize);
-      return;
-    }
     switch (key) {
+      case 'fontSize': useAppStore.getState().setFontSize(value as import('../types').FontSize); break;
       case 'layout': useAppStore.getState().setLayout(value as KeyboardLayout); break;
       case 'soundEnabled': useAppStore.getState().setSoundEnabled(value as boolean); break;
       case 'soundVolume': useAppStore.getState().setSoundVolume(value as number); break;

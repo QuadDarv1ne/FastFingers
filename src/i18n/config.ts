@@ -6,6 +6,7 @@
 
 import i18n, { TFunction } from 'i18next'
 import { initReactI18next, useTranslation } from 'react-i18next'
+import { logger } from '../utils/logger'
 
 // ============================================
 // Типы для ключей переводов
@@ -316,7 +317,7 @@ async function loadLanguageFile(lang: string): Promise<Record<string, string>> {
     loadedLanguages.add(lang)
     return module.default
   } catch {
-    console.warn(`[i18n] Failed to load language: ${lang}`)
+    logger.warn(`Failed to load language: ${lang}`)
     return {}
   }
 }
