@@ -15,7 +15,7 @@ interface AuthContextType extends AuthState {
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   resetPassword: (request: PasswordResetRequest) => Promise<{ token: string; expiresAt: string }>;
   confirmPasswordReset: (confirm: PasswordResetConfirm) => Promise<void>;
   updateUserStats: (stats: Partial<User['stats']>) => Promise<void>;
@@ -136,8 +136,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [withActionState]);
 
-  const logout = useCallback(() => {
-    authService.logout();
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      const authError = getAuthError(error);
+      setState(prev => ({
+        ...prev,
+        error: authError.message,
+        isLoading: false,
+      }));
+      throw error;
+    }
     setState({
       user: null,
       isAuthenticated: false,

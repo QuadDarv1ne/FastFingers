@@ -9,12 +9,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
 import { useAuth } from '@hooks/useAuth'
+import { useTypingGame } from '@hooks/useTypingGame'
+import { useTypingSound } from '../hooks/useTypingSound'
+import { TypingStats } from '../types'
 import { supabase } from '../services/supabase'
 import { TournamentBracket } from './TournamentBracket'
 import { logger } from '../utils/logger'
 
 interface TournamentModeProps {
   onExit: () => void
+  onComplete?: (stats: TypingStats) => void
 }
 
 export interface Tournament {
@@ -68,7 +72,7 @@ const TOURNAMENT_LABELS: Record<string, string> = {
   cancelled: 'Отменен',
 }
 
-export function TournamentMode({ onExit }: TournamentModeProps) {
+export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const { t } = useAppTranslation()
   const { user } = useAuth()
   const [tournaments, setTournaments] = useState<Tournament[]>([])
@@ -81,6 +85,31 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
     opponent: TournamentParticipant
     text: string
   } | null>(null)
+
+  // Sound for typing feedback
+  const sound = useTypingSound()
+
+  // Typing engine for active match
+  const {
+    text: matchText,
+    currentIndex,
+    inputResults,
+    isActive: isTypingActive,
+    wpm,
+    accuracy,
+    inputRef,
+    handleInput,
+    handleStart: startMatch,
+  } = useTypingGame({
+    initialWordCount: 50,
+    initialDifficulty: 5,
+    mode: 'words',
+    onComplete: (stats: TypingStats) => {
+      onComplete?.(stats)
+      setActiveMatch(null)
+    },
+    sound,
+  })
 
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {
@@ -269,13 +298,65 @@ export function TournamentMode({ onExit }: TournamentModeProps) {
           </button>
         </div>
 
-        <div className="bg-dark-800 rounded-xl p-6 mb-6">
-          <p className="text-dark-400 text-sm mb-2">Текст для печати:</p>
-          <p className="text-lg font-mono text-white">{activeMatch.text}</p>
+        {/* Статистика */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-dark-800 rounded-lg p-4 text-center">
+            <p className="text-sm text-dark-400">WPM</p>
+            <p className="text-2xl font-bold text-primary-400">{wpm}</p>
+          </div>
+          <div className="bg-dark-800 rounded-lg p-4 text-center">
+            <p className="text-sm text-dark-400">Точность</p>
+            <p className="text-2xl font-bold text-success">{accuracy}%</p>
+          </div>
+          <div className="bg-dark-800 rounded-lg p-4 text-center">
+            <p className="text-sm text-dark-400">Символы</p>
+            <p className="text-2xl font-bold text-dark-300">{currentIndex}</p>
+          </div>
         </div>
 
-        <p className="text-center text-dark-400">
-          Начните печатать текст выше. Победитель определяется по WPM.
+        {/* Область ввода */}
+        <div className="bg-dark-800/50 rounded-xl p-6 min-h-[100px] relative">
+          <input
+            ref={inputRef}
+            type="text"
+            className="sr-only"
+            onInput={handleInput}
+            disabled={!isTypingActive}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+          <div className="font-mono text-sm leading-relaxed break-words">
+            {matchText.split('').map((char, index) => {
+              let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
+              if (index < currentIndex) {
+                status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
+              } else if (index === currentIndex && isTypingActive) {
+                status = 'current'
+              }
+              return (
+                <span
+                  key={index}
+                  className={`inline-block min-w-[0.6em] rounded ${
+                    status === 'correct'
+                      ? 'text-green-400'
+                      : status === 'incorrect'
+                      ? 'text-red-400'
+                      : status === 'current'
+                      ? 'text-violet-400 border-b-2 border-violet-500'
+                      : 'text-dark-500'
+                  }`}
+                >
+                  {char}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+
+        <p className="text-center text-dark-400 mt-4 text-sm">
+          {isTypingActive ? 'Печатайте текст выше...' : 'Нажмите на область текста чтобы начать'}
         </p>
       </div>
     )
