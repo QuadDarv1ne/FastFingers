@@ -112,14 +112,14 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
       if (lastResult && lastResult.isCorrect) {
         setCombo(prev => {
           const newCombo = prev + 1
-          if (newCombo > maxCombo) setMaxCombo(newCombo)
+          setMaxCombo(prevMax => Math.max(prevMax, newCombo))
           return newCombo
         })
       } else {
         setCombo(0)
       }
     }
-  }, [inputResults, maxCombo])
+  }, [inputResults])
 
   // Пропуск
   const handleSkipWrapper = useCallback(() => {

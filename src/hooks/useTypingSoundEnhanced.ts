@@ -247,6 +247,12 @@ export function useTypingSoundEnhanced(initialOptions: SoundOptions): UseTypingS
     setOptions(prev => ({ ...prev, theme }))
   }, [])
 
+  // Auto-initialize audio on mount
+  useEffect(() => {
+    initAudio()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init once on mount
+  }, [])
+
   // Очистка при размонтировании
   useEffect(() => {
     const activeOscillators = activeOscillatorsRef.current
