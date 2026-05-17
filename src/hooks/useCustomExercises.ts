@@ -1,8 +1,45 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Exercise } from '../types';
+import type { PracticeText } from '../data/practiceTexts';
+
+const ADMIN_TEXTS_KEY = 'fastfingers_admin_texts';
+
+function loadAdminTexts(): PracticeText[] {
+  try {
+    return JSON.parse(localStorage.getItem(ADMIN_TEXTS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function adminToExercises(texts: PracticeText[]): Exercise[] {
+  return texts.map(t => ({
+    id: t.id,
+    title: t.title,
+    description: t.text.slice(0, 120),
+    text: t.text,
+    difficulty: t.difficulty,
+    category: t.category,
+    focusKeys: [],
+  }));
+}
 
 export function useCustomExercises() {
-  const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
+  const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
+    adminToExercises(loadAdminTexts())
+  );
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setCustomExercises(prev => {
+        const admin = adminToExercises(loadAdminTexts())
+        const user = prev.filter(e => !e.id.startsWith('custom-admin-'))
+        return [...admin, ...user]
+      })
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
 
   const addExercise = useCallback((exercise: Exercise) => {
     setCustomExercises(prev => [...prev, exercise]);
@@ -19,7 +56,7 @@ export function useCustomExercises() {
   }, []);
 
   const clearExercises = useCallback(() => {
-    setCustomExercises([]);
+    setCustomExercises(adminToExercises(loadAdminTexts()));
   }, []);
 
   return {
