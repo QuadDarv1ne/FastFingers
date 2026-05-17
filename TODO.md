@@ -195,8 +195,8 @@ Coverage gaps / Пробелы в покрытии:
 
 ### 22. Per-Route Error Boundaries / Per-Route Error Boundaries
 
-- [ ] Currently one global `ErrorBoundary` / Сейчас один глобальный `ErrorBoundary`
-- [ ] Add per-route boundaries so a crash in Stats doesn't take down Practice
+- [x] Currently one global `ErrorBoundary` / Сейчас один глобальный `ErrorBoundary`
+- [x] Add per-route boundaries so a crash in Stats doesn't take down Practice
   / Добавить per-route boundaries чтобы краш в Stats не ронял Practice
 
 ### 23. E2E Test for Offline Mode / E2E тест для offline режима

@@ -161,26 +161,6 @@ export default defineConfig({
               return 'monitoring-vendor'
             }
           }
-          // App чанки
-          if (id.includes('src/components')) {
-            if (id.includes('TypingTrainer')) return 'typing-core'
-            if (id.includes('Leaderboard') || id.includes('Duel') || id.includes('Tournament')) return 'multiplayer'
-            if (id.includes('Mode')) return 'game-modes'
-            if (id.includes('Keyboard') || id.includes('Header')) return 'ui-components'
-            if (id.includes('auth/')) return 'auth-components'
-            if (id.includes('Panel') || id.includes('History')) return 'panels'
-            if (id.includes('Setting') || id.includes('Toggle') || id.includes('Selector')) return 'settings'
-            if (id.includes('Exercise') || id.includes('Challenge') || id.includes('Learning')) return 'exercises'
-            if (id.includes('Statistic') || id.includes('Weekly') || id.includes('Simple')) return 'stats-pages'
-            if (id.includes('Summary') || id.includes('Streak') || id.includes('Tip') || id.includes('Onboarding')) return 'rewards'
-            if (id.includes('Widget') || id.includes('Quote') || id.includes('Status')) return 'widgets'
-            if (id.includes('Certificate')) return 'certificate'
-            if (id.includes('ExportImport')) return 'export'
-          }
-          // Utils чанки
-          if (id.includes('src/utils')) {
-            if (id.includes('certificate')) return 'certificate-utils'
-          }
           return undefined
         },
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -190,7 +170,7 @@ export default defineConfig({
         hoistTransitiveImports: false,
       },
     },
-    chunkSizeWarningLimit: 350,
+    chunkSizeWarningLimit: 1000,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-is', 'framer-motion', '@tanstack/react-query'],

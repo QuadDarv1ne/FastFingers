@@ -77,17 +77,17 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
 
   // Инициализация целей по умолчанию
   useEffect(() => {
-    if (goals.length === 0) {
-      const initialGoals: Goal[] = DEFAULT_GOALS.map((goal, index) => ({
-        ...goal,
-        id: `goal-${Date.now()}-${index}`,
-        current: getCurrentValue(goal.unit, currentProgress),
-        completed: false,
-        createdAt: new Date().toISOString(),
-      }))
-      setGoals(initialGoals)
-    }
-  }, [goals.length, setGoals]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (goals.length > 0) return
+
+    const initialGoals: Goal[] = DEFAULT_GOALS.map((goal, index) => ({
+      ...goal,
+      id: `goal-${Date.now()}-${index}`,
+      current: getCurrentValue(goal.unit, currentProgress),
+      completed: false,
+      createdAt: new Date().toISOString(),
+    }))
+    setGoals(initialGoals)
+  }, [goals.length, currentProgress, setGoals])
 
   // Обновление прогресса целей при изменении currentProgress
   const prevProgressRef = useRef<GoalsPanelProps['currentProgress'] | null>(null)

@@ -112,13 +112,13 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       }
     }, 800)
 
+    // Capture refs at subscription time for cleanup
+    const timeouts = timeoutIdsRef.current
+    const targetTimeouts = targetTimeoutsRef.current
+
     return () => {
       clearInterval(gameInterval)
       clearInterval(spawnInterval)
-      /* eslint-disable react-hooks/exhaustive-deps -- ref values captured to local vars above */
-      const timeouts = timeoutIdsRef.current
-      const targetTimeouts = targetTimeoutsRef.current
-      /* eslint-enable react-hooks/exhaustive-deps */
       for (const id of timeouts) {
         clearTimeout(id)
       }
@@ -184,11 +184,11 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
   // Cleanup timeouts on unmount
   useEffect(() => {
+    // Capture refs at subscription time for cleanup
+    const timeouts = timeoutIdsRef.current
+    const targetTimeouts = targetTimeoutsRef.current
+
     return () => {
-      /* eslint-disable react-hooks/exhaustive-deps -- ref values captured to local vars at unmount time */
-      const timeouts = timeoutIdsRef.current
-      const targetTimeouts = targetTimeoutsRef.current
-      /* eslint-enable react-hooks/exhaustive-deps */
       for (const id of timeouts) {
         clearTimeout(id)
       }

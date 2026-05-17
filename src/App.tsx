@@ -13,6 +13,7 @@ import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { ToastContainer } from './components/ToastContainer'
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import { GameModeRenderer } from './components/GameModeRenderer'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -249,9 +250,20 @@ function AppContent() {
 
   if (!isAuthenticated) {
     return (
-      <Suspense fallback={<LoadingFallback />}>
-        <AuthWrapper onSuccess={handleAuthSuccess} />
-      </Suspense>
+      <ErrorBoundary key="auth" fallback={
+        <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
+          <div className="glass rounded-xl p-8 max-w-md w-full text-center">
+            <p className="text-dark-400">Не удалось загрузить страницу авторизации</p>
+            <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg">
+              Обновить страницу
+            </button>
+          </div>
+        </div>
+      }>
+        <Suspense fallback={<LoadingFallback />}>
+          <AuthWrapper onSuccess={handleAuthSuccess} />
+        </Suspense>
+      </ErrorBoundary>
     )
   }
 
@@ -423,34 +435,42 @@ function AppContent() {
           </div>
 
           <div className="space-y-6">
-            <Suspense fallback={<LoadingFallback />}>
-              <ClockWidget />
-              <MotivationalQuote />
-              <MusicControls />
-            </Suspense>
+            <ErrorBoundary key="widgets" fallback={<SectionError label="Не удалось загрузить виджеты" />}>
+              <Suspense fallback={<LoadingFallback />}>
+                <ClockWidget />
+                <MotivationalQuote />
+                <MusicControls />
+              </Suspense>
+            </ErrorBoundary>
 
             {settings.showStats && (
-              <Suspense fallback={<LoadingFallback />}>
-                <Stats
-                  progress={progress}
-                  currentStats={currentStats}
-                  onViewHistory={() => setView('history')}
-                  onViewAchievements={() => setShowAchievements(true)}
-                  challengeStats={challengeStats}
-                />
-              </Suspense>
+              <ErrorBoundary key="stats-panel" fallback={<SectionError label="Не удалось загрузить статистику" />}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Stats
+                    progress={progress}
+                    currentStats={currentStats}
+                    onViewHistory={() => setView('history')}
+                    onViewAchievements={() => setShowAchievements(true)}
+                    challengeStats={challengeStats}
+                  />
+                </Suspense>
+              </ErrorBoundary>
             )}
 
-            <SettingsPanel
-              settings={settings}
-              onSettingChange={updateSetting}
-              onShowStreakRewards={() => setShowStreakRewards(true)}
-              streak={streak.current}
-            />
+            <ErrorBoundary key="settings-panel" fallback={<SectionError label="Не удалось загрузить настройки" />}>
+              <SettingsPanel
+                settings={settings}
+                onSettingChange={updateSetting}
+                onShowStreakRewards={() => setShowStreakRewards(true)}
+                streak={streak.current}
+              />
+            </ErrorBoundary>
 
-            <div className="glass rounded-xl p-6">
-              <ExportImport progress={progress} onImport={handleImportProgress} />
-            </div>
+            <ErrorBoundary key="export-import" fallback={<SectionError label="Не удалось загрузить экспорт/импорт" />}>
+              <div className="glass rounded-xl p-6">
+                <ExportImport progress={progress} onImport={handleImportProgress} />
+              </div>
+            </ErrorBoundary>
           </div>
         </div>
       </main>
@@ -460,84 +480,98 @@ function AppContent() {
         <p className="mt-2 text-xs">© 2025-2026 Dupley Maxim Igorevich. All rights reserved.</p>
       </footer>
 
-      <Suspense fallback={<LoadingFallback />}>
-        <OnlineStatus />
-      </Suspense>
+      <ErrorBoundary key="online-status" fallback={null}>
+        <Suspense fallback={<LoadingFallback />}>
+          <OnlineStatus />
+        </Suspense>
+      </ErrorBoundary>
 
       {showOnboarding && (
-        <Suspense fallback={<LoadingFallback />}>
-          <Onboarding onComplete={handleOnboardingComplete} />
-        </Suspense>
+        <ErrorBoundary key="onboarding" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <Onboarding onComplete={handleOnboardingComplete} />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showAchievements && (
-        <Suspense fallback={<LoadingFallback />}>
-          <AchievementsPanel
-            progress={progress}
-            stats={{
-              maxWpm: progress.bestWpm,
-              maxAccuracy: progress.bestAccuracy,
-              totalWords: progress.totalWordsTyped,
-              totalSessions: history.totalSessions,
-              currentStreak: progress.streak,
-              perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
-            }}
-            onClose={() => setShowAchievements(false)}
-          />
-        </Suspense>
+        <ErrorBoundary key="achievements" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <AchievementsPanel
+              progress={progress}
+              stats={{
+                maxWpm: progress.bestWpm,
+                maxAccuracy: progress.bestAccuracy,
+                totalWords: progress.totalWordsTyped,
+                totalSessions: history.totalSessions,
+                currentStreak: progress.streak,
+                perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
+              }}
+              onClose={() => setShowAchievements(false)}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showSessionSummary && currentStats && (
-        <Suspense fallback={<LoadingFallback />}>
-          <SessionSummary
-            stats={currentStats}
-            xpEarned={lastSessionXp}
-            onClose={() => setShowSessionSummary(false)}
-            onRetry={() => {
-              setShowSessionSummary(false)
-              resetToPractice()
-            }}
-          />
-        </Suspense>
+        <ErrorBoundary key="session-summary" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <SessionSummary
+              stats={currentStats}
+              xpEarned={lastSessionXp}
+              onClose={() => setShowSessionSummary(false)}
+              onRetry={() => {
+                setShowSessionSummary(false)
+                resetToPractice()
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showStreakRewards && (
-        <Suspense fallback={<LoadingFallback />}>
-          <StreakRewardsPanel
-            currentStreak={streak.current}
-            onClose={() => setShowStreakRewards(false)}
-          />
-        </Suspense>
+        <ErrorBoundary key="streak-rewards" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <StreakRewardsPanel
+              currentStreak={streak.current}
+              onClose={() => setShowStreakRewards(false)}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showProfile && (
-        <Suspense fallback={<LoadingFallback />}>
-          <UserProfile
-            onClose={() => setShowProfile(false)}
-            onNavigate={(view) => {
-              setShowProfile(false)
-              if (view === 'statistics') setView('statistics')
-              else if (view === 'history') setView('history')
-              else if (view === 'achievements') setShowAchievements(true)
-              else if (view === 'goals') setShowGoals(true)
-            }}
-          />
-        </Suspense>
+        <ErrorBoundary key="user-profile" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <UserProfile
+              onClose={() => setShowProfile(false)}
+              onNavigate={(view) => {
+                setShowProfile(false)
+                if (view === 'statistics') setView('statistics')
+                else if (view === 'history') setView('history')
+                else if (view === 'achievements') setShowAchievements(true)
+                else if (view === 'goals') setShowGoals(true)
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showGoals && (
-        <Suspense fallback={<LoadingFallback />}>
-          <GoalsPanel
-            onClose={() => setShowGoals(false)}
-            currentProgress={{
-              wpm: progress.bestWpm,
-              accuracy: progress.bestAccuracy,
-              totalWords: progress.totalWordsTyped,
-              totalSessions: history.totalSessions,
-              streak: progress.streak,
-            }}
-          />
-        </Suspense>
+        <ErrorBoundary key="goals" fallback={null}>
+          <Suspense fallback={<LoadingFallback />}>
+            <GoalsPanel
+              onClose={() => setShowGoals(false)}
+              currentProgress={{
+                wpm: progress.bestWpm,
+                accuracy: progress.bestAccuracy,
+                totalWords: progress.totalWordsTyped,
+                totalSessions: history.totalSessions,
+                streak: progress.streak,
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {/* PWA Install Prompt */}
@@ -759,6 +793,14 @@ const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
     </div>
   )
 })
+
+function SectionError({ label }: { label: string }) {
+  return (
+    <div className="glass rounded-xl p-6 text-center" role="alert">
+      <p className="text-sm text-dark-400">{label}</p>
+    </div>
+  )
+}
 
 function App() {
   return (
