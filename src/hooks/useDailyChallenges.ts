@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { logger } from '../utils/logger'
 
 interface DailyChallenge {
   id: string
@@ -93,6 +94,7 @@ export function useDailyChallenges() {
         setStreak(JSON.parse(storedStreak))
       }
     } catch {
+      logger.warn('Operation failed in hooks/useDailyChallenges.ts')
       // Ignore load errors
     }
   }, [])
@@ -136,6 +138,7 @@ export function useDailyChallenges() {
       try {
         localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(newStreak))
       } catch {
+        logger.warn('Operation failed in hooks/useDailyChallenges.ts')
         // Ignore save errors
       }
 
@@ -189,6 +192,7 @@ export function useDailyChallenges() {
       try {
         localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges))
       } catch {
+        logger.warn('Operation failed in hooks/useDailyChallenges.ts')
         // Ignore save errors
       }
     }

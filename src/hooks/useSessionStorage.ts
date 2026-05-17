@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { logger } from '../utils/logger'
 
 type SetValue<T> = T | ((val: T) => T)
 
@@ -26,6 +27,7 @@ export function useSessionStorage<T>(
       if (!item) return initialValue
       return deserialize(item)
     } catch {
+      logger.warn('Operation failed in hooks/useSessionStorage.ts')
       return initialValue
     }
   }, [initialValue, key, deserialize])
@@ -42,6 +44,7 @@ export function useSessionStorage<T>(
         try {
           setStoredValue(deserialize(event.newValue))
         } catch {
+          logger.warn('Operation failed in hooks/useSessionStorage.ts')
           // ignore
         }
       }
@@ -65,6 +68,7 @@ export function useSessionStorage<T>(
           })
         )
       } catch {
+        logger.warn('Operation failed in hooks/useSessionStorage.ts')
         // ignore
       }
     },
@@ -83,6 +87,7 @@ export function useSessionStorage<T>(
         })
       )
     } catch {
+      logger.warn('Operation failed in hooks/useSessionStorage.ts')
       // ignore
     }
   }, [key, initialValue])

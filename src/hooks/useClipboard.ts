@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { logger } from '../utils/logger'
 
 interface UseClipboardOptions {
   timeout?: number
@@ -38,6 +39,7 @@ export function useClipboard({
           onSuccess?.()
           setTimeout(() => setCopied(false), timeout)
         } catch {
+          logger.warn('Operation failed in hooks/useClipboard.ts')
           throw new Error('Failed to copy using execCommand')
         } finally {
           document.body.removeChild(textarea)
@@ -50,6 +52,7 @@ export function useClipboard({
       onSuccess?.()
       setTimeout(() => setCopied(false), timeout)
     } catch (error) {
+      logger.warn('Operation failed in hooks/useClipboard.ts')
       const err = error instanceof Error ? error : new Error('Unknown clipboard error')
       onError?.(err)
       throw err

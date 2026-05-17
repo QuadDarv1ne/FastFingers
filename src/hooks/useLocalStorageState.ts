@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { logger } from '../utils/logger'
 
 export function useLocalStorageState<T>(
   key: string,
@@ -9,6 +10,7 @@ export function useLocalStorageState<T>(
       const item = localStorage.getItem(key)
       return item ? JSON.parse(item) : defaultValue
     } catch {
+      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
       return defaultValue
     }
   })
@@ -17,6 +19,7 @@ export function useLocalStorageState<T>(
     try {
       localStorage.setItem(key, JSON.stringify(state))
     } catch {
+      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
       // Ignore save errors
     }
   }, [key, state])
@@ -26,6 +29,7 @@ export function useLocalStorageState<T>(
       localStorage.removeItem(key)
       setState(defaultValue)
     } catch {
+      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
       // Ignore remove errors
     }
   }, [key, defaultValue])

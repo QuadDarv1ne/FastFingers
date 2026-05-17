@@ -2,6 +2,8 @@
  * Утилиты для форматирования чисел
  */
 
+import { logger } from './logger'
+
 /**
  * Форматировать число с разделителями тысяч
  */
@@ -10,6 +12,7 @@ export function formatNumber(num: number, locale = 'ru-RU'): string {
     const safeNum = Number(num) || 0
     return safeNum.toLocaleString(locale)
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return String(num)
   }
 }
@@ -25,6 +28,7 @@ export function formatCompactNumber(num: number, locale = 'ru-RU'): string {
       compactDisplay: 'short',
     }).format(safeNum)
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return String(num)
   }
 }
@@ -41,6 +45,7 @@ export function formatPercent(value: number, decimals = 0, locale = 'ru-RU'): st
       maximumFractionDigits: decimals,
     }).format(safeValue / 100)
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return '0%'
   }
 }
@@ -61,6 +66,7 @@ export function formatCurrency(
       minimumFractionDigits: 2,
     }).format(safeAmount)
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return '0'
   }
 }
@@ -82,6 +88,7 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
     return `${parseFloat(value.toFixed(dm))} ${sizes[i]}`
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return '0 Б'
   }
 }
@@ -92,6 +99,7 @@ export function roundTo(num: number, decimals = 0): number {
     const factor = Math.pow(10, decimals)
     return Math.round(safeNum * factor) / factor
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return 0
   }
 }
@@ -103,6 +111,7 @@ export function clamp(num: number, min: number, max: number): number {
     const safeMax = Number(max) || 0
     return Math.min(Math.max(safeNum, safeMin), safeMax)
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return 0
   }
 }
@@ -114,6 +123,7 @@ export function isInRange(num: number, min: number, max: number): boolean {
     const safeMax = Number(max) || 0
     return safeNum >= safeMin && safeNum <= safeMax
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return false
   }
 }
@@ -128,6 +138,7 @@ export function formatDuration(seconds: number): string {
     const secs = safeSeconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   } catch {
+    logger.warn('Operation failed in utils/number.ts')
     return '00:00'
   }
 }

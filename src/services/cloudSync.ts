@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { User, UserStats } from '../types/auth'
 import { TypingStats } from '../types'
+import { logger } from '../utils/logger'
 
 const LOCAL_STORAGE_KEY = 'fastfingers_cloud_sync'
 const PENDING_SESSIONS_KEY = 'fastfingers_pending_sessions'
@@ -57,6 +58,7 @@ export function getBackendStatus(): BackendStatus {
         return parsed
       }
     } catch {
+      logger.warn('Operation failed in services/cloudSync.ts')
       // Игнорируем ошибки парсинга
     }
   }
@@ -76,6 +78,7 @@ export function getBackendStatus(): BackendStatus {
   try {
     localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Игнорируем ошибки сохранения
   }
 
@@ -102,6 +105,7 @@ export function updateBackendStatus(features?: Partial<BackendStatus['features']
   try {
     localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Игнорируем ошибки сохранения
   }
 
@@ -122,6 +126,7 @@ export async function syncUserStats(user: User, stats: Partial<UserStats>): Prom
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
       return { success: true, isOffline: true }
     } catch {
+      logger.warn('Operation failed in services/cloudSync.ts')
       return { success: false, isOffline: true }
     }
   }
@@ -136,10 +141,12 @@ export async function syncUserStats(user: User, stats: Partial<UserStats>): Prom
 
     return { success: true, isOffline: false }
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Сохраняем локально при ошибке
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
     } catch {
+      logger.warn('Operation failed in services/cloudSync.ts')
       // Игнорируем ошибки localStorage
     }
 
@@ -177,6 +184,7 @@ export async function saveTypingSession(
 
     return { success: true, isOffline: false }
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     _saveSessionToLocal(stats, xp)
     _queuePendingSession(userId, stats, xp)
     updateBackendStatus({ sync: false })
@@ -227,6 +235,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
     }
     localStorage.setItem('fastfingers_history', JSON.stringify(historyData))
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Ignore storage errors
   }
 }
@@ -300,6 +309,7 @@ export async function loadUserSessions(
 
     return { sessions, isOffline: false }
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Fallback на localStorage
     const stored = JSON.parse(localStorage.getItem('fastfingers_history') || '{}')
     const localSessions = Array.isArray(stored) ? stored : (stored.sessions || [])
@@ -317,6 +327,7 @@ export async function unlockAchievement(userId: string, achievementId: string): 
       achievement_id: achievementId,
     })
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Игнорируем ошибки достижений
   }
 }
@@ -339,6 +350,7 @@ export async function completeDailyChallenge(
       completed_at: new Date().toISOString(),
     })
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     // Игнорируем ошибки челленджей
   }
 }
@@ -373,6 +385,7 @@ export async function getDailyChallenge(date: string): Promise<{
 
     return data
   } catch {
+    logger.warn('Operation failed in services/cloudSync.ts')
     updateBackendStatus({ challenges: false })
     // Fallback на генерацию локального челленджа
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)

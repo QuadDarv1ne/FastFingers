@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getFromStorage, setToStorage } from '@utils/storage'
+import { logger } from '../utils/logger'
 
 type SetValue<T> = T | ((val: T) => T)
 
@@ -34,6 +35,7 @@ export function useLocalStorage<T>(
     try {
       return deserialize(item)
     } catch {
+      logger.warn('Operation failed in hooks/useLocalStorage.ts')
       return initialValue
     }
   }, [initialValue, key, deserialize])
@@ -53,6 +55,7 @@ export function useLocalStorage<T>(
         try {
           setStoredValue(deserialize(event.newValue))
         } catch {
+          logger.warn('Operation failed in hooks/useLocalStorage.ts')
           // Ignore parse errors
         }
       }
@@ -78,6 +81,7 @@ export function useLocalStorage<T>(
           })
         )
       } catch {
+        logger.warn('Operation failed in hooks/useLocalStorage.ts')
         // Ignore set errors
       }
     },
@@ -97,6 +101,7 @@ export function useLocalStorage<T>(
         })
       )
     } catch {
+      logger.warn('Operation failed in hooks/useLocalStorage.ts')
       // Ignore remove errors
     }
   }, [key, initialValue])

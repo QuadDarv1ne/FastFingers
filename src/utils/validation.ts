@@ -2,6 +2,8 @@
  * Утилиты для валидации данных
  */
 
+import { logger } from './logger'
+
 /**
  * Проверка email на валидность
  */
@@ -74,6 +76,7 @@ export function isValidUrl(url: string): boolean {
     new URL(url)
     return true
   } catch {
+    logger.warn('Operation failed in utils/validation.ts')
     return false
   }
 }

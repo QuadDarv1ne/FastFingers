@@ -1,5 +1,6 @@
 import { formatDuration as formatDurationNum } from './number'
 import i18n from 'i18next'
+import { logger } from './logger'
 
 const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: 'numeric',
@@ -36,6 +37,7 @@ export function formatDate(date: Date | string | number): string {
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString(i18n.language, DATE_FORMAT_OPTIONS)
   } catch {
+    logger.warn('Operation failed in utils/format.ts')
     return '—'
   }
 }
@@ -46,6 +48,7 @@ export function formatDateTime(date: Date | string | number): string {
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString(i18n.language, DATE_TIME_OPTIONS)
   } catch {
+    logger.warn('Operation failed in utils/format.ts')
     return '—'
   }
 }
@@ -68,6 +71,7 @@ export function formatRelativeTime(date: Date | string | number): string {
     if (diffDays < 7) return `${diffDays} дн. назад`
     return formatDate(date)
   } catch {
+    logger.warn('Operation failed in utils/format.ts')
     return '—'
   }
 }
@@ -87,6 +91,7 @@ export function calculateAge(birthDate: Date | string | number): number {
 
     return Math.max(0, age)
   } catch {
+    logger.warn('Operation failed in utils/format.ts')
     return 0
   }
 }

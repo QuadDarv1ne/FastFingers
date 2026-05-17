@@ -7,6 +7,8 @@
  * const user = await apiClient.post<User, CreateUserDto>('/users', data)
  */
 
+import { logger } from '../utils/logger'
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 export interface ApiClientConfig {
@@ -165,6 +167,7 @@ export class ApiClient {
           clearTimeout(timeoutId)
         }
       } catch (error) {
+        logger.warn('Operation failed in services/apiClient.ts')
         lastError = error as Error
 
         // Не повторяем запрос при ошибках клиента (4xx)
@@ -200,6 +203,7 @@ export class ApiClient {
         details: data.details,
       }
     } catch {
+      logger.warn('Operation failed in services/apiClient.ts')
       return {
         status: response.status,
         message: `HTTP ${response.status}`,

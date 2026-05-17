@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { formatDurationLong } from '../utils/format'
+import { logger } from '../utils/logger'
 
 export interface SessionTimerOptions {
   breakInterval?: number // Интервал для напоминания о перерыве (в секундах)
@@ -56,6 +57,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
         }
       }
     } catch {
+      logger.warn('Operation failed in hooks/useSessionTimer.ts')
       // Ignore load errors
     }
 
@@ -84,6 +86,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
         })
       )
     } catch {
+      logger.warn('Operation failed in hooks/useSessionTimer.ts')
       // Ignore save errors
     }
   }, [state.totalTime, state.lastBreakTime])

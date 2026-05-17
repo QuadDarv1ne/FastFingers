@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { musicGenerator, type MusicGenre } from '../utils/musicGenerator'
+import { logger } from '../utils/logger'
 
 interface UseMusicGeneratorReturn {
   isPlaying: boolean
@@ -73,6 +74,7 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
           setKeyState(savedKey)
         }
       } catch {
+        logger.warn('Operation failed in hooks/useMusicGenerator.ts')
         // Ignore errors
       }
       initializedRef.current = true
@@ -91,6 +93,7 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
       localStorage.setItem('fastfingers_music_volume', String(volume))
       localStorage.setItem('fastfingers_music_key', key)
     } catch {
+      logger.warn('Operation failed in hooks/useMusicGenerator.ts')
       // Ignore errors
     }
   }, [genre, tempo, volume, key])

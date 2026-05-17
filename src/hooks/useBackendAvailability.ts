@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { isBackendAvailable } from '../services/cloudSync'
+import { logger } from '../utils/logger'
 
 interface BackendStatus {
   isAvailable: boolean
@@ -56,6 +57,7 @@ export function useBackendAvailability(options: {
         }))
       }
     } catch {
+      logger.warn('Operation failed in hooks/useBackendAvailability.ts')
       setStatus(prev => ({
         isAvailable: false,
         isChecking: false,

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { UserProgress, UserSettings, TypingStats, Exercise, KeyHeatmapData } from '../types'
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats'
+import { logger } from '../utils/logger'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
@@ -105,6 +106,7 @@ export function useAppState(
       const seen = localStorage.getItem('fastfingers_onboarding_seen')
       return !seen
     } catch {
+      logger.warn('Operation failed in hooks/useAppState.ts')
       return true
     }
   })

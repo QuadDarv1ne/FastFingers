@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
+import { logger } from '../utils/logger'
 
 type ThemeOption = ThemeColor | 'auto'
 
@@ -22,6 +23,7 @@ export function useTheme(): UseThemeReturn {
       const stored = localStorage.getItem('fastfingers_theme_option')
       return (stored as ThemeOption) || 'auto'
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       return 'auto'
     }
   })
@@ -30,6 +32,7 @@ export function useTheme(): UseThemeReturn {
     try {
       return window.matchMedia('(prefers-color-scheme: dark)').matches
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       return true
     }
   })
@@ -39,6 +42,7 @@ export function useTheme(): UseThemeReturn {
       const stored = localStorage.getItem('fastfingers_theme')
       return (stored as ThemeColor) || 'dark'
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       return 'dark'
     }
   })
@@ -48,6 +52,7 @@ export function useTheme(): UseThemeReturn {
       const stored = localStorage.getItem('fastfingers_custom_colors')
       return stored ? JSON.parse(stored) : null
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       return null
     }
   })
@@ -57,6 +62,7 @@ export function useTheme(): UseThemeReturn {
       const stored = localStorage.getItem('fastfingers_font_size')
       return (stored as FontSize) || 'medium'
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       return 'medium'
     }
   })
@@ -73,6 +79,7 @@ export function useTheme(): UseThemeReturn {
     try {
       localStorage.setItem('fastfingers_font_size', fontSize)
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
     }
   }, [fontSize])
@@ -98,6 +105,7 @@ export function useTheme(): UseThemeReturn {
     try {
       localStorage.setItem('fastfingers_theme', newTheme)
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
     }
   }, [])
@@ -111,6 +119,7 @@ export function useTheme(): UseThemeReturn {
         setThemeState(newTheme)
       }
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
     }
   }, [isSystemDark])
@@ -120,6 +129,7 @@ export function useTheme(): UseThemeReturn {
     try {
       localStorage.setItem('fastfingers_custom_colors', JSON.stringify(colors))
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
     }
   }, [])
@@ -129,6 +139,7 @@ export function useTheme(): UseThemeReturn {
     try {
       localStorage.setItem('fastfingers_font_size', size)
     } catch {
+      logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
     }
   }, [])

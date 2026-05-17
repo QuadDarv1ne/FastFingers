@@ -3,6 +3,7 @@ import { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
 import { useAuth } from './useAuth'
+import { logger } from '../utils/logger'
 
 interface SessionData {
   id: string
@@ -43,6 +44,7 @@ function loadHistory(): HistoryData {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) return JSON.parse(stored)
   } catch {
+    logger.warn('Operation failed in hooks/useTypingHistory.ts')
     // Ignore load errors
   }
   return { sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 }
@@ -52,6 +54,7 @@ function saveHistory(history: HistoryData): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
   } catch {
+    logger.warn('Operation failed in hooks/useTypingHistory.ts')
     // Ignore save errors
   }
 }

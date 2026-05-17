@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { logger } from '../utils/logger'
 
 interface OfflineQueueItem {
   id: string
@@ -46,6 +47,7 @@ export function useOfflineSync(options: {
         setQueue(JSON.parse(stored))
       }
     } catch {
+      logger.warn('Operation failed in hooks/useOfflineSync.ts')
       setQueue([])
     }
   }, [])
@@ -54,6 +56,7 @@ export function useOfflineSync(options: {
     try {
       localStorage.setItem(QUEUE_KEY, JSON.stringify(queue))
     } catch {
+      logger.warn('Operation failed in hooks/useOfflineSync.ts')
       // Ignore storage errors
     }
   }, [queue])
@@ -80,6 +83,7 @@ export function useOfflineSync(options: {
           await onSyncRef.current(item)
           results.push({ id: item.id, success: true })
         } catch {
+          logger.warn('Operation failed in hooks/useOfflineSync.ts')
           results.push({ id: item.id, success: false })
         }
       }
@@ -120,6 +124,7 @@ export function useOfflineSync(options: {
     try {
       localStorage.removeItem(QUEUE_KEY)
     } catch {
+      logger.warn('Operation failed in hooks/useOfflineSync.ts')
       // Ignore errors
     }
   }, [])

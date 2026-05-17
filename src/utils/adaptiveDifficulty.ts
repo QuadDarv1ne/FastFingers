@@ -6,6 +6,7 @@
 
 import { TypingStats } from '../types'
 import { PracticeText } from '../data/practiceTexts'
+import { logger } from './logger'
 
 export interface AdaptiveDifficultyState {
   currentLevel: number // 1-10
@@ -341,6 +342,7 @@ export function deserializeAdaptiveState(json: string): AdaptiveDifficultyState 
       history: parsed.history || [],
     }
   } catch {
+    logger.warn('Operation failed in utils/adaptiveDifficulty.ts')
     return createAdaptiveState()
   }
 }
