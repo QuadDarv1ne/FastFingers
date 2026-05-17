@@ -381,7 +381,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
                   )}
 
                   {activeTab === 'settings' && (
-                    <SettingsTab user={user} t={t} />
+                    <SettingsTab t={t} />
                   )}
                 </motion.div>
               </AnimatePresence>
