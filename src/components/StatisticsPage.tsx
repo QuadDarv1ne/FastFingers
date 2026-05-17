@@ -486,11 +486,15 @@ function StatCard({ title, value, icon, trend, highlight = false }: {
   trend: string
   highlight?: boolean
 }) {
+  const trendColor = trend.startsWith('+') ? 'text-success bg-success/20'
+    : trend.startsWith('-') ? 'text-error bg-error/20'
+    : 'text-dark-400 bg-dark-500/20'
+
   return (
     <div className={`glass rounded-xl p-4 ${highlight ? 'ring-2 ring-primary-500' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
-        <span className="text-xs text-success bg-success/20 px-2 py-1 rounded-full">{trend}</span>
+        <span className={`text-xs px-2 py-1 rounded-full ${trendColor}`}>{trend}</span>
       </div>
       <p className="text-sm text-dark-400">{title}</p>
       <p className="text-2xl font-bold text-white mt-1">{value}</p>

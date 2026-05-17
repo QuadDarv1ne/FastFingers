@@ -71,7 +71,9 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const currentThemeRef = useRef<SoundTheme>(initialOptions.theme)
+  const optionsRef = useRef<SoundOptions>(initialOptions)
   currentThemeRef.current = options.theme
+  optionsRef.current = options
 
   const cleanupOscillator = useCallback((oscillator: OscillatorNode) => {
     activeOscillatorsRef.current.delete(oscillator)
@@ -82,8 +84,6 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     }
   }, [])
 
-  // Volume is intentionally included: AudioContext needs to be recreated when volume changes
-  // as the gainNode is created during initialisation with the current volume value.
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
 
@@ -139,7 +139,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setError('Audio initialisation failed')
       }
     }
-  }, [options.volume])
+  }, [])
 
   const setVolume = useCallback((volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume))
@@ -158,7 +158,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   }, [])
 
   const playSound = useCallback((soundName: 'correct' | 'error' | 'complete' | 'click' | 'milestone', _key?: string) => {
-    if (!options.enabled || !isReady) return
+    const opts = optionsRef.current
+    if (!opts.enabled || !isReady) return
 
     const audioContext = audioContextRef.current
     if (!audioContext || !gainNodeRef.current) {
@@ -197,11 +198,11 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       // ADSR envelope
       const attack = themeConfig.attack || baseConfig.duration * 0.1
       const decay = baseConfig.decay
-      const sustain = options.volume * 0.7
+      const sustain = opts.volume * 0.7
       const release = themeConfig.release || baseConfig.decay
 
       noteGain.gain.setValueAtTime(0, now)
-      noteGain.gain.linearRampToValueAtTime(options.volume, now + attack)
+      noteGain.gain.linearRampToValueAtTime(opts.volume, now + attack)
       noteGain.gain.linearRampToValueAtTime(sustain, now + attack + decay)
       noteGain.gain.linearRampToValueAtTime(0, now + baseConfig.duration + release)
 
@@ -212,7 +213,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
           const hGain = audioContext.createGain()
           hOsc.type = baseConfig.type
           hOsc.frequency.setValueAtTime(harmonic, now)
-          hGain.gain.setValueAtTime(options.volume * 0.3 / (index + 1), now)
+          hGain.gain.setValueAtTime(opts.volume * 0.3 / (index + 1), now)
           hOsc.connect(hGain)
           hGain.connect(noteGain)
           hOsc.start(now)
@@ -243,7 +244,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setError('Audio play failed')
       }
     }
-  }, [options.enabled, options.volume, isReady, initAudio, cleanupOscillator])
+  }, [isReady, initAudio, cleanupOscillator])
 
   useEffect(() => {
     isMountedRef.current = true
@@ -282,7 +283,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
   // Update reverb routing when theme changes
   useEffect(() => {
     if (!reverbNodeRef.current || !gainNodeRef.current) return
-    const themeConfig = THEME_CONFIGS[options.theme]
+    const themeConfig = THEME_CONFIGS[optionsRef.current.theme]
     reverbNodeRef.current.disconnect()
     if (themeConfig.reverb > 0.2) {
       reverbNodeRef.current.connect(gainNodeRef.current)
