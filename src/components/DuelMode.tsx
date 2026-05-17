@@ -34,6 +34,8 @@ interface DuelChallenge {
   betAmount: number
   challenger_wpm?: number
   opponent_wpm?: number
+  challenger_accuracy?: number
+  opponent_accuracy?: number
 }
 
 const DURATION_LABELS: Record<DuelDuration, string> = {
@@ -51,6 +53,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const [betAmount, setBetAmount] = useState(0)
   const [currentDuel, setCurrentDuel] = useState<DuelChallenge | null>(null)
   const [opponentWpm, setOpponentWpm] = useState(0)
+  const [opponentAccuracy, setOpponentAccuracy] = useState(100)
   const [message, setMessage] = useState('')
 
   const {
@@ -105,12 +108,16 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           const updatedDuel = payload.new as DuelChallenge
           setCurrentDuel(updatedDuel)
 
-          // Extract opponent WPM based on user role
+          // Extract opponent WPM and accuracy based on user role
           const isChallenger = currentDuel?.challenger?.id === user?.id
           const oppWpm = isChallenger
             ? (updatedDuel.opponent_wpm as number) ?? 0
             : (updatedDuel.challenger_wpm as number) ?? 0
+          const oppAccuracy = isChallenger
+            ? (updatedDuel.opponent_accuracy as number) ?? 100
+            : (updatedDuel.challenger_accuracy as number) ?? 100
           setOpponentWpm(oppWpm)
+          setOpponentAccuracy(oppAccuracy)
 
           if (updatedDuel.status === 'active' && duelState === 'waiting') {
             setDuelState('active')
@@ -200,7 +207,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     try {
       const isChallenger = currentDuel.challenger.id === user.id
       const userScore = Math.round(stats.wpm * (stats.accuracy / 100))
-      const opponentScore = Math.round(opponentWpm * 0.8) // opponent accuracy assumed 80% if not received
+      const opponentScore = Math.round(opponentWpm * (opponentAccuracy / 100))
 
       // Determine winner by comparing scores
       const userWon = userScore > opponentScore
@@ -212,8 +219,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         opponentScore: isChallenger ? opponentScore : userScore,
         challengerWpm: isChallenger ? stats.wpm : opponentWpm,
         opponentWpm: isChallenger ? opponentWpm : stats.wpm,
-        challengerAccuracy: isChallenger ? stats.accuracy : 80,
-        opponentAccuracy: isChallenger ? 80 : stats.accuracy,
+        challengerAccuracy: isChallenger ? stats.accuracy : opponentAccuracy,
+        opponentAccuracy: isChallenger ? opponentAccuracy : stats.accuracy,
       })
 
       onComplete(stats)
@@ -221,7 +228,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     } catch (err) {
       logger.error('Error completing duel:', err)
     }
-  }, [currentDuel, user?.id, opponentWpm, completeDuel, onComplete])
+  }, [currentDuel, user?.id, opponentWpm, opponentAccuracy, completeDuel, onComplete])
 
   // Throttled Supabase progress updates (max once per 500ms)
   const lastUpdateRef = useRef(0)
@@ -444,6 +451,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             <div className="bg-dark-800 rounded-lg p-4 text-center">
               <p className="text-sm text-dark-400">Соперник</p>
               <p className="text-2xl font-bold text-purple-400">{opponentWpm} WPM</p>
+              <p className="text-xs text-dark-500">{opponentAccuracy}% accuracy</p>
               <div className="mt-2 h-2 bg-dark-700 rounded-full overflow-hidden">
                 <div className="h-full bg-purple-600 transition-all" style={{ width: `${opponentWpm / 2}%` }} />
               </div>
@@ -535,6 +543,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             <div className="bg-dark-800 rounded-lg p-4">
               <p className="text-sm text-dark-400">WPM соперника</p>
               <p className="text-2xl font-bold text-purple-400">{opponentWpm}</p>
+              <p className="text-xs text-dark-500">{opponentAccuracy}% accuracy</p>
             </div>
           </div>
           <button
