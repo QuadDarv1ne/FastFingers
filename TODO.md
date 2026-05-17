@@ -78,10 +78,19 @@
 
 ### 7. Standardize Error Handling / Стандартизировать обработку ошибок
 
-- [ ] Currently a mix of: `try/catch` + `console.warn`, `try/catch` + `logger`, silently swallowed errors
+- [x] Currently a mix of: `try/catch` + `console.warn`, `try/catch` + `logger`, silently swallowed errors
   / Сейчас смесь: `try/catch` + `console.warn`, `try/catch` + `logger`, проглоченные ошибки
-- [ ] Establish rule: always use `logger`, never silently swallow errors
+- [x] Establish rule: always use `logger`, never silently swallow errors
   / Установить правило: всегда использовать `logger`, никогда не глотать ошибки молча
+- [x] Added `logger.warn` to 67 previously silent catch blocks across 18 files:
+  / Добавлен `logger.warn` в 67 ранее молчаливых catch блоков в 18 файлах:
+  - src/services/cloudSync.ts (12), src/hooks/useTheme.ts (10), src/utils/number.ts (9),
+  - src/hooks/useOfflineSync.ts (4), src/hooks/useLocalStorage.ts (4), src/hooks/useSessionStorage.ts (4),
+  - src/utils/format.ts (4), src/hooks/useDailyChallenges.ts (3), src/hooks/useLocalStorageState.ts (3),
+  - src/hooks/useMusicGenerator.ts (2), src/hooks/useTypingHistory.ts (2), src/hooks/useSessionTimer.ts (2),
+  - src/services/apiClient.ts (2), src/hooks/useClipboard.ts (2),
+  - src/hooks/useBackendAvailability.ts (1), src/hooks/useAppState.ts (1),
+  - src/utils/adaptiveDifficulty.ts (1), src/utils/validation.ts (1)
 
 ### 8. Add Tests for Key Modules / Добавить тесты для ключевых модулей
 
@@ -139,7 +148,7 @@ Coverage gaps / Пробелы в покрытии:
   - [x] 20 movie/series quotes (movie-21 — movie-40) / 20 цитат из фильмов/сериалов
   - [x] 15 business/professional texts (biz-21 — biz-35) / 15 бизнес/профессиональных текстов
   - [x] 15 popular science texts (sci-21 — sci-35) / 15 научно-популярных текстов
-- [ ] User-created texts (CRUD) / Пользовательские тексты (CRUD)
+- [x] User-created texts (CRUD) via admin panel / Пользовательские тексты (CRUD) через панель администратора
 - [ ] Exercise import/export / Импорт/экспорт упражнений
 
 ### 15. Accessibility (a11y) / Доступность (a11y)
@@ -234,6 +243,20 @@ Coverage gaps / Пробелы в покрытии:
 ---
 
 ## ✅ Completed (Recent) / Выполнено (Последнее)
+
+### 2026-05-17 — Admin Panel & Error Handling / Панель администратора и обработка ошибок
+- ✅ Standardized error handling: added `logger.warn` to 67 catch blocks in 18 files
+  / Стандартизирована обработка ошибок: добавлен `logger.warn` в 67 catch блоков в 18 файлах
+- ✅ Added `role` field to User type ('user' | 'admin')
+  / Добавлено поле `role` в тип User
+- ✅ First registered user automatically becomes admin / Первый зарегистрированный пользователь автоматически становится админом
+- ✅ Admin panel (/Admin) with 3 tabs: Overview, Text Manager, User Manager
+  / Панель администратора с 3 вкладками: Обзор, Тексты, Пользователи
+- ✅ Text Manager: CRUD for custom practice texts (localStorage-backed)
+  / Менеджер текстов: CRUD для пользовательских текстов (на localStorage)
+- ✅ User Manager: view users, promote/demote admin
+  / Менеджер пользователей: просмотр, назначение/снятие админа
+- ✅ Admin nav button visible only to admin users / Кнопка Admin видна только админам
 
 ### 2026-05-11 — Code Quality & Developer Experience / Качество кода и DX
 - ✅ ESLint `@typescript-eslint/no-explicit-any` upgraded from `warn` to `error`
