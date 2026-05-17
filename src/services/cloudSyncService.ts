@@ -288,11 +288,11 @@ class CloudSyncService {
       level: Math.max(local.level, cloud.level),
       bestWpm: Math.max(local.bestWpm, cloud.bestWpm),
       bestAccuracy: Math.max(local.bestAccuracy, cloud.bestAccuracy),
-      totalWordsTyped: local.totalWordsTyped + cloud.totalWordsTyped,
-      totalPracticeTime: local.totalPracticeTime + cloud.totalPracticeTime,
+      totalWordsTyped: Math.max(local.totalWordsTyped, cloud.totalWordsTyped),
+      totalPracticeTime: Math.max(local.totalPracticeTime, cloud.totalPracticeTime),
       currentStreak: Math.max(local.currentStreak, cloud.currentStreak),
       longestStreak: Math.max(local.longestStreak, cloud.longestStreak),
-      completedChallenges: local.completedChallenges + cloud.completedChallenges,
+      completedChallenges: Math.max(local.completedChallenges, cloud.completedChallenges),
     }
   }
 
