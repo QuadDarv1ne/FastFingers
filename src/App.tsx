@@ -59,8 +59,19 @@ const OnlineStatus = lazy(() => import('./components/OnlineStatus').then((module
 
 function AppContent() {
   const { t } = useAppTranslation()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth()
   const { addNotification } = useNotifications()
+
+  const handleAuthSuccess = useCallback(() => {
+    if (user?.name) {
+      addNotification({
+        type: 'info',
+        title: t('action.welcome'),
+        message: `${t('auth.welcomeBack', { name: user.name })}`,
+        icon: '👋',
+      })
+    }
+  }, [user, addNotification, t])
 
   const [showAchievements, setShowAchievements] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
@@ -239,7 +250,7 @@ function AppContent() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <AuthWrapper onSuccess={() => {}} />
+        <AuthWrapper onSuccess={handleAuthSuccess} />
       </Suspense>
     )
   }

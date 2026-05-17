@@ -90,6 +90,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     startCountdown(3)
   }, [startCountdown])
 
+  // Throttled Supabase progress updates (max once per 500ms)
   const lastUpdateRef = useRef(0)
   const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
   const duelStateRef = useRef(duelState)
@@ -234,10 +235,6 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       logger.error('Error completing duel:', err)
     }
   }, [currentDuel, user?.id, opponentWpm, opponentAccuracy, completeDuel, onComplete])
-
-  // Throttled Supabase progress updates (max once per 500ms)
-  const lastUpdateRef = useRef(0)
-  const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
 
   const flushDuelProgress = useCallback(() => {
     const pending = pendingUpdateRef.current
