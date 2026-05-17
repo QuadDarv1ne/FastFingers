@@ -135,6 +135,36 @@ export function useAdvancedStats() {
     }
   }, [sessions])
 
+  // Вычисление самой длинной серии последовательных дней
+  const longestStreak = useMemo(() => {
+    if (sessionsByDate.size === 0) return 0
+
+    // Collect and sort unique practice dates
+    const dates = Array.from(sessionsByDate.keys())
+      .map(d => new Date(d))
+      .sort((a, b) => a.getTime() - b.getTime())
+
+    let maxStreak = 1
+    let currentStreak = 1
+    const dayMs = 24 * 60 * 60 * 1000
+
+    for (let i = 1; i < dates.length; i++) {
+      const prev = dates[i - 1]!.getTime()
+      const curr = dates[i]!.getTime()
+      const diffDays = Math.round((curr - prev) / dayMs)
+
+      if (diffDays === 1) {
+        currentStreak++
+        maxStreak = Math.max(maxStreak, currentStreak)
+      } else if (diffDays > 1) {
+        currentStreak = 1
+      }
+      // diffDays === 0 means same day (duplicate), skip
+    }
+
+    return maxStreak
+  }, [sessionsByDate])
+
   // Персональные рекорды
   const personalRecords = useMemo<PersonalRecords>(() => {
     if (sessions.length === 0) {
@@ -166,12 +196,12 @@ export function useAdvancedStats() {
       bestWpm: bestWpmSession.wpm,
       bestAccuracy: bestAccuracySession.accuracy,
       bestCpm: bestCpmSession.cpm,
-      longestStreak: history.totalSessions,
+      longestStreak,
       totalSessions: history.totalSessions,
       totalTime: history.totalTime,
       bestSession: bestWpmSession,
     }
-  }, [sessions, history.totalSessions, history.totalTime])
+  }, [sessions, history.totalSessions, history.totalTime, longestStreak])
 
   // Данные для графика WPM тренда
   const wpmTrend = useMemo<WpmTrendData[]>(() => {

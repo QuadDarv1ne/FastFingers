@@ -149,7 +149,7 @@ export function useDailyChallenges() {
   // Проверка и создание челленджа на сегодня
   useEffect(() => {
     const today = getTodayDate()
-    
+
     setChallenges(prev => {
       const todayChallenge = prev.find(c => c.date === today)
 
@@ -160,9 +160,7 @@ export function useDailyChallenges() {
       const newChallenge = generateDailyChallenge(today)
       return [...prev, newChallenge].slice(-30)
     })
-
-    checkStreak(today)
-  }, [checkStreak])
+  }, [])
 
   // Завершение челленджа
   const completeChallenge = useCallback((challengeId: string, wpm: number, accuracy: number) => {
