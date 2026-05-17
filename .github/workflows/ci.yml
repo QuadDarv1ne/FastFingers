@@ -149,7 +149,7 @@ jobs:
         run: npm install -g @lhci/cli@0.14.x
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
@@ -174,7 +174,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
