@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfileClick }: HeaderProps) {
   const { t } = useAppTranslation()
-  const progress = ((xp / xpToNextLevel) * 100).toFixed(0)
+  const progress = xpToNextLevel > 0 ? ((xp / xpToNextLevel) * 100).toFixed(0) : '0'
   const [showSettings, setShowSettings] = useState(false)
   const settingsRef = useRef<HTMLDivElement>(null)
 

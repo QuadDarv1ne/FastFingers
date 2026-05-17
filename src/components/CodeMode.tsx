@@ -89,12 +89,24 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
   const [accuracy, setAccuracy] = useState(100)
 
   const inputRef = useRef<HTMLInputElement>(null)
+  const currentIndexRef = useRef(0)
+  const inputResultsRef = useRef<Array<{ isCorrect: boolean }>>([])
+  const startTimeRef = useRef<number | null>(null)
+
+  // Sync refs with state
+  useEffect(() => { currentIndexRef.current = currentIndex }, [currentIndex])
+  useEffect(() => { inputResultsRef.current = inputResults }, [inputResults])
+  useEffect(() => { startTimeRef.current = startTime }, [startTime])
 
   const startTyping = useCallback(() => {
     setIsActive(true)
-    setStartTime(Date.now())
+    const now = Date.now()
+    setStartTime(now)
+    startTimeRef.current = now
     setCurrentIndex(0)
+    currentIndexRef.current = 0
     setInputResults([])
+    inputResultsRef.current = []
     setWpm(0)
     setAccuracy(100)
     inputRef.current?.focus({ preventScroll: true })
@@ -119,37 +131,56 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
       const actualChar = inputValue[charIndex]
       const isCorrect = expectedChar === actualChar
 
-      setInputResults(prev => [...prev, { isCorrect }])
-      setCurrentIndex(prev => prev + 1)
+      setInputResults(prev => {
+        const newResults = [...prev, { isCorrect }]
+        inputResultsRef.current = newResults
+        return newResults
+      })
+      setCurrentIndex(prev => {
+        const newIndex = prev + 1
+        currentIndexRef.current = newIndex
+        return newIndex
+      })
 
       // Обновляем статистику
-      if (startTime) {
-        const elapsedMinutes = (Date.now() - startTime) / 60000
-        const correctChars = inputResults.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
-        const wpmValue = Math.round((correctChars / 5) / elapsedMinutes) || 0
+      const currentStartTime = startTimeRef.current
+      if (currentStartTime) {
+        const elapsedMinutes = (Date.now() - currentStartTime) / 60000
+        const results = inputResultsRef.current
+        const correctSoFar = results.filter(r => r.isCorrect).length
+        const newCorrect = correctSoFar + (isCorrect ? 1 : 0)
+        const newTotal = results.length + 1
+        const wpmValue = elapsedMinutes > 0 ? Math.round((newCorrect / 5) / elapsedMinutes) : 0
         setWpm(wpmValue)
-        setAccuracy(Math.round((correctChars / (inputResults.length + 1)) * 100))
+        setAccuracy(Math.round((newCorrect / newTotal) * 100))
       }
 
       // Проверка завершения
-      if (currentIndex >= textToType.length - 1) {
+      if (currentIndexRef.current >= textToType.length - 1) {
         setIsActive(false)
-        const errorsCount = inputResults.filter(r => !r.isCorrect).length
-        const correctChars = inputResults.filter(r => r.isCorrect).length
+        const results = inputResultsRef.current
+        const errorsCount = results.filter(r => !r.isCorrect).length
+        const correctChars = results.filter(r => r.isCorrect).length
+        const elapsed = currentStartTime ? Date.now() - currentStartTime : 0
+        const elapsedMinutes = elapsed / 60000
+        const finalWpm = elapsedMinutes > 0 ? Math.round((correctChars / 5) / elapsedMinutes) : 0
+        const finalCpm = elapsedMinutes > 0 ? Math.round(correctChars / elapsedMinutes) : 0
+        const finalAccuracy = results.length > 0 ? Math.round((correctChars / results.length) * 100) : 100
+
         const stats: TypingStats = {
-          wpm,
-          cpm: Math.round((textToType.length / 5) / ((Date.now() - (startTime || Date.now())) / 60000)) || 0,
-          accuracy,
+          wpm: finalWpm,
+          cpm: finalCpm,
+          accuracy: finalAccuracy,
           errors: errorsCount,
           correctChars,
           totalChars: textToType.length,
-          timeElapsed: startTime ? Date.now() - startTime : 0,
+          timeElapsed: elapsed,
         }
         showToast(`Код: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
         onComplete(stats)
       }
     }
-  }, [textToType, startTime, currentIndex, inputResults, wpm, accuracy, onComplete, showToast])
+  }, [textToType, onComplete, showToast])
 
   // Горячие клавиши
   useHotkey('escape', () => {

@@ -250,14 +250,14 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     isMountedRef.current = true
     initAudio()
 
-    const timeouts = cleanupTimeoutsRef.current
-    const oscillators = activeOscillatorsRef.current
-
+    // Mount-only cleanup - do not add dependencies
     return () => {
       isMountedRef.current = false
+      const timeouts = cleanupTimeoutsRef.current
       timeouts.forEach(clearTimeout)
       timeouts.clear()
 
+      const oscillators = activeOscillatorsRef.current
       oscillators.forEach(osc => {
         try {
           osc.stop()
@@ -278,17 +278,31 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setIsReady(false)
       }
     }
-  }, [initAudio])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  // Update reverb routing when theme changes
+  // Update reverb routing when theme changes - properly re-route entire audio graph
   useEffect(() => {
-    if (!reverbNodeRef.current || !gainNodeRef.current) return
+    const gainNode = gainNodeRef.current
+    const compressor = compressorRef.current
+    const reverbNode = reverbNodeRef.current
+    const audioContext = audioContextRef.current
+    if (!gainNode || !compressor || !reverbNode || !audioContext) return
+
     const themeConfig = THEME_CONFIGS[optionsRef.current.theme]
-    reverbNodeRef.current.disconnect()
+
+    // Disconnect all nodes
+    gainNode.disconnect()
+    compressor.disconnect()
+    reverbNode.disconnect()
+
+    // Rebuild chain: gain -> compressor -> (reverb -> destination) or (destination)
+    gainNode.connect(compressor)
     if (themeConfig.reverb > 0.2) {
-      reverbNodeRef.current.connect(gainNodeRef.current)
+      compressor.connect(reverbNode)
+      reverbNode.connect(audioContext.destination)
     } else {
-      audioContextRef.current?.destination && gainNodeRef.current.connect(audioContextRef.current.destination)
+      compressor.connect(audioContext.destination)
     }
   }, [options.theme])
 

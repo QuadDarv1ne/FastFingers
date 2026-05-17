@@ -179,10 +179,10 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             aria-label="Клавиша пробел"
             onTouchStart={(e) => {
               e.preventDefault()
-              vibrate([10])
+              handleKeyTouch(' ')
             }}
-            onMouseDown={() => vibrate([10])}
-            onClick={() => vibrate([10])}
+            onMouseDown={() => handleKeyTouch(' ')}
+            onClick={() => handleKeyTouch(' ')}
           >
             {t('common.chars').charAt(0)}
           </button>

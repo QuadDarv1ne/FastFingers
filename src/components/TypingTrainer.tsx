@@ -84,18 +84,21 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const correctCountRef = useRef(0)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const resultsRef = useRef<KeyInputResult[]>([])
+  const isCompletingRef = useRef(false)
 
   useFocusTrap(completionRef, isComplete)
 
   // Завершение упражнения — оптимизировано
   const handleComplete = useCallback((results: KeyInputResult[]) => {
-    if (!startTime) return
+    if (!startTime || isCompletingRef.current) return
+    isCompletingRef.current = true
 
     let correctChars = 0
     let errors = 0
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      if (result && result.isCorrect) {
+      if (!result) continue // Skip null/undefined results
+      if (result.isCorrect) {
         correctChars++
       } else {
         errors++
@@ -423,13 +426,13 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label={t('trainer.aria.progress')}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
             <span className="text-dark-400 font-medium">{t('trainer.progressLabel')}</span>
-            <span className="text-primary-400 font-bold">{Math.round((currentIndex / text.length) * 100)}%</span>
+            <span className="text-primary-400 font-bold">{text.length > 0 ? Math.round((currentIndex / text.length) * 100) : 0}%</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex-1 w-full h-3 sm:h-3 bg-dark-800 rounded-full overflow-hidden shadow-inner">
               <div
                 className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 shadow-glow"
-                style={{ width: `${(currentIndex / text.length) * 100}%` }}
+                style={{ width: text.length > 0 ? `${(currentIndex / text.length) * 100}%` : '0%' }}
               />
             </div>
             <span className="text-sm text-dark-400 font-medium whitespace-nowrap min-w-[80px] text-center sm:text-right">
@@ -553,7 +556,6 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   return (
     prevProps.isChallenge === nextProps.isChallenge &&
     prevProps.challengeText === nextProps.challengeText &&
-    prevProps.layout === nextProps.layout &&
     prevProps.onSessionComplete === nextProps.onSessionComplete &&
     prevProps.onKeyInput === nextProps.onKeyInput &&
     prevProps.sound?.isEnabled === nextProps.sound?.isEnabled &&

@@ -298,7 +298,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
           className="sr-only"
           aria-hidden="true"
           onInput={handleInput}
-          disabled={!isActive && timeLeft < MARATHON_DURATION}
+          disabled={!isActive || countdown !== null}
           aria-label={t('exercise.custom')}
           autoComplete="off"
           autoCorrect="off"

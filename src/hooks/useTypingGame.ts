@@ -88,6 +88,7 @@ export function useTypingGame({
   const timeLeftRef = useRef(safeDuration)
   const inputResultsRef = useRef<KeyInputResult[]>([])
   const pendingCompletionRef = useRef<{ results: KeyInputResult[]; shouldGenerateText: boolean } | null>(null)
+  const startTimeRef = useRef<number | null>(null)
 
   const generateNewText = useCallback(() => {
     try {
@@ -165,6 +166,11 @@ export function useTypingGame({
     inputResultsRef.current = inputResults
   }, [inputResults])
 
+  // Sync startTimeRef for use in handleComplete closure
+  useEffect(() => {
+    startTimeRef.current = startTime
+  }, [startTime])
+
   const handleComplete = useCallback(
     (results: KeyInputResult[]) => {
       if (!results || results.length === 0) {
@@ -172,13 +178,13 @@ export function useTypingGame({
         return
       }
 
-      if (!startTime && mode !== 'timed') {
+      if (!startTimeRef.current && mode !== 'timed') {
         logger.warn('handleComplete called without startTime')
         return
       }
 
       try {
-        const elapsed = mode === 'timed' ? safeDuration - timeLeftRef.current : (Date.now() - (startTime || 0)) / 1000
+        const elapsed = mode === 'timed' ? safeDuration - timeLeftRef.current : (Date.now() - (startTimeRef.current || 0)) / 1000
         const correctChars = results.filter(r => r?.isCorrect).length
         const errorCount = results.filter(r => r && !r.isCorrect).length
 
@@ -201,7 +207,7 @@ export function useTypingGame({
         setErrors(0)
       }
     },
-    [startTime, onComplete, mode, safeDuration]
+    [onComplete, mode, safeDuration]
   )
 
   const handleInput = useCallback(
@@ -270,12 +276,11 @@ export function useTypingGame({
           })
 
           // Queue completion work to be handled by useEffect (avoid side effects in setState)
-          const shouldGenerateText = prevIndex >= text.length - 5
           const isComplete = mode === 'practice' && prevIndex >= text.length - 1
-          if (shouldGenerateText || isComplete) {
+          if (isComplete) {
             pendingCompletionRef.current = {
               results: [...inputResultsRef.current, result],
-              shouldGenerateText,
+              shouldGenerateText: true,
             }
           }
 

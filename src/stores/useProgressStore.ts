@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { calculateLevel } from '../utils/stats'
 
 interface TypingSession {
   id: string
@@ -30,9 +31,6 @@ interface ProgressState {
 
 const MAX_SESSIONS = 1000
 const RECENT_SESSIONS_COUNT = 10
-const XP_PER_LEVEL = 1000
-
-const calculateLevel = (totalXp: number): number => Math.floor(totalXp / XP_PER_LEVEL) + 1
 
 const calculateStreak = (lastDate: string | null, currentDate: string): number => {
   if (!lastDate) return 1

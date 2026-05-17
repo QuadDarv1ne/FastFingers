@@ -118,7 +118,9 @@ export function calculateLevelProgress(xp: number): number {
   const currentLevel = calculateLevel(xp);
   const prevLevelXp = xpForLevel(currentLevel - 1);
   const nextLevelXp = xpForLevel(currentLevel);
-  const progress = ((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100;
+  const denominator = nextLevelXp - prevLevelXp;
+  if (denominator === 0) return 0;
+  const progress = ((xp - prevLevelXp) / denominator) * 100;
   return Math.min(100, Math.max(0, progress));
 }
 

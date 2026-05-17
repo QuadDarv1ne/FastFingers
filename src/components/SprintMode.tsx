@@ -119,7 +119,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient">{t('mode.sprint')}</h2>
-          <p className="text-sm text-dark-400">{t('common.speed')} — 60 {t('common.time').toLowerCase()}</p>
+          <p className="text-sm text-dark-400">{t('common.speed')} — {duration} {t('common.time').toLowerCase()}</p>
         </div>
 
         <div className="flex items-center gap-2">
