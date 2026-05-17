@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import type { PracticeText, TextCategory } from '../../data/practiceTexts'
 import { useToast } from '@contexts/ToastContext'
 import { useTranslation } from 'react-i18next'
+import { useTextUsageStats } from '@hooks/useTextUsage'
 
 const STORAGE_KEY = 'fastfingers_admin_texts'
 
@@ -71,6 +72,15 @@ export function TextManager() {
   const [editing, setEditing] = useState<PracticeText | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<Partial<PracticeText>>({})
+  const { stats: usageStats, refresh: refreshUsage, clearStats: clearUsageStats } = useTextUsageStats()
+
+  const usageMap = useMemo(() => {
+    const map = new Map<string, { count: number; avgWpm: number; avgAccuracy: number; lastUsed: string }>()
+    for (const s of usageStats) {
+      map.set(s.textId, { count: s.usageCount, avgWpm: s.avgWpm, avgAccuracy: s.avgAccuracy, lastUsed: s.lastUsed })
+    }
+    return map
+  }, [usageStats])
 
   useEffect(() => {
     setTexts(loadTexts())
@@ -305,7 +315,9 @@ export function TextManager() {
             Нет пользовательских текстов. Нажмите «+ Добавить текст», чтобы создать первый.
           </p>
         )}
-        {texts.map(text => (
+        {texts.map(text => {
+          const usage = usageMap.get(text.id)
+          return (
           <div key={text.id} className="glass rounded-xl p-4 flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -316,10 +328,22 @@ export function TextManager() {
                 <span className="text-xs bg-dark-700 text-dark-300 px-2 py-0.5 rounded shrink-0">
                   Сложность {text.difficulty}
                 </span>
+                {usage && usage.count > 0 && (
+                  <span className="text-xs bg-primary-600/20 text-primary-300 px-2 py-0.5 rounded shrink-0">
+                    {usage.count} исп.
+                  </span>
+                )}
               </div>
               <p className="text-sm text-dark-400 line-clamp-2">{text.text}</p>
               {text.source && (
                 <p className="text-xs text-dark-500 mt-1">Источник: {text.source}</p>
+              )}
+              {usage && usage.count > 0 && (
+                <div className="flex gap-4 mt-2 text-xs text-dark-500">
+                  <span>WPM: <span className="text-primary-400 font-medium">{usage.avgWpm}</span></span>
+                  <span>Точность: <span className="text-green-400 font-medium">{usage.avgAccuracy}%</span></span>
+                  <span>Последнее: <span className="text-dark-400">{new Date(usage.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</span></span>
+                </div>
               )}
             </div>
             <div className="flex gap-1 shrink-0">
@@ -331,8 +355,61 @@ export function TextManager() {
               </button>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
+
+      {/* Usage statistics summary */}
+      {usageStats.length > 0 && (
+        <div className="glass rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <span>📊</span>
+              Статистика использования
+            </h3>
+            <button
+              onClick={clearUsageStats}
+              className="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-xs transition-colors"
+            >
+              Сбросить статистику
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-dark-700">
+                  <th className="text-left py-2 px-3 text-dark-400 font-medium">Текст</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Использований</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Средний WPM</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Средняя точность</th>
+                  <th className="text-right py-2 px-3 text-dark-400 font-medium">Последнее</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usageStats
+                  .sort((a, b) => b.usageCount - a.usageCount)
+                  .slice(0, 20)
+                  .map(s => {
+                    const text = texts.find(t => t.id === s.textId)
+                    return (
+                      <tr key={s.textId} className="border-b border-dark-800/50 hover:bg-dark-800/30">
+                        <td className="py-2 px-3 text-white truncate max-w-[200px]">
+                          {text?.title || s.textId}
+                        </td>
+                        <td className="text-center py-2 px-3 text-primary-400 font-bold">{s.usageCount}</td>
+                        <td className="text-center py-2 px-3 text-success">{s.avgWpm}</td>
+                        <td className="text-center py-2 px-3 text-blue-400">{s.avgAccuracy}%</td>
+                        <td className="text-right py-2 px-3 text-dark-400">
+                          {new Date(s.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}
+                        </td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

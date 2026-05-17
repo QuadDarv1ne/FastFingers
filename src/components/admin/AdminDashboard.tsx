@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
+import { useSelectedStudent } from '../../hooks/useSelectedStudent'
 import { TextManager } from './TextManager'
 import { UserAdmin } from './UserAdmin'
+import { DailyChallengeManager } from './DailyChallengeManager'
 import { practiceTexts } from '../../data/practiceTexts'
 
 const APP_VERSION = '0.1.0'
 
-type AdminTab = 'overview' | 'texts' | 'users'
+type AdminTab = 'overview' | 'texts' | 'users' | 'challenges'
 
 function safeParseLength(key: string): number {
   try {
@@ -21,6 +23,18 @@ function safeParseLength(key: string): number {
   }
 }
 
+interface UserStatsSummary {
+  id: string
+  name: string
+  email: string
+  level: number
+  totalXp: number
+  bestWpm: number
+  totalWordsTyped: number
+  totalPracticeTime: number
+  lastLogin?: string
+}
+
 function AdminOverview() {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -30,8 +44,64 @@ function AdminOverview() {
   const totalSessions = useMemo(() => safeParseLength('fastfingers_history'), [])
   const staticTextsCount = useMemo(() => practiceTexts.length, [])
 
+  // Compute top users by various metrics
+  const userSummaries = useMemo((): UserStatsSummary[] => {
+    try {
+      const users: Array<{ id: string; name: string; email: string; stats: Record<string, number>; lastLogin?: string }> =
+        JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+      return users
+        .filter(u => u.stats && typeof u.stats === 'object')
+        .map(u => ({
+          id: u.id,
+          name: u.name || u.email,
+          email: u.email,
+          level: u.stats.level ?? 0,
+          totalXp: u.stats.totalXp ?? 0,
+          bestWpm: u.stats.bestWpm ?? 0,
+          totalWordsTyped: u.stats.totalWordsTyped ?? 0,
+          totalPracticeTime: u.stats.totalPracticeTime ?? 0,
+          lastLogin: u.lastLogin,
+        }))
+        .sort((a, b) => b.totalXp - a.totalXp)
+    } catch {
+      return []
+    }
+  }, [])
+
+  const topByWpm = useMemo(
+    () => [...userSummaries].sort((a, b) => b.bestWpm - a.bestWpm).slice(0, 3),
+    [userSummaries],
+  )
+
+  const topByXp = useMemo(() => userSummaries.slice(0, 3), [userSummaries])
+
+  const totalPracticeTimeAll = useMemo(
+    () => userSummaries.reduce((sum, u) => sum + u.totalPracticeTime, 0),
+    [userSummaries],
+  )
+
+  const totalWordsAll = useMemo(
+    () => userSummaries.reduce((sum, u) => sum + u.totalWordsTyped, 0),
+    [userSummaries],
+  )
+
+  const avgWpmAll = useMemo(() => {
+    const withWpm = userSummaries.filter(u => u.bestWpm > 0)
+    if (withWpm.length === 0) return 0
+    return Math.round(withWpm.reduce((sum, u) => sum + u.bestWpm, 0) / withWpm.length)
+  }, [userSummaries])
+
+  function formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.round(seconds)}с`
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    if (h > 0) return `${h}ч ${m}м`
+    return `${m}м`
+  }
+
   return (
     <div className="space-y-6">
+      {/* Main stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass rounded-xl p-5 text-center">
           <div className="text-3xl font-bold text-white">{totalUsers}</div>
@@ -47,6 +117,63 @@ function AdminOverview() {
         </div>
       </div>
 
+      {/* Aggregate stats */}
+      {userSummaries.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="glass rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-success">{avgWpmAll}</div>
+            <div className="text-xs text-dark-400 mt-1">Средний лучший WPM</div>
+          </div>
+          <div className="glass rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-blue-400">{totalWordsAll.toLocaleString()}</div>
+            <div className="text-xs text-dark-400 mt-1">Всего слов набрано</div>
+          </div>
+          <div className="glass rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-cyan-400">{formatDuration(totalPracticeTimeAll)}</div>
+            <div className="text-xs text-dark-400 mt-1">Общее время практики</div>
+          </div>
+          <div className="glass rounded-xl p-4 text-center">
+            <div className="text-2xl font-bold text-yellow-400">{staticTextsCount}</div>
+            <div className="text-xs text-dark-400 mt-1">Статических текстов</div>
+          </div>
+        </div>
+      )}
+
+      {/* Top users */}
+      {topByWpm.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="glass rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-white mb-3">🚀 Лучшие по WPM</h3>
+            <div className="space-y-2">
+              {topByWpm.map((u, i) => (
+                <div key={u.id} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-dark-400 w-5">{i + 1}.</span>
+                    <span className="text-white">{u.name || u.email}</span>
+                  </div>
+                  <span className="text-success font-bold">{u.bestWpm} WPM</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="glass rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-white mb-3">⭐ Лучшие по XP</h3>
+            <div className="space-y-2">
+              {topByXp.map((u, i) => (
+                <div key={u.id} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-dark-400 w-5">{i + 1}.</span>
+                    <span className="text-white">{u.name || u.email}</span>
+                  </div>
+                  <span className="text-primary-400 font-bold">{u.totalXp.toLocaleString()} XP</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* System info */}
       <div className="glass rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-3">{t('admin.systemInfo', 'Информация о системе')}</h3>
         <dl className="space-y-2 text-sm">
@@ -63,8 +190,8 @@ function AdminOverview() {
             <dd className="text-white">{user?.name || user?.email}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-dark-400">{t('admin.staticTexts', 'Всего статических текстов')}</dt>
-            <dd className="text-white">{staticTextsCount}</dd>
+            <dt className="text-dark-400">Хранилище данных</dt>
+            <dd className="text-white">{(new Blob([JSON.stringify(localStorage)]).size / 1024).toFixed(1)} КБ</dd>
           </div>
         </dl>
       </div>
@@ -72,14 +199,21 @@ function AdminOverview() {
   )
 }
 
-export function AdminDashboard({ onClose }: { onClose: () => void }) {
+export function AdminDashboard({ onClose, onNavigate }: { onClose: () => void; onNavigate?: (view: string) => void }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<AdminTab>('overview')
+  const { select } = useSelectedStudent()
+
+  const handleViewStudent = useCallback((userId: string, userName: string) => {
+    select(userId, userName)
+    onNavigate?.('student-analytics')
+  }, [select, onNavigate])
 
   const tabs: { id: AdminTab; label: string; icon: string }[] = [
     { id: 'overview', label: t('admin.tabOverview', 'Обзор'), icon: '📊' },
     { id: 'texts', label: t('admin.tabTexts', 'Тексты'), icon: '📝' },
     { id: 'users', label: t('admin.tabUsers', 'Пользователи'), icon: '👥' },
+    { id: 'challenges', label: t('admin.tabChallenges', 'Челленджи'), icon: '🎯' },
   ]
 
   return (
@@ -115,7 +249,8 @@ export function AdminDashboard({ onClose }: { onClose: () => void }) {
 
         {activeTab === 'overview' && <AdminOverview />}
         {activeTab === 'texts' && <TextManager />}
-        {activeTab === 'users' && <UserAdmin />}
+        {activeTab === 'users' && <UserAdmin onViewStudent={handleViewStudent} />}
+        {activeTab === 'challenges' && <DailyChallengeManager />}
       </div>
     </motion.div>
   )

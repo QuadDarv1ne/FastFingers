@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 
 export type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction' | 'hardcore' | 'marathon' | 'code' | 'duel' | 'tournament'
-export type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning' | 'admin'
+export type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning' | 'admin' | 'student-analytics'
 export type SpeedTestDuration = 15 | 30 | 60
 
 interface UseGameModeOptions {

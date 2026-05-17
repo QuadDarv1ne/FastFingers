@@ -74,6 +74,7 @@ const DEFAULT_GOALS: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>[] 
 export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   const [goals, setGoals] = useLocalStorageState<Goal[]>('fastfingers_goals', [])
   const [showAddGoal, setShowAddGoal] = useState(false)
+  const [showEditGoal, setShowEditGoal] = useState<Goal | null>(null)
 
   // Инициализация целей по умолчанию
   useEffect(() => {
@@ -138,6 +139,26 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
     }
     setGoals(prev => [...prev, goal])
     setShowAddGoal(false)
+  }
+
+  const handleDeleteGoal = (goalId: string) => {
+    if (!confirm('Удалить эту цель?')) return
+    setGoals(prev => prev.filter(g => g.id !== goalId))
+  }
+
+  const handleEditGoal = (goalId: string, updated: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt' | 'completedAt'>) => {
+    setGoals(prev => prev.map(g => {
+      if (g.id !== goalId) return g
+      return {
+        ...g,
+        title: updated.title,
+        description: updated.description,
+        target: updated.target,
+        unit: updated.unit,
+        icon: updated.icon,
+      }
+    }))
+    setShowEditGoal(null)
   }
 
   return (
@@ -213,7 +234,12 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
               </h3>
               <div className="space-y-3">
                 {activeGoals.map(goal => (
-                  <GoalCard key={goal.id} goal={goal} />
+                  <GoalCard
+                    key={goal.id}
+                    goal={goal}
+                    onDelete={() => handleDeleteGoal(goal.id)}
+                    onEdit={(updated) => handleEditGoal(goal.id, updated)}
+                  />
                 ))}
               </div>
             </div>
@@ -228,7 +254,12 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
               </h3>
               <div className="space-y-3">
                 {completedGoals.map(goal => (
-                  <GoalCard key={goal.id} goal={goal} />
+                  <GoalCard
+                    key={goal.id}
+                    goal={goal}
+                    onDelete={() => handleDeleteGoal(goal.id)}
+                    onEdit={(updated) => handleEditGoal(goal.id, updated)}
+                  />
                 ))}
               </div>
             </div>
@@ -273,11 +304,20 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
           onAdd={handleAddGoal}
         />
       )}
+
+      {/* Модальное окно редактирования цели */}
+      {showEditGoal && (
+        <EditGoalModal
+          goal={showEditGoal}
+          onClose={() => setShowEditGoal(null)}
+          onSave={handleEditGoal}
+        />
+      )}
     </div>
   )
 }
 
-function GoalCard({ goal }: { goal: Goal }) {
+function GoalCard({ goal, onDelete, onEdit }: { goal: Goal; onDelete?: () => void; onEdit?: (updated: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt' | 'completedAt'>) => void }) {
   const progress = Math.min((goal.current / goal.target) * 100, 100)
   const unitLabel = getUnitLabel(goal.unit)
 
@@ -302,22 +342,46 @@ function GoalCard({ goal }: { goal: Goal }) {
               <h4 className="font-semibold text-white">{goal.title}</h4>
               <p className="text-sm text-dark-400">{goal.description}</p>
             </div>
-            {goal.completed && (
-              <div className="flex items-center gap-1 text-green-400 text-sm font-medium">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+            <div className="flex items-center gap-1">
+              {onEdit && !goal.completed && (
+                <button
+                  onClick={() => onEdit({ title: goal.title, description: goal.description, target: goal.target, unit: goal.unit, icon: goal.icon })}
+                  className="p-1 text-dark-400 hover:text-primary-400 transition-colors"
+                  title="Редактировать"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Выполнено
-              </div>
-            )}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={onDelete}
+                  className="p-1 text-dark-400 hover:text-error transition-colors"
+                  title="Удалить"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
+              {goal.completed && (
+                <div className="flex items-center gap-1 text-green-400 text-sm font-medium ml-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Выполнено
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -563,6 +627,83 @@ function AddGoalModal({
             >
               Создать
             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function EditGoalModal({
+  goal,
+  onClose,
+  onSave,
+}: {
+  goal: Goal
+  onClose: () => void
+  onSave: (goalId: string, updated: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt' | 'completedAt'>) => void
+}) {
+  const [title, setTitle] = useState(goal.title)
+  const [description, setDescription] = useState(goal.description)
+  const [target, setTarget] = useState(goal.target.toString())
+  const [unit, setUnit] = useState<Goal['unit']>(goal.unit)
+  const [icon, setIcon] = useState(goal.icon)
+
+  const icons = ['🎯', '🚀', '⚡', '🔥', '💪', '🏆', '⭐', '💎', '🎨', '📚']
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title || !target) return
+    onSave(goal.id, { title, description, target: Number(target), unit, icon })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+      <div className="glass rounded-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold">Редактировать цель</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">Иконка</label>
+            <div className="flex gap-2 flex-wrap">
+              {icons.map(i => (
+                <button key={i} type="button" onClick={() => setIcon(i)} className={`w-10 h-10 rounded-lg text-xl transition-all ${icon === i ? 'bg-primary-600 scale-110' : 'bg-dark-800 hover:bg-dark-700'}`}>{i}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">Название</label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">Описание</label>
+            <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">Цель</label>
+              <input type="number" value={target} onChange={e => setTarget(e.target.value)} required min="1" className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">Единица</label>
+              <select value={unit} onChange={e => setUnit(e.target.value as Goal['unit'])} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="wpm">WPM</option>
+                <option value="accuracy">Точность %</option>
+                <option value="words">Слова</option>
+                <option value="sessions">Сессии</option>
+                <option value="streak">Серия дней</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-semibold transition-all">Отмена</button>
+            <button type="submit" className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-semibold transition-all">Сохранить</button>
           </div>
         </form>
       </div>

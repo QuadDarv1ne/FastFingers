@@ -90,6 +90,7 @@ const CodeMode = lazy(() => import('./CodeMode').then(m => ({ default: m.CodeMod
 const DuelMode = lazy(() => import('./DuelMode').then(m => ({ default: m.DuelMode })))
 const TournamentMode = lazy(() => import('./TournamentMode').then(m => ({ default: m.TournamentMode })))
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
+const StudentAnalyticsPage = lazy(() => import('./admin/StudentAnalyticsPage').then(m => ({ default: m.StudentAnalyticsPage })))
 
 interface DailyChallengeData {
   id: string
@@ -191,7 +192,15 @@ export function GameModeRenderer({
   if (view === 'admin') {
     return (
       <ErrorBoundary key="admin" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label="Не удалось загрузить панель администратора" onRetry={() => onSetView('main')} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} /></Suspense></StatsMotion>
+        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} onNavigate={onSetView} /></Suspense></StatsMotion>
+      </ErrorBoundary>
+    )
+  }
+
+  if (view === 'student-analytics') {
+    return (
+      <ErrorBoundary key="student-analytics" onRetry={() => onSetView('admin')} fallback={<SectionErrorFallback label="Не удалось загрузить аналитику ученика" onRetry={() => onSetView('admin')} />}>
+        <StatsMotion><Suspense fallback={<LazyFallback/>}><StudentAnalyticsPage onBack={() => onSetView('admin')} /></Suspense></StatsMotion>
       </ErrorBoundary>
     )
   }

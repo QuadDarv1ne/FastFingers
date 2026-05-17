@@ -517,6 +517,12 @@ function AppContent() {
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
                 perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
+                duelsPlayed: parseInt(localStorage.getItem('fastfingers_duelsPlayed') || '0'),
+                tournamentsPlayed: parseInt(localStorage.getItem('fastfingers_tournamentsPlayed') || '0'),
+                customExercisesCreated: customExercises.length,
+                dailyChallengesCompleted: parseInt(localStorage.getItem('fastfingers_dailyChallengesCompleted') || '0'),
+                gameModesUsed: new Set([gameMode, ...((localStorage.getItem('fastfingers_usedGameModes') || '').split(',').filter(Boolean))]).size,
+                level: progress.level,
               }}
               onClose={() => setShowAchievements(false)}
             />

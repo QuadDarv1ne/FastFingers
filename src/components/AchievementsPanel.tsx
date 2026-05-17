@@ -9,7 +9,7 @@ export interface Achievement {
   icon: string
   category: 'speed' | 'accuracy' | 'practice' | 'streak' | 'special'
   requirement: {
-    type: 'wpm' | 'accuracy' | 'words' | 'sessions' | 'streak' | 'perfect-session'
+    type: 'wpm' | 'accuracy' | 'words' | 'sessions' | 'streak' | 'perfect-session' | 'duels' | 'tournaments' | 'custom-exercises' | 'daily-challenges' | 'game-modes' | 'level'
     value: number
   }
   unlocked: boolean
@@ -34,6 +34,12 @@ interface AchievementsPanelProps {
     totalSessions: number
     currentStreak: number
     perfectSessions: number
+    duelsPlayed?: number
+    tournamentsPlayed?: number
+    customExercisesCreated?: number
+    dailyChallengesCompleted?: number
+    gameModesUsed?: number
+    level?: number
   }
 }
 
@@ -205,6 +211,134 @@ const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
     icon: '👑',
     category: 'streak',
     requirement: { type: 'streak', value: 100 },
+    rarity: 'legendary',
+  },
+
+  // Special achievements
+  {
+    id: 'duel-1',
+    title: 'Первый бой',
+    description: 'Участвуйте в дуэли впервые',
+    icon: '⚔️',
+    category: 'special',
+    requirement: { type: 'duels', value: 1 },
+    rarity: 'common',
+  },
+  {
+    id: 'duel-10',
+    title: 'Боец',
+    description: 'Сыграйте 10 дуэлей',
+    icon: '🥊',
+    category: 'special',
+    requirement: { type: 'duels', value: 10 },
+    rarity: 'rare',
+  },
+  {
+    id: 'duel-50',
+    title: 'Чемпион дуэлей',
+    description: 'Сыграйте 50 дуэлей',
+    icon: '🏅',
+    category: 'special',
+    requirement: { type: 'duels', value: 50 },
+    rarity: 'epic',
+  },
+  {
+    id: 'tournament-1',
+    title: 'Первый турнир',
+    description: 'Участвуйте в турнире впервые',
+    icon: '🏟️',
+    category: 'special',
+    requirement: { type: 'tournaments', value: 1 },
+    rarity: 'rare',
+  },
+  {
+    id: 'tournament-5',
+    title: 'Турнирный боец',
+    description: 'Участвуйте в 5 турнирах',
+    icon: '🎖️',
+    category: 'special',
+    requirement: { type: 'tournaments', value: 5 },
+    rarity: 'epic',
+  },
+  {
+    id: 'custom-1',
+    title: 'Индивидуалист',
+    description: 'Создайте своё первое упражнение',
+    icon: '🛠️',
+    category: 'special',
+    requirement: { type: 'custom-exercises', value: 1 },
+    rarity: 'common',
+  },
+  {
+    id: 'custom-10',
+    title: 'Автор упражнений',
+    description: 'Создайте 10 упражнений',
+    icon: '📝',
+    category: 'special',
+    requirement: { type: 'custom-exercises', value: 10 },
+    rarity: 'rare',
+  },
+  {
+    id: 'daily-1',
+    title: 'Ежедневный участник',
+    description: 'Выполните ежедневное задание впервые',
+    icon: '📅',
+    category: 'special',
+    requirement: { type: 'daily-challenges', value: 1 },
+    rarity: 'common',
+  },
+  {
+    id: 'daily-7',
+    title: 'Неделя заданий',
+    description: 'Выполните 7 ежедневных заданий',
+    icon: '🗓️',
+    category: 'special',
+    requirement: { type: 'daily-challenges', value: 7 },
+    rarity: 'rare',
+  },
+  {
+    id: 'daily-30',
+    title: 'Марафон заданий',
+    description: 'Выполните 30 ежедневных заданий',
+    icon: '🏃',
+    category: 'special',
+    requirement: { type: 'daily-challenges', value: 30 },
+    rarity: 'epic',
+  },
+  {
+    id: 'modes-all',
+    title: 'Универсал',
+    description: 'Попробуйте все режимы игры хотя бы раз',
+    icon: '🎲',
+    category: 'special',
+    requirement: { type: 'game-modes', value: 1 },
+    rarity: 'rare',
+  },
+  {
+    id: 'level-10',
+    title: 'Опытный ученик',
+    description: 'Достигните 10 уровня',
+    icon: '🎓',
+    category: 'special',
+    requirement: { type: 'level', value: 10 },
+    rarity: 'rare',
+  },
+  {
+    id: 'level-25',
+    title: 'Мастер',
+    description: 'Достигните 25 уровня',
+    icon: '⭐',
+    category: 'special',
+    requirement: { type: 'level', value: 25 },
+    rarity: 'epic',
+  },
+  {
+    id: 'level-50',
+    title: 'Легенда',
+    description: 'Достигните 50 уровня',
+    icon: '👑',
+    category: 'special',
+    requirement: { type: 'level', value: 50 },
     rarity: 'legendary',
   },
 ]
@@ -435,6 +569,18 @@ function checkAchievement(
       return stats.currentStreak >= value
     case 'perfect-session':
       return stats.perfectSessions >= value
+    case 'duels':
+      return (stats.duelsPlayed || 0) >= value
+    case 'tournaments':
+      return (stats.tournamentsPlayed || 0) >= value
+    case 'custom-exercises':
+      return (stats.customExercisesCreated || 0) >= value
+    case 'daily-challenges':
+      return (stats.dailyChallengesCompleted || 0) >= value
+    case 'game-modes':
+      return (stats.gameModesUsed || 0) >= value
+    case 'level':
+      return (stats.level || 0) >= value
     default:
       return false
   }
@@ -465,6 +611,24 @@ function getAchievementProgress(
       break
     case 'perfect-session':
       current = stats.perfectSessions
+      break
+    case 'duels':
+      current = stats.duelsPlayed || 0
+      break
+    case 'tournaments':
+      current = stats.tournamentsPlayed || 0
+      break
+    case 'custom-exercises':
+      current = stats.customExercisesCreated || 0
+      break
+    case 'daily-challenges':
+      current = stats.dailyChallengesCompleted || 0
+      break
+    case 'game-modes':
+      current = stats.gameModesUsed || 0
+      break
+    case 'level':
+      current = stats.level || 0
       break
   }
 

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback, type ReactNode } from 'react
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingHistory } from '@hooks/useTypingHistory'
+import { useNotifications } from '@contexts/NotificationContext'
 import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
@@ -76,12 +77,56 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
           userData.name = name.trim()
           localStorage.setItem('fastfingers_user', JSON.stringify(userData))
         }
+        // Also update in users list
+        const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+        const idx = users.findIndex(u => u.id === user?.id)
+        if (idx !== -1) {
+          users[idx]!.name = name.trim()
+          localStorage.setItem('fastfingers_users', JSON.stringify(users))
+        }
       } catch {
         // Ignore errors
       }
     }
     setIsEditing(false)
   }, [name, user])
+
+  const handleUpdateName = useCallback((newName: string) => {
+    try {
+      const stored = localStorage.getItem('fastfingers_user')
+      if (stored) {
+        const userData = JSON.parse(stored)
+        userData.name = newName
+        localStorage.setItem('fastfingers_user', JSON.stringify(userData))
+      }
+      const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+      const idx = users.findIndex(u => u.id === user?.id)
+      if (idx !== -1) {
+        users[idx]!.name = newName
+        localStorage.setItem('fastfingers_users', JSON.stringify(users))
+      }
+      setName(newName)
+    } catch {
+      // Ignore errors
+    }
+  }, [user])
+
+  const handleDeleteAccount = useCallback(() => {
+    if (!confirm('Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!')) return
+    if (!confirm('Последнее предупреждение! Все достижения, статистика и настройки будут удалены.')) return
+    try {
+      const keysToRemove: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('fastfingers_')) keysToRemove.push(key)
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key))
+      logout()
+      onClose()
+    } catch {
+      // Ignore errors
+    }
+  }, [logout, onClose])
 
   // Keyboard heatmap data
   const heatmapData = useMemo(() => {
@@ -381,7 +426,12 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
                   )}
 
                   {activeTab === 'settings' && (
-                    <SettingsTab t={t} />
+                    <SettingsTab
+                      t={t}
+                      user={{ name: user.name, email: user.email, createdAt: user.createdAt }}
+                      onUpdateName={handleUpdateName}
+                      onDeleteAccount={handleDeleteAccount}
+                    />
                   )}
                 </motion.div>
               </AnimatePresence>
@@ -849,13 +899,44 @@ function GoalItem({ goal, progress, completed, t }: { goal: Goal; progress: numb
   )
 }
 
+type SettingsSubPage = 'main' | 'profile' | 'notifications' | 'security' | 'data'
+
 function SettingsTab({
   t,
+  user,
+  onUpdateName,
+  onDeleteAccount,
 }: {
   t: TFunction
+  user: { name: string; email: string; createdAt: string }
+  onUpdateName: (name: string) => void
+  onDeleteAccount: () => void
 }) {
+  const [subPage, setSubPage] = useState<SettingsSubPage>('main')
+
+  if (subPage !== 'main') {
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={() => setSubPage('main')}
+          className="flex items-center gap-2 text-sm text-dark-400 hover:text-white transition-colors mb-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Назад
+        </button>
+        {subPage === 'profile' && <ProfileSettingsSubPage user={user} onUpdateName={onUpdateName} t={t} />}
+        {subPage === 'notifications' && <NotificationSettingsSubPage t={t} />}
+        {subPage === 'security' && <SecuritySettingsSubPage t={t} />}
+        {subPage === 'data' && <DataSettingsSubPage t={t} onDeleteAccount={onDeleteAccount} />}
+      </div>
+    )
+  }
+
   const settingsItems = [
     {
+      id: 'profile' as SettingsSubPage,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -865,6 +946,7 @@ function SettingsTab({
       description: 'Имя, email, аватар',
     },
     {
+      id: 'notifications' as SettingsSubPage,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -874,6 +956,7 @@ function SettingsTab({
       description: 'Настройки оповещений',
     },
     {
+      id: 'security' as SettingsSubPage,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -883,6 +966,7 @@ function SettingsTab({
       description: 'Пароль, двухфакторная аутентификация',
     },
     {
+      id: 'data' as SettingsSubPage,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -900,9 +984,10 @@ function SettingsTab({
         {t('misc.settings', 'Настройки')}
       </h3>
 
-      {settingsItems.map((item, i) => (
+      {settingsItems.map(item => (
         <button
-          key={i}
+          key={item.id}
+          onClick={() => setSubPage(item.id)}
           className="w-full flex items-center gap-4 p-4 bg-dark-800/50 hover:bg-dark-800 rounded-xl border border-dark-700/30 hover:border-dark-700/50 transition-all text-left"
         >
           <div className="w-10 h-10 bg-dark-700/50 rounded-xl flex items-center justify-center text-dark-300 flex-shrink-0">
@@ -921,7 +1006,10 @@ function SettingsTab({
       {/* Danger zone */}
       <div className="mt-6 pt-6 border-t border-error/20">
         <h4 className="text-sm font-medium text-error mb-3">Опасная зона</h4>
-        <button className="w-full flex items-center gap-4 p-4 bg-error/5 hover:bg-error/10 rounded-xl border border-error/20 transition-all text-left text-error">
+        <button
+          onClick={onDeleteAccount}
+          className="w-full flex items-center gap-4 p-4 bg-error/5 hover:bg-error/10 rounded-xl border border-error/20 transition-all text-left text-error"
+        >
           <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
@@ -929,6 +1017,460 @@ function SettingsTab({
             <div className="font-medium text-sm">Удалить аккаунт</div>
             <div className="text-xs text-error/70">Это действие нельзя отменить</div>
           </div>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ProfileSettingsSubPage({
+  user,
+  onUpdateName,
+  t,
+}: {
+  user: { name: string; email: string; createdAt: string }
+  onUpdateName: (name: string) => void
+  t: TFunction
+}) {
+  const [name, setName] = useState(user.name)
+  const [editing, setEditing] = useState(false)
+
+  const handleSave = () => {
+    if (name.trim()) {
+      onUpdateName(name.trim())
+      setEditing(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold flex items-center gap-2 text-sm">
+        <span>👤</span> Профиль
+      </h3>
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs text-dark-400 mb-1 block">Имя</label>
+          {editing ? (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') { setName(user.name); setEditing(false) } }}
+                className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                autoFocus
+              />
+              <button onClick={handleSave} className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm">Сохранить</button>
+              <button onClick={() => { setName(user.name); setEditing(false) }} className="px-3 py-2 bg-dark-700 text-white rounded-lg text-sm">Отмена</button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between bg-dark-800/50 rounded-lg px-3 py-2">
+              <span className="text-sm text-white">{user.name}</span>
+              <button onClick={() => setEditing(true)} className="text-xs text-primary-400 hover:text-primary-300">Изменить</button>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="text-xs text-dark-400 mb-1 block">Email</label>
+          <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">{user.email}</div>
+        </div>
+
+        <div>
+          <label className="text-xs text-dark-400 mb-1 block">Дата регистрации</label>
+          <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">
+            {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function NotificationSettingsSubPage({ t }: { t: TFunction }) {
+  const { notifications, clearAll, unreadCount } = useNotifications()
+
+  const [browserEnabled, setBrowserEnabled] = useState(() => {
+    return typeof Notification !== 'undefined' && Notification.permission === 'granted'
+  })
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('fastfingers_notif_sound') || 'true') } catch { return true }
+  })
+  const [levelUpEnabled, setLevelUpEnabled] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('fastfingers_notif_levelup') || 'true') } catch { return true }
+  })
+  const [achievementEnabled, setAchievementEnabled] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('fastfingers_notif_achievement') || 'true') } catch { return true }
+  })
+
+  const enableBrowserNotifs = async () => {
+    if ('Notification' in window) {
+      const perm = await Notification.requestPermission()
+      setBrowserEnabled(perm === 'granted')
+    }
+  }
+
+  const toggle = (key: string, value: boolean, setter: (v: boolean) => void) => {
+    setter(value)
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold flex items-center gap-2 text-sm">
+        <span>🔔</span> Уведомления
+      </h3>
+
+      {/* Browser notifications */}
+      <div className="bg-dark-800/50 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-medium text-white">Браузерные уведомления</div>
+            <div className="text-xs text-dark-400">Показывать системные уведомления</div>
+          </div>
+          <button
+            onClick={browserEnabled ? undefined : enableBrowserNotifs}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
+              browserEnabled ? 'bg-success/20 text-success' : 'bg-dark-700 text-dark-300 hover:text-white'
+            }`}
+          >
+            {browserEnabled ? 'Включены' : 'Включить'}
+          </button>
+        </div>
+      </div>
+
+      {/* Notification types */}
+      <div className="space-y-2">
+        <ToggleRow
+          label="Звуковые уведомления"
+          description="Звук при новых уведомлениях"
+          checked={soundEnabled}
+          onChange={v => toggle('fastfingers_notif_sound', v, setSoundEnabled)}
+        />
+        <ToggleRow
+          label="Повышение уровня"
+          description="Уведомление при получении нового уровня"
+          checked={levelUpEnabled}
+          onChange={v => toggle('fastfingers_notif_levelup', v, setLevelUpEnabled)}
+        />
+        <ToggleRow
+          label="Достижения"
+          description="Уведомление при разблокировке достижения"
+          checked={achievementEnabled}
+          onChange={v => toggle('fastfingers_notif_achievement', v, setAchievementEnabled)}
+        />
+      </div>
+
+      {/* Recent notifications */}
+      {notifications.length > 0 && (
+        <div className="bg-dark-800/50 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-white">Последние ({unreadCount} непрочитанных)</h4>
+            <button onClick={() => clearAll()} className="text-xs text-dark-400 hover:text-white">Очистить все</button>
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {notifications.slice(0, 10).map(n => (
+              <div key={n.id} className={`p-2 rounded-lg text-xs ${n.read ? 'bg-dark-900/30' : 'bg-primary-500/10'}`}>
+                <div className="flex items-center gap-2">
+                  <span>{n.icon}</span>
+                  <span className="font-medium text-white">{n.title}</span>
+                </div>
+                <p className="text-dark-400 mt-1">{n.message}</p>
+                <p className="text-dark-600 mt-1">{new Date(n.timestamp).toLocaleString('ru-RU')}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ToggleRow({ label, description, checked, onChange }: {
+  label: string; description: string; checked: boolean; onChange: (v: boolean) => void
+}) {
+  return (
+    <div className="flex items-center justify-between bg-dark-800/50 rounded-xl p-3">
+      <div>
+        <div className="text-sm font-medium text-white">{label}</div>
+        <div className="text-xs text-dark-400">{description}</div>
+      </div>
+      <button
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`w-10 h-5 rounded-full transition-colors relative ${checked ? 'bg-primary-600' : 'bg-dark-700'}`}
+      >
+        <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      </button>
+    </div>
+  )
+}
+
+function SecuritySettingsSubPage({ t }: { t: TFunction }) {
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const handleChangePassword = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setMessage({ type: 'error', text: 'Заполните все поля' })
+      return
+    }
+    if (newPassword.length < 8) {
+      setMessage({ type: 'error', text: 'Пароль должен содержать минимум 8 символов' })
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Пароли не совпадают' })
+      return
+    }
+
+    // Update password in localStorage
+    try {
+      const users: Array<{ id: string; email: string; password: string }> =
+        JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+      const currentUser = JSON.parse(localStorage.getItem('fastfingers_user') || '{}')
+      const userIdx = users.findIndex(u => u.id === currentUser.id)
+      if (userIdx === -1 || users[userIdx]?.password !== currentPassword) {
+        setMessage({ type: 'error', text: 'Неверный текущий пароль' })
+        return
+      }
+      users[userIdx]!.password = newPassword
+      localStorage.setItem('fastfingers_users', JSON.stringify(users))
+      setMessage({ type: 'success', text: 'Пароль успешно изменён' })
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowChangePassword(false)
+    } catch {
+      setMessage({ type: 'error', text: 'Ошибка при изменении пароля' })
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold flex items-center gap-2 text-sm">
+        <span>🔒</span> Безопасность
+      </h3>
+
+      {message && (
+        <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'}`}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Change password */}
+      <div className="bg-dark-800/50 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <div className="text-sm font-medium text-white">Сменить пароль</div>
+            <div className="text-xs text-dark-400">Измените пароль для входа</div>
+          </div>
+          <button
+            onClick={() => { setShowChangePassword(!showChangePassword); setMessage(null) }}
+            className="text-xs text-primary-400 hover:text-primary-300"
+          >
+            {showChangePassword ? 'Отмена' : 'Изменить'}
+          </button>
+        </div>
+
+        {showChangePassword && (
+          <div className="space-y-3 mt-3">
+            <div>
+              <label className="text-xs text-dark-400 mb-1 block">Текущий пароль</label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-dark-400 mb-1 block">Новый пароль</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-dark-400 mb-1 block">Подтвердите пароль</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <button
+              onClick={handleChangePassword}
+              className="w-full py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Сохранить пароль
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 2FA placeholder */}
+      <div className="bg-dark-800/50 rounded-xl p-4 opacity-60">
+        <div className="text-sm font-medium text-white">Двухфакторная аутентификация</div>
+        <div className="text-xs text-dark-400 mt-1">Двухфакторная аутентификация будет доступна в будущем обновлении</div>
+      </div>
+
+      {/* Session info */}
+      <div className="bg-dark-800/50 rounded-xl p-4">
+        <div className="text-sm font-medium text-white mb-2">Активная сессия</div>
+        <div className="text-xs text-dark-400 space-y-1">
+          <div>Платформа: {navigator.platform}</div>
+          <div>Браузер: {navigator.userAgent.split(' ').pop()}</div>
+          <div>Язык: {navigator.language}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DataSettingsSubPage({ t, onDeleteAccount }: { t: TFunction; onDeleteAccount: () => void }) {
+  const [importing, setImporting] = useState(false)
+
+  const handleExport = () => {
+    try {
+      const data: Record<string, string> = {}
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('fastfingers_')) {
+          const value = localStorage.getItem(key)
+          if (value) data[key] = value
+        }
+      }
+      const exportData = { version: '1.0', exportedAt: new Date().toISOString(), data }
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fastfingers-backup-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      // Silent fail
+    }
+  }
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setImporting(true)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string
+        const importData = JSON.parse(content)
+        if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
+        if (!confirm('Это действие перезапишет все текущие данные. Продолжить?')) { setImporting(false); return }
+        Object.entries(importData.data).forEach(([key, value]) => {
+          if (typeof value === 'string') localStorage.setItem(key, value)
+        })
+        window.location.reload()
+      } catch {
+        setImporting(false)
+      }
+    }
+    reader.readAsText(file)
+  }
+
+  const handleClearData = () => {
+    if (!confirm('Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!')) return
+    if (!confirm('Последнее предупреждение! Все достижения, статистика и настройки будут удалены.')) return
+    try {
+      const keysToRemove: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('fastfingers_')) keysToRemove.push(key)
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key))
+      window.location.reload()
+    } catch {
+      // Silent fail
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold flex items-center gap-2 text-sm">
+        <span>💾</span> Данные
+      </h3>
+
+      {/* Export */}
+      <div className="bg-dark-800/50 rounded-xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">📤</span>
+          <div>
+            <div className="text-sm font-medium text-white">Экспорт данных</div>
+            <div className="text-xs text-dark-400">Сохранить все данные в JSON файл</div>
+          </div>
+        </div>
+        <button
+          onClick={handleExport}
+          className="w-full py-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded-lg text-sm font-medium transition-colors"
+        >
+          Экспортировать
+        </button>
+      </div>
+
+      {/* Import */}
+      <div className="bg-dark-800/50 rounded-xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">📥</span>
+          <div>
+            <div className="text-sm font-medium text-white">Импорт данных</div>
+            <div className="text-xs text-dark-400">Восстановить из JSON файла</div>
+          </div>
+        </div>
+        <label className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center cursor-pointer">
+          {importing ? 'Импортирование...' : 'Импортировать'}
+          <input type="file" accept=".json" onChange={handleImport} disabled={importing} className="hidden" />
+        </label>
+      </div>
+
+      {/* Clear data */}
+      <div className="bg-error/5 rounded-xl p-4 border border-error/20">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <div className="text-sm font-medium text-error">Удалить все данные</div>
+            <div className="text-xs text-error/70">Сбросить прогресс и настройки</div>
+          </div>
+        </div>
+        <button
+          onClick={handleClearData}
+          className="w-full py-2 bg-error/10 hover:bg-error/20 text-error rounded-lg text-sm font-medium transition-colors"
+        >
+          Удалить все данные
+        </button>
+      </div>
+
+      {/* Delete account */}
+      <div className="bg-error/5 rounded-xl p-4 border border-error/20">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">🗑</span>
+          <div>
+            <div className="text-sm font-medium text-error">Удалить аккаунт</div>
+            <div className="text-xs text-error/70">Полное удаление аккаунта и данных</div>
+          </div>
+        </div>
+        <button
+          onClick={onDeleteAccount}
+          className="w-full py-2 bg-error hover:bg-error/80 text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          Удалить аккаунт
         </button>
       </div>
     </div>
