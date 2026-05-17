@@ -209,6 +209,7 @@ export const authService = {
           email: sanitizedEmail,
           name: sanitizedName,
           createdAt: new Date().toISOString(),
+          role: 'user',
           stats: {
             totalXp: 0,
             level: 1,
@@ -241,6 +242,7 @@ export const authService = {
       name: sanitizedName,
       password: hashedPassword,
       createdAt: now,
+      role: users.length === 0 ? 'admin' : 'user',
       stats: {
         totalXp: 0,
         level: 1,
@@ -305,6 +307,7 @@ export const authService = {
           name: data.user.user_metadata?.name || sanitizedEmail,
           createdAt: data.user.created_at,
           lastLogin: new Date().toISOString(),
+          role: data.user.user_metadata?.role || 'user',
           stats: data.user.user_metadata?.stats || {
             totalXp: 0,
             level: 1,

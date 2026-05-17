@@ -89,6 +89,7 @@ const MarathonMode = lazy(() => import('./MarathonMode').then(m => ({ default: m
 const CodeMode = lazy(() => import('./CodeMode').then(m => ({ default: m.CodeMode })))
 const DuelMode = lazy(() => import('./DuelMode').then(m => ({ default: m.DuelMode })))
 const TournamentMode = lazy(() => import('./TournamentMode').then(m => ({ default: m.TournamentMode })))
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
 
 interface DailyChallengeData {
   id: string
@@ -186,6 +187,14 @@ export function GameModeRenderer({
 
   // Game modes
   const exitToPractice = () => { onSetGameMode('practice'); onSetView('main') }
+
+  if (view === 'admin') {
+    return (
+      <ErrorBoundary key="admin" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label="Не удалось загрузить панель администратора" onRetry={() => onSetView('main')} />}>
+        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} /></Suspense></StatsMotion>
+      </ErrorBoundary>
+    )
+  }
 
   if (gameMode === 'reaction') {
     return (

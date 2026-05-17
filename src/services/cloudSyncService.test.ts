@@ -11,6 +11,7 @@ const mockUser: User = {
   email: 'test@example.com',
   name: 'Test User',
   createdAt: new Date().toISOString(),
+  role: 'user',
   stats: {
     totalXp: 100,
     level: 5,

@@ -4,6 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { User } from '../types/auth'
 import { calculateRank } from '../utils/certificateOptimized'
 
 describe('certificateOptimized', () => {
@@ -99,11 +100,12 @@ describe('certificateOptimized', () => {
       const createElementSpy = vi.spyOn(document, 'createElement')
       createElementSpy.mockReturnValue(mockCanvas)
       const { generateCertificate } = await import('../utils/certificateOptimized')
-      const user = {
+      const user: User = {
         name: 'Test User',
         email: 'test@example.com',
         id: 'test-id',
         createdAt: new Date().toISOString(),
+        role: 'user' as const,
         stats: {
           totalXp: 0,
           level: 1,
@@ -158,11 +160,12 @@ describe('certificateOptimized', () => {
       const createElementSpy = vi.spyOn(document, 'createElement')
       createElementSpy.mockReturnValue(mockCanvas)
       const { generateCertificate } = await import('../utils/certificateOptimized')
-      const user = {
+      const user: User = {
         name: 'Test User',
         email: 'test@example.com',
         id: 'test-id',
         createdAt: new Date().toISOString(),
+        role: 'user' as const,
         stats: {
           totalXp: 0,
           level: 1,

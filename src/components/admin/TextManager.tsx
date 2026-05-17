@@ -1,0 +1,206 @@
+import { useState, useEffect } from 'react'
+import type { PracticeText, TextCategory } from '../../data/practiceTexts'
+
+const STORAGE_KEY = 'fastfingers_admin_texts'
+
+const CATEGORIES: TextCategory[] = [
+  'literature', 'code', 'quotes', 'proverbs', 'science', 'technology',
+  'movies', 'news', 'philosophy', 'business', 'scipop', 'history', 'art', 'sports', 'travel',
+]
+
+const CATEGORY_LABELS: Record<TextCategory, string> = {
+  literature: 'Литература', code: 'Код', quotes: 'Цитаты', proverbs: 'Пословицы',
+  science: 'Наука', technology: 'Технологии', movies: 'Фильмы', news: 'Новости',
+  philosophy: 'Философия', business: 'Бизнес', scipop: 'Научпоп', history: 'История',
+  art: 'Искусство', sports: 'Спорт', travel: 'Путешествия',
+}
+
+function loadTexts(): PracticeText[] {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+function saveTexts(texts: PracticeText[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(texts))
+}
+
+function generateId(): string {
+  return 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6)
+}
+
+export function TextManager() {
+  const [texts, setTexts] = useState<PracticeText[]>([])
+  const [editing, setEditing] = useState<PracticeText | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState<Partial<PracticeText>>({})
+
+  useEffect(() => {
+    setTexts(loadTexts())
+  }, [])
+
+  function handleSave() {
+    if (!formData.title?.trim() || !formData.text?.trim()) return
+    const updated: PracticeText = {
+      id: editing?.id || generateId(),
+      title: formData.title.trim(),
+      text: formData.text.trim(),
+      category: formData.category || 'literature',
+      difficulty: formData.difficulty || 3,
+      source: formData.source?.trim() || undefined,
+    }
+    const next = editing
+      ? texts.map(t => t.id === editing.id ? updated : t)
+      : [...texts, updated]
+    saveTexts(next)
+    setTexts(next)
+    setShowForm(false)
+    setEditing(null)
+    setFormData({})
+  }
+
+  function handleEdit(text: PracticeText) {
+    setEditing(text)
+    setFormData({ ...text })
+    setShowForm(true)
+  }
+
+  function handleDelete(id: string) {
+    const next = texts.filter(t => t.id !== id)
+    saveTexts(next)
+    setTexts(next)
+  }
+
+  function handleNew() {
+    setEditing(null)
+    setFormData({ category: 'literature', difficulty: 3 })
+    setShowForm(true)
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-dark-400">{texts.length} пользовательских текстов</p>
+        <button onClick={handleNew} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
+          + Добавить текст
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="glass rounded-xl p-4 space-y-3">
+          <h3 className="text-lg font-semibold text-white">
+            {editing ? 'Редактировать текст' : 'Новый текст'}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-dark-400 mb-1">
+                Название
+                <input
+                  value={formData.title || ''}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
+                  placeholder="Название текста"
+                />
+              </label>
+            </div>
+            <div>
+              <label className="block text-xs text-dark-400 mb-1">
+                Источник
+                <input
+                  value={formData.source || ''}
+                  onChange={e => setFormData({ ...formData, source: e.target.value })}
+                  className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
+                  placeholder="Необязательно"
+                />
+              </label>
+            </div>
+            <div>
+              <label className="block text-xs text-dark-400 mb-1">
+                Категория
+                <select
+                  value={formData.category || 'literature'}
+                  onChange={e => setFormData({ ...formData, category: e.target.value as TextCategory })}
+                  className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
+                >
+                  {CATEGORIES.map(c => (
+                    <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div>
+              <label className="block text-xs text-dark-400 mb-1">
+                Сложность (1-9)
+                <input
+                  type="number"
+                  min={1}
+                  max={9}
+                  value={formData.difficulty || 3}
+                  onChange={e => setFormData({ ...formData, difficulty: Math.min(9, Math.max(1, Number(e.target.value))) })}
+                  className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
+                />
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-dark-400 mb-1">
+              Текст
+              <textarea
+                value={formData.text || ''}
+                onChange={e => setFormData({ ...formData, text: e.target.value })}
+                rows={4}
+                className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none resize-vertical mt-1"
+                placeholder="Текст для печати"
+              />
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
+              {editing ? 'Сохранить' : 'Создать'}
+            </button>
+            <button onClick={() => { setShowForm(false); setEditing(null) }} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm transition-colors">
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {texts.length === 0 && !showForm && (
+          <p className="text-center text-dark-500 py-8 text-sm">
+            Нет пользовательских текстов. Нажмите «+ Добавить текст», чтобы создать первый.
+          </p>
+        )}
+        {texts.map(text => (
+          <div key={text.id} className="glass rounded-xl p-4 flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white truncate">{text.title}</span>
+                <span className="text-xs bg-dark-700 text-dark-300 px-2 py-0.5 rounded shrink-0">
+                  {CATEGORY_LABELS[text.category] || text.category}
+                </span>
+                <span className="text-xs bg-dark-700 text-dark-300 px-2 py-0.5 rounded shrink-0">
+                  Сложность {text.difficulty}
+                </span>
+              </div>
+              <p className="text-sm text-dark-400 line-clamp-2">{text.text}</p>
+              {text.source && (
+                <p className="text-xs text-dark-500 mt-1">Источник: {text.source}</p>
+              )}
+            </div>
+            <div className="flex gap-1 shrink-0">
+              <button onClick={() => handleEdit(text)} className="p-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg transition-colors" title="Редактировать">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              </button>
+              <button onClick={() => handleDelete(text.id)} className="p-2 bg-dark-700 hover:bg-red-500/20 text-dark-300 hover:text-red-400 rounded-lg transition-colors" title="Удалить">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

@@ -388,6 +388,15 @@ function AppContent() {
               label={t('label.tournament')}
               title={t('tooltip.tournament')}
             />
+            {user?.role === 'admin' && (
+              <ModeButton
+                isActive={view === 'admin'}
+                onClick={() => setView('admin')}
+                icon="⚙️"
+                label="Admin"
+                title="Панель администратора"
+              />
+            )}
           </nav>
 
           <div className="flex items-center gap-2">

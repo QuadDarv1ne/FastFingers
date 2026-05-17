@@ -1,4 +1,6 @@
 // Типы для аутентификации
+export type UserRole = 'user' | 'admin'
+
 export interface User {
   id: string;
   email: string;
@@ -6,6 +8,7 @@ export interface User {
   avatar?: string;
   createdAt: string;
   lastLogin?: string;
+  role: UserRole;
   stats: UserStats;
 }
 
