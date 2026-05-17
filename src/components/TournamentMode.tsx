@@ -12,7 +12,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { TypingStats } from '../types'
-import { supabase } from '../services/supabase'
+import { useSupabase } from '@hooks/useSupabase'
 import { TournamentBracket } from './TournamentBracket'
 import { logger } from '../utils/logger'
 
@@ -75,6 +75,7 @@ const TOURNAMENT_LABELS: Record<string, string> = {
 export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const { t } = useAppTranslation()
   const { user } = useAuth()
+  const { client: supabase, isReady: supabaseReady } = useSupabase()
   const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
   const [participants, setParticipants] = useState<TournamentParticipant[]>([])
@@ -112,13 +113,13 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {
-    if (!supabase) {
+    if (!supabaseReady) {
       setIsLoading(false)
       return
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('tournaments')
         .select(`
           *,
@@ -145,10 +146,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
   // Загрузка участников
   const loadParticipants = useCallback(async (tournamentId: string) => {
-    if (!supabase) return
+    if (!supabaseReady) return
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('tournament_participants')
         .select(`
           *,
@@ -181,10 +182,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
   // Регистрация в турнире
   const handleRegister = useCallback(async () => {
-    if (!supabase || !selectedTournament || !user) return
+    if (!supabaseReady || !selectedTournament || !user) return
 
     try {
-      const { error } = await supabase
+      const { error } = await supabase!
         .from('tournament_participants')
         .insert({
           tournament_id: selectedTournament.id,
@@ -211,10 +212,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
   // Отмена регистрации
   const handleUnregister = useCallback(async () => {
-    if (!supabase || !selectedTournament || !user) return
+    if (!supabaseReady || !selectedTournament || !user) return
 
     try {
-      const { error } = await supabase
+      const { error } = await supabase!
         .from('tournament_participants')
         .delete()
         .eq('tournament_id', selectedTournament.id)
@@ -250,10 +251,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   selectedTournamentIdRef.current = selectedTournament?.id ?? null
 
   useEffect(() => {
-    if (!selectedTournament || !supabase) return
+    if (!selectedTournament || !supabaseReady) return
 
     const tournamentId = selectedTournament.id
-    const channel = supabase
+    const channel = supabase!
       .channel(`tournament:${tournamentId}`)
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -279,8 +280,8 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
       .subscribe()
 
     return () => {
-      if (supabase) {
-        supabase.removeChannel(channel)
+      if (supabaseReady) {
+        supabase!.removeChannel(channel)
       }
     }
   }, [selectedTournament, loadParticipants])

@@ -12,7 +12,7 @@ import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
 import { useAuth } from '@hooks/useAuth'
 import { useDuels, DuelsData } from '@hooks/useLeaderboard'
-import { supabase } from '../services/supabase'
+import { useSupabase } from '@hooks/useSupabase'
 import { logger } from '../utils/logger'
 import { useCountdown } from '@hooks/useCountdown'
 
@@ -46,6 +46,7 @@ const DURATION_LABELS: Record<DuelDuration, string> = {
 
 export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const { user } = useAuth()
+  const { client: supabase, isReady: supabaseReady } = useSupabase()
   const { useUserDuels, completeDuel } = useDuels()
 
   const [duelState, setDuelState] = useState<DuelState>('lobby')
@@ -98,9 +99,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
-    if (!currentDuel?.id || !supabase) return
+    if (!currentDuel?.id || !supabaseReady) return
 
-    const channel = supabase
+    const channel = supabase!
       .channel(`duel:${currentDuel.id}`)
       .on(
         'postgres_changes',
@@ -133,22 +134,21 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       .subscribe()
 
     return () => {
-      if (supabase) {
-        supabase.removeChannel(channel)
+      if (supabaseReady) {
+        supabase!.removeChannel(channel)
       }
     }
-  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id])
+  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id, supabaseReady])
 
   // Поиск случайного соперника
   const findRandomOpponent = useCallback(async () => {
-    if (!user?.id || !supabase) return
+    if (!user?.id || !supabaseReady) return
 
     setDuelState('searching')
     setMessage('Поиск соперника...')
 
     try {
-      // Ищем активные дуэли без соперника
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from('duels')
         .select('id, challenger_id')
         .eq('status', 'pending')
@@ -158,8 +158,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         .single()
 
       if (error || !data) {
-        // Создаём новый вызов для поиска
-        const { data: newDuel, error: createError } = await supabase
+        const { data: newDuel, error: createError } = await supabase!
           .from('duels')
           .insert({
             challenger_id: user.id,
@@ -177,8 +176,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         setDuelState('waiting')
         setMessage('Ожидание соперника...')
       } else {
-        // Нашли дуэль - принимаем вызов
-        const { error: acceptError } = await supabase
+        const { error: acceptError } = await supabase!
           .from('duels')
           .update({
             opponent_id: user.id,
@@ -238,9 +236,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
   const flushDuelProgress = useCallback(() => {
     const pending = pendingUpdateRef.current
-    if (!pending || !currentDuel?.id || !supabase) return
+    if (!pending || !currentDuel?.id || !supabaseReady) return
     const isChallenger = currentDuel.challenger?.id === user?.id
-    supabase
+    supabase!
       .from('duels')
       .update(
         isChallenger
@@ -249,7 +247,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       )
       .eq('id', currentDuel.id)
     pendingUpdateRef.current = null
-  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id])
+  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id, supabaseReady])
 
   // Обработка ввода с обновлением прогресса (throttled)
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

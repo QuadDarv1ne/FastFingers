@@ -4,6 +4,17 @@ import { createScopedLogger } from '../utils/logger'
 
 const logger = createScopedLogger('useLeaderboard')
 
+/**
+ * Throws if Supabase is not configured.
+ * Use inside queryFn/mutationFn to fail fast when credentials are missing.
+ */
+function requireSupabase() {
+  if (!supabase) {
+    throw new Error('Supabase not configured')
+  }
+  return supabase
+}
+
 export interface DuelsData {
   id: string
   challenger_id: string
@@ -82,9 +93,7 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
   return useQuery({
     queryKey: ['leaderboard', { gameMode, timeFilter, sortBy, season, limit }],
     queryFn: async () => {
-      if (!supabase) {
-        throw new Error('Supabase not configured')
-      }
+      const client = requireSupabase()
 
       // Build time filter
       const now = new Date()
@@ -103,7 +112,7 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
       }
 
       // Build query
-      let query = supabase
+      let query = client
         .from('leaderboards')
         .select(`
           id,
@@ -189,10 +198,11 @@ export function useUserRank(userId: string | undefined, gameMode: GameMode = 'cl
   return useQuery({
     queryKey: ['user-rank', userId, gameMode],
     queryFn: async () => {
-      if (!supabase || !userId) return null
+      if (!userId) return null
+      const client = requireSupabase()
 
       // Get user's best entry
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('leaderboards')
         .select('score, wpm, accuracy')
         .eq('user_id', userId)
@@ -206,7 +216,7 @@ export function useUserRank(userId: string | undefined, gameMode: GameMode = 'cl
       }
 
       // Count players with better score
-      const { count, error: countError } = await supabase
+      const { count, error: countError } = await client
         .from('leaderboards')
         .select('*', { count: 'exact', head: true })
         .eq('game_mode', gameMode)
@@ -242,13 +252,10 @@ export function useSaveLeaderboardEntry() {
       score: number
       season?: string
     }) => {
-      if (!supabase) {
-        throw new Error('Supabase not configured')
-      }
-
+      const client = requireSupabase()
       const { userId, gameMode, wpm, cpm, accuracy, score, season } = entry
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('leaderboards')
         .insert({
           user_id: userId,
@@ -280,12 +287,12 @@ export function useLeaderboardStats(gameMode: GameMode = 'classic') {
   return useQuery({
     queryKey: ['leaderboard-stats', gameMode],
     queryFn: async () => {
-      if (!supabase) throw new Error('Supabase not configured')
+      const client = requireSupabase()
 
       const [totalResult, wpmResult, topResult] = await Promise.all([
-        supabase.from('leaderboards').select('*', { count: 'exact', head: true }).eq('game_mode', gameMode),
-        supabase.from('leaderboards').select('wpm').eq('game_mode', gameMode),
-        supabase.from('leaderboards').select('score, wpm').eq('game_mode', gameMode).order('score', { ascending: false }).limit(1),
+        client.from('leaderboards').select('*', { count: 'exact', head: true }).eq('game_mode', gameMode),
+        client.from('leaderboards').select('wpm').eq('game_mode', gameMode),
+        client.from('leaderboards').select('score, wpm').eq('game_mode', gameMode).order('score', { ascending: false }).limit(1),
       ])
 
       const { count: totalPlayers } = totalResult
@@ -331,9 +338,10 @@ export function useUserDuels(userId: string | undefined) {
   return useQuery({
     queryKey: ['duels', userId],
     queryFn: async () => {
-      if (!supabase || !userId) return []
+      if (!userId) return []
+      const client = requireSupabase()
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('duels')
         .select(`
           *,
@@ -372,11 +380,10 @@ export function useDuels() {
       opponentId: string
       betAmount?: number
     }) => {
-      if (!supabase) throw new Error('Supabase not configured')
-
+      const client = requireSupabase()
       const { challengerId, opponentId, betAmount = 0 } = duel
 
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('duels')
         .insert({
           challenger_id: challengerId,
@@ -407,8 +414,7 @@ export function useDuels() {
       challengerAccuracy: number
       opponentAccuracy: number
     }) => {
-      if (!supabase) throw new Error('Supabase not configured')
-
+      const client = requireSupabase()
       const {
         duelId,
         winnerId,
@@ -420,7 +426,7 @@ export function useDuels() {
         opponentAccuracy,
       } = data
 
-      const { error } = await supabase
+      const { error } = await client
         .from('duels')
         .update({
           winner_id: winnerId,

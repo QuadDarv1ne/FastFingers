@@ -4,7 +4,7 @@ import { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useAuth } from '@hooks/useAuth'
-import { supabase } from '../services/supabase'
+import { useSupabase } from '@hooks/useSupabase'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
 import { useHotkey } from '../hooks/useHotkeys'
@@ -48,6 +48,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const { user } = useAuth()
   const { addNotification } = useNotifications()
   const { showToast } = useToast()
+  const { client: supabase, isReady: supabaseReady } = useSupabase()
   const [showCertificate, setShowCertificate] = useState(false)
   const [lastStats, setLastStats] = useState<TypingStats | null>(null)
   const [records, setRecords] = useState<HardcoreRecord[]>([])
@@ -106,7 +107,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
   useEffect(() => {
     const loadRecords = async () => {
-      if (!user || !supabase) {
+      if (!user || !supabaseReady) {
         setIsLoadingRecords(false)
         return
       }
@@ -114,7 +115,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       try {
         let retries = 3
         while (retries > 0) {
-          const { data, error } = await supabase
+          const { data, error } = await supabase!
             .from('hardcore_records')
             .select('*')
             .eq('user_id', user.id)
@@ -157,7 +158,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   }, [inputResults, startTime, streak, onComplete, showToast])
 
   useEffect(() => {
-    if (!isActive && inputResultsRef.current.length > 0 && startTimeRef.current && user && streakRef.current > 0 && supabase && !hasSavedRef.current) {
+    if (!isActive && inputResultsRef.current.length > 0 && startTimeRef.current && user && supabaseReady && streakRef.current > 0 && !hasSavedRef.current) {
       hasSavedRef.current = true
       const results = inputResultsRef.current
       const start = startTimeRef.current
