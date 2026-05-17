@@ -1,5 +1,7 @@
-import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
+import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
+import { AuthError } from './authErrors';
 import { supabase } from './supabase';
+import { logger } from '../utils/logger';
 
 const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
@@ -38,6 +40,7 @@ const hashPassword = async (password: string): Promise<string> => {
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     } catch {
+      logger.warn('SHA-256 failed, using fallback hash');
       // Fallback to simple hash
     }
   }
@@ -61,6 +64,7 @@ const getUsers = (): StoredUser[] => {
     if (!stored) return [];
     return JSON.parse(stored);
   } catch {
+    logger.warn('Failed to parse stored users');
     return [];
   }
 };
@@ -69,6 +73,7 @@ const saveUsers = (users: StoredUser[]) => {
   try {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
   } catch {
+    logger.warn('Failed to save users');
     // Ignore save errors
   }
 };
@@ -78,6 +83,7 @@ const getCurrentUserFromStorage = (): User | null => {
     const stored = localStorage.getItem(CURRENT_USER_KEY) || sessionStorage.getItem(CURRENT_USER_KEY);
     return stored ? JSON.parse(stored) : null;
   } catch {
+    logger.warn('Failed to parse current user');
     return null;
   }
 };
@@ -104,6 +110,7 @@ const getLoginAttempts = (): LoginAttempt[] => {
     if (!stored) return [];
     return JSON.parse(stored);
   } catch {
+    logger.warn('Failed to parse login attempts');
     return [];
   }
 };
@@ -140,6 +147,7 @@ const cleanupExpiredTokens = () => {
       localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
     }
   } catch {
+    logger.warn('Failed to cleanup expired tokens');
     // Ignore errors
   }
 };
@@ -153,6 +161,7 @@ const cleanupOldAttempts = () => {
       localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(recentAttempts));
     }
   } catch {
+    logger.warn('Failed to cleanup old login attempts');
     // Ignore errors
   }
 };
@@ -168,19 +177,19 @@ export const authService = {
     const sanitizedName = sanitizeName(credentials.name);
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email');
     }
 
     if (!isValidPassword(credentials.password)) {
-      throw { code: 'weak-password', message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов` } as AuthError;
+      throw new AuthError('weak-password', `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`);
     }
 
     if (credentials.password !== credentials.confirmPassword) {
-      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
+      throw new AuthError('password-mismatch', 'Пароли не совпадают');
     }
 
     if (!credentials.agreeToTerms) {
-      throw { code: 'unknown', message: 'Необходимо принять условия использования' } as AuthError;
+      throw new AuthError('terms-not-accepted', 'Необходимо принять условия использования');
     }
 
     if (supabase) {
@@ -191,7 +200,7 @@ export const authService = {
       });
 
       if (error) {
-        throw { code: 'unknown', message: error.message } as AuthError;
+        throw new AuthError('unknown', error.message);
       }
 
       if (data.user) {
@@ -220,7 +229,7 @@ export const authService = {
     const users = getUsers();
 
     if (users.find(u => u.email === sanitizedEmail)) {
-      throw { code: 'email-in-use', message: 'Этот email уже зарегистрирован' } as AuthError;
+      throw new AuthError('email-in-use', 'Этот email уже зарегистрирован');
     }
 
     const hashedPassword = await hashPassword(credentials.password);
@@ -260,17 +269,14 @@ export const authService = {
     const sanitizedEmail = sanitizeEmail(credentials.email);
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email');
     }
 
     // Check lockout before any auth attempt (applies to both Supabase and localStorage)
     const lockoutTime = checkLockout(sanitizedEmail);
     if (lockoutTime) {
       const minutes = Math.ceil(lockoutTime / 60000);
-      throw {
-        code: 'locked-out',
-        message: `Слишком много попыток входа. Попробуйте через ${minutes} мин.`
-      } as AuthError;
+      throw new AuthError('locked-out', `Слишком много попыток входа. Попробуйте через ${minutes} мин.`);
     }
 
     if (supabase) {
@@ -283,12 +289,12 @@ export const authService = {
         // Track failed attempt for lockout
         saveLoginAttempt(sanitizedEmail);
         if (error.status === 401) {
-          throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
+          throw new AuthError('wrong-password', 'Неверный пароль');
         }
         if (error.status === 404) {
-          throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+          throw new AuthError('user-not-found', 'Пользователь не найден');
         }
-        throw { code: 'unknown', message: error.message } as AuthError;
+        throw new AuthError('unknown', error.message);
       }
 
       if (data.user) {
@@ -321,13 +327,13 @@ export const authService = {
 
     if (!user) {
       saveLoginAttempt(sanitizedEmail);
-      throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь с таким email не найден');
     }
 
     const hashedPassword = await hashPassword(credentials.password);
     if (user.password !== hashedPassword) {
       saveLoginAttempt(sanitizedEmail);
-      throw { code: 'wrong-password', message: 'Неверный пароль' } as AuthError;
+      throw new AuthError('wrong-password', 'Неверный пароль');
     }
 
     clearLoginAttempts(sanitizedEmail);
@@ -355,14 +361,14 @@ export const authService = {
     await delay(REGISTRATION_DELAY_MS);
 
     if (!isValidEmail(request.email)) {
-      throw { code: 'invalid-email', message: 'Неверный формат email' } as AuthError;
+      throw new AuthError('invalid-email', 'Неверный формат email');
     }
 
     const users = getUsers();
     const user = users.find(u => u.email === request.email);
 
     if (!user) {
-      throw { code: 'user-not-found', message: 'Пользователь с таким email не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь с таким email не найден');
     }
 
     const token = generateId();
@@ -379,11 +385,11 @@ export const authService = {
     await delay(REGISTRATION_DELAY_MS);
 
     if (!isValidPassword(confirm.newPassword)) {
-      throw { code: 'weak-password', message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов` } as AuthError;
+      throw new AuthError('weak-password', `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`);
     }
 
     if (confirm.newPassword !== confirm.confirmPassword) {
-      throw { code: 'weak-password', message: 'Пароли не совпадают' } as AuthError;
+      throw new AuthError('password-mismatch', 'Пароли не совпадают');
     }
 
     const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
@@ -392,7 +398,7 @@ export const authService = {
     );
 
     if (tokenIndex === -1) {
-      throw { code: 'invalid-token', message: 'Неверный или истёкший токен' } as AuthError;
+      throw new AuthError('invalid-token', 'Неверный или истёкший токен');
     }
 
     const tokenData = tokens[tokenIndex];
@@ -400,12 +406,12 @@ export const authService = {
     const userIndex = users.findIndex(u => u.email === tokenData.email);
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
 
     const user = users[userIndex];
     if (!user) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
     user.password = await hashPassword(confirm.newPassword);
     saveUsers(users);
@@ -421,12 +427,12 @@ export const authService = {
     const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
 
     const user = users[userIndex];
     if (!user) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
 
     users[userIndex] = { ...user, ...updates };
@@ -434,7 +440,7 @@ export const authService = {
 
     const updatedUser = users[userIndex];
     if (!updatedUser) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
     const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);
@@ -447,12 +453,12 @@ export const authService = {
     const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
 
     const user = users[userIndex];
     if (!user) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
 
     users[userIndex] = { ...user, stats: { ...user.stats, ...stats } };
@@ -460,7 +466,7 @@ export const authService = {
 
     const updatedUser = users[userIndex];
     if (!updatedUser) {
-      throw { code: 'user-not-found', message: 'Пользователь не найден' } as AuthError;
+      throw new AuthError('user-not-found', 'Пользователь не найден');
     }
     const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);
