@@ -114,7 +114,6 @@ export default defineConfig({
       legalComments: 'none',
       target: 'esnext',
       keepNames: false,
-      pure: ['console.log', 'console.warn', 'console.error'],
     },
     commonjsOptions: {
       include: [/node_modules/],

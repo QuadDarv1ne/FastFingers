@@ -2,7 +2,7 @@
 
 **Author:** Dupley Maxim Igorevich | **Автор:** Дулей Максим Игорович
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich
-**Last updated:** 2026-05-11 19:00 (full code audit) | **Последнее обновление:** 2026-05-11 19:00 (полный аудит кода)
+**Last updated:** 2026-05-17 (full code audit) | **Последнее обновление:** 2026-05-17 (полный аудит кода)
 
 ---
 
@@ -500,7 +500,7 @@ Coverage gaps / Пробелы в покрытии:
 
 ---
 
-*Last updated: 2026-05-17 19:00 | Последнее обновление: 2026-05-17 19:00*
+*Last updated: 2026-05-17 | Последнее обновление: 2026-05-17*
 
 ---
 
@@ -522,8 +522,8 @@ Coverage gaps / Пробелы в покрытии:
 ### 🟡 Medium Priority / Средний приоритет
 
 2. **Dependabot / Renovate Auto-Updates** — настроить автоматические PR на обновление зависимостей
-   - [ ] GitHub Dependabot config (`.github/dependabot.yml`)
-   - [ ] Или Renovate bot для более гибкого контроля
+    - [x] GitHub Dependabot config (`.github/dependabot.yml`)
+    - [ ] Или Renovate bot для более гибкого контроля
    - **Benefit / Выгода:** зависимости не устаревают, безопасность
 
 3. **Monorepo with Turborepo / Nx** — если планируется рост кодовой базы
