@@ -82,8 +82,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     }
   }, [])
 
-  /* eslint-disable react-hooks/exhaustive-deps -- volume is applied via gainNodeRef;
-     including it here would destroy/recreate AudioContext on every volume change */
+  // Volume is intentionally included: AudioContext needs to be recreated when volume changes
+  // as the gainNode is created during initialisation with the current volume value.
   const initAudio = useCallback(() => {
     if (isInitialisedRef.current) return
 
@@ -140,7 +140,6 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
       }
     }
   }, [options.volume])
-  /* eslint-enable react-hooks/exhaustive-deps */
 
   const setVolume = useCallback((volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume))
@@ -168,7 +167,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     }
 
     const now = audioContext.currentTime
-    if (now - lastPlayTimeRef.current < 0.03) return
+    if (now - lastPlayTimeRef.current < throttleMs / 1000) return
     lastPlayTimeRef.current = now
 
     if (audioContext.state === 'suspended') {

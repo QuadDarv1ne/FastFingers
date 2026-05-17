@@ -248,7 +248,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const categoryOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = CATEGORY_OPTIONS.map(opt => ({
       value: opt.value,
-      label: `${opt.icon} ${t(opt.labelKey as any)}`,
+      label: `${opt.icon} ${t(opt.labelKey)}`,
     }))
     if (customExercises.length > 0) {
       options.push({ value: 'custom', label: `✏️ ${t('trainer.myExercises')} (${customExercises.length})` })
@@ -260,7 +260,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const difficultyOptions = useMemo(() =>
     DIFFICULTY_OPTIONS.map(opt => ({
       value: opt.value,
-      label: `${'⭐'.repeat(opt.stars)} ${t(opt.labelKey as any)}`,
+      label: `${'⭐'.repeat(opt.stars)} ${t(opt.labelKey)}`,
     })),
     [t],
   )

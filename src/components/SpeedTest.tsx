@@ -60,7 +60,6 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   }, [generateNewText])
 
   // Таймер
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- timeLeft managed via setState updater; only isActive controls interval lifecycle
   useEffect(() => {
     if (!isActive) return
 
