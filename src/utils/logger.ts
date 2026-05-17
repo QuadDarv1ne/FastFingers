@@ -7,6 +7,25 @@ import * as Sentry from '@sentry/react'
 
 const isDevelopment = import.meta.env.DEV
 
+/**
+ * Safely stringify values for Sentry breadcrumbs.
+ * Handles circular references and unserializable values without throwing.
+ */
+function safeStringify(value: unknown): string {
+  try {
+    const seen = new WeakSet()
+    return JSON.stringify(value, (_key, val) => {
+      if (typeof val === 'object' && val !== null) {
+        if (seen.has(val)) return '[circular]'
+        seen.add(val)
+      }
+      return val
+    })
+  } catch {
+    return '[unserializable]'
+  }
+}
+
 interface Logger {
   log: (...args: unknown[]) => void
   warn: (...args: unknown[]) => void
@@ -34,7 +53,7 @@ const createLogger = (namespace?: string): Logger => {
           category: 'warn',
           message: String(args[0]),
           level: 'warning',
-          data: args.length > 1 ? { extra: JSON.stringify(args.slice(1)) } : undefined,
+          data: args.length > 1 ? { extra: safeStringify(args.slice(1)) } : undefined,
         })
       }
     },

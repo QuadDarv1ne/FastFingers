@@ -53,6 +53,14 @@ export function useApi<T = unknown>(
     onError,
   } = options
 
+  // Use refs for callbacks to avoid unnecessary re-execution when callers pass inline functions
+  const transformRef = useRef(transform)
+  const onSuccessRef = useRef(onSuccess)
+  const onErrorRef = useRef(onError)
+  transformRef.current = transform
+  onSuccessRef.current = onSuccess
+  onErrorRef.current = onError
+
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
     error: null,
@@ -109,7 +117,7 @@ export function useApi<T = unknown>(
         signal: abortControllerRef.current.signal,
       })
 
-      const transformedData = transform ? transform(response) : response
+      const transformedData = transformRef.current ? transformRef.current(response) : response
 
       // Сохранение в кэш
       cacheRef.current = { data: transformedData, timestamp: Date.now() }
@@ -121,7 +129,7 @@ export function useApi<T = unknown>(
         isRefetching: false,
       }))
 
-      onSuccess?.(transformedData)
+      onSuccessRef.current?.(transformedData)
     } catch (error) {
       // Игнорируем отменённые запросы
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -136,9 +144,9 @@ export function useApi<T = unknown>(
         isRefetching: false,
       }))
 
-      onError?.(typedError)
+      onErrorRef.current?.(typedError)
     }
-  }, [url, isCached, transform, onSuccess, onError])
+  }, [url, isCached])
 
   // Автоматический запрос при монтировании
   useEffect(() => {
@@ -209,6 +217,10 @@ export function useMutation<T, B = unknown>(
   const [error, setError] = useState<Error | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Use refs for callbacks to avoid recreating mutate on every render
+  const optionsRef = useRef(options)
+  optionsRef.current = options
+
   const mutate = useCallback(async (body: B): Promise<T | null> => {
     setIsLoading(true)
     setError(null)
@@ -216,17 +228,17 @@ export function useMutation<T, B = unknown>(
     try {
       const result = await mutationFn(body)
       setData(result)
-      options?.onSuccess?.(result)
+      optionsRef.current?.onSuccess?.(result)
       return result
     } catch (err) {
       const typedError = err as Error
       setError(typedError)
-      options?.onError?.(typedError)
+      optionsRef.current?.onError?.(typedError)
       return null
     } finally {
       setIsLoading(false)
     }
-  }, [mutationFn, options])
+  }, [mutationFn])
 
   const reset = useCallback(() => {
     setData(null)
