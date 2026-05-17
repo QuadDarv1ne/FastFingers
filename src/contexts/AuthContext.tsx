@@ -5,7 +5,8 @@
  */
 
 import { createContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm, AuthError } from '../types/auth';
+import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
+import { AuthError } from '../services/authErrors';
 import { authService } from '../services/authService';
 
 interface AuthContextType extends AuthState {
@@ -28,11 +29,10 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const getAuthError = (error: unknown): { code?: string; message: string } => {
-  if (error && typeof error === 'object' && 'message' in error) {
-    const authError = error as Partial<AuthError>;
+  if (AuthError.isAuthError(error)) {
     return {
-      code: authError.code,
-      message: authError.message || 'Unknown error',
+      code: error.code,
+      message: error.message,
     };
   }
   return {

@@ -5,6 +5,7 @@ export type AuthErrorCode =
   | 'invalid-email'
   | 'weak-password'
   | 'password-mismatch'
+  | 'locked-out'
   | 'terms-not-accepted'
   | 'email-in-use'
   | 'user-not-found'
