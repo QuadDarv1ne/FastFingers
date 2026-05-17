@@ -289,7 +289,7 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, generateNewText, handleComplete]
+    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput]
   )
 
   // Process completion side effects outside of setState updaters

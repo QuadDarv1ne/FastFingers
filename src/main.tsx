@@ -10,18 +10,12 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import { AppErrorBoundary } from './components/AppErrorBoundary.tsx'
 import { Providers } from './contexts/Providers.tsx'
+import { CloudSyncCleanup } from './components/CloudSyncCleanup.tsx'
 import { initSentry } from './utils/sentry'
-import { useCloudSyncCleanup } from './services/cloudSyncService'
 import './i18n/config'
 import './index.css'
 
 initSentry()
-
-// Ensure cloud sync service event listeners are cleaned up on unmount
-function CloudSyncCleanup() {
-  useCloudSyncCleanup()
-  return null
-}
 
 const rootElement = document.getElementById('root')
 

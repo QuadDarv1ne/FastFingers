@@ -157,7 +157,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setIsComplete(false)
       textLengthRef.current = 0
     }
-  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText, adaptive])
+  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText, adaptive, t])
 
   useEffect(() => {
     initExercise()
