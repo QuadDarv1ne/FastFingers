@@ -500,4 +500,55 @@ Coverage gaps / Пробелы в покрытии:
 
 ---
 
-*Last updated: 2026-05-11 19:00 | Последнее обновление: 2026-05-11 19:00*
+*Last updated: 2026-05-17 19:00 | Последнее обновление: 2026-05-17 19:00*
+
+---
+
+## 📋 Community Review / Ревью сообщества (2026-05-17)
+
+Сводка предложений по улучшению проекта на основе внешнего аудита:
+
+### 🔴 High Priority / Высокий приоритет
+
+1. **Dependency Upgrades / Обновление зависимостей**
+   - [ ] **React 18 → React 19** — улучшенный SSR, concurrent features, new hook APIs
+   - [ ] **Framer Motion 12 → latest** — новые возможности анимаций, багфиксы
+   - [ ] **TypeScript 5.3 → 5.7+** — improved type inference, better ESM support
+   - [ ] **Tailwind CSS 3.4 → 4.0** — performance improvements, CSS-first config
+   - [ ] **Benefit / Выгода:** актуальная экосистема, безопасность, производительность
+   - **Note:** Requires regression testing; some deps may have breaking changes
+     / Требует регрессионного тестирования; возможны breaking changes
+
+### 🟡 Medium Priority / Средний приоритет
+
+2. **Dependabot / Renovate Auto-Updates** — настроить автоматические PR на обновление зависимостей
+   - [ ] GitHub Dependabot config (`.github/dependabot.yml`)
+   - [ ] Или Renovate bot для более гибкого контроля
+   - **Benefit / Выгода:** зависимости не устаревают, безопасность
+
+3. **Monorepo with Turborepo / Nx** — если планируется рост кодовой базы
+   - [ ] Разделить frontend, backend (supabase functions), docs
+   - [ ] Кэширование сборок, параллельные задачи
+   - **Low priority** / Низкий приоритет
+
+### 🟢 Already Tracked / Уже в TODO
+
+Следующие пункты уже присутствуют в TODO выше — помечены для отслеживания:
+
+| # | Предложение | Статус в TODO |
+|---|------------|---------------|
+| 1 | Разделить i18n config (1569 → per-language files) | 🟡 Medium #2 |
+| 2 | Null-safe Supabase client (`useSupabase()` hook) | 🟡 Medium #10 |
+| 3 | Per-route Error Boundaries | 🟢 Low #22 |
+| 4 | Тесты: TypingTrainer, useHotkeys, useTheme, AuthContext | 🟡 Medium #8 |
+| 5 | Стандартизация обработки ошибок (logger) | 🟡 Medium #7 |
+| 6 | Decouple localStorage auth → LocalAuthProvider | 🟡 Medium #9 |
+| 7 | App.tsx → дальше дробить (сейчас 735 строк) | 📝 Tech Debt #1 |
+| 8 | Live-дуэли через Supabase Realtime | 🟢 Low #17 |
+| 9 | PWA background sync | 📝 Tech Debt #5 |
+| 10 | Визуальные regression тесты (Playwright screenshots) | 🟢 Low #24 |
+| 11 | Пользовательские тексты (CRUD, импорт/экспорт) | 🟡 Medium #14 (частично) |
+
+---
+
+*Review conducted: 2026-05-17 | Ревью проведено: 2026-05-17*
