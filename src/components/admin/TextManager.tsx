@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { PracticeText, TextCategory } from '../../data/practiceTexts'
+import { useToast } from '@contexts/ToastContext'
+import { useTranslation } from 'react-i18next'
 
 const STORAGE_KEY = 'fastfingers_admin_texts'
 
@@ -31,7 +33,40 @@ function generateId(): string {
   return 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6)
 }
 
+function validatePracticeText(obj: unknown): obj is PracticeText {
+  if (!obj || typeof obj !== 'object') return false
+  const item = obj as Record<string, unknown>
+  if (typeof item.id !== 'string') return false
+  if (typeof item.title !== 'string' || !item.title.trim()) return false
+  if (typeof item.text !== 'string' || !item.text.trim()) return false
+  if (typeof item.difficulty !== 'number' || item.difficulty < 1 || item.difficulty > 9) return false
+  if (typeof item.category !== 'string' || !CATEGORIES.includes(item.category as TextCategory)) return false
+  if (item.source !== undefined && typeof item.source !== 'string') return false
+  return true
+}
+
+function exportTexts(texts: PracticeText[]): void {
+  const json = JSON.stringify(texts, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `fastfingers-texts-${new Date().toISOString().split('T')[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function getExistingIds(texts: PracticeText[]): Set<string> {
+  return new Set(texts.map(t => t.id))
+}
+
 export function TextManager() {
+  const { showToast } = useToast()
+  const { t } = useTranslation()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
   const [texts, setTexts] = useState<PracticeText[]>([])
   const [editing, setEditing] = useState<PracticeText | null>(null)
   const [showForm, setShowForm] = useState(false)
@@ -79,13 +114,110 @@ export function TextManager() {
     setShowForm(true)
   }
 
+  function handleExport() {
+    if (texts.length === 0) {
+      showToast(t('admin.exportEmpty', 'Нет текстов для экспорта'), 'error')
+      return
+    }
+    exportTexts(texts)
+    showToast(t('admin.exportSuccess', `Экспортировано ${texts.length} текстов`), 'success')
+  }
+
+  function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setImporting(true)
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string)
+        if (!Array.isArray(parsed)) {
+          showToast(t('admin.importInvalid', 'Файл должен содержать массив текстов'), 'error')
+          setImporting(false)
+          return
+        }
+
+        const valid = parsed.filter(validatePracticeText)
+        if (valid.length === 0) {
+          showToast(t('admin.importNoValid', 'Не найдено валидных текстов'), 'error')
+          setImporting(false)
+          return
+        }
+
+        const existingIds = getExistingIds(texts)
+        const newTexts: PracticeText[] = []
+        let skipped = 0
+        for (const item of valid) {
+          if (existingIds.has(item.id)) {
+            skipped++
+          } else {
+            newTexts.push(item)
+          }
+        }
+
+        const merged = [...texts, ...newTexts]
+        saveTexts(merged)
+        setTexts(merged)
+
+        if (skipped > 0) {
+          showToast(t('admin.importSuccessSkip', `Импортировано ${newTexts.length} текстов (пропущено ${skipped} дубликатов)`), 'success')
+        } else {
+          showToast(t('admin.importSuccess', `Импортировано ${newTexts.length} текстов`), 'success')
+        }
+      } catch {
+        showToast(t('admin.importError', 'Ошибка при чтении файла'), 'error')
+      }
+      setImporting(false)
+    }
+
+    reader.onerror = () => {
+      showToast(t('admin.importError', 'Ошибка при чтении файла'), 'error')
+      setImporting(false)
+    }
+
+    reader.readAsText(file)
+    if (event.target) event.target.value = ''
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-dark-400">{texts.length} пользовательских текстов</p>
-        <button onClick={handleNew} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
-          + Добавить текст
-        </button>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={handleExport}
+            disabled={texts.length === 0}
+            className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title={t('action.export', 'Экспорт')}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+          <label
+            className={`px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-sm transition-colors cursor-pointer ${
+              importing ? 'opacity-50 pointer-events-none' : ''
+            }`}
+            title={t('action.import', 'Импорт')}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l4 4m-4-4v12" />
+            </svg>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImportFile}
+              disabled={importing}
+              className="hidden"
+            />
+          </label>
+          <button onClick={handleNew} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
+            + Добавить текст
+          </button>
+        </div>
       </div>
 
       {showForm && (
