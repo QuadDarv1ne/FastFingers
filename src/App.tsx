@@ -12,6 +12,8 @@ import { SkipLink } from './components/SkipLink'
 import { AriaAnnouncer } from './components/AriaAnnouncer'
 import { ToastContainer } from './components/ToastContainer'
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
+import { CookieConsentBanner } from './components/CookieConsentBanner'
+import { Footer } from './components/Footer'
 import { GameModeRenderer } from './components/GameModeRenderer'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
@@ -585,6 +587,12 @@ function AppContent() {
 
       {/* PWA Install Prompt */}
       <PWAInstallPrompt />
+
+      {/* Cookie Consent Banner */}
+      <CookieConsentBanner />
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

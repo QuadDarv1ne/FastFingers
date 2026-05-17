@@ -277,13 +277,13 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               />
               <span className="text-sm text-dark-400">
                 Я принимаю{' '}
-                <button type="button" className="text-primary-400 hover:underline">
+                <a href="/terms-of-service.md" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">
                   условия использования
-                </button>{' '}
+                </a>{' '}
                 и{' '}
-                <button type="button" className="text-primary-400 hover:underline">
+                <a href="/privacy-policy.md" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">
                   политику конфиденциальности
-                </button>
+                </a>
               </span>
             </label>
           </div>
