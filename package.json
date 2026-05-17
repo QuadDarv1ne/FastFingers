@@ -92,7 +92,7 @@
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
-    "lint-staged": "^16.2.7",
+    "lint-staged": "^17.0.5",
     "patch-package": "^8.0.1",
     "postcss": "^8.4.35",
     "prettier": "^3.8.1",
