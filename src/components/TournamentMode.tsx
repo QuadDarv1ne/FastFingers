@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
@@ -246,30 +246,35 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   }, [selectedTournament, loadParticipants])
 
   // Подписка на обновления турнира
+  const selectedTournamentIdRef = useRef<string | null>(selectedTournament?.id ?? null)
+  selectedTournamentIdRef.current = selectedTournament?.id ?? null
+
   useEffect(() => {
     if (!selectedTournament || !supabase) return
 
+    const tournamentId = selectedTournament.id
     const channel = supabase
-      .channel(`tournament:${selectedTournament.id}`)
+      .channel(`tournament:${tournamentId}`)
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'tournaments',
-        filter: `id=eq.${selectedTournament.id}`,
+        filter: `id=eq.${tournamentId}`,
       }, (payload) => {
         const updated = payload.new as Tournament
         setSelectedTournament(prev => prev ? { ...prev, ...updated } : null)
         setTournaments(prev => prev.map(t =>
-          t.id === selectedTournament.id ? { ...t, ...updated } : t
+          t.id === tournamentId ? { ...t, ...updated } : t
         ))
       })
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'tournament_participants',
-        filter: `tournament_id=eq.${selectedTournament.id}`,
+        filter: `tournament_id=eq.${tournamentId}`,
       }, () => {
-        loadParticipants(selectedTournament.id)
+        const currentId = selectedTournamentIdRef.current
+        if (currentId) loadParticipants(currentId)
       })
       .subscribe()
 
