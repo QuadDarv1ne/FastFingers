@@ -1,3 +1,5 @@
+export type LessonLayout = 'jcuken' | 'qwerty' | 'dvorak'
+
 export interface Lesson {
   id: number
   title: string
@@ -8,9 +10,11 @@ export interface Lesson {
   minWpm: number
   minAccuracy: number
   unlocked: boolean
+  layout: LessonLayout
 }
 
 export const lessons: Lesson[] = [
+  // ==================== JCUKEN (Russian) ====================
   // Уровень 1: Основной ряд
   {
     id: 1,
@@ -22,6 +26,7 @@ export const lessons: Lesson[] = [
     minWpm: 10,
     minAccuracy: 90,
     unlocked: true,
+    layout: 'jcuken',
   },
   {
     id: 2,
@@ -33,6 +38,7 @@ export const lessons: Lesson[] = [
     minWpm: 10,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 3,
@@ -44,6 +50,7 @@ export const lessons: Lesson[] = [
     minWpm: 15,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 4,
@@ -55,8 +62,9 @@ export const lessons: Lesson[] = [
     minWpm: 15,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
-  
+
   // Уровень 2: Верхний ряд
   {
     id: 5,
@@ -68,6 +76,7 @@ export const lessons: Lesson[] = [
     minWpm: 20,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 6,
@@ -79,6 +88,7 @@ export const lessons: Lesson[] = [
     minWpm: 20,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 7,
@@ -90,6 +100,7 @@ export const lessons: Lesson[] = [
     minWpm: 25,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 8,
@@ -101,8 +112,9 @@ export const lessons: Lesson[] = [
     minWpm: 25,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
-  
+
   // Уровень 3: Нижний ряд
   {
     id: 9,
@@ -114,6 +126,7 @@ export const lessons: Lesson[] = [
     minWpm: 30,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 10,
@@ -125,6 +138,7 @@ export const lessons: Lesson[] = [
     minWpm: 30,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 11,
@@ -136,8 +150,9 @@ export const lessons: Lesson[] = [
     minWpm: 35,
     minAccuracy: 85,
     unlocked: false,
+    layout: 'jcuken',
   },
-  
+
   // Уровень 4: Предложения
   {
     id: 12,
@@ -149,6 +164,7 @@ export const lessons: Lesson[] = [
     minWpm: 35,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 13,
@@ -160,6 +176,7 @@ export const lessons: Lesson[] = [
     minWpm: 40,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 14,
@@ -171,8 +188,9 @@ export const lessons: Lesson[] = [
     minWpm: 40,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
-  
+
   // Уровень 5: Продвинутый
   {
     id: 15,
@@ -184,6 +202,7 @@ export const lessons: Lesson[] = [
     minWpm: 45,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 16,
@@ -195,6 +214,7 @@ export const lessons: Lesson[] = [
     minWpm: 45,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 17,
@@ -206,8 +226,9 @@ export const lessons: Lesson[] = [
     minWpm: 50,
     minAccuracy: 90,
     unlocked: false,
+    layout: 'jcuken',
   },
-  
+
   // Уровень 6: Мастер
   {
     id: 18,
@@ -219,6 +240,7 @@ export const lessons: Lesson[] = [
     minWpm: 55,
     minAccuracy: 92,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 19,
@@ -230,6 +252,7 @@ export const lessons: Lesson[] = [
     minWpm: 60,
     minAccuracy: 92,
     unlocked: false,
+    layout: 'jcuken',
   },
   {
     id: 20,
@@ -241,13 +264,521 @@ export const lessons: Lesson[] = [
     minWpm: 60,
     minAccuracy: 95,
     unlocked: false,
+    layout: 'jcuken',
+  },
+
+  // ==================== QWERTY (English) ====================
+  // Level 1: Home Row
+  {
+    id: 101,
+    title: 'Home Row - Left Hand',
+    description: 'Learn keys A, S, D, F',
+    text: 'aaaa ssss dddd ffff asdf fdsa asdf fdsa asdf fdsa asdf fdsa',
+    difficulty: 1,
+    focusKeys: ['a', 's', 'd', 'f'],
+    minWpm: 10,
+    minAccuracy: 90,
+    unlocked: true,
+    layout: 'qwerty',
+  },
+  {
+    id: 102,
+    title: 'Home Row - Right Hand',
+    description: 'Learn keys J, K, L, ;',
+    text: 'jjjj kkkk llll ;;;; jkl; ;lkj jkl; ;lkj jkl; ;lkj',
+    difficulty: 1,
+    focusKeys: ['j', 'k', 'l', ';'],
+    minWpm: 10,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 103,
+    title: 'Home Row - Both Hands',
+    description: 'Combine both hands on home row',
+    text: 'asdf jkl; asdf jkl; fdsa ;lkj asdf jkl; fdsa ;lkj',
+    difficulty: 2,
+    focusKeys: ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'],
+    minWpm: 15,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 104,
+    title: 'Simple Words',
+    description: 'First words from home row keys',
+    text: 'dad lad sad fall flask ask dad lad ask salad flask',
+    difficulty: 2,
+    focusKeys: ['a', 's', 'd', 'f', 'j', 'k', 'l'],
+    minWpm: 15,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // Level 2: Top Row
+  {
+    id: 105,
+    title: 'Top Row - Left Hand',
+    description: 'Learn keys Q, W, E, R, T',
+    text: 'qqqq wwww eeee rrrr tttt qwert trewq qwert trewq',
+    difficulty: 3,
+    focusKeys: ['q', 'w', 'e', 'r', 't'],
+    minWpm: 20,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 106,
+    title: 'Top Row - Right Hand',
+    description: 'Learn keys Y, U, I, O, P',
+    text: 'yyyy uuuu iiii oooo pppp youip poiuy youip poiuy',
+    difficulty: 3,
+    focusKeys: ['y', 'u', 'i', 'o', 'p'],
+    minWpm: 20,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 107,
+    title: 'Top + Home Row',
+    description: 'Combine top and home rows',
+    text: 'qwerty uiop asdf jkl; qwerty uiop asdf jkl; qwerty',
+    difficulty: 4,
+    focusKeys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    minWpm: 25,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 108,
+    title: 'Words with Top Row',
+    description: 'Practice with real words',
+    text: 'the quick write route power your tree water quite outer',
+    difficulty: 4,
+    focusKeys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    minWpm: 25,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // Level 3: Bottom Row
+  {
+    id: 109,
+    title: 'Bottom Row - Left Hand',
+    description: 'Learn keys Z, X, C, V, B',
+    text: 'zzzz xxxx cccc vvvv bbbb zxcvb bvcxz zxcvb bvcxz',
+    difficulty: 5,
+    focusKeys: ['z', 'x', 'c', 'v', 'b'],
+    minWpm: 30,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 110,
+    title: 'Bottom Row - Right Hand',
+    description: 'Learn keys N, M, comma, period, slash',
+    text: 'nnnn mmmm ,,,, .... //// nm,. /.,mn nm,. /.,mn',
+    difficulty: 5,
+    focusKeys: ['n', 'm', ',', '.', '/'],
+    minWpm: 30,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 111,
+    title: 'All Three Rows',
+    description: 'Full keyboard practice',
+    text: 'the quick brown fox jumps over the lazy dog',
+    difficulty: 6,
+    focusKeys: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+    minWpm: 35,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // Level 4: Sentences
+  {
+    id: 112,
+    title: 'Simple Sentences',
+    description: 'Type full sentences',
+    difficulty: 6,
+    focusKeys: [],
+    text: 'The cat sat on the mat. A dog ran in the park. The sun is bright today.',
+    minWpm: 35,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 113,
+    title: 'Complex Sentences',
+    description: 'Longer sentences with punctuation',
+    text: 'The quick brown fox jumps over the lazy dog, and then runs away.',
+    difficulty: 7,
+    focusKeys: [],
+    minWpm: 40,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 114,
+    title: 'Pangrams',
+    description: 'Sentences with every letter',
+    text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.',
+    difficulty: 7,
+    focusKeys: [],
+    minWpm: 40,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // Level 5: Advanced
+  {
+    id: 115,
+    title: 'Technical Terms',
+    description: 'IT and tech vocabulary',
+    text: 'keyboard monitor internet browser server function variable compile',
+    difficulty: 8,
+    focusKeys: [],
+    minWpm: 45,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 116,
+    title: 'Code Practice',
+    description: 'Type actual code',
+    text: 'const x = 42; const greet = (name: string) => `Hello, ${name}!`; export default greet;',
+    difficulty: 8,
+    focusKeys: [],
+    minWpm: 45,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 117,
+    title: 'TypeScript Types',
+    description: 'Code with type annotations',
+    text: 'type User = { id: number; name: string; }; const users: User[] = [{ id: 1, name: "Alice" }];',
+    difficulty: 9,
+    focusKeys: [],
+    minWpm: 50,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // Level 6: Master
+  {
+    id: 118,
+    title: 'Complex Pangrams',
+    description: 'Maximum difficulty',
+    text: 'Sphinx of black quartz, judge my vow. How vexingly quick daft zebras jump!',
+    difficulty: 9,
+    focusKeys: [],
+    minWpm: 55,
+    minAccuracy: 92,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 119,
+    title: 'Literary Text',
+    description: 'A passage from literature',
+    text: 'It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.',
+    difficulty: 10,
+    focusKeys: [],
+    minWpm: 60,
+    minAccuracy: 92,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+  {
+    id: 120,
+    title: 'Final Exam',
+    description: 'Test all your skills',
+    text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow.',
+    difficulty: 10,
+    focusKeys: [],
+    minWpm: 60,
+    minAccuracy: 95,
+    unlocked: false,
+    layout: 'qwerty',
+  },
+
+  // ==================== DVORAK (English) ====================
+  // Level 1: Home Row
+  {
+    id: 201,
+    title: 'Home Row - Left Hand',
+    description: 'Learn keys A, O, E, U',
+    text: 'aaaa oooo eeee uuuu aoeu uoea aoeu uoea aoeu uoea',
+    difficulty: 1,
+    focusKeys: ['a', 'o', 'e', 'u'],
+    minWpm: 10,
+    minAccuracy: 90,
+    unlocked: true,
+    layout: 'dvorak',
+  },
+  {
+    id: 202,
+    title: 'Home Row - Right Hand',
+    description: 'Learn keys H, T, N, S',
+    text: 'hhhh tttt nnnn ssss htns snt h htns snt h htns snt h',
+    difficulty: 1,
+    focusKeys: ['h', 't', 'n', 's'],
+    minWpm: 10,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 203,
+    title: 'Home Row - Both Hands',
+    description: 'Combine both hands on home row',
+    text: 'aoeu htns aoeu htns uoea snt h aoeu htns uoea snt h',
+    difficulty: 2,
+    focusKeys: ['a', 'o', 'e', 'u', 'h', 't', 'n', 's'],
+    minWpm: 15,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 204,
+    title: 'Simple Words',
+    description: 'First words from home row keys',
+    text: 'one use out house south tune note seat east aunt',
+    difficulty: 2,
+    focusKeys: ['a', 'o', 'e', 'u', 'h', 't', 'n', 's'],
+    minWpm: 15,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+
+  // Level 2: Top Row
+  {
+    id: 205,
+    title: 'Top Row - Left Hand',
+    description: 'Learn keys :, Q, J, K, X',
+    text: ':::: qqqq jjjj kkkk xxxx :qjkx xkj q: :qjkx xkj q:',
+    difficulty: 3,
+    focusKeys: [':', 'q', 'j', 'k', 'x'],
+    minWpm: 20,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 206,
+    title: 'Top Row - Right Hand',
+    description: 'Learn keys P, Y, F, G, C',
+    text: 'pppp yyyy ffff gggg cccc pyfgc cgfyp pyfgc cgfyp',
+    difficulty: 3,
+    focusKeys: ['p', 'y', 'f', 'g', 'c'],
+    minWpm: 20,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 207,
+    title: 'Top + Home Row',
+    description: 'Combine top and home rows',
+    text: ':qjkx pyfgc aoeu htns :qjkx pyfgc aoeu htns',
+    difficulty: 4,
+    focusKeys: [':', 'q', 'j', 'k', 'x', 'p', 'y', 'f', 'g', 'c'],
+    minWpm: 25,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 208,
+    title: 'Words with Top Row',
+    description: 'Practice with real words',
+    text: 'quick jump fancy pitch check exact jack type fancy',
+    difficulty: 4,
+    focusKeys: [':', 'q', 'j', 'k', 'x', 'p', 'y', 'f', 'g', 'c'],
+    minWpm: 25,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+
+  // Level 3: Bottom Row
+  {
+    id: 209,
+    title: 'Bottom Row - Left Hand',
+    description: 'Learn keys ;, Z, comma, period',
+    text: ';;;; zzzz ,,,, .... ;z,. .,;z ;z,. .,;z',
+    difficulty: 5,
+    focusKeys: [';', 'z', ',', '.'],
+    minWpm: 30,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 210,
+    title: 'Bottom Row - Right Hand',
+    description: 'Learn keys B, R, L, D, W',
+    text: 'bbbb rrrr llll dddd wwww brldw wdlrb brldw wdlrb',
+    difficulty: 5,
+    focusKeys: ['b', 'r', 'l', 'd', 'w'],
+    minWpm: 30,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 211,
+    title: 'All Three Rows',
+    description: 'Full keyboard practice',
+    text: 'the quick brown fox jumps over the lazy dog',
+    difficulty: 6,
+    focusKeys: [';', 'z', ',', '.', 'b', 'r', 'l', 'd', 'w'],
+    minWpm: 35,
+    minAccuracy: 85,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+
+  // Level 4: Sentences
+  {
+    id: 212,
+    title: 'Simple Sentences',
+    description: 'Type full sentences',
+    text: 'The cat sat on the mat. A dog ran in the park. The sun is bright today.',
+    difficulty: 6,
+    focusKeys: [],
+    minWpm: 35,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 213,
+    title: 'Complex Sentences',
+    description: 'Longer sentences with punctuation',
+    text: 'The quick brown fox jumps over the lazy dog, and then runs away.',
+    difficulty: 7,
+    focusKeys: [],
+    minWpm: 40,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 214,
+    title: 'Pangrams',
+    description: 'Sentences with every letter',
+    text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.',
+    difficulty: 7,
+    focusKeys: [],
+    minWpm: 40,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+
+  // Level 5: Advanced
+  {
+    id: 215,
+    title: 'Technical Terms',
+    description: 'IT and tech vocabulary',
+    text: 'keyboard monitor internet browser server function variable compile',
+    difficulty: 8,
+    focusKeys: [],
+    minWpm: 45,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 216,
+    title: 'Code Practice',
+    description: 'Type actual code',
+    text: 'const x = 42; const greet = (name: string) => `Hello, ${name}!`; export default greet;',
+    difficulty: 8,
+    focusKeys: [],
+    minWpm: 45,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 217,
+    title: 'TypeScript Types',
+    description: 'Code with type annotations',
+    text: 'type User = { id: number; name: string; }; const users: User[] = [{ id: 1, name: "Alice" }];',
+    difficulty: 9,
+    focusKeys: [],
+    minWpm: 50,
+    minAccuracy: 90,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+
+  // Level 6: Master
+  {
+    id: 218,
+    title: 'Complex Pangrams',
+    description: 'Maximum difficulty',
+    text: 'Sphinx of black quartz, judge my vow. How vexingly quick daft zebras jump!',
+    difficulty: 9,
+    focusKeys: [],
+    minWpm: 55,
+    minAccuracy: 92,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 219,
+    title: 'Literary Text',
+    description: 'A passage from literature',
+    text: 'It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness.',
+    difficulty: 10,
+    focusKeys: [],
+    minWpm: 60,
+    minAccuracy: 92,
+    unlocked: false,
+    layout: 'dvorak',
+  },
+  {
+    id: 220,
+    title: 'Final Exam',
+    description: 'Test all your skills',
+    text: 'The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. Sphinx of black quartz, judge my vow.',
+    difficulty: 10,
+    focusKeys: [],
+    minWpm: 60,
+    minAccuracy: 95,
+    unlocked: false,
+    layout: 'dvorak',
   },
 ]
 
 // Проверка доступности урока
 export function isLessonUnlocked(lessonId: number, completedLessons: number[]): boolean {
-  if (lessonId === 1) return true
-  
+  // First lesson of each layout is always unlocked
+  if (lessonId === 1 || lessonId === 101 || lessonId === 201) return true
+
   const prevLesson = lessonId - 1
   return completedLessons.includes(prevLesson)
 }
