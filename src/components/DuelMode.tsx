@@ -90,6 +90,11 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     startCountdown(3)
   }, [startCountdown])
 
+  const lastUpdateRef = useRef(0)
+  const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
+  const duelStateRef = useRef(duelState)
+  duelStateRef.current = duelState
+
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
     if (!currentDuel?.id || !supabase) return
@@ -119,7 +124,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           setOpponentWpm(oppWpm)
           setOpponentAccuracy(oppAccuracy)
 
-          if (updatedDuel.status === 'active' && duelState === 'waiting') {
+          if (updatedDuel.status === 'active' && duelStateRef.current === 'waiting') {
             setDuelState('active')
           }
         }
@@ -131,7 +136,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         supabase.removeChannel(channel)
       }
     }
-  }, [currentDuel?.id, currentDuel?.challenger?.id, duelState, user?.id])
+  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id])
 
   // Поиск случайного соперника
   const findRandomOpponent = useCallback(async () => {

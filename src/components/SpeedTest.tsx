@@ -60,26 +60,23 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   }, [generateNewText])
 
   // Таймер
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- timeLeft managed via setState updater; only isActive controls interval lifecycle
   useEffect(() => {
-    let interval: number | null = null
+    if (!isActive) return
 
-    if (isActive && timeLeft > 0) {
-      interval = window.setInterval(() => {
-        setTimeLeft((prev: number) => {
-          if (prev <= 1) {
-            shouldFinishRef.current = true
-            setIsActive(false)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    }
+    const interval = window.setInterval(() => {
+      setTimeLeft((prev: number) => {
+        if (prev <= 1) {
+          shouldFinishRef.current = true
+          setIsActive(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
 
-    return () => {
-      if (interval) window.clearInterval(interval)
-    }
-  }, [isActive, timeLeft])
+    return () => window.clearInterval(interval)
+  }, [isActive])
 
   // Finish when timer reaches 0 (avoid calling handleFinish inside setState updater)
   const hasFinishedRef = useRef(false)
