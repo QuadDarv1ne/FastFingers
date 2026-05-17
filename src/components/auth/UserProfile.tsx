@@ -1,18 +1,35 @@
-import { useState, useMemo, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useMemo, useEffect, useCallback, type ReactNode } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingHistory } from '@hooks/useTypingHistory'
 import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import type { Goal } from '@components/GoalsPanel'
+import type { TFunction } from 'i18next'
 
 interface UserProfileProps {
   onClose: () => void
   onNavigate?: (view: 'statistics' | 'history' | 'achievements' | 'goals' | 'settings') => void
 }
 
-type TabId = 'overview' | 'heatmap' | 'goals'
+type TabId = 'overview' | 'heatmap' | 'goals' | 'settings'
+
+const LEVEL_TIERS = [
+  { min: 1, max: 5, label: 'Новичок', color: 'from-gray-500 to-gray-400', icon: '🌱' },
+  { min: 6, max: 10, label: 'Ученик', color: 'from-green-500 to-emerald-400', icon: '📗' },
+  { min: 11, max: 20, label: 'Печатник', color: 'from-blue-500 to-cyan-400', icon: '⌨️' },
+  { min: 21, max: 35, label: 'Профессионал', color: 'from-purple-500 to-violet-400', icon: '💼' },
+  { min: 36, max: 50, label: 'Эксперт', color: 'from-yellow-500 to-amber-400', icon: '⭐' },
+  { min: 51, max: Infinity, label: 'Мастер', color: 'from-orange-500 to-red-400', icon: '👑' },
+]
+
+function getLevelTier(level: number): typeof LEVEL_TIERS[0] {
+  for (const tier of LEVEL_TIERS) {
+    if (level >= tier.min && level <= tier.max) return tier
+  }
+  return { min: 1, max: 5, label: 'Новичок', color: 'from-gray-500 to-gray-400', icon: '🌱' }
+}
 
 export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
   const { user, logout } = useAuth()
@@ -35,17 +52,45 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     }
   }, [])
 
+  // ESC key to close
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose()
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleClose = useCallback(() => {
+    onClose()
+  }, [onClose])
+
+  // Save name when editing is done
+  const handleSaveName = useCallback(() => {
+    if (name.trim() && name !== user?.name) {
+      // Update user name in localStorage
+      try {
+        const stored = localStorage.getItem('fastfingers_user')
+        if (stored) {
+          const userData = JSON.parse(stored)
+          userData.name = name.trim()
+          localStorage.setItem('fastfingers_user', JSON.stringify(userData))
+        }
+      } catch {
+        // Ignore errors
+      }
+    }
+    setIsEditing(false)
+  }, [name, user])
+
   // Keyboard heatmap data
   const heatmapData = useMemo(() => {
     const heatmap: Record<string, { errors: number; total: number; accuracy: number }> = {}
 
     history.sessions.forEach(session => {
-      // Generate approximate heatmap data from session stats
-      // In a real app, this would come from actual keystroke tracking
       const estimatedChars = Math.round(session.wpm * 5 * (session.duration / 60))
       const errors = Math.round(estimatedChars * (1 - session.accuracy / 100))
 
-      // Distribute across common keys proportionally
       const commonKeys = 'abcdefghijklmnopqrstuvwxyz'.split('')
       commonKeys.forEach((key) => {
         const keyErrors = Math.round(errors / commonKeys.length)
@@ -73,16 +118,13 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     const avgAccuracy = Math.round(recentSessions.reduce((sum, s) => sum + s.accuracy, 0) / recentSessions.length)
     const avgErrors = Math.round(recentSessions.reduce((sum, s) => sum + s.errors, 0) / recentSessions.length)
 
-    // Calculate rhythm score approximation (lower variance = higher score)
     const wpmValues = recentSessions.map(s => s.wpm)
     const wpmMean = wpmValues.reduce((a, b) => a + b, 0) / wpmValues.length
     const wpmVariance = wpmValues.reduce((sum, v) => sum + Math.pow(v - wpmMean, 2), 0) / wpmValues.length
     const rhythmScore = Math.max(0, Math.min(100, Math.round(100 - (wpmVariance / Math.max(wpmMean, 1)) * 10)))
 
-    // Error recovery score (fewer errors = better recovery)
     const errorRecoveryScore = Math.max(0, Math.min(100, Math.round(100 - avgErrors * 5)))
 
-    // Consistency score (accuracy stability)
     const accuracyValues = recentSessions.map(s => s.accuracy)
     const accMean = accuracyValues.reduce((a, b) => a + b, 0) / accuracyValues.length
     const accVariance = accuracyValues.reduce((sum, v) => sum + Math.pow(v - accMean, 2), 0) / accuracyValues.length
@@ -97,7 +139,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     }
   }, [history.sessions])
 
-  // Learning velocity (WPM change over time)
+  // Learning velocity
   const learningVelocity = useMemo(() => {
     const sessions = history.sessions
     if (sessions.length < 2) return 0
@@ -120,439 +162,862 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     return { completed, total, progress }
   }, [goals])
 
+  // Recent sessions for activity feed
+  const recentSessions = useMemo(() => {
+    return history.sessions.slice(0, 5).map(session => ({
+      ...session,
+      dateObj: new Date(session.date),
+    }))
+  }, [history.sessions])
+
+  // Unlocked achievements count
+  const achievementsCount = useMemo(() => {
+    try {
+      const stored = localStorage.getItem('fastfingers_achievements')
+      if (stored) {
+        const achievements = JSON.parse(stored)
+        return achievements.filter((a: { unlocked: boolean }) => a.unlocked).length
+      }
+    } catch {
+      // Ignore errors
+    }
+    return 0
+  }, [])
+
+  const totalAchievements = 18 // Total achievements defined in AchievementsPanel
+
   if (!user) return null
 
   const stats = user.stats
+  const tier = getLevelTier(stats.level)
+  const levelProgress = calculateLevelProgress(stats.totalXp)
+  const xpNeeded = xpForLevel(stats.level + 1) - stats.totalXp
 
-  const tabs: { id: TabId; label: string; icon: string }[] = [
-    { id: 'overview', label: t('profile.tab.overview', 'Обзор'), icon: '📊' },
-    { id: 'heatmap', label: t('profile.tab.heatmap', 'Раскладка'), icon: '⌨️' },
-    { id: 'goals', label: t('profile.tab.goals', 'Цели'), icon: '🎯' },
+  const tabs: { id: TabId; label: string; icon: ReactNode }[] = [
+    {
+      id: 'overview',
+      label: t('profile.tab.overview', 'Обзор'),
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'heatmap',
+      label: t('profile.tab.heatmap', 'Раскладка'),
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      ),
+    },
+    {
+      id: 'goals',
+      label: t('profile.tab.goals', 'Цели'),
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'settings',
+      label: t('misc.settings', 'Настройки'),
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+    },
   ]
 
   return (
-    <div className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-3xl my-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto"
+        onClick={(e) => { if (e.target === e.currentTarget) handleClose() }}
       >
-        <div className="glass rounded-2xl p-6 md:p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold text-white shadow-lg shadow-primary-500/30">
-                {user.name.charAt(0).toUpperCase()}
+        <motion.div
+          layout
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="w-full max-w-3xl my-8 mx-4"
+        >
+          <div className="glass rounded-2xl overflow-hidden">
+            {/* Banner */}
+            <div className={`relative h-32 bg-gradient-to-r ${tier.color} overflow-hidden`}>
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-4 left-8 text-6xl opacity-30">{tier.icon}</div>
+                <div className="absolute bottom-2 right-12 text-4xl opacity-20">⌨️</div>
+                <div className="absolute top-8 right-32 text-3xl opacity-15">✨</div>
               </div>
-              <div>
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-1 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="p-2 text-success hover:bg-success/20 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false)
-                        setName(user.name)
-                      }}
-                      className="p-2 text-error hover:bg-error/20 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <h2 className="text-xl md:text-2xl font-bold">{user.name}</h2>
-                    <p className="text-dark-400 text-sm">{user.email}</p>
-                  </>
-                )}
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 to-transparent" />
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6 border-b border-dark-700/50 pb-2">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 ${
-                  activeTab === tab.id
-                    ? 'bg-primary-500/20 text-primary-400'
-                    : 'text-dark-400 hover:text-white hover:bg-dark-800'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          {activeTab === 'overview' && (
-            <>
-              {/* Main Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <StatCard
-                  icon="⭐"
-                  label={t('common.level')}
-                  value={stats.level.toString()}
-                  color="text-yellow-400"
-                />
-                <StatCard
-                  icon="💎"
-                  label={t('common.xp')}
-                  value={stats.totalXp.toLocaleString()}
-                  color="text-primary-400"
-                />
-                <StatCard
-                  icon="⚡"
-                  label={t('stats.bestWpm')}
-                  value={stats.bestWpm.toString()}
-                  color="text-success"
-                />
-                <StatCard
-                  icon="🎯"
-                  label={t('common.accuracy')}
-                  value={`${stats.bestAccuracy}%`}
-                  color="text-purple-400"
-                />
-              </div>
-
-              {/* XP Progress */}
-              <div className="bg-dark-800/50 rounded-xl p-4 mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-dark-300">
-                    {t('common.level')} {stats.level} → {stats.level + 1}
-                  </span>
-                  <span className="text-sm text-dark-400">
-                    {stats.totalXp.toLocaleString()} XP
-                  </span>
-                </div>
-                <div className="w-full h-3 bg-dark-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 transition-all duration-500"
-                    style={{ width: `${calculateLevelProgress(stats.totalXp)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-dark-500 mt-2 text-right">
-                  {xpForLevel(stats.level + 1) - stats.totalXp} XP {t('profile.toNextLevel', 'до следующего уровня')}
-                </p>
-                {learningVelocity !== 0 && (
-                  <p className={`text-xs mt-1 ${learningVelocity > 0 ? 'text-success' : 'text-error'}`}>
-                    {learningVelocity > 0 ? '+' : ''}{learningVelocity} WPM {t('profile.learningVelocity', 'скорость обучения')}
-                  </p>
-                )}
-              </div>
-
-              {/* Additional Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                <div className="bg-dark-800/50 rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">📚</span>
-                    <span className="text-xs text-dark-400">{t('profile.totalWords', 'Всего слов')}</span>
-                  </div>
-                  <p className="text-xl font-bold">{stats.totalWordsTyped.toLocaleString()}</p>
-                </div>
-                <div className="bg-dark-800/50 rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">⏱️</span>
-                    <span className="text-xs text-dark-400">{t('profile.practiceTime', 'Время практики')}</span>
-                  </div>
-                  <p className="text-xl font-bold">{formatPracticeTime(stats.totalPracticeTime)}</p>
-                </div>
-                <div className="bg-dark-800/50 rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">🔥</span>
-                    <span className="text-xs text-dark-400">{t('common.streak')}</span>
-                  </div>
-                  <p className="text-xl font-bold text-orange-400">{stats.currentStreak} {t('common.days')}</p>
-                </div>
-              </div>
-
-              {/* Skill Profile */}
-              {skillProfile && (
-                <div className="bg-dark-800/50 rounded-xl p-4 mb-6">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <span>📈</span>
-                    {t('profile.skillProfile', 'Профиль навыков')}
-                  </h3>
-                  <div className="space-y-3">
-                    <SkillBar
-                      label={t('profile.avgWpm', 'Средний WPM')}
-                      value={skillProfile.avgWpm}
-                      max={100}
-                      color="from-primary-600 to-primary-400"
-                    />
-                    <SkillBar
-                      label={t('profile.rhythm', 'Ритм')}
-                      value={skillProfile.rhythmScore}
-                      max={100}
-                      color="from-purple-600 to-purple-400"
-                    />
-                    <SkillBar
-                      label={t('profile.errorRecovery', 'Реакция на ошибки')}
-                      value={skillProfile.errorRecoveryScore}
-                      max={100}
-                      color="from-green-600 to-green-400"
-                    />
-                    <SkillBar
-                      label={t('profile.consistency', 'Стабильность')}
-                      value={skillProfile.consistencyScore}
-                      max={100}
-                      color="from-yellow-600 to-yellow-400"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Navigation */}
-              {onNavigate && (
-                <div className="bg-dark-800/50 rounded-xl p-4 mb-6">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <span>🚀</span>
-                    {t('profile.quickNav', 'Быстрая навигация')}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <NavButton
-                      icon="📊"
-                      label={t('nav.statistics')}
-                      onClick={() => onNavigate('statistics')}
-                    />
-                    <NavButton
-                      icon="📜"
-                      label={t('nav.history')}
-                      onClick={() => onNavigate('history')}
-                    />
-                    <NavButton
-                      icon="🏆"
-                      label={t('stats.achievements')}
-                      onClick={() => onNavigate('achievements')}
-                    />
-                    <NavButton
-                      icon="🎯"
-                      label={t('profile.goals', 'Цели')}
-                      onClick={() => onNavigate('goals')}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Goals Summary */}
-              {goalsSummary.total > 0 && (
-                <div className="bg-dark-800/50 rounded-xl p-4 mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span>🎯</span>
-                      {t('profile.goals', 'Цели')}
-                    </h3>
-                    <span className="text-sm text-dark-400">
-                      {goalsSummary.completed}/{goalsSummary.total}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-green-600 to-emerald-400 transition-all duration-500"
-                      style={{ width: `${goalsSummary.progress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-dark-500 mt-1 text-right">
-                    {goalsSummary.progress}% {t('profile.completed', 'выполнено')}
-                  </p>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'heatmap' && (
-            <>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <span>⌨️</span>
-                {t('profile.heatmapTitle', 'Тепловая карта клавиш')}
-              </h3>
-              {Object.keys(heatmapData).length > 0 ? (
-                <div className="mb-6">
-                  <div className="bg-dark-800/50 rounded-xl p-4">
-                    <div className="grid grid-cols-13 gap-1 mb-2">
-                      {/* Number row */}
-                      {'1234567890'.split('').map(key => (
-                        <KeyCell key={key} label={key} data={heatmapData[key]} />
-                      ))}
-                    </div>
-                    {/* QWERTY rows */}
-                    <div className="grid grid-cols-10 gap-1 mb-1 ml-2">
-                      {'qwertyuiop'.split('').map(key => (
-                        <KeyCell key={key} label={key} data={heatmapData[key]} />
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-9 gap-1 mb-1 ml-4">
-                      {'asdfghjkl'.split('').map(key => (
-                        <KeyCell key={key} label={key} data={heatmapData[key]} />
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-7 gap-1 ml-8">
-                      {'zxcvbnm'.split('').map(key => (
-                        <KeyCell key={key} label={key} data={heatmapData[key]} />
-                      ))}
-                    </div>
-                  </div>
-                  {/* Legend */}
-                  <div className="flex items-center justify-between mt-4 text-xs text-dark-400">
-                    <span>{t('profile.heatmapLegend', 'Точность')}</span>
-                    <div className="flex items-center gap-1">
-                      <span className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }} />
-                      <span className="w-4 h-4 rounded" style={{ backgroundColor: '#f97316' }} />
-                      <span className="w-4 h-4 rounded" style={{ backgroundColor: '#eab308' }} />
-                      <span className="w-4 h-4 rounded" style={{ backgroundColor: '#84cc16' }} />
-                      <span className="w-4 h-4 rounded" style={{ backgroundColor: '#22c55e' }} />
-                    </div>
-                    <div className="flex gap-4">
-                      <span>60%</span>
-                      <span>100%</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-dark-400">
-                  <p className="text-lg mb-2">{t('profile.noHeatmapData', 'Нет данных для тепловой карты')}</p>
-                  <p className="text-sm">{t('profile.completeSessions', 'Завершите несколько тренировок')}</p>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'goals' && (
-            <>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <span>🎯</span>
-                {t('profile.goalsTitle', 'Цели и достижения')}
-              </h3>
-              {goals.length > 0 ? (
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                  {goals.map(goal => {
-                    const progress = Math.min((goal.current / goal.target) * 100, 100)
-                    return (
-                      <div
-                        key={goal.id}
-                        className={`p-3 rounded-xl border ${
-                          goal.completed
-                            ? 'bg-green-500/5 border-green-500/30'
-                            : 'bg-dark-800/50 border-dark-700/50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-dark-700/50">
-                            {goal.icon}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="font-semibold text-sm">{goal.title}</h4>
-                              {goal.completed && (
-                                <span className="text-xs text-green-400 font-medium">
-                                  ✓ {t('profile.done', 'Выполнено')}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-dark-400 mb-2">{goal.description}</p>
-                            <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full transition-all duration-500 ${
-                                  goal.completed
-                                    ? 'bg-gradient-to-r from-green-600 to-emerald-400'
-                                    : 'bg-gradient-to-r from-primary-600 to-primary-400'
-                                }`}
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                            <p className="text-xs text-dark-500 mt-1 text-right">
-                              {goal.current} / {goal.target} ({Math.round(progress)}%)
-                            </p>
-                          </div>
-                        </div>
+            <div className="px-6 md:px-8 pb-6 md:pb-8 -mt-12 relative">
+              {/* Header with Avatar */}
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-end gap-4">
+                  <div className="relative">
+                    <div className="w-20 h-20 md:w-24 md:h-24 bg-dark-900 rounded-2xl flex items-center justify-center shadow-xl border-4 border-dark-800">
+                      <div className={`w-full h-full bg-gradient-to-br ${tier.color} rounded-2xl flex items-center justify-center text-3xl md:text-4xl font-bold text-white`}>
+                        {user.name.charAt(0).toUpperCase()}
                       </div>
-                    )
-                  })}
+                    </div>
+                    <div className={`absolute -bottom-1 -right-1 px-2 py-0.5 bg-gradient-to-r ${tier.color} rounded-lg text-xs font-bold text-white shadow-lg`}>
+                      {tier.icon} Ур. {stats.level}
+                    </div>
+                  </div>
+                  <div className="pb-2">
+                    {isEditing ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveName()
+                            if (e.key === 'Escape') { setIsEditing(false); setName(user.name) }
+                          }}
+                          className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleSaveName}
+                          className="p-1.5 text-success hover:bg-success/20 rounded-lg transition-colors"
+                          aria-label="Сохранить"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => { setIsEditing(false); setName(user.name) }}
+                          className="p-1.5 text-error hover:bg-error/20 rounded-lg transition-colors"
+                          aria-label="Отменить"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <h2 className="text-xl md:text-2xl font-bold">{user.name}</h2>
+                        <p className="text-dark-400 text-sm">{user.email}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-12 text-dark-400">
-                  <p className="text-lg mb-2">{t('profile.noGoals', 'Нет целей')}</p>
-                  <p className="text-sm">{t('profile.setGoals', 'Установите цели для отслеживания прогресса')}</p>
-                </div>
-              )}
-            </>
-          )}
+                <button
+                  onClick={handleClose}
+                  className="p-2 hover:bg-dark-800 rounded-xl transition-colors"
+                  aria-label="Закрыть"
+                >
+                  <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-          {/* Account Info & Actions */}
-          <div className="bg-dark-800/50 rounded-xl p-4 mb-6">
-            <h3 className="font-semibold mb-3">{t('profile.accountInfo', 'Информация об аккаунте')}</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-dark-400">{t('auth.email')}:</span>
-                <span>{user.email}</span>
+              {/* Tabs */}
+              <div className="flex gap-1 mb-6 bg-dark-800/50 rounded-xl p-1 overflow-x-auto">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap flex-1 justify-center ${
+                      activeTab === tab.id
+                        ? 'bg-primary-500/20 text-primary-400 shadow-sm'
+                        : 'text-dark-400 hover:text-white hover:bg-dark-800'
+                    }`}
+                  >
+                    {tab.icon}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                ))}
               </div>
-              <div className="flex justify-between">
-                <span className="text-dark-400">{t('profile.registered', 'Зарегистрирован')}:</span>
-                <span>{new Date(user.createdAt).toLocaleDateString(i18n.language)}</span>
-              </div>
-              {user.lastLogin && (
-                <div className="flex justify-between">
-                  <span className="text-dark-400">{t('profile.lastLogin', 'Последний вход')}:</span>
-                  <span>{new Date(user.lastLogin).toLocaleDateString(i18n.language)}</span>
+
+              {/* Tab Content */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {activeTab === 'overview' && (
+                    <OverviewTab
+                      stats={stats}
+                      levelProgress={levelProgress}
+                      xpNeeded={xpNeeded}
+                      learningVelocity={learningVelocity}
+                      skillProfile={skillProfile}
+                      goalsSummary={goalsSummary}
+                      achievementsCount={achievementsCount}
+                      totalAchievements={totalAchievements}
+                      recentSessions={recentSessions}
+                      onNavigate={onNavigate}
+                      t={t}
+                    />
+                  )}
+
+                  {activeTab === 'heatmap' && (
+                    <HeatmapTab heatmapData={heatmapData} t={t} />
+                  )}
+
+                  {activeTab === 'goals' && (
+                    <GoalsTab goals={goals} t={t} />
+                  )}
+
+                  {activeTab === 'settings' && (
+                    <SettingsTab user={user} t={t} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Account Info & Actions */}
+              <div className="mt-6 pt-6 border-t border-dark-700/50">
+                <div className="flex flex-wrap gap-3 text-xs text-dark-400 mb-4">
+                  <span>{t('auth.email')}: {user.email}</span>
+                  <span>•</span>
+                  <span>{t('profile.registered', 'Зарегистрирован')}: {new Date(user.createdAt).toLocaleDateString(i18n.language)}</span>
+                  {user.lastLogin && (
+                    <>
+                      <span>•</span>
+                      <span>{t('profile.lastLogin', 'Последний вход')}: {new Date(user.lastLogin).toLocaleDateString(i18n.language)}</span>
+                    </>
+                  )}
                 </div>
-              )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setIsEditing(true); setName(user.name) }}
+                    className="flex-1 py-2.5 bg-dark-800 hover:bg-dark-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    {t('action.edit')}
+                  </button>
+                  <button
+                    onClick={() => { logout(); handleClose() }}
+                    className="flex-1 py-2.5 bg-error/10 hover:bg-error/20 text-error rounded-xl font-medium transition-colors flex items-center justify-center gap-2 border border-error/20"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    {t('auth.logout')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              {isEditing ? t('action.cancel') : t('action.edit')}
-            </button>
-            <button
-              onClick={() => {
-                logout()
-                onClose()
-              }}
-              className="flex-1 py-3 bg-error/20 hover:bg-error/30 text-error rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              {t('auth.logout')}
-            </button>
+/* ======================== TAB COMPONENTS ======================== */
+
+function OverviewTab({
+  stats,
+  levelProgress,
+  xpNeeded,
+  learningVelocity,
+  skillProfile,
+  goalsSummary,
+  achievementsCount,
+  totalAchievements,
+  recentSessions,
+  onNavigate,
+  t,
+}: {
+  stats: { level: number; totalXp: number; bestWpm: number; bestAccuracy: number; totalWordsTyped: number; totalPracticeTime: number; currentStreak: number; longestStreak: number }
+  levelProgress: number
+  xpNeeded: number
+  learningVelocity: number
+  skillProfile: { avgWpm: number; avgAccuracy: number; rhythmScore: number; errorRecoveryScore: number; consistencyScore: number } | null
+  goalsSummary: { completed: number; total: number; progress: number }
+  achievementsCount: number
+  totalAchievements: number
+  recentSessions: Array<{ wpm: number; accuracy: number; errors: number; duration: number; date: string; dateObj: Date }>
+  onNavigate?: (view: 'statistics' | 'history' | 'achievements' | 'goals' | 'settings') => void
+  t: TFunction
+}) {
+  const tier = getLevelTier(stats.level)
+
+  return (
+    <>
+      {/* Level Progress */}
+      <div className="bg-gradient-to-r from-dark-800/80 to-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className={`text-lg ${tier.color.includes('yellow') ? 'text-yellow-400' : 'text-primary-400'}`}>{tier.icon}</span>
+            <span className="text-sm font-medium">{t('common.level')} {stats.level} — {tier.label}</span>
+          </div>
+          <span className="text-sm text-dark-400">{stats.totalXp.toLocaleString()} XP</span>
+        </div>
+        <div className="w-full h-3 bg-dark-900/50 rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${levelProgress}%` }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className={`h-full bg-gradient-to-r ${tier.color}`}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center gap-2">
+            {learningVelocity !== 0 && (
+              <span className={`text-xs font-medium ${learningVelocity > 0 ? 'text-success' : 'text-error'}`}>
+                {learningVelocity > 0 ? '↑' : '↓'} {Math.abs(learningVelocity)} WPM {t('profile.learningVelocity', 'скорость обучения')}
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-dark-500">{xpNeeded} XP {t('profile.toNextLevel', 'до следующего уровня')}</span>
+        </div>
+      </div>
+
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <AnimatedStatCard
+          icon="⚡"
+          label={t('stats.bestWpm')}
+          value={stats.bestWpm.toString()}
+          color="text-success"
+          delay={0}
+        />
+        <AnimatedStatCard
+          icon="🎯"
+          label={t('common.accuracy')}
+          value={`${stats.bestAccuracy}%`}
+          color="text-purple-400"
+          delay={0.05}
+        />
+        <AnimatedStatCard
+          icon="📚"
+          label={t('profile.totalWords', 'Всего слов')}
+          value={stats.totalWordsTyped.toLocaleString()}
+          color="text-blue-400"
+          delay={0.1}
+        />
+        <AnimatedStatCard
+          icon="⏱️"
+          label={t('profile.practiceTime', 'Время практики')}
+          value={formatPracticeTime(stats.totalPracticeTime)}
+          color="text-cyan-400"
+          delay={0.15}
+        />
+      </div>
+
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <AnimatedStatCard
+          icon="💎"
+          label={t('common.xp')}
+          value={stats.totalXp.toLocaleString()}
+          color="text-primary-400"
+          delay={0.2}
+        />
+        <AnimatedStatCard
+          icon="🔥"
+          label={t('common.streak')}
+          value={`${stats.currentStreak} ${t('common.days')}`}
+          color="text-orange-400"
+          delay={0.25}
+        />
+        <AnimatedStatCard
+          icon="🏆"
+          label={t('stats.achievements')}
+          value={`${achievementsCount}/${totalAchievements}`}
+          color="text-yellow-400"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Skill Profile */}
+      {skillProfile && (
+        <div className="bg-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
+          <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <span>📈</span>
+            {t('profile.skillProfile', 'Профиль навыков')}
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <SkillBar
+              label={t('profile.avgWpm', 'Средний WPM')}
+              value={skillProfile.avgWpm}
+              max={100}
+              color="from-primary-600 to-primary-400"
+            />
+            <SkillBar
+              label={t('profile.rhythm', 'Ритм')}
+              value={skillProfile.rhythmScore}
+              max={100}
+              color="from-purple-600 to-purple-400"
+            />
+            <SkillBar
+              label={t('profile.errorRecovery', 'Реакция на ошибки')}
+              value={skillProfile.errorRecoveryScore}
+              max={100}
+              color="from-green-600 to-green-400"
+            />
+            <SkillBar
+              label={t('profile.consistency', 'Стабильность')}
+              value={skillProfile.consistencyScore}
+              max={100}
+              color="from-yellow-600 to-yellow-400"
+            />
           </div>
         </div>
-      </motion.div>
+      )}
+
+      {/* Quick Navigation */}
+      {onNavigate && (
+        <div className="bg-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
+          <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <span>🚀</span>
+            {t('profile.quickNav', 'Быстрая навигация')}
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <NavButton
+              icon="📊"
+              label={t('nav.statistics')}
+              onClick={() => onNavigate('statistics')}
+            />
+            <NavButton
+              icon="📜"
+              label={t('nav.history')}
+              onClick={() => onNavigate('history')}
+            />
+            <NavButton
+              icon="🏆"
+              label={t('stats.achievements')}
+              onClick={() => onNavigate('achievements')}
+            />
+            <NavButton
+              icon="🎯"
+              label={t('profile.goals', 'Цели')}
+              onClick={() => onNavigate('goals')}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Goals Summary */}
+      {goalsSummary.total > 0 && (
+        <div className="bg-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <span>🎯</span>
+              {t('profile.goals', 'Цели')}
+            </h3>
+            <span className="text-xs text-dark-400">
+              {goalsSummary.completed}/{goalsSummary.total}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-dark-900/50 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${goalsSummary.progress}%` }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="h-full bg-gradient-to-r from-green-600 to-emerald-400"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Recent Activity */}
+      {recentSessions.length > 0 && (
+        <div className="bg-dark-800/50 rounded-xl p-4 border border-dark-700/30">
+          <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <span>🕐</span>
+            {t('profile.recentActivity', 'Последние тренировки')}
+          </h3>
+          <div className="space-y-2">
+            {recentSessions.map((session, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between py-2 px-3 bg-dark-900/30 rounded-lg text-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${session.accuracy >= 95 ? 'bg-green-400' : session.accuracy >= 85 ? 'bg-yellow-400' : 'bg-red-400'}`} />
+                  <span className="text-dark-300">{session.dateObj.toLocaleDateString(i18n.language)}</span>
+                </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="text-success font-medium">{session.wpm} WPM</span>
+                  <span className="text-purple-400">{session.accuracy}%</span>
+                  <span className="text-dark-500">{Math.round(session.duration / 60)}мин</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+function HeatmapTab({
+  heatmapData,
+  t,
+}: {
+  heatmapData: Record<string, { errors: number; total: number; accuracy: number }>
+  t: TFunction
+}) {
+  return (
+    <>
+      <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+        <span>⌨️</span>
+        {t('profile.heatmapTitle', 'Тепловая карта клавиш')}
+      </h3>
+      {Object.keys(heatmapData).length > 0 ? (
+        <div className="mb-4">
+          <div className="bg-dark-800/50 rounded-xl p-4 border border-dark-700/30">
+            {/* Number row */}
+            <div className="grid grid-cols-10 gap-1 mb-1">
+              {'1234567890'.split('').map(key => (
+                <KeyCell key={key} label={key} data={heatmapData[key]} />
+              ))}
+            </div>
+            {/* QWERTY rows */}
+            <div className="grid grid-cols-10 gap-1 mb-1 ml-1">
+              {'qwertyuiop'.split('').map(key => (
+                <KeyCell key={key} label={key} data={heatmapData[key]} />
+              ))}
+            </div>
+            <div className="grid grid-cols-9 gap-1 mb-1 ml-5">
+              {'asdfghjkl'.split('').map(key => (
+                <KeyCell key={key} label={key} data={heatmapData[key]} />
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1 ml-10">
+              {'zxcvbnm'.split('').map(key => (
+                <KeyCell key={key} label={key} data={heatmapData[key]} />
+              ))}
+            </div>
+          </div>
+          {/* Legend */}
+          <div className="flex items-center justify-between mt-3 text-xs text-dark-400">
+            <span>{t('profile.heatmapLegend', 'Точность')}</span>
+            <div className="flex items-center gap-1">
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }} />
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: '#f97316' }} />
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: '#eab308' }} />
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: '#84cc16' }} />
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: '#22c55e' }} />
+            </div>
+            <div className="flex gap-4">
+              <span>60%</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-12 text-dark-400">
+          <div className="text-5xl mb-3">⌨️</div>
+          <p className="text-lg mb-2">{t('profile.noHeatmapData', 'Нет данных для тепловой карты')}</p>
+          <p className="text-sm">{t('profile.completeSessions', 'Завершите несколько тренировок')}</p>
+        </div>
+      )}
+    </>
+  )
+}
+
+function GoalsTab({
+  goals,
+  t,
+}: {
+  goals: Goal[]
+  t: TFunction
+}) {
+  const activeGoals = goals.filter(g => !g.completed)
+  const completedGoals = goals.filter(g => g.completed)
+
+  return (
+    <>
+      <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+        <span>🎯</span>
+        {t('profile.goalsTitle', 'Цели и достижения')}
+      </h3>
+
+      {/* Goals stats */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
+          <div className="text-2xl font-bold text-primary-400">{activeGoals.length}</div>
+          <div className="text-xs text-dark-400 mt-1">Активных</div>
+        </div>
+        <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
+          <div className="text-2xl font-bold text-green-400">{completedGoals.length}</div>
+          <div className="text-xs text-dark-400 mt-1">Выполнено</div>
+        </div>
+        <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
+          <div className="text-2xl font-bold text-yellow-400">
+            {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
+          </div>
+          <div className="text-xs text-dark-400 mt-1">Прогресс</div>
+        </div>
+      </div>
+
+      {goals.length > 0 ? (
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+          {activeGoals.map(goal => {
+            const progress = Math.min((goal.current / goal.target) * 100, 100)
+            return (
+              <GoalItem key={goal.id} goal={goal} progress={progress} t={t} />
+            )
+          })}
+          {completedGoals.length > 0 && (
+            <>
+              <div className="pt-2 border-t border-dark-700/30">
+                <p className="text-xs text-dark-500 mb-2">Выполненные цели</p>
+              </div>
+              {completedGoals.map(goal => {
+                const progress = 100
+                return (
+                  <GoalItem key={goal.id} goal={goal} progress={progress} completed t={t} />
+                )
+              })}
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-dark-400">
+          <div className="text-5xl mb-3">🎯</div>
+          <p className="text-lg mb-2">{t('profile.noGoals', 'Нет целей')}</p>
+          <p className="text-sm">{t('profile.setGoals', 'Установите цели для отслеживания прогресса')}</p>
+        </div>
+      )}
+    </>
+  )
+}
+
+function GoalItem({ goal, progress, completed, t }: { goal: Goal; progress: number; completed?: boolean; t?: TFunction }) {
+  const translate: TFunction = t || ((key: string, _options?: unknown) => key) as TFunction
+  return (
+    <div
+      className={`p-3 rounded-xl border transition-all ${
+        completed
+          ? 'bg-green-500/5 border-green-500/20 opacity-75'
+          : 'bg-dark-800/50 border-dark-700/30'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
+          completed ? 'bg-green-500/20' : 'bg-dark-700/50'
+        }`}>
+          {goal.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <h4 className="font-semibold text-sm truncate">{goal.title}</h4>
+            {completed && (
+              <span className="text-xs text-green-400 font-medium ml-2 flex-shrink-0">
+                ✓ {translate('profile.done', 'Выполнено')}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-dark-400 mb-2 truncate">{goal.description}</p>
+          <div className="w-full h-1.5 bg-dark-900/50 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+              className={`h-full ${
+                completed
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-400'
+                  : 'bg-gradient-to-r from-primary-600 to-primary-400'
+              }`}
+            />
+          </div>
+          <p className="text-xs text-dark-500 mt-1 text-right">
+            {goal.current} / {goal.target} ({Math.round(progress)}%)
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
+
+function SettingsTab({
+  t,
+}: {
+  t: TFunction
+}) {
+  const settingsItems = [
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+      label: 'Профиль',
+      description: 'Имя, email, аватар',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+      ),
+      label: 'Уведомления',
+      description: 'Настройки оповещений',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+      label: 'Безопасность',
+      description: 'Пароль, двухфакторная аутентификация',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      ),
+      label: 'Данные',
+      description: 'Экспорт, импорт, удаление данных',
+    },
+  ]
+
+  return (
+    <div className="space-y-3">
+      <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
+        <span>⚙️</span>
+        {t('misc.settings', 'Настройки')}
+      </h3>
+
+      {settingsItems.map((item, i) => (
+        <button
+          key={i}
+          className="w-full flex items-center gap-4 p-4 bg-dark-800/50 hover:bg-dark-800 rounded-xl border border-dark-700/30 hover:border-dark-700/50 transition-all text-left"
+        >
+          <div className="w-10 h-10 bg-dark-700/50 rounded-xl flex items-center justify-center text-dark-300 flex-shrink-0">
+            {item.icon}
+          </div>
+          <div>
+            <div className="font-medium text-sm">{item.label}</div>
+            <div className="text-xs text-dark-400">{item.description}</div>
+          </div>
+          <svg className="w-5 h-5 text-dark-500 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      ))}
+
+      {/* Danger zone */}
+      <div className="mt-6 pt-6 border-t border-error/20">
+        <h4 className="text-sm font-medium text-error mb-3">Опасная зона</h4>
+        <button className="w-full flex items-center gap-4 p-4 bg-error/5 hover:bg-error/10 rounded-xl border border-error/20 transition-all text-left text-error">
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <div>
+            <div className="font-medium text-sm">Удалить аккаунт</div>
+            <div className="text-xs text-error/70">Это действие нельзя отменить</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ======================== SUB-COMPONENTS ======================== */
+
+function AnimatedStatCard({
+  icon,
+  label,
+  value,
+  color,
+  delay,
+}: {
+  icon: string
+  label: string
+  value: string
+  color: string
+  delay: number
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay }}
+      className="bg-dark-800/50 rounded-xl p-3 border border-dark-700/30 hover:border-dark-700/50 transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-lg">{icon}</span>
+        <span className="text-xs text-dark-400">{label}</span>
+      </div>
+      <p className={`text-xl font-bold ${color}`}>{value}</p>
+    </motion.div>
+  )
+}
+
+function SkillBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const percentage = Math.min((value / max) * 100, 100)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-dark-400">{label}</span>
+        <span className="text-xs font-medium">{value}</span>
+      </div>
+      <div className="w-full h-1.5 bg-dark-900/50 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className={`h-full bg-gradient-to-r ${color}`}
+        />
+      </div>
+    </div>
+  )
+}
+
+function NavButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="py-2.5 px-3 bg-dark-800/80 hover:bg-dark-700 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-dark-700/30 hover:border-dark-700/50"
+    >
+      <span>{icon}</span>
+      {label}
+    </button>
+  )
+}
+
+function KeyCell({ label, data }: { label: string; data?: { accuracy: number } }) {
+  const accuracy = data?.accuracy ?? 0
+  const bgColor = accuracy > 0 ? getHeatmapColor(accuracy) : 'transparent'
+
+  return (
+    <div
+      className="aspect-square rounded-lg flex items-center justify-center text-xs font-medium transition-all hover:scale-105 cursor-default relative group"
+      style={{ backgroundColor: accuracy > 0 ? `${bgColor}20` : 'transparent', border: `1px solid ${accuracy > 0 ? bgColor + '40' : 'transparent'}` }}
+    >
+      <span style={{ color: accuracy > 0 ? bgColor : '#6b7280' }}>{label}</span>
+      {accuracy > 0 && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-dark-900 text-xs text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 shadow-lg">
+          {label.toUpperCase()}: {accuracy}%
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ======================== UTILITY FUNCTIONS ======================== */
 
 function calculateLevelProgress(xp: number): number {
   const currentLevel = Math.floor(Math.sqrt(xp / 100)) + 1
@@ -570,65 +1035,4 @@ function formatPracticeTime(seconds: number): string {
   const minutes = Math.floor((seconds % 3600) / 60)
   if (hours > 0) return `${hours}ч ${minutes}мин`
   return `${minutes}мин`
-}
-
-function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
-  return (
-    <div className="bg-dark-800/50 rounded-xl p-3">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-lg">{icon}</span>
-        <span className="text-xs text-dark-400">{label}</span>
-      </div>
-      <p className={`text-xl font-bold ${color}`}>{value}</p>
-    </div>
-  )
-}
-
-function SkillBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
-  const percentage = Math.min((value / max) * 100, 100)
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-dark-400">{label}</span>
-        <span className="text-xs font-medium">{value}/{max}</span>
-      </div>
-      <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
-        <div
-          className={`h-full bg-gradient-to-r ${color} transition-all duration-500`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-    </div>
-  )
-}
-
-function NavButton({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="py-2 px-3 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-    >
-      <span>{icon}</span>
-      {label}
-    </button>
-  )
-}
-
-function KeyCell({ label, data }: { label: string; data?: { accuracy: number } }) {
-  const accuracy = data?.accuracy ?? 0
-  const bgColor = accuracy > 0 ? getHeatmapColor(accuracy) : 'transparent'
-
-  return (
-    <div
-      className="aspect-square rounded flex items-center justify-center text-xs font-medium transition-all hover:scale-105 cursor-default relative group"
-      style={{ backgroundColor: accuracy > 0 ? `${bgColor}30` : 'transparent', border: `1px solid ${accuracy > 0 ? bgColor + '60' : 'transparent'}` }}
-    >
-      <span style={{ color: accuracy > 0 ? bgColor : '#6b7280' }}>{label}</span>
-      {accuracy > 0 && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-dark-900 text-xs text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-          {label.toUpperCase()}: {accuracy}%
-        </div>
-      )}
-    </div>
-  )
 }
