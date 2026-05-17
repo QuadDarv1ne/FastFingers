@@ -52,6 +52,10 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     }
   }, [])
 
+  const handleClose = useCallback(() => {
+    onClose()
+  }, [onClose])
+
   // ESC key to close
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -59,11 +63,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleClose = useCallback(() => {
-    onClose()
-  }, [onClose])
+  }, [handleClose])
 
   // Save name when editing is done
   const handleSaveName = useCallback(() => {
