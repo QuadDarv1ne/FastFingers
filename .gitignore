@@ -28,11 +28,12 @@ htmlcov/
 .coverage
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *.tmp
+.vscode/*.code-workspace
+.vscode/*.state.json
 
 # OS
 .DS_Store
