@@ -8,6 +8,8 @@ interface StoredUser extends User {
   password: string
 }
 
+type DisplayUser = User
+
 function loadUsers(): StoredUser[] {
   try {
     return JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '[]')
@@ -20,24 +22,32 @@ function saveUsers(users: StoredUser[]) {
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
 }
 
+function stripPasswords(users: StoredUser[]): DisplayUser[] {
+  return users.map(({ password: _, ...rest }) => rest)
+}
+
 export function UserAdmin() {
   const { user: currentUser } = useAuth()
-  const [users, setUsers] = useState<StoredUser[]>([])
+  const [users, setUsers] = useState<DisplayUser[]>([])
+  const [rawUsers, setRawUsers] = useState<StoredUser[]>([])
 
   useEffect(() => {
-    setUsers(loadUsers())
+    const loaded = loadUsers()
+    setRawUsers(loaded)
+    setUsers(stripPasswords(loaded))
   }, [])
 
   function toggleRole(userId: string, currentRole: UserRole) {
     const newRole: UserRole = currentRole === 'admin' ? 'user' : 'admin'
-    const next = users.map(u => {
+    const next = rawUsers.map(u => {
       if (u.id === userId) {
         return { ...u, role: newRole }
       }
       return u
     })
     saveUsers(next)
-    setUsers(next)
+    setRawUsers(next)
+    setUsers(stripPasswords(next))
   }
 
   function formatDate(dateStr: string): string {

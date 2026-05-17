@@ -32,8 +32,10 @@ export function useCustomExercises() {
   useEffect(() => {
     const handleStorage = () => {
       setCustomExercises(prev => {
-        const admin = adminToExercises(loadAdminTexts())
-        const user = prev.filter(e => !e.id.startsWith('custom-admin-'))
+        const texts = loadAdminTexts()
+        const admin = adminToExercises(texts)
+        const adminIds = new Set(texts.map(t => t.id))
+        const user = prev.filter(e => !adminIds.has(e.id))
         return [...admin, ...user]
       })
     }
