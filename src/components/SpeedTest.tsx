@@ -28,6 +28,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const inputRef = useRef<HTMLInputElement>(null)
   const inputResultsRef = useRef(inputResults)
   const timeLeftRef = useRef(timeLeft)
+  const totalCorrectRef = useRef(0)
+  const totalCharsRef = useRef(0)
   inputResultsRef.current = inputResults
   timeLeftRef.current = timeLeft
 
@@ -38,10 +40,11 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const handleFinish = useCallback(() => {
     const results = inputResultsRef.current
     const elapsed = duration - timeLeftRef.current
-    const correct = results.filter(r => r.isCorrect).length
-    const errors = results.filter(r => !r.isCorrect).length
+    const totalCorrect = totalCorrectRef.current + results.filter(r => r.isCorrect).length
+    const totalTotal = totalCharsRef.current + results.length
+    const errors = totalTotal - totalCorrect
 
-    const stats = calculateStats(correct, results.length, errors, elapsed)
+    const stats = calculateStats(totalCorrect, totalTotal, errors, elapsed)
     showToast(`Тест завершён: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 5000)
     onComplete(stats)
   }, [duration, onComplete, showToast])
@@ -89,6 +92,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Старт при первом нажатии
   const handleStart = () => {
     setIsActive(true)
+    totalCorrectRef.current = 0
+    totalCharsRef.current = 0
     inputRef.current?.focus({ preventScroll: true })
   }
 
@@ -116,8 +121,10 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
       setInputResults(prev => [...prev, { isCorrect, char: newChar }])
       setCurrentIndex(prev => prev + 1)
 
-      // Если текст заканчивается, генерируем новый
+      // Если текст заканчивается, сохраняем результаты сегмента и генерируем новый
       if (idx >= text.length - 10) {
+        totalCorrectRef.current += inputResults.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
+        totalCharsRef.current += inputResults.length + 1
         generateNewText()
       }
     }
@@ -127,13 +134,14 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
   // Подсчёт статистики в реальном времени
   useEffect(() => {
-    if (inputResults.length > 0) {
-      const correct = inputResults.filter(r => r.isCorrect).length
+    const totalCorrect = totalCorrectRef.current + inputResults.filter(r => r.isCorrect).length
+    const totalChars = totalCharsRef.current + inputResults.length
+    if (totalChars > 0) {
       const timeElapsed = duration - timeLeft
       const timeInMinutes = timeElapsed / 60
       
-      const newWpm = timeInMinutes > 0 ? Math.round(correct / 5 / timeInMinutes) : 0
-      const newAccuracy = Math.round((correct / inputResults.length) * 100)
+      const newWpm = timeInMinutes > 0 ? Math.round(totalCorrect / 5 / timeInMinutes) : 0
+      const newAccuracy = Math.round((totalCorrect / totalChars) * 100)
       
       setWpm(newWpm)
       setAccuracy(newAccuracy)
