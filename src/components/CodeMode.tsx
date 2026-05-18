@@ -147,9 +147,8 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
       if (currentStartTime) {
         const elapsedMinutes = (Date.now() - currentStartTime) / 60000
         const results = inputResultsRef.current
-        const correctSoFar = results.filter(r => r.isCorrect).length
-        const newCorrect = correctSoFar + (isCorrect ? 1 : 0)
-        const newTotal = results.length + 1
+        const newCorrect = results.filter(r => r.isCorrect).length
+        const newTotal = results.length
         const wpmValue = elapsedMinutes > 0 ? Math.round((newCorrect / 5) / elapsedMinutes) : 0
         setWpm(wpmValue)
         setAccuracy(Math.round((newCorrect / newTotal) * 100))
