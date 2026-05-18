@@ -132,7 +132,7 @@ export function useHardcoreMode({
     }
 
     e.currentTarget.value = ''
-  }, [isActive, countdown, text, currentIndex, sound, handleMistake, generateNewText, handleStart])
+  }, [isActive, countdown, text, currentIndex, sound, handleMistake, handleStart])
 
   // Process deferred text generation outside of setState updaters
   useEffect(() => {

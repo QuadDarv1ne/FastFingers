@@ -95,7 +95,11 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const lastUpdateRef = useRef(0)
   const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
   const duelStateRef = useRef(duelState)
+  const wpmRef = useRef(wpm)
+  const accuracyRef = useRef(accuracy)
   duelStateRef.current = duelState
+  wpmRef.current = wpm
+  accuracyRef.current = accuracy
 
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
@@ -234,31 +238,35 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     }
   }, [currentDuel, user?.id, opponentWpm, opponentAccuracy, completeDuel, onComplete])
 
-  const flushDuelProgress = useCallback(() => {
+  const flushDuelProgress = useCallback(async () => {
     const pending = pendingUpdateRef.current
     if (!pending || !currentDuel?.id || !supabaseReady) return
     const isChallenger = currentDuel.challenger?.id === user?.id
-    supabase!
-      .from('duels')
-      .update(
-        isChallenger
-          ? { challenger_wpm: pending.wpm, challenger_accuracy: pending.accuracy }
-          : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
-      )
-      .eq('id', currentDuel.id)
-    pendingUpdateRef.current = null
+    try {
+      await supabase!
+        .from('duels')
+        .update(
+          isChallenger
+            ? { challenger_wpm: pending.wpm, challenger_accuracy: pending.accuracy }
+            : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
+        )
+        .eq('id', currentDuel.id)
+      pendingUpdateRef.current = null
+    } catch (err) {
+      logger.error('Failed to flush duel progress:', err)
+    }
   }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id, supabaseReady])
 
   // Обработка ввода с обновлением прогресса (throttled)
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     handleInputBase(e)
-    pendingUpdateRef.current = { wpm, accuracy }
+    pendingUpdateRef.current = { wpm: wpmRef.current, accuracy: accuracyRef.current }
     const now = Date.now()
     if (now - lastUpdateRef.current >= 500) {
       lastUpdateRef.current = now
       flushDuelProgress()
     }
-  }, [handleInputBase, wpm, accuracy, flushDuelProgress])
+  }, [handleInputBase, flushDuelProgress])
 
   // Flush pending updates when duel ends
   useEffect(() => {
