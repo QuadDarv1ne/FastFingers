@@ -48,6 +48,7 @@ export function useHardcoreMode({
   const inputRef = useRef<HTMLInputElement>(null)
   const textLengthRef = useRef(0)
   const streakRef = useRef(0)
+  const pendingCompletionRef = useRef(false)
   streakRef.current = streak
 
   const calculateCorrectCount = useCallback((results: Array<{ isCorrect: boolean }>): number => {
@@ -121,21 +122,24 @@ export function useHardcoreMode({
 
       setStreak(prev => prev + 1)
 
-      setInputResults(prev => {
-        const newResults = [...prev, { isCorrect: true, char: newChar }]
+      setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
 
-        if (currentIndex >= textLengthRef.current - 1) {
-          generateNewText()
-        }
-
-        return newResults
-      })
+      if (currentIndex >= textLengthRef.current - 1) {
+        pendingCompletionRef.current = true
+      }
 
       setCurrentIndex(prev => prev + 1)
     }
 
     e.currentTarget.value = ''
   }, [isActive, countdown, text, currentIndex, sound, handleMistake, generateNewText, handleStart])
+
+  // Process deferred text generation outside of setState updaters
+  useEffect(() => {
+    if (!pendingCompletionRef.current) return
+    pendingCompletionRef.current = false
+    generateNewText()
+  }, [currentIndex, generateNewText])
 
   const resetGame = useCallback(() => {
     setStreak(0)
