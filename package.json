@@ -79,7 +79,7 @@
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.6",
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.18",
     "axe-playwright": "^2.2.2",
