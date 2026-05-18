@@ -3,6 +3,17 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { Toast } from '@components/Toast'
 import type { Toast as ToastType } from '@contexts/ToastContext'
 
+vi.mock('../i18n/config', () => ({
+  useAppTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'action.close': 'Закрыть',
+      }
+      return translations[key] || key
+    },
+  }),
+}))
+
 describe('Toast', () => {
   const createToast = (type: ToastType['type'], message: string): ToastType => ({
     id: 'test-id',
