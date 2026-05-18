@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useContext } from 'react'
 import { AuthProvider, AuthContext } from '../contexts/AuthContext'
 import type { User } from '../types/auth'
@@ -54,32 +54,23 @@ function useAuthContext() {
 
 describe('AuthContext', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
     vi.clearAllMocks()
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('should initialize with no user and isLoading=true', () => {
+  it('should initialize with no user and isLoading=false after mount', () => {
     mockAuthService.getCurrentUser.mockReturnValue(null)
     const { result } = renderHook(() => useAuthContext(), { wrapper })
 
-    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isLoading).toBe(false)
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.user).toBeNull()
   })
 
-  it('should initialize with user when getCurrentUser returns one', async () => {
+  it('should initialize with user when getCurrentUser returns one', () => {
     const user = createMockUser()
     mockAuthService.getCurrentUser.mockReturnValue(user)
 
     const { result } = renderHook(() => useAuthContext(), { wrapper })
-
-    await act(async () => {
-      await Promise.resolve()
-    })
 
     expect(result.current.isLoading).toBe(false)
     expect(result.current.isAuthenticated).toBe(true)
@@ -95,10 +86,6 @@ describe('AuthContext', () => {
 
     await act(async () => {
       await result.current.login({ email: 'test@example.com', password: 'password123' })
-    })
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(300)
     })
 
     expect(mockAuthService.login).toHaveBeenCalledWith({
@@ -122,10 +109,6 @@ describe('AuthContext', () => {
       }
     })
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(300)
-    })
-
     expect(result.current.error).toBe('Invalid credentials')
     expect(result.current.isAuthenticated).toBe(false)
   })
@@ -136,10 +119,6 @@ describe('AuthContext', () => {
     mockAuthService.logout.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useAuthContext(), { wrapper })
-
-    await act(async () => {
-      await Promise.resolve()
-    })
 
     expect(result.current.isAuthenticated).toBe(true)
 
@@ -166,10 +145,6 @@ describe('AuthContext', () => {
       }
     })
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(300)
-    })
-
     expect(result.current.error).toBe('Login failed')
 
     act(() => {
@@ -187,17 +162,15 @@ describe('AuthContext', () => {
 
     const { result } = renderHook(() => useAuthContext(), { wrapper })
 
-    await act(async () => {
-      await Promise.resolve()
-    })
-
     expect(result.current.user?.name).toBe('Test User')
 
     await act(async () => {
       await result.current.refreshUser()
     })
 
-    expect(result.current.user?.name).toBe('Updated Name')
+    await waitFor(() => {
+      expect(result.current.user?.name).toBe('Updated Name')
+    })
   })
 
   it('should reset password', async () => {
@@ -212,10 +185,6 @@ describe('AuthContext', () => {
     let tokenResult: { token: string; expiresAt: string } | undefined
     await act(async () => {
       tokenResult = await result.current.resetPassword({ email: 'test@example.com' })
-    })
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(300)
     })
 
     expect(tokenResult).toEqual({
@@ -246,9 +215,10 @@ describe('AuthContext', () => {
 
     await act(async () => {
       resolveLogin(user)
-      await vi.advanceTimersByTimeAsync(300)
     })
 
-    expect(result.current.isActionPending).toBe(false)
+    await waitFor(() => {
+      expect(result.current.isActionPending).toBe(false)
+    })
   })
 })

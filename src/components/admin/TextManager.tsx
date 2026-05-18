@@ -68,11 +68,12 @@ export function TextManager() {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const { i18n } = useTranslation()
   const [texts, setTexts] = useState<PracticeText[]>([])
   const [editing, setEditing] = useState<PracticeText | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<Partial<PracticeText>>({})
-  const { stats: usageStats, refresh: refreshUsage, clearStats: clearUsageStats } = useTextUsageStats()
+  const { stats: usageStats, refresh: _refreshUsage, clearStats: clearUsageStats } = useTextUsageStats()
 
   const usageMap = useMemo(() => {
     const map = new Map<string, { count: number; avgWpm: number; avgAccuracy: number; lastUsed: string }>()
@@ -207,6 +208,7 @@ export function TextManager() {
             </svg>
           </button>
           <label
+            aria-label={t('action.import', 'Импорт')}
             className={`px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-sm transition-colors cursor-pointer ${
               importing ? 'opacity-50 pointer-events-none' : ''
             }`}

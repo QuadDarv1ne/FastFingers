@@ -185,8 +185,11 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
         return (
           <div key={u.id} className="glass rounded-xl p-4">
             <div
+              role="button"
+              tabIndex={0}
               className="cursor-pointer hover:opacity-80 transition-opacity mb-3"
               onClick={() => onViewStudent?.(u.id, u.name || u.email)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onViewStudent?.(u.id, u.name || u.email) }}
               title="Посмотреть аналитику"
             >
               <div className="flex items-center gap-2 mb-1">

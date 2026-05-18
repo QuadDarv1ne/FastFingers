@@ -670,7 +670,7 @@ function EditGoalModal({
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">Иконка</label>
+            <label htmlFor="goal-icon" className="block text-sm font-medium text-dark-300 mb-2">Иконка</label>
             <div className="flex gap-2 flex-wrap">
               {icons.map(i => (
                 <button key={i} type="button" onClick={() => setIcon(i)} className={`w-10 h-10 rounded-lg text-xl transition-all ${icon === i ? 'bg-primary-600 scale-110' : 'bg-dark-800 hover:bg-dark-700'}`}>{i}</button>
@@ -678,20 +678,20 @@ function EditGoalModal({
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">Название</label>
-            <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <label htmlFor="goal-title" className="block text-sm font-medium text-dark-300 mb-2">Название</label>
+            <input id="goal-title" type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">Описание</label>
-            <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <label htmlFor="goal-desc" className="block text-sm font-medium text-dark-300 mb-2">Описание</label>
+            <input id="goal-desc" type="text" value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">Цель</label>
-              <input type="number" value={target} onChange={e => setTarget(e.target.value)} required min="1" className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              <label htmlFor="goal-target" className="block text-sm font-medium text-dark-300 mb-2">Цель</label>
+              <input id="goal-target" type="number" value={target} onChange={e => setTarget(e.target.value)} required min="1" className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">Единица</label>
+              <label htmlFor="goal-unit" className="block text-sm font-medium text-dark-300 mb-2">Единица</label>
               <select value={unit} onChange={e => setUnit(e.target.value as Goal['unit'])} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="wpm">WPM</option>
                 <option value="accuracy">Точность %</option>

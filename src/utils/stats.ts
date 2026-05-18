@@ -96,7 +96,6 @@ export const formatWPM = (wpm: number): string => wpm.toString()
  * @returns Номер уровня (начиная с 1)
  */
 export function calculateLevel(xp: number): number {
-  // Формула: уровень = floor(sqrt(xp / 100))
   return Math.floor(Math.sqrt(xp / 100)) + 1;
 }
 

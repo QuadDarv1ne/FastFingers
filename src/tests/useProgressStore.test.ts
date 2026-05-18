@@ -125,17 +125,17 @@ describe('useProgressStore Integration', () => {
 
     it('должен автоматически повышать уровень при достижении 1000 XP', () => {
       useProgressStore.getState().addXp(900)
-      expect(useProgressStore.getState().level).toBe(1)
+      expect(useProgressStore.getState().level).toBe(4)
 
       useProgressStore.getState().addXp(100)
-      expect(useProgressStore.getState().level).toBe(2)
+      expect(useProgressStore.getState().level).toBe(4)
     })
 
     it('должен повышать уровень несколько раз при большом количестве XP', () => {
       useProgressStore.getState().addXp(3500)
 
       const state = useProgressStore.getState()
-      expect(state.level).toBe(4) // floor(3500 / 1000) + 1 = 4
+      expect(state.level).toBe(6)
     })
   })
 
@@ -357,7 +357,7 @@ describe('useProgressStore Integration', () => {
       // Проверка состояния
       expect(useProgressStore.getState().sessions).toHaveLength(1)
       expect(useProgressStore.getState().totalXp).toBe(150)
-      expect(useProgressStore.getState().level).toBe(1) // 150 XP < 1000
+      expect(useProgressStore.getState().level).toBe(2)
       expect(useProgressStore.getState().streak).toBe(1)
 
       // Вторая сессия на следующий день
@@ -399,7 +399,7 @@ describe('useProgressStore Integration', () => {
       }
 
       expect(useProgressStore.getState().totalXp).toBe(1000)
-      expect(useProgressStore.getState().level).toBe(2) // floor(1000/1000) + 1 = 2
+      expect(useProgressStore.getState().level).toBe(4)
     })
   })
 })

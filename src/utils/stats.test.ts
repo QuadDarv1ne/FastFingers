@@ -137,8 +137,8 @@ describe('calculateLevelProgress', () => {
     expect(calculateLevelProgress(50)).toBe(50)
   })
 
-  it('100% progress caps at 100', () => {
-    expect(calculateLevelProgress(100)).toBe(100)
+  it('0% progress at level 2 start (100 XP)', () => {
+    expect(calculateLevelProgress(100)).toBe(0)
   })
 })
 

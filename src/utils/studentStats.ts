@@ -118,7 +118,7 @@ export function computeStudentStats(sessions: SessionData[]): StudentStatsResult
     ? Math.round(sessions.reduce((sum, s) => sum + s.wpm, 0) / totalSessions)
     : 0
   const totalErrors = sessions.reduce((sum, s) => sum + s.errors, 0)
-  const totalChars = sessions.reduce((sum, s) => sum + s.total_chars ?? (s.cpm * s.duration / 60), 0)
+  const totalChars = sessions.reduce((sum, s) => sum + (s.cpm * s.duration / 60), 0)
 
   // Daily stats (last 30 days)
   const dailyStats: DailyStats[] = []

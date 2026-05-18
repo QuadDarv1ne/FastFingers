@@ -13,10 +13,16 @@ describe('useTheme', () => {
   beforeEach(() => {
     localStorage.clear()
     vi.useFakeTimers()
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+      matches: query === '(prefers-color-scheme: dark)',
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })))
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('should return default values', () => {
@@ -25,10 +31,11 @@ describe('useTheme', () => {
     expect(result.current.themeOption).toBe('auto')
     expect(result.current.customColors).toBeNull()
     expect(result.current.fontSize).toBe('medium')
-    expect(result.current.isSystemDark).toBe(false)
+    expect(result.current.isSystemDark).toBe(true)
   })
 
-  it('should load theme from localStorage', () => {
+  it('should load theme from localStorage when themeOption is not auto', () => {
+    localStorage.setItem('fastfingers_theme_option', 'light')
     localStorage.setItem('fastfingers_theme', 'light')
     const { result } = renderHook(() => useTheme())
     expect(result.current.theme).toBe('light')

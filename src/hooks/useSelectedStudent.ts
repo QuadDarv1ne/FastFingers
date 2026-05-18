@@ -19,7 +19,7 @@ export function useSelectedStudent() {
   useEffect(() => {
     const listener = () => setValue({ ...state })
     listeners.add(listener)
-    return () => listeners.delete(listener)
+    return () => { listeners.delete(listener) }
   }, [])
 
   const select = useCallback((userId: string, userName: string) => {

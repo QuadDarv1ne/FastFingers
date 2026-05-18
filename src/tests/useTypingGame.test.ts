@@ -615,6 +615,10 @@ describe('useTypingGame', () => {
     const { result } = renderHook(() => useTypingGame())
 
     act(() => {
+      result.current.handleInput({ currentTarget: { value: 'a' } } as any)
+    })
+
+    act(() => {
       result.current.handleInput({ currentTarget: { value: 'ab' } } as any)
     })
 

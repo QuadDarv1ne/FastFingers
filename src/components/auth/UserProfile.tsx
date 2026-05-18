@@ -333,8 +333,6 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
                             if (e.key === 'Escape') { setIsEditing(false); setName(user.name) }
                           }}
                           className="bg-dark-800 border border-dark-700 rounded-lg px-3 py-1.5 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          // eslint-disable-next-line jsx-a11y/no-autofocus
-                          autoFocus
                         />
                         <button
                           onClick={handleSaveName}
@@ -926,10 +924,10 @@ function SettingsTab({
           </svg>
           Назад
         </button>
-        {subPage === 'profile' && <ProfileSettingsSubPage user={user} onUpdateName={onUpdateName} t={t} />}
-        {subPage === 'notifications' && <NotificationSettingsSubPage t={t} />}
-        {subPage === 'security' && <SecuritySettingsSubPage t={t} />}
-        {subPage === 'data' && <DataSettingsSubPage t={t} onDeleteAccount={onDeleteAccount} />}
+        {subPage === 'profile' && <ProfileSettingsSubPage user={user} onUpdateName={onUpdateName} />}
+        {subPage === 'notifications' && <NotificationSettingsSubPage />}
+        {subPage === 'security' && <SecuritySettingsSubPage />}
+        {subPage === 'data' && <DataSettingsSubPage onDeleteAccount={onDeleteAccount} />}
       </div>
     )
   }
@@ -1026,11 +1024,9 @@ function SettingsTab({
 function ProfileSettingsSubPage({
   user,
   onUpdateName,
-  t,
 }: {
   user: { name: string; email: string; createdAt: string }
   onUpdateName: (name: string) => void
-  t: TFunction
 }) {
   const [name, setName] = useState(user.name)
   const [editing, setEditing] = useState(false)
@@ -1050,16 +1046,16 @@ function ProfileSettingsSubPage({
 
       <div className="space-y-3">
         <div>
-          <label className="text-xs text-dark-400 mb-1 block">Имя</label>
+          <label htmlFor="profile-name" className="text-xs text-dark-400 mb-1 block">Имя</label>
           {editing ? (
             <div className="flex gap-2">
               <input
+                id="profile-name"
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') { setName(user.name); setEditing(false) } }}
                 className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-                autoFocus
               />
               <button onClick={handleSave} className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm">Сохранить</button>
               <button onClick={() => { setName(user.name); setEditing(false) }} className="px-3 py-2 bg-dark-700 text-white rounded-lg text-sm">Отмена</button>
@@ -1073,12 +1069,12 @@ function ProfileSettingsSubPage({
         </div>
 
         <div>
-          <label className="text-xs text-dark-400 mb-1 block">Email</label>
+          <span className="text-xs text-dark-400 mb-1 block">Email</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">{user.email}</div>
         </div>
 
         <div>
-          <label className="text-xs text-dark-400 mb-1 block">Дата регистрации</label>
+          <span className="text-xs text-dark-400 mb-1 block">Дата регистрации</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">
             {new Date(user.createdAt).toLocaleDateString('ru-RU')}
           </div>
@@ -1088,7 +1084,7 @@ function ProfileSettingsSubPage({
   )
 }
 
-function NotificationSettingsSubPage({ t }: { t: TFunction }) {
+function NotificationSettingsSubPage() {
   const { notifications, clearAll, unreadCount } = useNotifications()
 
   const [browserEnabled, setBrowserEnabled] = useState(() => {
@@ -1208,7 +1204,7 @@ function ToggleRow({ label, description, checked, onChange }: {
   )
 }
 
-function SecuritySettingsSubPage({ t }: { t: TFunction }) {
+function SecuritySettingsSubPage() {
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -1281,8 +1277,9 @@ function SecuritySettingsSubPage({ t }: { t: TFunction }) {
         {showChangePassword && (
           <div className="space-y-3 mt-3">
             <div>
-              <label className="text-xs text-dark-400 mb-1 block">Текущий пароль</label>
+              <label htmlFor="pw-current" className="text-xs text-dark-400 mb-1 block">Текущий пароль</label>
               <input
+                id="pw-current"
                 type="password"
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
@@ -1290,8 +1287,9 @@ function SecuritySettingsSubPage({ t }: { t: TFunction }) {
               />
             </div>
             <div>
-              <label className="text-xs text-dark-400 mb-1 block">Новый пароль</label>
+              <label htmlFor="pw-new" className="text-xs text-dark-400 mb-1 block">Новый пароль</label>
               <input
+                id="pw-new"
                 type="password"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -1299,8 +1297,9 @@ function SecuritySettingsSubPage({ t }: { t: TFunction }) {
               />
             </div>
             <div>
-              <label className="text-xs text-dark-400 mb-1 block">Подтвердите пароль</label>
+              <label htmlFor="pw-confirm" className="text-xs text-dark-400 mb-1 block">Подтвердите пароль</label>
               <input
+                id="pw-confirm"
                 type="password"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
@@ -1336,7 +1335,7 @@ function SecuritySettingsSubPage({ t }: { t: TFunction }) {
   )
 }
 
-function DataSettingsSubPage({ t, onDeleteAccount }: { t: TFunction; onDeleteAccount: () => void }) {
+function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void }) {
   const [importing, setImporting] = useState(false)
 
   const handleExport = () => {

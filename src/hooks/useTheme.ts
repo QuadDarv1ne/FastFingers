@@ -5,6 +5,36 @@ import { logger } from '../utils/logger'
 
 type ThemeOption = ThemeColor | 'auto'
 
+function getSystemDark(): boolean {
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  } catch {
+    logger.warn('Operation failed in hooks/useTheme.ts')
+    return true
+  }
+}
+
+function getStoredThemeOption(): ThemeOption {
+  try {
+    const stored = localStorage.getItem('fastfingers_theme_option')
+    return (stored as ThemeOption) || 'auto'
+  } catch {
+    logger.warn('Operation failed in hooks/useTheme.ts')
+    return 'auto'
+  }
+}
+
+function getInitialTheme(): ThemeColor {
+  try {
+    const stored = localStorage.getItem('fastfingers_theme')
+    if (stored) return stored as ThemeColor
+    return 'dark'
+  } catch {
+    logger.warn('Operation failed in hooks/useTheme.ts')
+    return 'dark'
+  }
+}
+
 interface UseThemeReturn {
   theme: ThemeColor
   themeOption: ThemeOption
@@ -18,34 +48,11 @@ interface UseThemeReturn {
 }
 
 export function useTheme(): UseThemeReturn {
-  const [themeOption, setThemeOptionState] = useState<ThemeOption>(() => {
-    try {
-      const stored = localStorage.getItem('fastfingers_theme_option')
-      return (stored as ThemeOption) || 'auto'
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      return 'auto'
-    }
-  })
+  const [themeOption, setThemeOptionState] = useState<ThemeOption>(getStoredThemeOption)
 
-  const [isSystemDark, setIsSystemDark] = useState(() => {
-    try {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      return true
-    }
-  })
+  const [isSystemDark, setIsSystemDark] = useState(getSystemDark)
 
-  const [theme, setThemeState] = useState<ThemeColor>(() => {
-    try {
-      const stored = localStorage.getItem('fastfingers_theme')
-      return (stored as ThemeColor) || 'dark'
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      return 'dark'
-    }
-  })
+  const [theme, setThemeState] = useState<ThemeColor>(getInitialTheme)
 
   const [customColors, setCustomColorsState] = useState<Partial<ThemeColors> | null>(() => {
     try {
@@ -89,8 +96,7 @@ export function useTheme(): UseThemeReturn {
     const handleChange = () => {
       setIsSystemDark(mediaQuery.matches)
       if (themeOption === 'auto') {
-        const newTheme = mediaQuery.matches ? 'dark' : 'light'
-        setThemeState(newTheme)
+        setThemeState(mediaQuery.matches ? 'dark' : 'light')
       }
     }
 

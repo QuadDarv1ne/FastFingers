@@ -57,7 +57,7 @@ function generateChallenge(date: string, text?: string, wpm?: number, acc?: numb
 }
 
 export function DailyChallengeManager() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const [challenges, setChallenges] = useState<DailyChallenge[]>([])
   const [streak, setStreak] = useState<StreakData>({ current: 0, longest: 0, lastPracticeDate: null, practiceDates: [] })
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -203,8 +203,9 @@ export function DailyChallengeManager() {
             <h3 className="text-xl font-bold text-white mb-4">Создать ежедневный челлендж</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-dark-400 mb-1">Дата</label>
+                <label htmlFor="dc-date" className="block text-sm text-dark-400 mb-1">Дата</label>
                 <input
+                  id="dc-date"
                   type="date"
                   value={newDate}
                   onChange={e => setNewDate(e.target.value)}
@@ -212,8 +213,9 @@ export function DailyChallengeManager() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-dark-400 mb-1">Текст (необязательно)</label>
+                <label htmlFor="dc-text" className="block text-sm text-dark-400 mb-1">Текст (необязательно)</label>
                 <textarea
+                  id="dc-text"
                   value={newText}
                   onChange={e => setNewText(e.target.value)}
                   rows={3}
@@ -223,8 +225,9 @@ export function DailyChallengeManager() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-dark-400 mb-1">Цель WPM</label>
+                  <label htmlFor="dc-wpm" className="block text-sm text-dark-400 mb-1">Цель WPM</label>
                   <input
+                    id="dc-wpm"
                     type="number"
                     value={newWpm}
                     onChange={e => setNewWpm(parseInt(e.target.value) || 40)}
@@ -234,8 +237,9 @@ export function DailyChallengeManager() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-dark-400 mb-1">Цель точность (%)</label>
+                  <label htmlFor="dc-acc" className="block text-sm text-dark-400 mb-1">Цель точность (%)</label>
                   <input
+                    id="dc-acc"
                     type="number"
                     value={newAcc}
                     onChange={e => setNewAcc(parseInt(e.target.value) || 94)}

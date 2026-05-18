@@ -32,7 +32,7 @@ function saveUsage(usage: Record<string, { count: number; totalWpm: number; tota
   }
 }
 
-export function recordTextUsage(textId: string, title: string, wpm: number, accuracy: number) {
+export function recordTextUsage(textId: string, _title: string, wpm: number, accuracy: number) {
   const usage = loadUsage()
   const entry = usage[textId] || { count: 0, totalWpm: 0, totalAccuracy: 0, lastUsed: '' }
   entry.count += 1
