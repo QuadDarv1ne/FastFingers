@@ -97,30 +97,36 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const duelStateRef = useRef(duelState)
   const wpmRef = useRef(wpm)
   const accuracyRef = useRef(accuracy)
+  const currentDuelRef = useRef(currentDuel)
+  const userRef = useRef(user)
   duelStateRef.current = duelState
   wpmRef.current = wpm
   accuracyRef.current = accuracy
+  currentDuelRef.current = currentDuel
+  userRef.current = user
 
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
-    if (!currentDuel?.id || !supabaseReady) return
+    const duel = currentDuelRef.current
+    const curUser = userRef.current
+    if (!duel?.id || !supabaseReady) return
 
     const channel = supabase!
-      .channel(`duel:${currentDuel.id}`)
+      .channel(`duel:${duel.id}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'duels',
-          filter: `id=eq.${currentDuel.id}`,
+          filter: `id=eq.${duel.id}`,
         },
         (payload) => {
           const updatedDuel = payload.new as DuelChallenge
           setCurrentDuel(updatedDuel)
 
           // Extract opponent WPM and accuracy based on user role
-          const isChallenger = currentDuel?.challenger?.id === user?.id
+          const isChallenger = duel?.challenger?.id === curUser?.id
           const oppWpm = isChallenger
             ? (updatedDuel.opponent_wpm as number) ?? 0
             : (updatedDuel.challenger_wpm as number) ?? 0
@@ -142,7 +148,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         supabase!.removeChannel(channel)
       }
     }
-  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id, supabaseReady])
+  }, [supabaseReady])
 
   // Поиск случайного соперника
   const findRandomOpponent = useCallback(async () => {
@@ -210,10 +216,12 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
   // Завершение дуэли
   const handleDuelComplete = useCallback(async (stats: TypingStats) => {
-    if (!currentDuel || !user?.id) return
+    const duel = currentDuelRef.current
+    const curUser = userRef.current
+    if (!duel || !curUser?.id) return
 
     try {
-      const isChallenger = currentDuel.challenger.id === user.id
+      const isChallenger = duel.challenger.id === curUser.id
       const userScore = Math.round(stats.wpm * (stats.accuracy / 100))
       const opponentScore = Math.round(opponentWpm * (opponentAccuracy / 100))
 
@@ -221,8 +229,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       const userWon = userScore > opponentScore
 
       await completeDuel.mutateAsync({
-        duelId: currentDuel.id,
-        winnerId: userWon ? user.id : (isChallenger ? currentDuel.opponent.id : currentDuel.challenger.id),
+        duelId: duel.id,
+        winnerId: userWon ? curUser.id : (isChallenger ? duel.opponent.id : duel.challenger.id),
         challengerScore: isChallenger ? userScore : opponentScore,
         opponentScore: isChallenger ? opponentScore : userScore,
         challengerWpm: isChallenger ? stats.wpm : opponentWpm,
@@ -236,12 +244,14 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     } catch (err) {
       logger.error('Error completing duel:', err)
     }
-  }, [currentDuel, user?.id, opponentWpm, opponentAccuracy, completeDuel, onComplete])
+  }, [opponentWpm, opponentAccuracy, completeDuel, onComplete])
 
   const flushDuelProgress = useCallback(async () => {
     const pending = pendingUpdateRef.current
-    if (!pending || !currentDuel?.id || !supabaseReady) return
-    const isChallenger = currentDuel.challenger?.id === user?.id
+    const duel = currentDuelRef.current
+    const curUser = userRef.current
+    if (!pending || !duel?.id || !supabaseReady) return
+    const isChallenger = duel.challenger?.id === curUser?.id
     try {
       await supabase!
         .from('duels')
@@ -250,12 +260,12 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             ? { challenger_wpm: pending.wpm, challenger_accuracy: pending.accuracy }
             : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
         )
-        .eq('id', currentDuel.id)
+        .eq('id', duel.id)
       pendingUpdateRef.current = null
     } catch (err) {
       logger.error('Failed to flush duel progress:', err)
     }
-  }, [currentDuel?.id, currentDuel?.challenger?.id, user?.id, supabaseReady])
+  }, [supabaseReady])
 
   // Обработка ввода с обновлением прогресса (throttled)
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
