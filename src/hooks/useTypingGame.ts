@@ -149,14 +149,6 @@ export function useTypingGame({
     return () => window.clearInterval(interval)
   }, [mode, isActive, safeDuration])
 
-  // Process timer expiry outside of setState updater to avoid side effects
-  useEffect(() => {
-    if (!timeExpiredRef.current) return
-    timeExpiredRef.current = false
-    setIsActive(false)
-    setIsComplete(true)
-  }, [timeLeft])
-
   // Синхронизация timeLeft при изменении duration
   useEffect(() => {
     if (mode === 'timed' && !isActive) {
@@ -217,6 +209,17 @@ export function useTypingGame({
     },
     [onComplete, mode, safeDuration]
   )
+
+  // Process timer expiry outside of setState updater to avoid side effects
+  useEffect(() => {
+    if (!timeExpiredRef.current) return
+    timeExpiredRef.current = false
+    setIsActive(false)
+    setIsComplete(true)
+    if (mode === 'timed') {
+      handleComplete(inputResultsRef.current)
+    }
+  }, [timeLeft, mode, handleComplete])
 
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
