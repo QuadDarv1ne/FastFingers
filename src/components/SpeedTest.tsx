@@ -123,8 +123,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
       // Если текст заканчивается, сохраняем результаты сегмента и генерируем новый
       if (idx >= text.length - 10) {
-        totalCorrectRef.current += inputResults.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
-        totalCharsRef.current += inputResults.length + 1
+        totalCorrectRef.current += inputResultsRef.current.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
+        totalCharsRef.current += inputResultsRef.current.length + 1
         generateNewText()
       }
     }
