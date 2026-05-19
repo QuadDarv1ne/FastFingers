@@ -103,6 +103,13 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
       milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
       setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
     }
+
+    return () => {
+      if (milestoneTimerRef.current) {
+        clearTimeout(milestoneTimerRef.current)
+        milestoneTimerRef.current = null
+      }
+    }
   }, [timeLeft, isActive])
 
   // Подсчёт комбо
@@ -110,16 +117,14 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     if (inputResults.length > 0) {
       const lastResult = inputResults[inputResults.length - 1]
       if (lastResult && lastResult.isCorrect) {
-        setCombo(prev => {
-          const newCombo = prev + 1
-          setMaxCombo(prevMax => Math.max(prevMax, newCombo))
-          return newCombo
-        })
+        const newCombo = combo + 1
+        setCombo(newCombo)
+        setMaxCombo(prev => Math.max(prev, newCombo))
       } else {
         setCombo(0)
       }
     }
-  }, [inputResults])
+  }, [inputResults, combo])
 
   // Пропуск
   const handleSkipWrapper = useCallback(() => {
