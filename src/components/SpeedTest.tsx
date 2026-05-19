@@ -70,7 +70,6 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
       setTimeLeft((prev: number) => {
         if (prev <= 1) {
           shouldFinishRef.current = true
-          setIsActive(false)
           return 0
         }
         return prev - 1
@@ -83,11 +82,12 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   // Finish when timer reaches 0 (avoid calling handleFinish inside setState updater)
   const hasFinishedRef = useRef(false)
   useEffect(() => {
-    if (timeLeft === 0 && !isActive && shouldFinishRef.current && !hasFinishedRef.current) {
+    if (timeLeft === 0 && shouldFinishRef.current && !hasFinishedRef.current) {
       hasFinishedRef.current = true
+      setIsActive(false)
       handleFinish()
     }
-  }, [timeLeft, isActive, handleFinish])
+  }, [timeLeft, handleFinish])
 
   // Старт при первом нажатии
   const handleStart = () => {

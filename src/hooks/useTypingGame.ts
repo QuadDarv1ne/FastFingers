@@ -89,6 +89,7 @@ export function useTypingGame({
   const inputResultsRef = useRef<KeyInputResult[]>([])
   const pendingCompletionRef = useRef<{ results: KeyInputResult[]; shouldGenerateText: boolean } | null>(null)
   const startTimeRef = useRef<number | null>(null)
+  const timeExpiredRef = useRef(false)
 
   const generateNewText = useCallback(() => {
     try {
@@ -138,8 +139,7 @@ export function useTypingGame({
     const interval = window.setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          setIsActive(false)
-          setIsComplete(true)
+          timeExpiredRef.current = true
           return 0
         }
         return prev - 1
@@ -148,6 +148,14 @@ export function useTypingGame({
 
     return () => window.clearInterval(interval)
   }, [mode, isActive, safeDuration])
+
+  // Process timer expiry outside of setState updater to avoid side effects
+  useEffect(() => {
+    if (!timeExpiredRef.current) return
+    timeExpiredRef.current = false
+    setIsActive(false)
+    setIsComplete(true)
+  }, [timeLeft])
 
   // Синхронизация timeLeft при изменении duration
   useEffect(() => {
