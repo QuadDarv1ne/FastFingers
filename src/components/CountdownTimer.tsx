@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { formatDuration } from '../utils/number'
 import './CountdownTimer.css'
 
@@ -29,17 +29,22 @@ export function CountdownTimer({
     setIsRunning(prev => !prev)
   }, [])
 
+  const completedRef = useRef(false)
+  const onTickRef = useRef(onTick)
+  const onCompleteRef = useRef(onComplete)
+  onTickRef.current = onTick
+  onCompleteRef.current = onComplete
+
   useEffect(() => {
     if (!isRunning || remaining <= 0) return
 
     const interval = setInterval(() => {
       setRemaining(prev => {
         const newRemaining = prev - 1
-        onTick?.(newRemaining)
+        onTickRef.current?.(newRemaining)
 
         if (newRemaining <= 0) {
-          clearInterval(interval)
-          onComplete?.()
+          completedRef.current = true
           return 0
         }
 
@@ -48,7 +53,15 @@ export function CountdownTimer({
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isRunning, remaining, onComplete, onTick])
+  }, [isRunning, remaining])
+
+  useEffect(() => {
+    if (completedRef.current && remaining <= 0) {
+      completedRef.current = false
+      setIsRunning(false)
+      onCompleteRef.current?.()
+    }
+  }, [remaining])
 
   useEffect(() => {
     reset()

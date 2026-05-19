@@ -117,14 +117,17 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     if (inputResults.length > 0) {
       const lastResult = inputResults[inputResults.length - 1]
       if (lastResult && lastResult.isCorrect) {
-        const newCombo = combo + 1
-        setCombo(newCombo)
-        setMaxCombo(prev => Math.max(prev, newCombo))
+        setCombo(prev => prev + 1)
       } else {
         setCombo(0)
       }
     }
-  }, [inputResults, combo])
+  }, [inputResults])
+
+  // Track max combo separately — no side effects in updaters
+  useEffect(() => {
+    setMaxCombo(prev => Math.max(prev, combo))
+  }, [combo])
 
   // Пропуск
   const handleSkipWrapper = useCallback(() => {
