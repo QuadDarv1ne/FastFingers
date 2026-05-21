@@ -54,6 +54,88 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
     }
   }, [userId])
 
+  // Compute session distribution by WPM ranges
+  const wpmDistribution = useMemo(() => {
+    const ranges = [
+      { label: '< 20', min: 0, max: 20, count: 0 },
+      { label: '20-39', min: 20, max: 40, count: 0 },
+      { label: '40-59', min: 40, max: 60, count: 0 },
+      { label: '60-79', min: 60, max: 80, count: 0 },
+      { label: '80-99', min: 80, max: 100, count: 0 },
+      { label: '100+', min: 100, max: Infinity, count: 0 },
+    ]
+    for (const s of sessions) {
+      for (const r of ranges) {
+        if (s.wpm >= r.min && s.wpm < r.max) { r.count++; break }
+      }
+    }
+    return ranges
+  }, [sessions])
+
+  // Skill assessment
+  const skillAssessment = useMemo(() => {
+    if (sessions.length < 2) return null
+
+    const recent = sessions.slice(0, 10)
+    const older = sessions.slice(10, 20)
+
+    const recentAvgWpm = Math.round(recent.reduce((s, sess) => s + sess.wpm, 0) / recent.length)
+    const recentAvgAcc = Math.round(recent.reduce((s, sess) => s + sess.accuracy, 0) / recent.length)
+    const recentAvgErrors = Math.round(recent.reduce((s, sess) => s + sess.errors, 0) / recent.length)
+
+    // Consistency: standard deviation of WPM
+    const wpmVariance = recent.reduce((sum, s) => sum + Math.pow(s.wpm - recentAvgWpm, 2), 0) / recent.length
+    const wpmStdDev = Math.round(Math.sqrt(wpmVariance) * 10) / 10
+    const consistency = Math.max(0, Math.min(100, Math.round(100 - wpmStdDev * 2)))
+
+    // Progress trend: compare recent 10 with older 10
+    let trendLabel = '—'
+    let trendColor = 'text-dark-400'
+    if (older.length > 0) {
+      const olderAvgWpm = older.reduce((s, sess) => s + sess.wpm, 0) / older.length
+      const diff = recentAvgWpm - olderAvgWpm
+      if (diff > 5) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
+      else if (diff < -5) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
+      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
+    } else if (stats.wpmTrend.length >= 3) {
+      const first3 = stats.wpmTrend.slice(0, 3).reduce((s, d) => s + d.wpm, 0) / 3
+      const last3 = stats.wpmTrend.slice(-3).reduce((s, d) => s + d.wpm, 0) / 3
+      const diff = last3 - first3
+      if (diff > 3) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
+      else if (diff < -3) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
+      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
+    }
+
+    // Accuracy stability
+    const accVariance = recent.reduce((sum, s) => sum + Math.pow(s.accuracy - recentAvgAcc, 2), 0) / recent.length
+    const accStdDev = Math.round(Math.sqrt(accVariance) * 10) / 10
+    const accuracyStability = Math.max(0, Math.min(100, Math.round(100 - accStdDev * 3)))
+
+    return {
+      consistency,
+      accuracyStability,
+      recentAvgWpm,
+      recentAvgAcc,
+      recentAvgErrors,
+      trendLabel,
+      trendColor,
+      wpmStdDev,
+      accStdDev,
+    }
+  }, [sessions, stats.wpmTrend])
+
+  // Weakest sessions (lowest accuracy)
+  const weakestSessions = useMemo(
+    () => [...sessions].sort((a, b) => a.accuracy - b.accuracy).slice(0, 5),
+    [sessions],
+  )
+
+  // Best sessions
+  const bestSessions = useMemo(
+    () => [...sessions].sort((a, b) => b.wpm - a.wpm).slice(0, 5),
+    [sessions],
+  )
+
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto p-6">
@@ -86,10 +168,11 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
           <div className="flex gap-2 justify-center">
             <button
               onClick={() => {
+                if (!userId) return
                 setIsLoading(true)
                 setError(null)
                 cloudSyncService
-                  .getTypingSessions(userId!, 200)
+                  .getTypingSessions(userId, 200)
                   .then(raw => { setSessions(mapSupabaseSessions(raw)); setIsLoading(false) })
                   .catch(err => { setError(err.message || 'Не удалось загрузить данные'); setIsLoading(false) })
               }}
@@ -128,92 +211,6 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
   }
 
   const { summary, personalRecords, wpmTrend, activityByDayOfWeek, dailyStats } = stats
-
-  // Compute session distribution by WPM ranges
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const wpmDistribution = useMemo(() => {
-    const ranges = [
-      { label: '< 20', min: 0, max: 20, count: 0 },
-      { label: '20-39', min: 20, max: 40, count: 0 },
-      { label: '40-59', min: 40, max: 60, count: 0 },
-      { label: '60-79', min: 60, max: 80, count: 0 },
-      { label: '80-99', min: 80, max: 100, count: 0 },
-      { label: '100+', min: 100, max: Infinity, count: 0 },
-    ]
-    for (const s of sessions) {
-      for (const r of ranges) {
-        if (s.wpm >= r.min && s.wpm < r.max) { r.count++; break }
-      }
-    }
-    return ranges
-  }, [sessions])
-
-  // Skill assessment
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const skillAssessment = useMemo(() => {
-    if (sessions.length < 2) return null
-
-    const recent = sessions.slice(0, 10)
-    const older = sessions.slice(10, 20)
-
-    const recentAvgWpm = Math.round(recent.reduce((s, sess) => s + sess.wpm, 0) / recent.length)
-    const recentAvgAcc = Math.round(recent.reduce((s, sess) => s + sess.accuracy, 0) / recent.length)
-    const recentAvgErrors = Math.round(recent.reduce((s, sess) => s + sess.errors, 0) / recent.length)
-
-    // Consistency: standard deviation of WPM
-    const wpmVariance = recent.reduce((sum, s) => sum + Math.pow(s.wpm - recentAvgWpm, 2), 0) / recent.length
-    const wpmStdDev = Math.round(Math.sqrt(wpmVariance) * 10) / 10
-    const consistency = Math.max(0, Math.min(100, Math.round(100 - wpmStdDev * 2)))
-
-    // Progress trend: compare recent 10 with older 10
-    let trendLabel = '—'
-    let trendColor = 'text-dark-400'
-    if (older.length > 0) {
-      const olderAvgWpm = older.reduce((s, sess) => s + sess.wpm, 0) / older.length
-      const diff = recentAvgWpm - olderAvgWpm
-      if (diff > 5) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
-      else if (diff < -5) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
-      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
-    } else if (wpmTrend.length >= 3) {
-      const first3 = wpmTrend.slice(0, 3).reduce((s, d) => s + d.wpm, 0) / 3
-      const last3 = wpmTrend.slice(-3).reduce((s, d) => s + d.wpm, 0) / 3
-      const diff = last3 - first3
-      if (diff > 3) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
-      else if (diff < -3) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
-      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
-    }
-
-    // Accuracy stability
-    const accVariance = recent.reduce((sum, s) => sum + Math.pow(s.accuracy - recentAvgAcc, 2), 0) / recent.length
-    const accStdDev = Math.round(Math.sqrt(accVariance) * 10) / 10
-    const accuracyStability = Math.max(0, Math.min(100, Math.round(100 - accStdDev * 3)))
-
-    return {
-      consistency,
-      accuracyStability,
-      recentAvgWpm,
-      recentAvgAcc,
-      recentAvgErrors,
-      trendLabel,
-      trendColor,
-      wpmStdDev,
-      accStdDev,
-    }
-  }, [sessions, wpmTrend])
-
-  // Weakest sessions (lowest accuracy)
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const weakestSessions = useMemo(
-    () => [...sessions].sort((a, b) => a.accuracy - b.accuracy).slice(0, 5),
-    [sessions],
-  )
-
-  // Best sessions
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const bestSessions = useMemo(
-    () => [...sessions].sort((a, b) => b.wpm - a.wpm).slice(0, 5),
-    [sessions],
-  )
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto p-6">

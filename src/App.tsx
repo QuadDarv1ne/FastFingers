@@ -486,11 +486,6 @@ function AppContent() {
         </div>
       </main>
 
-      <footer className="container mx-auto px-4 py-6 text-center text-dark-400 text-sm border-t border-dark-700/50" role="contentinfo">
-        <p>{t('misc.footer')}</p>
-        <p className="mt-2 text-xs">© 2025-2026 Dupley Maxim Igorevich. All rights reserved.</p>
-      </footer>
-
       <ErrorBoundary key="online-status" fallback={null}>
         <Suspense fallback={<LoadingFallback />}>
           <OnlineStatus />
