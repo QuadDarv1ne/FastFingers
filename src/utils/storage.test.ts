@@ -8,6 +8,8 @@ import {
   clearStorage,
   getStorageKeys,
   getStorageSize,
+  getFromStorageAsArray,
+  getFromStorageAsObject,
 } from './storage'
 
 describe('storage utils', () => {
@@ -287,6 +289,46 @@ describe('storage utils', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(getStorageSize()).toBe(0)
       vi.restoreAllMocks()
+    })
+  })
+
+  describe('getFromStorageAsArray', () => {
+    it('should return parsed array from localStorage', () => {
+      localStorage.setItem('arr', JSON.stringify([1, 2, 3]))
+      expect(getFromStorageAsArray<number>('arr')).toEqual([1, 2, 3])
+    })
+
+    it('should return default empty array when key does not exist', () => {
+      expect(getFromStorageAsArray('nonexistent')).toEqual([])
+    })
+
+    it('should return provided default array when key does not exist', () => {
+      expect(getFromStorageAsArray('nonexistent', ['a', 'b'])).toEqual(['a', 'b'])
+    })
+
+    it('should return default when value is not an array', () => {
+      localStorage.setItem('notArray', JSON.stringify({ key: 'value' }))
+      expect(getFromStorageAsArray('notArray', [])).toEqual([])
+    })
+  })
+
+  describe('getFromStorageAsObject', () => {
+    it('should return parsed object from localStorage', () => {
+      localStorage.setItem('obj', JSON.stringify({ name: 'test', count: 5 }))
+      expect(getFromStorageAsObject('obj')).toEqual({ name: 'test', count: 5 })
+    })
+
+    it('should return default empty object when key does not exist', () => {
+      expect(getFromStorageAsObject('nonexistent')).toEqual({})
+    })
+
+    it('should return provided default object when key does not exist', () => {
+      expect(getFromStorageAsObject('nonexistent', { default: true })).toEqual({ default: true })
+    })
+
+    it('should return default when value is an array', () => {
+      localStorage.setItem('isArray', JSON.stringify([1, 2]))
+      expect(getFromStorageAsObject('isArray', {})).toEqual({})
     })
   })
 })

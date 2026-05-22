@@ -1,15 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Exercise } from '../types';
 import type { PracticeText } from '../data/practiceTexts';
+import { getFromStorageAsArray } from '../utils/storage';
 
 const ADMIN_TEXTS_KEY = 'fastfingers_admin_texts';
 
 function loadAdminTexts(): PracticeText[] {
-  try {
-    return JSON.parse(localStorage.getItem(ADMIN_TEXTS_KEY) || '[]');
-  } catch {
-    return [];
-  }
+  return getFromStorageAsArray(ADMIN_TEXTS_KEY);
 }
 
 function adminToExercises(texts: PracticeText[]): Exercise[] {

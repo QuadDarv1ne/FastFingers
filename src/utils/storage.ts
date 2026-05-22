@@ -85,6 +85,32 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
 }
 
 /**
+ * Получить массив из localStorage с fallback по умолчанию.
+ * Заменяет паттерн: JSON.parse(localStorage.getItem(key) || '[]')
+ */
+export function getFromStorageAsArray<T>(
+  key: string,
+  defaultValue: T[] = []
+): T[] {
+  const result = getFromStorage<T[]>(key, defaultValue)
+  return Array.isArray(result) ? result : defaultValue
+}
+
+/**
+ * Получить объект из localStorage с fallback по умолчанию.
+ * Заменяет паттерн: JSON.parse(localStorage.getItem(key) || '{}')
+ */
+export function getFromStorageAsObject<T extends Record<string, unknown>>(
+  key: string,
+  defaultValue: T = {} as T
+): T {
+  const result = getFromStorage<T>(key, defaultValue)
+  return result && typeof result === 'object' && !Array.isArray(result)
+    ? result
+    : defaultValue
+}
+
+/**
  * Удалить значение из localStorage
  */
 export function removeFromStorage(key: string): void {

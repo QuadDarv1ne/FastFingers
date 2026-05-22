@@ -5,6 +5,8 @@ import { cloudSyncService } from '../../services/cloudSyncService'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
 import { mapSupabaseSessions, computeStudentStats, type SessionData } from '../../utils/studentStats'
 import { logger } from '../../utils/logger'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
+import { getFromStorageAsArray } from '../../utils/storage'
 
 interface StudentAnalyticsPageProps {
   onBack: () => void
@@ -47,8 +49,8 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
   // Load user aggregate stats from localStorage
   const userStats = useMemo(() => {
     try {
-      const users = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
-      return users.find((u: { id: string }) => u.id === userId)?.stats || null
+      const users = getFromStorageAsArray<{ id: string; stats?: Record<string, unknown> }>(STORAGE_KEYS.USERS)
+      return users.find(u => u?.id === userId)?.stats || null
     } catch {
       return null
     }
@@ -261,10 +263,10 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
       {/* User stats from localStorage */}
       {userStats && (
         <div className="glass rounded-xl p-4 mb-6 flex flex-wrap items-center gap-6">
-          <StatBadge icon="🎓" label="Уровень" value={userStats.level.toString()} />
-          <StatBadge icon="⭐" label="XP" value={userStats.totalXp.toString()} />
-          <StatBadge icon="🔥" label="Серия" value={`${userStats.currentStreak} дн.`} />
-          <StatBadge icon="🏆" label="Лучшая серия" value={`${userStats.longestStreak} дн.`} />
+          <StatBadge icon="🎓" label="Уровень" value={String((userStats as Record<string, unknown>).level ?? 0)} />
+          <StatBadge icon="⭐" label="XP" value={String((userStats as Record<string, unknown>).totalXp ?? 0)} />
+          <StatBadge icon="🔥" label="Серия" value={`${(userStats as Record<string, unknown>).currentStreak ?? 0} дн.`} />
+          <StatBadge icon="🏆" label="Лучшая серия" value={`${(userStats as Record<string, unknown>).longestStreak ?? 0} дн.`} />
         </div>
       )}
 
@@ -563,7 +565,9 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
   })
 
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
-  const areaD = pathD + ` L${points[points.length - 1]!.x},${h - padding} L${points[0]!.x},${h - padding} Z`
+  const lastPoint = points[points.length - 1]
+  const firstPoint = points[0]
+  const areaD = pathD + (lastPoint && firstPoint ? ` L${lastPoint.x},${h - padding} L${firstPoint.x},${h - padding} Z` : '')
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="none">

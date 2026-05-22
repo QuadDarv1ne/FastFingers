@@ -2,10 +2,12 @@ import { supabase } from './supabase'
 import { User, UserStats } from '../types/auth'
 import { TypingStats } from '../types'
 import { logger } from '../utils/logger'
+import { getFromStorageAsArray, getFromStorageAsObject } from '../utils/storage'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
-const LOCAL_STORAGE_KEY = 'fastfingers_cloud_sync'
-const PENDING_SESSIONS_KEY = 'fastfingers_pending_sessions'
-const BACKEND_STATUS_KEY = 'fastfingers_backend_status'
+const LOCAL_STORAGE_KEY = STORAGE_KEYS.CLOUD_SYNC
+const PENDING_SESSIONS_KEY = STORAGE_KEYS.PENDING_SESSIONS
+const BACKEND_STATUS_KEY = STORAGE_KEYS.BACKEND_STATUS
 
 interface CloudSession {
   id?: string
@@ -194,7 +196,7 @@ export async function saveTypingSession(
 
 function _saveSessionToLocal(stats: TypingStats, xp: number) {
   try {
-    const stored = localStorage.getItem('fastfingers_history')
+    const stored = localStorage.getItem(STORAGE_KEYS.HISTORY)
     let totalSessions = 0
     let totalTime = 0
     let heatmap: Record<string, unknown> = {}
@@ -233,7 +235,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
       totalSessions: totalSessions + 1,
       totalTime,
     }
-    localStorage.setItem('fastfingers_history', JSON.stringify(historyData))
+    localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(historyData))
   } catch {
     logger.warn('Operation failed in services/cloudSync.ts')
     // Ignore storage errors
@@ -241,7 +243,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
 }
 
 function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
-  const pending = JSON.parse(localStorage.getItem(PENDING_SESSIONS_KEY) || '[]')
+  const pending = getFromStorageAsArray<PendingSession>(PENDING_SESSIONS_KEY)
   pending.push({ userId, stats, xp, timestamp: Date.now() })
   localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-50)))
 }
@@ -249,7 +251,7 @@ function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
 export async function flushPendingSessions(): Promise<void> {
   if (!supabase) return
 
-  const pending: PendingSession[] = JSON.parse(localStorage.getItem(PENDING_SESSIONS_KEY) || '[]')
+  const pending: PendingSession[] = getFromStorageAsArray<PendingSession>(PENDING_SESSIONS_KEY)
   if (pending.length === 0) return
 
   const results = await Promise.allSettled(
@@ -280,8 +282,8 @@ export async function loadUserSessions(
 ): Promise<{ sessions: CloudSession[]; isOffline: boolean }> {
   if (!supabase) {
     // Fallback на localStorage
-    const stored = JSON.parse(localStorage.getItem('fastfingers_history') || '{}')
-    const localSessions = Array.isArray(stored) ? stored : (stored.sessions || [])
+    const stored = getFromStorageAsObject<Record<string, unknown>>(STORAGE_KEYS.HISTORY)
+    const localSessions: CloudSession[] = Array.isArray(stored) ? stored : ((stored.sessions as CloudSession[]) || [])
     return { sessions: localSessions, isOffline: true }
   }
 
@@ -311,8 +313,8 @@ export async function loadUserSessions(
   } catch {
     logger.warn('Operation failed in services/cloudSync.ts')
     // Fallback на localStorage
-    const stored = JSON.parse(localStorage.getItem('fastfingers_history') || '{}')
-    const localSessions = Array.isArray(stored) ? stored : (stored.sessions || [])
+    const stored = getFromStorageAsObject<Record<string, unknown>>(STORAGE_KEYS.HISTORY)
+    const localSessions: CloudSession[] = Array.isArray(stored) ? stored : ((stored.sessions as CloudSession[]) || [])
     updateBackendStatus({ sync: false })
     return { sessions: localSessions, isOffline: true }
   }

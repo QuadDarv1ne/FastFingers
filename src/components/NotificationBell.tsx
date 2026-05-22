@@ -4,6 +4,7 @@ import { formatNotificationTimestamp } from '@utils/notifications'
 import { useAppTranslation } from '../i18n/config'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { useClickOutside } from '@hooks/useClickOutside'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface Notification {
   id: string
@@ -21,7 +22,7 @@ interface NotificationBellProps {
 export function NotificationBell({}: NotificationBellProps) {
   const { t } = useAppTranslation()
   const [notifications, setNotifications] = useLocalStorageState<Notification[]>(
-    'fastfingers_notifications',
+    STORAGE_KEYS.NOTIFICATIONS,
     []
   )
   const [isOpen, setIsOpen] = useState(false)
@@ -56,7 +57,7 @@ export function NotificationBell({}: NotificationBellProps) {
   // Синхронизация с NotificationContext
   useEffect(() => {
     const handleNotificationAdded = () => {
-      const stored = localStorage.getItem('fastfingers_notifications')
+      const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)
       if (stored) {
         try {
           setNotifications(JSON.parse(stored))

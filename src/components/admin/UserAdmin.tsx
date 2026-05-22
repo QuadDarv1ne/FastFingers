@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import type { User, UserRole } from '../../types/auth'
+import { getFromStorageAsArray } from '../../utils/storage'
 
 const USERS_STORAGE_KEY = 'fastfingers_users'
 const HISTORY_STORAGE_KEY = 'fastfingers_history'
@@ -12,11 +13,7 @@ interface StoredUser extends User {
 type DisplayUser = User
 
 function loadUsers(): StoredUser[] {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '[]')
-  } catch {
-    return []
-  }
+  return getFromStorageAsArray(USERS_STORAGE_KEY)
 }
 
 function saveUsers(users: StoredUser[]) {
@@ -28,11 +25,7 @@ function stripPasswords(users: StoredUser[]): DisplayUser[] {
 }
 
 function loadHistory(): Array<{ userId: string; date: string; wpm: number; accuracy: number; duration: number; errors: number; wordsTyped: number }> {
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]')
-  } catch {
-    return []
-  }
+  return getFromStorageAsArray(HISTORY_STORAGE_KEY)
 }
 
 type SortField = 'name' | 'level' | 'xp' | 'wpm' | 'lastLogin' | 'createdAt'

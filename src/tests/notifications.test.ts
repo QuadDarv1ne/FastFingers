@@ -7,6 +7,7 @@ import {
   addNotification,
   formatNotificationTimestamp,
 } from '../utils/notifications'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 describe('notifications utils', () => {
   describe('createAchievementNotification', () => {
@@ -100,7 +101,7 @@ describe('notifications utils', () => {
 
       addNotification(notification)
 
-      const stored = JSON.parse(localStorage.getItem('fastfingers_notifications') || '[]')
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]')
       expect(stored).toHaveLength(1)
       expect(stored[0].title).toBe('Test')
       expect(stored[0].read).toBe(false)
@@ -117,7 +118,7 @@ describe('notifications utils', () => {
 
       addNotification(notification)
 
-      const stored = JSON.parse(localStorage.getItem('fastfingers_notifications') || '[]')
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]')
       expect(stored[0].timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     })
 
@@ -131,7 +132,7 @@ describe('notifications utils', () => {
         })
       }
 
-      const stored = JSON.parse(localStorage.getItem('fastfingers_notifications') || '[]')
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]')
       expect(stored).toHaveLength(50)
     })
 
@@ -149,7 +150,7 @@ describe('notifications utils', () => {
         icon: 'ℹ️',
       })
 
-      const stored = JSON.parse(localStorage.getItem('fastfingers_notifications') || '[]')
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]')
       expect(stored[0].title).toBe('Second')
       expect(stored[1].title).toBe('First')
     })
@@ -168,7 +169,7 @@ describe('notifications utils', () => {
         icon: 'ℹ️',
       })
 
-      const stored = JSON.parse(localStorage.getItem('fastfingers_notifications') || '[]')
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]')
       expect(stored[0].id).not.toBe(stored[1].id)
     })
   })

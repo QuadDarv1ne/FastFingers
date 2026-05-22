@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { logger } from '../../utils/logger'
 
 interface DailyChallenge {
   id: string
@@ -79,7 +80,11 @@ export function DailyChallengeManager() {
 
   useEffect(() => {
     if (challenges.length > 0) {
-      try { localStorage.setItem(CHALLENGES_KEY, JSON.stringify(challenges)) } catch { /* */ }
+      try {
+        localStorage.setItem(CHALLENGES_KEY, JSON.stringify(challenges))
+      } catch (error) {
+        logger.warn('Failed to save challenges to localStorage', error)
+      }
     }
   }, [challenges])
 

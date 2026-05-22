@@ -7,6 +7,8 @@ import { TextManager } from './TextManager'
 import { UserAdmin } from './UserAdmin'
 import { DailyChallengeManager } from './DailyChallengeManager'
 import { practiceTexts } from '../../data/practiceTexts'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
+import { getFromStorageAsArray } from '../../utils/storage'
 
 const APP_VERSION = '0.1.0'
 
@@ -39,16 +41,16 @@ function AdminOverview() {
   const { t } = useTranslation()
   const { user } = useAuth()
 
-  const totalUsers = useMemo(() => safeParseLength('fastfingers_users'), [])
-  const customTexts = useMemo(() => safeParseLength('fastfingers_admin_texts'), [])
-  const totalSessions = useMemo(() => safeParseLength('fastfingers_history'), [])
+  const totalUsers = useMemo(() => safeParseLength(STORAGE_KEYS.USERS), [])
+  const customTexts = useMemo(() => safeParseLength(STORAGE_KEYS.ADMIN_TEXTS), [])
+  const totalSessions = useMemo(() => safeParseLength(STORAGE_KEYS.HISTORY), [])
   const staticTextsCount = useMemo(() => practiceTexts.length, [])
 
   // Compute top users by various metrics
   const userSummaries = useMemo((): UserStatsSummary[] => {
     try {
       const users: Array<{ id: string; name: string; email: string; stats: Record<string, number>; lastLogin?: string }> =
-        JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+        getFromStorageAsArray(STORAGE_KEYS.USERS)
       return users
         .filter(u => u.stats && typeof u.stats === 'object')
         .map(u => ({

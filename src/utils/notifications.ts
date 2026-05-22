@@ -1,6 +1,8 @@
 import i18n from 'i18next'
 import { Notification as BellNotification } from '../components/NotificationBell'
 import { Notification as ContextNotification } from '../contexts/NotificationContext'
+import { getFromStorageAsArray } from './storage'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface AchievementData {
   title: string
@@ -56,9 +58,7 @@ export function createChallengeCompleteNotification(
 export function addNotification(
   notification: Omit<BellNotification, 'id' | 'timestamp' | 'read'>
 ) {
-  const notifications = JSON.parse(
-    localStorage.getItem('fastfingers_notifications') || '[]'
-  )
+  const notifications = getFromStorageAsArray(STORAGE_KEYS.NOTIFICATIONS)
 
   const newNotification: BellNotification = {
     ...notification,
@@ -72,7 +72,7 @@ export function addNotification(
   // Keep only last 50 notifications
   const trimmed = notifications.slice(0, 50)
 
-  localStorage.setItem('fastfingers_notifications', JSON.stringify(trimmed))
+  localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(trimmed))
 
   // Dispatch custom event for real-time updates
   window.dispatchEvent(new CustomEvent('notification-added'))

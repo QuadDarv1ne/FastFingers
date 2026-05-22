@@ -316,9 +316,19 @@ export function useLeaderboardStats(gameMode: GameMode = 'classic') {
  * Helper to extract typed users relation from Supabase response
  * Supabase select with relations returns untyped nested objects
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getUsers(raw: any): UsersRelation {
-  return raw as unknown as UsersRelation
+function getUsers(raw: unknown): UsersRelation {
+  if (raw === null || raw === undefined) {
+    return { name: 'Unknown', avatar: null, stats: undefined }
+  }
+  if (typeof raw !== 'object') {
+    return { name: 'Unknown', avatar: null, stats: undefined }
+  }
+  const obj = raw as Record<string, unknown>
+  return {
+    name: (obj.name as string) || 'Unknown',
+    avatar: (obj.avatar as string | null) || null,
+    stats: obj.stats as Record<string, unknown> | undefined,
+  }
 }
 
 /**

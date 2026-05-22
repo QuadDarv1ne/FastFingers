@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { getFromStorageAsObject } from '../utils/storage'
 
 export interface TextUsageStats {
   textId: string
@@ -17,11 +18,7 @@ export interface TextUsageStats {
 const USAGE_KEY = 'fastfingers_textUsage'
 
 function loadUsage(): Record<string, { count: number; totalWpm: number; totalAccuracy: number; lastUsed: string }> {
-  try {
-    return JSON.parse(localStorage.getItem(USAGE_KEY) || '{}')
-  } catch {
-    return {}
-  }
+  return getFromStorageAsObject(USAGE_KEY)
 }
 
 function saveUsage(usage: Record<string, { count: number; totalWpm: number; totalAccuracy: number; lastUsed: string }>) {

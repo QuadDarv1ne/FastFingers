@@ -2,6 +2,7 @@ import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, Pass
 import { AuthError } from './authErrors';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
+import { getFromStorageAsArray } from '../utils/storage';
 
 const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
@@ -140,9 +141,9 @@ const checkLockout = (email: string): number | null => {
 
 const cleanupExpiredTokens = () => {
   try {
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
+    const tokens = getFromStorageAsArray<{ email: string; token: string; expiresAt: string }>(RESET_TOKENS_KEY);
     const now = Date.now();
-    const validTokens = tokens.filter((t: { expiresAt: string }) => new Date(t.expiresAt).getTime() > now);
+    const validTokens = tokens.filter(t => new Date(t.expiresAt).getTime() > now);
     if (tokens.length !== validTokens.length) {
       localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
     }
@@ -377,7 +378,7 @@ export const authService = {
     const token = generateId();
     const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS).toISOString();
 
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
+    const tokens = getFromStorageAsArray<{ email: string; token: string; expiresAt: string }>(RESET_TOKENS_KEY);
     tokens.push({ email: request.email, token, expiresAt });
     localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
 
@@ -395,8 +396,8 @@ export const authService = {
       throw new AuthError('password-mismatch', 'Пароли не совпадают');
     }
 
-    const tokens = JSON.parse(localStorage.getItem(RESET_TOKENS_KEY) || '[]');
-    const tokenIndex = tokens.findIndex((t: { token: string; expiresAt: string }) =>
+    const tokens = getFromStorageAsArray<{ token: string; expiresAt: string; email: string }>(RESET_TOKENS_KEY);
+    const tokenIndex = tokens.findIndex(t =>
       t.token === confirm.token && new Date(t.expiresAt) > new Date()
     );
 
@@ -405,6 +406,9 @@ export const authService = {
     }
 
     const tokenData = tokens[tokenIndex];
+    if (!tokenData) {
+      throw new AuthError('invalid-token', 'Неверный или истёкший токен');
+    }
     const users = getUsers();
     const userIndex = users.findIndex(u => u.email === tokenData.email);
 

@@ -3,6 +3,7 @@ import type { PracticeText, TextCategory } from '../../data/practiceTexts'
 import { useToast } from '@contexts/ToastContext'
 import { useTranslation } from 'react-i18next'
 import { useTextUsageStats } from '@hooks/useTextUsage'
+import { getFromStorageAsArray } from '../../utils/storage'
 
 const STORAGE_KEY = 'fastfingers_admin_texts'
 
@@ -19,11 +20,7 @@ const CATEGORY_LABELS: Record<TextCategory, string> = {
 }
 
 function loadTexts(): PracticeText[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-  } catch {
-    return []
-  }
+  return getFromStorageAsArray(STORAGE_KEY)
 }
 
 function saveTexts(texts: PracticeText[]) {
