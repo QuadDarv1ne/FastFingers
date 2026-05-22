@@ -11,30 +11,17 @@ export const Footer = memo(function Footer() {
             &copy; {year} FastFingers. Дуплей Максим Игоревский. Все права защищены.
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <a
-              href="/privacy-policy.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-dark-400 hover:text-primary-400 transition-colors"
-            >
+            <span className="text-dark-500 cursor-default">
               Политика конфиденциальности
-            </a>
-            <a
-              href="/terms-of-service.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-dark-400 hover:text-primary-400 transition-colors"
-            >
+            </span>
+            <span className="text-dark-600">|</span>
+            <span className="text-dark-500 cursor-default">
               Пользовательское соглашение
-            </a>
-            <a
-              href="/cookie-policy.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-dark-400 hover:text-primary-400 transition-colors"
-            >
+            </span>
+            <span className="text-dark-600">|</span>
+            <span className="text-dark-500 cursor-default">
               Cookie
-            </a>
+            </span>
           </div>
         </div>
       </div>

@@ -112,16 +112,16 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
               checked={showHeatmap}
               onChange={(e) => onToggleHeatmap?.(e.target.checked)}
               className="rounded bg-dark-800 border-dark-700 text-primary-600 focus:ring-primary-500"
-              aria-label="Переключить тепловую карту"
+              aria-label={t('tooltip.heatmap', 'Toggle heatmap')}
             />
             <span className={`text-sm font-medium ${showHeatmap ? 'text-white' : 'text-dark-400'}`}>
-              🔥 {t('misc.theme')}
+              🔥 {t('misc.heatmap', 'Heatmap')}
             </span>
           </label>
         )}
       </div>
       
-      <div className="space-y-1.5 sm:space-y-2 select-none" role="group" aria-label="Раскладка клавиатуры">
+      <div className="space-y-1.5 sm:space-y-2 select-none" role="group" aria-label={t('keyboard.layout', 'Keyboard layout')}>
         {/* Ряды клавиш */}
         {layoutData.rows.map((row, rowIndex) => (
           <div
@@ -129,7 +129,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             className="flex justify-center gap-1 sm:gap-1.5"
             style={{ paddingLeft: `${rowIndex * 8}px` }}
             role="row"
-            aria-label={`Ряд ${rowIndex + 1}`}
+            aria-label={`${t('keyboard.row', 'Row')} ${rowIndex + 1}`}
           >
             {row.map((key) => {
               const keyStyle = keyStyles[key]
@@ -145,7 +145,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   title={title}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Клавиша ${key.toUpperCase()}`}
+                  aria-label={`${t('keyboard.key', 'Key')} ${key.toUpperCase()}`}
                   aria-pressed={highlightKey === key.toLowerCase()}
                   onTouchStart={(e) => {
                     e.preventDefault()
@@ -176,7 +176,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
           <button
             type="button"
             className="w-48 sm:w-64 h-9 bg-dark-800 rounded-lg flex items-center justify-center text-xs text-dark-500 touch-manipulation select-none active:bg-dark-700 transition-colors"
-            aria-label="Клавиша пробел"
+            aria-label={t('keyboard.space', 'Space')}
             onTouchStart={(e) => {
               e.preventDefault()
               handleKeyTouch(' ')
@@ -190,7 +190,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
       </div>
       
       {/* Легенда пальцев */}
-      <div className="mt-4 pt-4 border-t border-dark-700" role="region" aria-label="Легенда пальцев">
+      <div className="mt-4 pt-4 border-t border-dark-700" role="region" aria-label={t('keyboard.fingerLegend', 'Finger legend')}>
         <div className="grid grid-cols-4 gap-2 text-xs">
           {Object.entries(fingerZones).slice(0, 4).map(([finger, label]) => (
             <div key={finger} className="flex items-center gap-2">

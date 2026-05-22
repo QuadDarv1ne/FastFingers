@@ -256,9 +256,9 @@ function AppContent() {
       <ErrorBoundary key="auth" fallback={
         <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
           <div className="glass rounded-xl p-8 max-w-md w-full text-center">
-            <p className="text-dark-400">Не удалось загрузить страницу авторизации</p>
+            <p className="text-dark-400">{t('error.authFailed', 'Failed to load authorization page')}</p>
             <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg">
-              Обновить страницу
+              {t('action.reload', 'Reload page')}
             </button>
           </div>
         </div>
@@ -447,7 +447,7 @@ function AppContent() {
           </div>
 
           <div className="space-y-6">
-            <ErrorBoundary key="widgets" fallback={<SectionError label="Не удалось загрузить виджеты" />}>
+            <ErrorBoundary key="widgets" fallback={<SectionError message={t('error.widgetsFailed', 'Failed to load widgets')} />}>
               <Suspense fallback={<LoadingFallback />}>
                 <ClockWidget />
                 <MotivationalQuote />
@@ -456,7 +456,7 @@ function AppContent() {
             </ErrorBoundary>
 
             {settings.showStats && (
-              <ErrorBoundary key="stats-panel" fallback={<SectionError label="Не удалось загрузить статистику" />}>
+              <ErrorBoundary key="stats-panel" fallback={<SectionError message={t('error.statsFailed', 'Failed to load statistics')} />}>
                 <Suspense fallback={<LoadingFallback />}>
                   <Stats
                     progress={progress}
@@ -469,7 +469,7 @@ function AppContent() {
               </ErrorBoundary>
             )}
 
-            <ErrorBoundary key="settings-panel" fallback={<SectionError label="Не удалось загрузить настройки" />}>
+            <ErrorBoundary key="settings-panel" fallback={<SectionError message={t('error.settingsFailed', 'Failed to load settings')} />}>
               <SettingsPanel
                 settings={settings}
                 onSettingChange={updateSetting}
@@ -478,7 +478,7 @@ function AppContent() {
               />
             </ErrorBoundary>
 
-            <ErrorBoundary key="export-import" fallback={<SectionError label="Не удалось загрузить экспорт/импорт" />}>
+            <ErrorBoundary key="export-import" fallback={<SectionError message={t('error.exportImportFailed', 'Failed to load export/import')} />}>
               <div className="glass rounded-xl p-6">
                 <ExportImport progress={progress} onImport={handleImportProgress} />
               </div>
@@ -827,10 +827,10 @@ const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
   )
 })
 
-function SectionError({ label }: { label: string }) {
+function SectionError({ message }: { message: string }) {
   return (
     <div className="glass rounded-xl p-6 text-center" role="alert">
-      <p className="text-sm text-dark-400">{label}</p>
+      <p className="text-sm text-dark-400">{message}</p>
     </div>
   )
 }

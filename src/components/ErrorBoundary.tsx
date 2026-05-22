@@ -88,15 +88,15 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
 
-            <h1 className="text-xl font-semibold mb-2">Упс. Что-то пошло не так</h1>
+            <h1 className="text-xl font-semibold mb-2">Oops. Something went wrong</h1>
             <p className="text-dark-400 mb-6">
-              Произошла непредвиденная ошибка. Попробуйте обновить страницу или повторить попытку.
+              An unexpected error occurred. Try refreshing the page or retry.
             </p>
 
             {error && (
               <details className="text-left mb-6">
                 <summary className="cursor-pointer text-sm text-dark-500 hover:text-dark-400 mb-2">
-                  Показать детали ошибки
+                  Show error details
                 </summary>
                 <pre className="text-xs text-red-400 bg-dark-800 rounded-lg p-4 overflow-auto max-h-48">
                   {error.toString()}
@@ -109,14 +109,14 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRetry}
                 className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
               >
-                Попробовать снова
+                Try again
               </button>
 
               <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
               >
-                Обновить страницу
+                Refresh page
               </button>
             </div>
           </div>

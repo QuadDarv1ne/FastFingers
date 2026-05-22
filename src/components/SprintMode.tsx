@@ -46,7 +46,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
     duration,
     onComplete: (stats) => {
       setLastStats(stats)
-      showToast(`Спринт: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
+      showToast(`${t('mode.sprint')}: ${stats.wpm} ${t('common.wpm')}, ${stats.accuracy}% ${t('common.accuracy')}`, 'success', 4000)
       onComplete(stats)
       setShowCertificate(true)
     },

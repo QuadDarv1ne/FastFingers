@@ -456,7 +456,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             <span className="hidden sm:inline">{t('action.skip')}</span>
           </button>
 
-          {isComplete && (
+          {!isComplete && (
             <motion.button
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -480,7 +480,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+              className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10"
               role="dialog"
               aria-modal="true"
               aria-labelledby="completion-title"
