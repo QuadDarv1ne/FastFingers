@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useAppTranslation } from '../i18n/config'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface PWAInstallPromptProps {
   onDismiss?: () => void
@@ -30,7 +31,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
     onDismiss?.()
     // Remember user dismissed to not show again
     try {
-      localStorage.setItem('fastfingers_pwa_dismissed', 'true')
+      localStorage.setItem(STORAGE_KEYS.PWA_DISMISSED, 'true')
     } catch (e) {
       logger.warn('PWA dismiss storage failed:', e)
     }
@@ -41,7 +42,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
 
   // Check if user previously dismissed
   try {
-    const dismissed = localStorage.getItem('fastfingers_pwa_dismissed')
+    const dismissed = localStorage.getItem(STORAGE_KEYS.PWA_DISMISSED)
     if (dismissed === 'true') return null
   } catch (e) {
     logger.warn('PWA dismissed check failed:', e)

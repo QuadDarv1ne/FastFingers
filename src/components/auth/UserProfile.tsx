@@ -8,6 +8,7 @@ import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
 
 interface UserProfileProps {
   onClose: () => void
@@ -44,7 +45,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
   // Load goals from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('fastfingers_goals')
+      const stored = localStorage.getItem(STORAGE_KEYS.GOALS)
       if (stored) {
         setGoals(JSON.parse(stored))
       }
@@ -71,20 +72,20 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
     if (name.trim() && name !== user?.name) {
       // Update user name in localStorage
       try {
-        const stored = localStorage.getItem('fastfingers_user')
+        const stored = localStorage.getItem(STORAGE_KEYS.USER)
         if (stored) {
           const userData = JSON.parse(stored)
           userData.name = name.trim()
-          localStorage.setItem('fastfingers_user', JSON.stringify(userData))
+          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
         }
         // Also update in users list
-        const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+        const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
         const idx = users.findIndex(u => u.id === user?.id)
         if (idx !== -1) {
           const userEntry = users[idx]
           if (userEntry) {
             userEntry.name = name.trim()
-            localStorage.setItem('fastfingers_users', JSON.stringify(users))
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
           }
         }
       } catch {
@@ -96,19 +97,19 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
 
   const handleUpdateName = useCallback((newName: string) => {
     try {
-      const stored = localStorage.getItem('fastfingers_user')
+      const stored = localStorage.getItem(STORAGE_KEYS.USER)
       if (stored) {
         const userData = JSON.parse(stored)
         userData.name = newName
-        localStorage.setItem('fastfingers_user', JSON.stringify(userData))
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
       }
-      const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
+      const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
       const idx = users.findIndex(u => u.id === user?.id)
       if (idx !== -1) {
         const userEntry = users[idx]
         if (userEntry) {
           userEntry.name = newName
-          localStorage.setItem('fastfingers_users', JSON.stringify(users))
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
         }
       }
       setName(newName)
@@ -224,7 +225,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
   // Unlocked achievements count
   const achievementsCount = useMemo(() => {
     try {
-      const stored = localStorage.getItem('fastfingers_achievements')
+      const stored = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS)
       if (stored) {
         const achievements = JSON.parse(stored)
         return achievements.filter((a: { unlocked: boolean }) => a.unlocked).length
@@ -1097,13 +1098,13 @@ function NotificationSettingsSubPage() {
     return typeof Notification !== 'undefined' && Notification.permission === 'granted'
   })
   const [soundEnabled, setSoundEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('fastfingers_notif_sound') || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_SOUND) || 'true') } catch { return true }
   })
   const [levelUpEnabled, setLevelUpEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('fastfingers_notif_levelup') || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_LEVELUP) || 'true') } catch { return true }
   })
   const [achievementEnabled, setAchievementEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('fastfingers_notif_achievement') || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_ACHIEVEMENT) || 'true') } catch { return true }
   })
 
   const enableBrowserNotifs = async () => {
@@ -1234,8 +1235,8 @@ function SecuritySettingsSubPage() {
     // Update password in localStorage
     try {
       const users: Array<{ id: string; email: string; password: string }> =
-        JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
-      const currentUser = JSON.parse(localStorage.getItem('fastfingers_user') || '{}')
+        JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
+      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}')
       const userIdx = users.findIndex(u => u.id === currentUser.id)
       if (userIdx === -1) {
         setMessage({ type: 'error', text: 'Пользователь не найден' })
@@ -1247,7 +1248,7 @@ function SecuritySettingsSubPage() {
         return
       }
       currentUserEntry.password = newPassword
-      localStorage.setItem('fastfingers_users', JSON.stringify(users))
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
       setMessage({ type: 'success', text: 'Пароль успешно изменён' })
       setCurrentPassword('')
       setNewPassword('')

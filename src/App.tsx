@@ -43,6 +43,7 @@ import { useTheme } from './hooks/useTheme'
 import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
+import { STORAGE_KEYS } from './constants/storageKeys'
 
 const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
@@ -86,7 +87,7 @@ function AppContent() {
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
     try {
-      const seen = localStorage.getItem('fastfingers_onboarding_seen')
+      const seen = localStorage.getItem(STORAGE_KEYS.ONBOARDING)
       return !seen
     } catch {
       return true
@@ -197,7 +198,7 @@ function AppContent() {
   }, [setGameMode])
 
   const handleOnboardingComplete = useCallback(() => {
-    localStorage.setItem('fastfingers_onboarding_seen', 'true')
+    localStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true')
     setShowOnboarding(false)
   }, [])
 
@@ -512,11 +513,11 @@ function AppContent() {
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
                 perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
-                duelsPlayed: parseInt(localStorage.getItem('fastfingers_duelsPlayed') || '0'),
-                tournamentsPlayed: parseInt(localStorage.getItem('fastfingers_tournamentsPlayed') || '0'),
+                duelsPlayed: parseInt(localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED) || '0'),
+                tournamentsPlayed: parseInt(localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED) || '0'),
                 customExercisesCreated: customExercises.length,
-                dailyChallengesCompleted: parseInt(localStorage.getItem('fastfingers_dailyChallengesCompleted') || '0'),
-                gameModesUsed: new Set([gameMode, ...((localStorage.getItem('fastfingers_usedGameModes') || '').split(',').filter(Boolean))]).size,
+                dailyChallengesCompleted: parseInt(localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED) || '0'),
+                gameModesUsed: new Set([gameMode, ...((localStorage.getItem(STORAGE_KEYS.USED_GAME_MODES) || '').split(',').filter(Boolean))]).size,
                 level: progress.level,
               }}
               onClose={() => setShowAchievements(false)}

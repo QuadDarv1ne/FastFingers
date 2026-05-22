@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 type ThemeOption = ThemeColor | 'auto'
 
@@ -16,7 +17,7 @@ function getSystemDark(): boolean {
 
 function getStoredThemeOption(): ThemeOption {
   try {
-    const stored = localStorage.getItem('fastfingers_theme_option')
+    const stored = localStorage.getItem(STORAGE_KEYS.THEME_OPTION)
     return (stored as ThemeOption) || 'auto'
   } catch {
     logger.warn('Operation failed in hooks/useTheme.ts')
@@ -26,7 +27,7 @@ function getStoredThemeOption(): ThemeOption {
 
 function getInitialTheme(): ThemeColor {
   try {
-    const stored = localStorage.getItem('fastfingers_theme')
+    const stored = localStorage.getItem(STORAGE_KEYS.THEME)
     if (stored) return stored as ThemeColor
     return 'dark'
   } catch {
@@ -56,7 +57,7 @@ export function useTheme(): UseThemeReturn {
 
   const [customColors, setCustomColorsState] = useState<Partial<ThemeColors> | null>(() => {
     try {
-      const stored = localStorage.getItem('fastfingers_custom_colors')
+      const stored = localStorage.getItem(STORAGE_KEYS.CUSTOM_COLORS)
       return stored ? JSON.parse(stored) : null
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
@@ -66,7 +67,7 @@ export function useTheme(): UseThemeReturn {
 
   const [fontSize, setFontSizeState] = useState<FontSize>(() => {
     try {
-      const stored = localStorage.getItem('fastfingers_font_size')
+      const stored = localStorage.getItem(STORAGE_KEYS.FONT_SIZE)
       return (stored as FontSize) || 'medium'
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
@@ -84,7 +85,7 @@ export function useTheme(): UseThemeReturn {
   useEffect(() => {
     document.documentElement.setAttribute('data-font-size', fontSize)
     try {
-      localStorage.setItem('fastfingers_font_size', fontSize)
+      localStorage.setItem(STORAGE_KEYS.FONT_SIZE, fontSize)
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
@@ -109,7 +110,7 @@ export function useTheme(): UseThemeReturn {
   const setTheme = useCallback((newTheme: ThemeColor) => {
     setThemeState(newTheme)
     try {
-      localStorage.setItem('fastfingers_theme', newTheme)
+      localStorage.setItem(STORAGE_KEYS.THEME, newTheme)
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
@@ -119,7 +120,7 @@ export function useTheme(): UseThemeReturn {
   const setThemeOption = useCallback((option: ThemeOption) => {
     setThemeOptionState(option)
     try {
-      localStorage.setItem('fastfingers_theme_option', option)
+      localStorage.setItem(STORAGE_KEYS.THEME_OPTION, option)
       if (option === 'auto') {
         const newTheme = isSystemDark ? 'dark' : 'light'
         setThemeState(newTheme)
@@ -133,7 +134,7 @@ export function useTheme(): UseThemeReturn {
   const setCustomColors = useCallback((colors: Partial<ThemeColors>) => {
     setCustomColorsState(colors)
     try {
-      localStorage.setItem('fastfingers_custom_colors', JSON.stringify(colors))
+      localStorage.setItem(STORAGE_KEYS.CUSTOM_COLORS, JSON.stringify(colors))
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors
@@ -143,7 +144,7 @@ export function useTheme(): UseThemeReturn {
   const setFontSize = useCallback((size: FontSize) => {
     setFontSizeState(size)
     try {
-      localStorage.setItem('fastfingers_font_size', size)
+      localStorage.setItem(STORAGE_KEYS.FONT_SIZE, size)
     } catch {
       logger.warn('Operation failed in hooks/useTheme.ts')
       // Ignore save errors

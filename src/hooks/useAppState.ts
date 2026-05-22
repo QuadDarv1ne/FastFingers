@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { UserProgress, UserSettings, TypingStats, Exercise, KeyHeatmapData } from '../types'
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction'
 type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning'
@@ -103,7 +104,7 @@ export function useAppState(
 
   const [showOnboarding, setShowOnboarding] = useState(() => {
     try {
-      const seen = localStorage.getItem('fastfingers_onboarding_seen')
+      const seen = localStorage.getItem(STORAGE_KEYS.ONBOARDING)
       return !seen
     } catch {
       logger.warn('Operation failed in hooks/useAppState.ts')
@@ -192,7 +193,7 @@ export function useAppState(
   }, [])
 
   const completeOnboarding = useCallback(() => {
-    localStorage.setItem('fastfingers_onboarding_seen', 'true')
+    localStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true')
     setShowOnboarding(false)
   }, [])
 

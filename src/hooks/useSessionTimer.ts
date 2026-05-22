@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { formatDurationLong } from '../utils/format'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface SessionTimerOptions {
   breakInterval?: number // Интервал для напоминания о перерыве (в секундах)
@@ -31,7 +32,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
   const [state, setState] = useState<SessionTimerState>(() => {
     // Загружаем из localStorage
     try {
-      const saved = localStorage.getItem('fastfingers_session_timer')
+      const saved = localStorage.getItem(STORAGE_KEYS.SESSION_TIMER)
       if (saved) {
         const parsed = JSON.parse(saved)
         const today = new Date().toDateString()
@@ -78,7 +79,7 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
   useEffect(() => {
     try {
       localStorage.setItem(
-        'fastfingers_session_timer',
+        STORAGE_KEYS.SESSION_TIMER,
         JSON.stringify({
           totalTime: state.totalTime,
           lastBreakTime: state.lastBreakTime,

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { musicGenerator, type MusicGenre } from '../utils/musicGenerator'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface UseMusicGeneratorReturn {
   isPlaying: boolean
@@ -60,10 +61,10 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
   useEffect(() => {
     if (!initializedRef.current) {
       try {
-        const savedGenre = localStorage.getItem('fastfingers_music_genre') as MusicGenre | null
-        const savedTempo = localStorage.getItem('fastfingers_music_tempo')
-        const savedVolume = localStorage.getItem('fastfingers_music_volume')
-        const savedKey = localStorage.getItem('fastfingers_music_key')
+        const savedGenre = localStorage.getItem(STORAGE_KEYS.MUSIC_GENRE) as MusicGenre | null
+        const savedTempo = localStorage.getItem(STORAGE_KEYS.MUSIC_TEMPO)
+        const savedVolume = localStorage.getItem(STORAGE_KEYS.MUSIC_VOLUME)
+        const savedKey = localStorage.getItem(STORAGE_KEYS.MUSIC_KEY)
 
         if (savedGenre && GENRES.find(g => g.value === savedGenre)) {
           setGenreState(savedGenre)
@@ -88,10 +89,10 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
   useEffect(() => {
     musicGenerator.setOptions({ genre, tempo, volume, key })
     try {
-      localStorage.setItem('fastfingers_music_genre', genre)
-      localStorage.setItem('fastfingers_music_tempo', String(tempo))
-      localStorage.setItem('fastfingers_music_volume', String(volume))
-      localStorage.setItem('fastfingers_music_key', key)
+      localStorage.setItem(STORAGE_KEYS.MUSIC_GENRE, genre)
+      localStorage.setItem(STORAGE_KEYS.MUSIC_TEMPO, String(tempo))
+      localStorage.setItem(STORAGE_KEYS.MUSIC_VOLUME, String(volume))
+      localStorage.setItem(STORAGE_KEYS.MUSIC_KEY, key)
     } catch {
       logger.warn('Operation failed in hooks/useMusicGenerator.ts')
       // Ignore errors

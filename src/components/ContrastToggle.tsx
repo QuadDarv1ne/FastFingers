@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAppTranslation } from '../i18n/config'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export function ContrastToggle() {
   const { t } = useAppTranslation()
   const [isHighContrast, setIsHighContrast] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('fastfingers_contrast')
+    const saved = localStorage.getItem(STORAGE_KEYS.CONTRAST)
     const isHigh = saved === 'high'
     setIsHighContrast(isHigh)
     if (isHigh) {
@@ -19,7 +20,7 @@ export function ContrastToggle() {
   const toggleContrast = useCallback(() => {
     const newValue = !isHighContrast
     setIsHighContrast(newValue)
-    localStorage.setItem('fastfingers_contrast', newValue ? 'high' : 'normal')
+    localStorage.setItem(STORAGE_KEYS.CONTRAST, newValue ? 'high' : 'normal')
     if (newValue) {
       document.documentElement.setAttribute('data-contrast', 'high')
     } else {

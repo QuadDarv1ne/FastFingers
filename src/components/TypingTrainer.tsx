@@ -382,7 +382,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         className="card cursor-text min-h-[250px] sm:min-h-[280px] relative group hover:border-primary-500/30 transition-all"
         role="textbox"
         aria-readonly="true"
-        aria-label="Область текста для печати"
+        aria-label={t('trainer.aria.practiceArea')}
       >
         {/* Подсказка о фокусе — скрыта на мобильных для экономии места */}
         {!isComplete && (
