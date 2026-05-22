@@ -248,11 +248,13 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   }, [opponentWpm, opponentAccuracy, completeDuel, onComplete])
 
   const flushDuelProgress = useCallback(async () => {
-    const pending = pendingUpdateRef.current
     const duel = currentDuelRef.current
-    const curUser = userRef.current
-    if (!pending || !duel?.id || !supabaseReady) return
-    const isChallenger = duel.challenger?.id === curUser?.id
+    if (!duel?.id || !supabaseReady) return
+    // Snapshot pending update before clearing to avoid race condition
+    const pending = pendingUpdateRef.current
+    if (!pending) return
+    pendingUpdateRef.current = null
+    const isChallenger = duel.challenger?.id === userRef.current?.id
     try {
       await supabase!
         .from('duels')
@@ -262,11 +264,16 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
         )
         .eq('id', duel.id)
-      pendingUpdateRef.current = null
     } catch (err) {
+      // Re-queue pending update if it failed so it can be retried
+      pendingUpdateRef.current = pending
       logger.error('Failed to flush duel progress:', err)
     }
   }, [supabaseReady])
+
+  // Stable ref to flushDuelProgress for use in throttled handler
+  const flushRef = useRef(flushDuelProgress)
+  flushRef.current = flushDuelProgress
 
   // Обработка ввода с обновлением прогресса (throttled)
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,9 +282,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     const now = Date.now()
     if (now - lastUpdateRef.current >= 500) {
       lastUpdateRef.current = now
-      flushDuelProgress()
+      flushRef.current()
     }
-  }, [handleInputBase, flushDuelProgress])
+  }, [handleInputBase])
 
   // Flush pending updates when duel ends
   useEffect(() => {
