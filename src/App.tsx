@@ -652,6 +652,20 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
 
   const [showDropdown, setShowDropdown] = useState(false)
 
+  useEffect(() => {
+    if (!showDropdown) return
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-speedtest-dropdown]')) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [showDropdown])
+
   const durationIcons: Record<SpeedTestDuration, string> = {
     15: '⚡',
     30: '⭐',
@@ -670,7 +684,7 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
           onGameModeChange('speedtest')
           setShowDropdown((prev) => !prev)
         }}
-        aria-expanded={isActive}
+        aria-expanded={showDropdown}
         aria-haspopup="true"
         title={t('tooltip.speedtest')}
       >
@@ -681,7 +695,7 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
         </svg>
       </button>
       {showDropdown && (
-        <div className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
+        <div data-speedtest-dropdown className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
           {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
             <button
               key={d}

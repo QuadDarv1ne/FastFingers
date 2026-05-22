@@ -221,7 +221,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     if (!duel || !curUser?.id) return
 
     try {
-      const isChallenger = duel.challenger.id === curUser.id
+      const isChallenger = duel.challenger?.id === curUser.id
+      if (!duel.challenger || !duel.opponent) return
       const userScore = Math.round(stats.wpm * (stats.accuracy / 100))
       const opponentScore = Math.round(opponentWpm * (opponentAccuracy / 100))
 
