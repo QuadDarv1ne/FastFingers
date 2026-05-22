@@ -149,9 +149,10 @@ export function useAdvancedStats() {
     const dayMs = 24 * 60 * 60 * 1000
 
     for (let i = 1; i < dates.length; i++) {
-      const prev = dates[i - 1]!.getTime()
-      const curr = dates[i]!.getTime()
-      const diffDays = Math.round((curr - prev) / dayMs)
+      const prev = dates[i - 1]
+      const curr = dates[i]
+      if (!prev || !curr) continue
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / dayMs)
 
       if (diffDays === 1) {
         currentStreak++

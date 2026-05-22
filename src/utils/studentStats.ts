@@ -152,7 +152,8 @@ export function computeStudentStats(sessions: SessionData[]): StudentStatsResult
   let currentStreak = 0
   for (let i = 0; i < practiceDates.length; i++) {
     const prev = i > 0 ? practiceDates[i - 1] : undefined
-    const curr = practiceDates[i]!
+    const curr = practiceDates[i]
+    if (curr === undefined) continue
     if (prev === undefined || Math.round((curr - prev) / dayMs) === 1) {
       currentStreak++
     } else {

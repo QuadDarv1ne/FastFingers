@@ -81,8 +81,11 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
         const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
         const idx = users.findIndex(u => u.id === user?.id)
         if (idx !== -1) {
-          users[idx]!.name = name.trim()
-          localStorage.setItem('fastfingers_users', JSON.stringify(users))
+          const userEntry = users[idx]
+          if (userEntry) {
+            userEntry.name = name.trim()
+            localStorage.setItem('fastfingers_users', JSON.stringify(users))
+          }
         }
       } catch {
         // Ignore errors
@@ -102,8 +105,11 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
       const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
       const idx = users.findIndex(u => u.id === user?.id)
       if (idx !== -1) {
-        users[idx]!.name = newName
-        localStorage.setItem('fastfingers_users', JSON.stringify(users))
+        const userEntry = users[idx]
+        if (userEntry) {
+          userEntry.name = newName
+          localStorage.setItem('fastfingers_users', JSON.stringify(users))
+        }
       }
       setName(newName)
     } catch {
@@ -1231,11 +1237,16 @@ function SecuritySettingsSubPage() {
         JSON.parse(localStorage.getItem('fastfingers_users') || '[]')
       const currentUser = JSON.parse(localStorage.getItem('fastfingers_user') || '{}')
       const userIdx = users.findIndex(u => u.id === currentUser.id)
-      if (userIdx === -1 || users[userIdx]?.password !== currentPassword) {
+      if (userIdx === -1) {
+        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        return
+      }
+      const currentUserEntry = users[userIdx]
+      if (!currentUserEntry || currentUserEntry.password !== currentPassword) {
         setMessage({ type: 'error', text: 'Неверный текущий пароль' })
         return
       }
-      users[userIdx]!.password = newPassword
+      currentUserEntry.password = newPassword
       localStorage.setItem('fastfingers_users', JSON.stringify(users))
       setMessage({ type: 'success', text: 'Пароль успешно изменён' })
       setCurrentPassword('')

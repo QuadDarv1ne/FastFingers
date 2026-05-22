@@ -244,7 +244,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setError('Audio play failed')
       }
     }
-  }, [isReady, initAudio, cleanupOscillator])
+  }, [isReady, initAudio, cleanupOscillator, options.volume])
 
   useEffect(() => {
     isMountedRef.current = true

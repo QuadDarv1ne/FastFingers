@@ -107,7 +107,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
   useEffect(() => {
     const loadRecords = async () => {
-      if (!user || !supabaseReady) {
+      if (!user || !supabase || !supabaseReady) {
         setIsLoadingRecords(false)
         return
       }
@@ -115,7 +115,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       try {
         let retries = 3
         while (retries > 0) {
-          const { data, error } = await supabase!
+          const { data, error } = await supabase
             .from('hardcore_records')
             .select('*')
             .eq('user_id', user.id)
@@ -139,7 +139,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     }
 
     loadRecords()
-  }, [user])
+  }, [user, supabase, supabaseReady])
 
   const hasSavedRef = useRef(false)
   const inputResultsRef = useRef(inputResults)
