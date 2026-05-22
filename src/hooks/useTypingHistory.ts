@@ -3,7 +3,6 @@ import { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
 import { useAuth } from './useAuth'
-import { logger } from '../utils/logger'
 
 interface SessionData {
   id: string
@@ -39,23 +38,23 @@ interface UseTypingHistoryReturn {
 const STORAGE_KEY = 'fastfingers_history'
 const MAX_SESSIONS = 100
 
-function loadHistory(): HistoryData {
+function loadHistory(onError: (msg: string) => void): HistoryData {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) return JSON.parse(stored)
-  } catch {
-    logger.warn('Operation failed in hooks/useTypingHistory.ts')
-    // Ignore load errors
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown load error'
+    onError(`Failed to load history: ${msg}`)
   }
   return { sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 }
 }
 
-function saveHistory(history: HistoryData): void {
+function saveHistory(history: HistoryData, onError: (msg: string) => void): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
-  } catch {
-    logger.warn('Operation failed in hooks/useTypingHistory.ts')
-    // Ignore save errors
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown save error'
+    onError(`Failed to save history: ${msg}`)
   }
 }
 
@@ -68,7 +67,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   const debouncedSave = useCallback((historyData: HistoryData) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
-      saveHistory(historyData)
+      saveHistory(historyData, setError)
       saveTimeoutRef.current = null
     }, 500)
   }, [])
@@ -81,8 +80,8 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   }, [])
 
   const [isLoading, setIsLoading] = useState(true)
-  const [error] = useState<string | null>(null)
-  const [history, setHistory] = useState<HistoryData>(loadHistory)
+  const [error, setError] = useState<string | null>(null)
+  const [history, setHistory] = useState<HistoryData>(() => loadHistory(setError))
   const [isOnline, setIsOnline] = useState(isBackendAvailable())
 
   useEffect(() => {
@@ -119,6 +118,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       saveTypingSession(userRef.current.id, stats, xp)
         .then(() => {
           setIsOnline(isBackendAvailable())
+          setError(null)
           flushPendingSessions()
         })
         .catch(() => {

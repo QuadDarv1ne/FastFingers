@@ -149,7 +149,19 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   // Сохранение при закрытии вкладки
   useEffect(() => {
     const handleBeforeUnload = () => {
-      saveData()
+      // Для надёжной отправки при выгрузке используем синхронное localStorage
+      try {
+        const data: AutoSaveData = {
+          progress,
+          currentSession,
+          heatmap,
+          settings,
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(storageKey, JSON.stringify(data))
+      } catch {
+        // Fallback для старых браузеров
+      }
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
@@ -157,13 +169,40 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [saveData])
+  }, [progress, currentSession, heatmap, settings, storageKey])
 
-  // Сохранение при потере фокуса
+  // Page Lifecycle API: сохранение при freeze (mobile/tab discard)
+  useEffect(() => {
+    const handleFreeze = () => {
+      try {
+        const data: AutoSaveData = {
+          progress,
+          currentSession,
+          heatmap,
+          settings,
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(storageKey, JSON.stringify(data))
+      } catch {
+        // Ignore save errors during freeze
+      }
+    }
+
+    document.addEventListener('freeze', handleFreeze, { once: true })
+
+    return () => {
+      document.removeEventListener('freeze', handleFreeze)
+    }
+  }, [progress, currentSession, heatmap, settings, storageKey])
+
+  // Сохранение при потере фокуса и восстановление при возврате
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         saveData()
+      } else if (document.visibilityState === 'visible') {
+        // Пользователь вернулся — восстанавливаем данные
+        restoreData()
       }
     }
 
@@ -172,7 +211,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [saveData])
+  }, [saveData, restoreData])
 
   return {
     isRestored,

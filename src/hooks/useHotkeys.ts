@@ -92,7 +92,7 @@ export function useHotkey(
   handler: (e: KeyboardEvent) => void,
   options: HotkeyOptions = {}
 ) {
-  const { enabled = true, ignoreInputFocus = false } = options
+  const { enabled = true, ignoreInputFocus = true } = options
   const handlerRef = useRef(handler)
   handlerRef.current = handler
 

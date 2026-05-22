@@ -82,6 +82,7 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const [isRegistered, setIsRegistered] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showBracket, setShowBracket] = useState(false)
+  const [matchResult, setMatchResult] = useState<TypingStats | null>(null)
   const [activeMatch, setActiveMatch] = useState<{
     opponent: TournamentParticipant
     text: string
@@ -89,6 +90,24 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
   // Sound for typing feedback
   const sound = useTypingSound({ enabled: true, volume: 0.5, theme: 'soft' })
+
+  // Save match result to tournament
+  const saveMatchResult = useCallback(async (stats: TypingStats) => {
+    if (!supabaseReady || !supabase || !selectedTournament || !user) return
+
+    try {
+      const score = Math.round(stats.wpm * (stats.accuracy / 100))
+      const { error } = await supabase
+        .from('tournament_participants')
+        .update({ score, wpm: stats.wpm, accuracy: stats.accuracy })
+        .eq('tournament_id', selectedTournament.id)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+    } catch (error) {
+      logger.error('Error saving match result:', error)
+    }
+  }, [supabaseReady, supabase, selectedTournament, user])
 
   // Typing engine for active match
   const {
@@ -105,7 +124,9 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
     initialDifficulty: 5,
     mode: 'practice',
     onComplete: (stats: TypingStats) => {
+      saveMatchResult(stats)
       onComplete?.(stats)
+      setMatchResult(stats)
       setActiveMatch(null)
     },
     sound,
@@ -283,6 +304,38 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
       supabase.removeChannel(channel)
     }
   }, [selectedTournament, loadParticipants, supabase, supabaseReady])
+
+  if (matchResult) {
+    return (
+      <div className="glass rounded-xl p-8 relative overflow-hidden">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gradient mb-6">
+            🏆 Матч завершён!
+          </h2>
+          <div className="grid grid-cols-3 gap-4 mb-8 max-w-md mx-auto">
+            <div className="bg-dark-800 rounded-lg p-4">
+              <p className="text-sm text-dark-400">WPM</p>
+              <p className="text-3xl font-bold text-primary-400">{matchResult.wpm}</p>
+            </div>
+            <div className="bg-dark-800 rounded-lg p-4">
+              <p className="text-sm text-dark-400">Точность</p>
+              <p className="text-3xl font-bold text-success">{matchResult.accuracy}%</p>
+            </div>
+            <div className="bg-dark-800 rounded-lg p-4">
+              <p className="text-sm text-dark-400">Ошибки</p>
+              <p className="text-3xl font-bold text-error">{matchResult.errors}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setMatchResult(null)}
+            className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+          >
+            Продолжить
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (activeMatch) {
     return (
