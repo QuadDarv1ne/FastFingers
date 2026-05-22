@@ -44,7 +44,7 @@ export function useHotkeys(
 ) {
   const { 
     enabled = true, 
-    ignoreInputFocus = true,
+    ignoreInputFocus = false,
     preventDefault = true,
     stopPropagation = false
   } = options
@@ -55,7 +55,7 @@ export function useHotkeys(
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return
 
-    if (ignoreInputFocus) {
+    if (!ignoreInputFocus) {
       const target = event.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || 
           (target as HTMLElement).isContentEditable) {
@@ -92,7 +92,7 @@ export function useHotkey(
   handler: (e: KeyboardEvent) => void,
   options: HotkeyOptions = {}
 ) {
-  const { enabled = true, ignoreInputFocus = true } = options
+  const { enabled = true, ignoreInputFocus = false } = options
   const handlerRef = useRef(handler)
   handlerRef.current = handler
 
@@ -100,7 +100,7 @@ export function useHotkey(
     if (!enabled) return
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
+      if (!ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
       if (matchesHotkey(e, hotkey)) {
         if (options.preventDefault !== false) e.preventDefault()
         if (options.stopPropagation) e.stopPropagation()

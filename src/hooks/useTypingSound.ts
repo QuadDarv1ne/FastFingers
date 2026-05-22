@@ -125,7 +125,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         gainNodeRef.current = gainNode
         reverbNodeRef.current = reverbNode
         compressorRef.current = compressor
-        gainNode.gain.value = options.volume
+        gainNode.gain.value = optionsRef.current.volume
       }
 
       if (isMountedRef.current) {
@@ -244,20 +244,24 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setError('Audio play failed')
       }
     }
-  }, [isReady, initAudio, cleanupOscillator, options.volume])
+  }, [isReady, initAudio, cleanupOscillator])
 
   useEffect(() => {
     isMountedRef.current = true
     initAudio()
 
+    // Capture refs for cleanup to avoid stale ref warnings
+    const timeoutsToClean = cleanupTimeoutsRef
+    const oscillatorsToClean = activeOscillatorsRef
+
     // Mount-only cleanup - do not add dependencies
     return () => {
       isMountedRef.current = false
-      const timeouts = cleanupTimeoutsRef.current
+      const timeouts = timeoutsToClean.current
       timeouts.forEach(clearTimeout)
       timeouts.clear()
 
-      const oscillators = activeOscillatorsRef.current
+      const oscillators = oscillatorsToClean.current
       oscillators.forEach(osc => {
         try {
           osc.stop()

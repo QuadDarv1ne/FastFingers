@@ -111,7 +111,7 @@ describe('useHotkeys', () => {
     expect(event.stopPropagation).toHaveBeenCalled()
   })
 
-  it('не должен вызывать обработчик в input элементах когда ignoreInputFocus=true (по умолчанию)', () => {
+  it('не должен вызывать обработчик в input элементах по умолчанию (ignoreInputFocus=false)', () => {
     const handler = vi.fn()
     renderHook(() => useHotkeys({ 'ctrl+s': handler }))
 
@@ -124,9 +124,9 @@ describe('useHotkeys', () => {
     expect(handler).not.toHaveBeenCalled()
   })
 
-  it('должен вызывать обработчик в input элементах когда ignoreInputFocus=false', () => {
+  it('должен вызывать обработчик в input элементах когда ignoreInputFocus=true', () => {
     const handler = vi.fn()
-    renderHook(() => useHotkeys({ 'ctrl+s': handler }, { ignoreInputFocus: false }))
+    renderHook(() => useHotkeys({ 'ctrl+s': handler }, { ignoreInputFocus: true }))
 
     const input = document.createElement('input')
     document.body.appendChild(input)

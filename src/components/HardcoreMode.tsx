@@ -194,7 +194,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       })
       setShowCertificate(true)
     }
-  }, [isActive, user, supabaseReady])
+  }, [isActive, user, supabase, supabaseReady])
 
   // Reset saved flag when starting a new session
   useEffect(() => {
