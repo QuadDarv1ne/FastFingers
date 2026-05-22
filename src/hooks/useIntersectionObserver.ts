@@ -40,9 +40,16 @@ export function useIntersectionObserver(
 
   const elementRef = useRef<Element | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
+  const [element, setElement] = useState<Element | null>(null)
   const [entry, setEntry] = useState<IntersectionObserverEntry>()
 
   const [isIntersecting, setIsIntersecting] = useState(false)
+
+  // Callback ref чтобы отслеживать изменения элемента
+  const setRef = useCallback((node: Element | null) => {
+    elementRef.current = node
+    setElement(node)
+  }, [])
 
   useEffect(() => {
     // Создаём наблюдателя
@@ -65,8 +72,6 @@ export function useIntersectionObserver(
   }, [root, rootMargin, threshold])
 
   useEffect(() => {
-    const element = elementRef.current
-
     if (element && observerRef.current) {
       observerRef.current.observe(element)
     }
@@ -76,7 +81,7 @@ export function useIntersectionObserver(
         observerRef.current.unobserve(element)
       }
     }
-  }, [])
+  }, [element])
 
   const disconnect = useCallback(() => {
     if (observerRef.current) {
@@ -85,15 +90,13 @@ export function useIntersectionObserver(
   }, [])
 
   const observe = useCallback(() => {
-    const element = elementRef.current
-
     if (element && observerRef.current) {
       observerRef.current.observe(element)
     }
-  }, [])
+  }, [element])
 
   return {
-    ref: elementRef as RefObject<Element | null>,
+    ref: setRef as unknown as RefObject<Element | null>,
     isIntersecting,
     entry,
     disconnect,

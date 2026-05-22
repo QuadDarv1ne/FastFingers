@@ -195,15 +195,15 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     }
   }, [progress, currentSession, heatmap, settings, storageKey])
 
-  // Сохранение при потере фокуса и восстановление при возврате
+  // Сохранение при потере фокуса (НЕ восстанавливаем при возврате чтобы не перезаписать текущий прогресс)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         saveData()
-      } else if (document.visibilityState === 'visible') {
-        // Пользователь вернулся — восстанавливаем данные
-        restoreData()
       }
+      // Важно: НЕ вызываем restoreData при visible — это может перезаписать
+      // текущий прогресс пользователя устаревшими данными из autosave.
+      // Восстановление происходит только один раз при монтировании компонента.
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
@@ -211,7 +211,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [saveData, restoreData])
+  }, [saveData])
 
   return {
     isRestored,

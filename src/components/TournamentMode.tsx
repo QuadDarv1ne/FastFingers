@@ -76,6 +76,7 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const { t } = useAppTranslation()
   const { user } = useAuth()
   const { client: supabase, isReady: supabaseReady } = useSupabase()
+  const mountedRef = useRef(true)
   const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
   const [participants, setParticipants] = useState<TournamentParticipant[]>([])
@@ -87,6 +88,14 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
     opponent: TournamentParticipant
     text: string
   } | null>(null)
+
+  // Track mount status to prevent state updates after unmount
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   // Sound for typing feedback
   const sound = useTypingSound({ enabled: true, volume: 0.5, theme: 'soft' })
@@ -153,15 +162,19 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
       if (error) throw error
 
-      setTournaments((data || []).map(t => ({
-        ...t,
-        creator_name: t.creator?.name,
-        creator_avatar: t.creator?.avatar,
-      })))
+      if (mountedRef.current) {
+        setTournaments((data || []).map(t => ({
+          ...t,
+          creator_name: t.creator?.name,
+          creator_avatar: t.creator?.avatar,
+        })))
+      }
     } catch (error) {
       logger.error('Error loading tournaments:', error)
     } finally {
-      setIsLoading(false)
+      if (mountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [supabaseReady, supabase])
 
@@ -185,17 +198,19 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
 
       if (error) throw error
 
-      setParticipants((data || []).map(p => ({
-        ...p,
-        user_name: p.user?.name,
-        user_avatar: p.user?.avatar,
-        user_level: p.user?.stats?.level,
-        user_wpm: p.user?.stats?.bestWpm,
-      })))
+      if (mountedRef.current) {
+        setParticipants((data || []).map(p => ({
+          ...p,
+          user_name: p.user?.name,
+          user_avatar: p.user?.avatar,
+          user_level: p.user?.stats?.level,
+          user_wpm: p.user?.stats?.bestWpm,
+        })))
 
-      // Проверяем, зарегистрирован ли текущий пользователь
-      const isUserRegistered = data?.some(p => p.user_id === user?.id)
-      setIsRegistered(!!isUserRegistered)
+        // Проверяем, зарегистрирован ли текущий пользователь
+        const isUserRegistered = data?.some(p => p.user_id === user?.id)
+        setIsRegistered(!!isUserRegistered)
+      }
     } catch (error) {
       logger.error('Error loading participants:', error)
     }
