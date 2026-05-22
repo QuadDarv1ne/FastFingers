@@ -362,7 +362,7 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           className="sr-only"
           aria-hidden="true"
           onInput={handleInput}
-          disabled={!isActive && !selectedTextId}
+          disabled={!isActive || !selectedTextId}
           aria-label={t('exercise.custom')}
           autoComplete="off"
           autoCorrect="off"
