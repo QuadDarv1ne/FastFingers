@@ -61,7 +61,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   if (!step) return null
 
   return (
-    <div className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -97,7 +97,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             exit={{ opacity: 0, y: -20 }}
             className="text-center"
           >
-            <h2 className="text-2xl font-bold mb-3">{step.title}</h2>
+            <h2 id="onboarding-title" className="text-2xl font-bold mb-3">{step.title}</h2>
             <p className="text-dark-400 mb-8">{step.description}</p>
           </motion.div>
 

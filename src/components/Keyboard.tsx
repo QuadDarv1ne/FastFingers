@@ -63,7 +63,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
         styles[key] = {
           className: `
             relative flex items-center justify-center
-            w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11
+            w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11
             rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold
             touch-manipulation
             ${isHighlighted

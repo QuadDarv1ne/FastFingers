@@ -151,7 +151,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
           key={timeLeft}
           initial={{ scale: 1.2 }}
           animate={{ scale: 1 }}
-          className={`text-6xl font-bold font-mono ${
+          className={`text-4xl sm:text-5xl md:text-6xl font-bold font-mono ${
             timeLeft <= 10 ? 'text-error animate-pulse' : 
             timeLeft <= 20 ? 'text-yellow-400' : 'text-primary-400'
           }`}

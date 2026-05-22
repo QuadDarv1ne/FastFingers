@@ -47,7 +47,7 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
               </div>
               <div className="w-40 h-2.5 bg-dark-800 rounded-full overflow-hidden shadow-inner" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel} aria-label={`${t('common.level')} ${level}`}>
                 <div
-                  className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 progress-bar shadow-glow cursor-pointer"
+                  className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 progress-bar shadow-glow"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -61,7 +61,7 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
               </div>
               <div className="w-20 h-1.5 bg-dark-800 rounded-full overflow-hidden mt-1" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel} aria-label={`${t('common.level')} ${level}`}>
                 <div
-                  className="h-full bg-gradient-to-r from-primary-600 to-primary-400 progress-bar cursor-pointer"
+                  className="h-full bg-gradient-to-r from-primary-600 to-primary-400 progress-bar"
                   style={{ width: `${progress}%` }}
                 />
               </div>

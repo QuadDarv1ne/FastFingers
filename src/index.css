@@ -345,10 +345,12 @@ textarea:focus-visible {
     min-width: 44px;
   }
 
-  /* Disable hover effects on touch devices */
-  button:hover,
-  .btn:hover {
-    transform: none;
+  /* Disable hover effects only on devices WITHOUT hover capability */
+  @media (hover: none) {
+    button:hover,
+    .btn:hover {
+      transform: none;
+    }
   }
 
   /* Better active states for touch */
@@ -508,9 +510,8 @@ textarea:focus {
     touch-action: manipulation;
   }
 
-  /* Улучшенная прокрутка на мобильных */
+  /* Improved scrolling on mobile — -webkit-overflow-scrolling is deprecated but kept for older iOS */
   html {
-    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -560,10 +561,10 @@ textarea:focus {
     gap: 1rem;
   }
 
-  /* Flex в колонку на мобильных */
-  .flex {
-    flex-direction: column;
-  }
+  /* Flex in column on mobile — USE RESPONSIVE TAILWIND CLASSES INSTEAD
+     The global .flex rule was removed because it broke intentional flex-row
+     layouts (Header, Keyboard, StatCard, etc.) on mobile.
+     Use `flex-col sm:flex-row` in your className for responsive behavior. */
 
   .flex-row-mobile {
     flex-direction: row;
@@ -680,21 +681,7 @@ textarea:focus {
   }
 }
 
-/* Safe areas для iPhone X+ */
-@supports (padding: max(0px)) {
-  body {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-
-  header {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  footer {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
+/* PWA safe-area rules are consolidated at the bottom of the file */
 
 /* Предотвращение pull-to-refresh на мобильных */
 body {
@@ -1091,7 +1078,8 @@ body {
   .loading-spinner,
   .progress-wave::before,
   .sparkle,
-  .animate-shimmer {
+  .animate-shimmer,
+  .char.current {
     animation: none !important;
   }
 
@@ -1165,7 +1153,6 @@ html[data-contrast='high'] .text-shimmer {
   .card,
   .glass {
     padding: 1rem !important;
-    margin: 0.5rem !important;
   }
 
   /* Скрываем второстепенные элементы на мобильных */
@@ -1198,12 +1185,7 @@ html[data-contrast='high'] .text-shimmer {
     line-height: 1.8 !important;
   }
 
-  /* Адаптивная навигация */
-  nav {
-    position: sticky;
-    bottom: 0;
-    z-index: 50;
-  }
+  /* Navigation — let components decide via Tailwind classes */
 
   /* Улучшенный touch для прокрутки */
   .overflow-auto,
@@ -1230,9 +1212,11 @@ html[data-contrast='high'] .text-shimmer {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-  /* Оптимизация градиентов */
-  .bg-gradient-to-r {
-    background: var(--color-primary);
+  /* Simplify gradients on touch-only devices for performance */
+  @media (pointer: coarse) {
+    .bg-gradient-to-r {
+      background: var(--color-primary);
+    }
   }
 }
 
