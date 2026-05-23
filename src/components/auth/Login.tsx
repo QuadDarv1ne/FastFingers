@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
+import { logger } from '@utils/logger'
 
 interface LoginProps {
   onSwitchToRegister: () => void
@@ -46,8 +47,9 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
     try {
       await login({ email, password, rememberMe })
       onLoginSuccess()
-    } catch {
-      // Ошибка уже установлена в контексте
+    } catch (err) {
+      logger.error('[Login] Login failed', err)
+      // Ошибка уже установлена в контексте auth
     }
   }
 

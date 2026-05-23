@@ -34,7 +34,7 @@ interface DailyChallengeCardProps {
   onComplete: (challengeId: string, wpm: number, accuracy: number) => void
 }
 
-export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete: _onComplete }: DailyChallengeCardProps) {
+export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete }: DailyChallengeCardProps) {
   const [progress] = useLocalStorageState<ChallengeProgress>(
     'fastfingers_challenge_progress',
     {}
@@ -56,6 +56,13 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
       progress: challengeProgress.progress,
     })
   }, [progress])
+
+  useEffect(() => {
+    const active = challengeProp ?? localChallenge
+    if (active?.completed && active.progress >= active.goal.target) {
+      onComplete(active.id, 0, 0)
+    }
+  }, [challengeProp?.completed, localChallenge?.completed, onComplete])
 
   // Используем challengeProp если он передан (из App), иначе используем локальное состояние
   const activeChallenge = challengeProp ?? localChallenge

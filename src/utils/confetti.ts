@@ -46,6 +46,24 @@ const CONFETTI_CONFIG = {
 
 const SIDE_SHOT_DELAYS = [300, 600, 900] as const
 
+let activeAnimationIds = new Set<number>()
+
+export function clearAllConfetti() {
+  for (const id of activeAnimationIds) {
+    cancelAnimationFrame(id)
+  }
+  activeAnimationIds.clear()
+}
+
+function trackAnimation(id: number) {
+  activeAnimationIds.add(id)
+  return id
+}
+
+function untrackAnimation(id: number) {
+  activeAnimationIds.delete(id)
+}
+
 export function triggerConfetti(options: ConfettiOptions = {}) {
   const { type = 'default', duration = 3000 } = options
   const end = Date.now() + duration
@@ -58,19 +76,29 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
     confetti({ ...CONFETTI_CONFIG.side, origin: { x: 1, y: 0.6 }, colors })
   }
 
+  const sideTimeouts: ReturnType<typeof setTimeout>[] = []
   for (let i = 0; i < SIDE_SHOT_DELAYS.length; i++) {
-    setTimeout(sideConfetti, SIDE_SHOT_DELAYS[i])
+    sideTimeouts.push(setTimeout(sideConfetti, SIDE_SHOT_DELAYS[i]))
   }
 
+  let continuousId: number
   const frame = () => {
     confetti({ ...CONFETTI_CONFIG.continuous, angle: 60, origin: { x: 0 }, colors })
     confetti({ ...CONFETTI_CONFIG.continuous, angle: 120, origin: { x: 1 }, colors })
 
     if (Date.now() < end) {
-      requestAnimationFrame(frame)
+      continuousId = requestAnimationFrame(frame)
+    } else {
+      untrackAnimation(continuousId)
     }
   }
-  frame()
+  continuousId = trackAnimation(requestAnimationFrame(frame))
+
+  return () => {
+    sideTimeouts.forEach(clearTimeout)
+    cancelAnimationFrame(continuousId)
+    untrackAnimation(continuousId)
+  }
 }
 
 export function triggerConfettiRain(duration = 5000) {
@@ -78,6 +106,7 @@ export function triggerConfettiRain(duration = 5000) {
   const colors = COLORS.default
   const rainConfig = CONFETTI_CONFIG.rain
 
+  let rainId: number
   const frame = () => {
     confetti({
       ...rainConfig,
@@ -87,10 +116,17 @@ export function triggerConfettiRain(duration = 5000) {
     })
 
     if (Date.now() < end) {
-      requestAnimationFrame(frame)
+      rainId = requestAnimationFrame(frame)
+    } else {
+      untrackAnimation(rainId)
     }
   }
-  frame()
+  rainId = trackAnimation(requestAnimationFrame(frame))
+
+  return () => {
+    cancelAnimationFrame(rainId)
+    untrackAnimation(rainId)
+  }
 }
 
 export function triggerConfettiAt(x: number, y: number) {

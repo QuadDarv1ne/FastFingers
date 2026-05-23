@@ -19,7 +19,8 @@ export function ProgressBar({
   size = 'medium',
   animated = true,
 }: ProgressBarProps) {
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100))
+  const safeMax = max || 1
+  const percentage = Math.min(100, Math.max(0, (value / safeMax) * 100))
 
   return (
     <div className={`progress-bar progress-bar--${size}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} aria-label={label}>

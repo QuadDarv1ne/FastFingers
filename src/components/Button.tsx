@@ -36,7 +36,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const classes = [
       'button',
-      `button--variant`,
       `button--${variant}`,
       `button--${size}`,
       fullWidth ? 'button--full-width' : '',
@@ -77,7 +76,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       const tooltipContent = shortcut ? `${tooltip}${tooltip ? ' • ' : ''}${shortcut}` : tooltip || ''
       return (
         <Tooltip content={tooltipContent}>
-          <button ref={ref} className={classes} disabled={disabled || isLoading} {...props} />
+          <button ref={ref} className={classes} disabled={disabled || isLoading} {...props}>
+            {buttonContent}
+          </button>
         </Tooltip>
       )
     }

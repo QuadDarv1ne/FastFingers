@@ -124,8 +124,9 @@ export function generateRecommendations(
   }
 
   // Рекомендации по точности
-  const avgAccuracy =
-    stats.reduce((sum, s) => sum + s.accuracy, 0) / stats.length
+  const avgAccuracy = stats.length > 0
+    ? stats.reduce((sum, s) => sum + s.accuracy, 0) / stats.length
+    : 100
   if (avgAccuracy < 90) {
     recommendations.push(
       '🎯 Сосредоточьтесь на точности. Замедлитесь и печатайте аккуратнее.'

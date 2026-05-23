@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 export type FingerZone =
   | 'left-pinky'
   | 'left-ring'
@@ -151,6 +153,9 @@ export function getKeyInfo(
   key: string,
   layout: 'qwerty' | 'jcuken' | 'dvorak'
 ): KeyInfo | undefined {
+  if (layout === 'dvorak') {
+    logger.warn('[keyboardLayouts] Dvorak layout not implemented, falling back to QWERTY')
+  }
   const layoutData = layout === 'jcuken' ? JCUKEN_LAYOUT : QWERTY_LAYOUT
   const lowerKey = key.toLowerCase()
   for (let i = 0; i < layoutData.length; i++) {
@@ -166,6 +171,9 @@ export function getKeysForFinger(
   finger: FingerZone,
   layout: 'qwerty' | 'jcuken' | 'dvorak'
 ): string[] {
+  if (layout === 'dvorak') {
+    logger.warn('[keyboardLayouts] Dvorak layout not implemented, falling back to QWERTY')
+  }
   const layoutData = layout === 'jcuken' ? JCUKEN_LAYOUT : QWERTY_LAYOUT
   const result: string[] = []
   for (let i = 0; i < layoutData.length; i++) {

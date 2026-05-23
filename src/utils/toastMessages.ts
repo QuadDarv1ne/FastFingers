@@ -160,9 +160,6 @@ export function getPerformanceToastType(
   if (accuracy < 80) {
     return 'warning'
   }
-  if (wpm < avgWpm * 0.8) {
-    return 'info'
-  }
   return 'info'
 }
 
