@@ -8,7 +8,7 @@
 # Environment variables
 [build.environment]
   NODE_VERSION = "22"
-  NPM_FLAGS = "--no-optional"
+  NPM_FLAGS = "--include=dev"
 
 # SPA routing - all requests fall back to index.html
 [[redirects]]

@@ -70,7 +70,7 @@ export function useApi<T = unknown>(
 
   const abortControllerRef = useRef<AbortController | null>(null)
   const cacheRef = useRef<{ data: T; timestamp: number } | null>(null)
-  const intervalId = useRef<NodeJS.Timeout | null>(null)
+  const intervalId = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Проверка кэша
   const isCached = useCallback((): boolean => {

@@ -62,7 +62,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   const { user } = useAuth()
   const userRef = useRef(user)
   userRef.current = user
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const debouncedSave = useCallback((historyData: HistoryData) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)

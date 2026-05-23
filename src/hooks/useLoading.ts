@@ -30,7 +30,7 @@ export function useLoading({
 }: UseLoadingOptions = {}) {
   const [isLoading, setIsLoading] = useState(initialState)
   const startTimeRef = useRef<number | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const startLoading = useCallback(() => {
     startTimeRef.current = Date.now()

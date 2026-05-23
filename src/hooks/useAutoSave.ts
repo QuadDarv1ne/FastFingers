@@ -50,7 +50,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   } = options
 
   const [isRestored, setIsRestored] = useState(false)
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /**
    * Сохранение текущих данных
