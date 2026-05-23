@@ -309,13 +309,13 @@ export type TranslationKey =
   | 'admin.administrator'
   | 'admin.staticTexts'
 
-export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
+export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja' | 'ar'
 
 // ============================================
 // Динамическая загрузка языков из JSON файлов
 // ============================================
 
-const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es', 'it', 'pt', 'ja']
+const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es', 'it', 'pt', 'ja', 'ar']
 
 // Кэш загруженных языков
 const loadedLanguages = new Set<string>()
