@@ -282,7 +282,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setIsReady(false)
       }
     }
-  }, [])
+  }, [initAudio])
 
   // Update reverb routing when theme changes - properly re-route entire audio graph
   useEffect(() => {

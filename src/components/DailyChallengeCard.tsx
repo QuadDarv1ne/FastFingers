@@ -62,7 +62,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
     if (active?.completed && active.progress >= active.goal.target) {
       onComplete(active.id, 0, 0)
     }
-  }, [challengeProp?.completed, localChallenge?.completed, onComplete])
+  }, [challengeProp, localChallenge, onComplete])
 
   // Используем challengeProp если он передан (из App), иначе используем локальное состояние
   const activeChallenge = challengeProp ?? localChallenge

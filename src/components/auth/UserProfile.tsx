@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingHistory } from '@hooks/useTypingHistory'
 import { useNotifications } from '@contexts/NotificationContext'
+import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
+import { logger } from '@utils/logger'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
@@ -1349,6 +1351,7 @@ function SecuritySettingsSubPage() {
 
 function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void }) {
   const [importing, setImporting] = useState(false)
+  const { showToast } = useToast()
 
   const handleExport = () => {
     try {

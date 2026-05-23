@@ -22,8 +22,9 @@ export function useClipboard({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   useEffect(() => {
+    const timeouts = timeoutRef.current
     return () => {
-      timeoutRef.current.forEach(clearTimeout)
+      timeouts.forEach(clearTimeout)
     }
   }, [])
 
@@ -69,7 +70,7 @@ export function useClipboard({
       onError?.(err)
       throw err
     }
-  }, [timeout, onSuccess, onError, scheduleReset])
+  }, [onSuccess, onError, scheduleReset])
 
   const reset = useCallback(() => {
     setCopied(false)

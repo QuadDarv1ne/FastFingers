@@ -95,6 +95,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       isReadyRef.current = true
       setIsReady(true)
       const currentPendingPromises = pendingPromises.current
+      const timeouts = timeoutsRef.current
 
       return () => {
         const worker = workerRef.current
@@ -104,8 +105,8 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         }
         isReadyRef.current = false
         currentPendingPromises.clear()
-        timeoutsRef.current.forEach(clearTimeout)
-        timeoutsRef.current.clear()
+        timeouts.forEach(clearTimeout)
+        timeouts.clear()
       }
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)

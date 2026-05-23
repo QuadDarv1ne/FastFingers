@@ -77,7 +77,7 @@ export class ApiDatabaseAdapter {
           accuracy: session.accuracy,
           errors: session.errors,
           total_chars: session.totalChars,
-          duration: session.duration,
+          duration: session.timeElapsed,
           date: new Date().toISOString(),
         }),
       })
@@ -95,14 +95,14 @@ export class ApiDatabaseAdapter {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: userId,
-          total_xp: stats.totalXp ?? 0,
+          total_xp: stats.xp ?? 0,
           level: stats.level ?? 1,
           best_wpm: stats.bestWpm ?? 0,
           best_accuracy: stats.bestAccuracy ?? 0,
           total_words_typed: stats.totalWordsTyped ?? 0,
           total_practice_time: stats.totalPracticeTime ?? 0,
           current_streak: stats.streak ?? 0,
-          longest_streak: stats.longestStreak ?? 0,
+          longest_streak: stats.streak ?? 0,
           completed_challenges: [],
         }),
       })
