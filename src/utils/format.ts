@@ -36,8 +36,8 @@ export function formatDate(date: Date | string | number): string {
     const d = new Date(date)
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString(i18n.language, DATE_FORMAT_OPTIONS)
-  } catch {
-    logger.warn('Operation failed in utils/format.ts')
+  } catch (error) {
+    logger.warn('Failed to format date', error)
     return '—'
   }
 }
@@ -47,8 +47,8 @@ export function formatDateTime(date: Date | string | number): string {
     const d = new Date(date)
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString(i18n.language, DATE_TIME_OPTIONS)
-  } catch {
-    logger.warn('Operation failed in utils/format.ts')
+  } catch (error) {
+    logger.warn('Failed to format date-time', error)
     return '—'
   }
 }
@@ -70,8 +70,8 @@ export function formatRelativeTime(date: Date | string | number): string {
     if (diffHours < 24) return `${diffHours} ч. назад`
     if (diffDays < 7) return `${diffDays} дн. назад`
     return formatDate(date)
-  } catch {
-    logger.warn('Operation failed in utils/format.ts')
+  } catch (error) {
+    logger.warn('Failed to format relative time', error)
     return '—'
   }
 }
@@ -81,7 +81,7 @@ export function calculateAge(birthDate: Date | string | number): number {
     const today = new Date()
     const birth = new Date(birthDate)
     if (isNaN(birth.getTime())) return 0
-    
+
     let age = today.getFullYear() - birth.getFullYear()
     const monthDiff = today.getMonth() - birth.getMonth()
 
@@ -90,8 +90,8 @@ export function calculateAge(birthDate: Date | string | number): number {
     }
 
     return Math.max(0, age)
-  } catch {
-    logger.warn('Operation failed in utils/format.ts')
+  } catch (error) {
+    logger.warn('Failed to calculate age', error)
     return 0
   }
 }

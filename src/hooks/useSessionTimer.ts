@@ -57,8 +57,8 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           lastBreakTime: parsed.lastBreakTime || null,
         }
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useSessionTimer.ts')
+    } catch (error) {
+      logger.warn('Failed to load session timer state', error)
       // Ignore load errors
     }
 
@@ -86,8 +86,8 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           date: new Date().toISOString(),
         })
       )
-    } catch {
-      logger.warn('Operation failed in hooks/useSessionTimer.ts')
+    } catch (error) {
+      logger.warn('Failed to save session timer state', error)
       // Ignore save errors
     }
   }, [state.totalTime, state.lastBreakTime])

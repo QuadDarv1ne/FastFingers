@@ -56,8 +56,8 @@ export function useBackendAvailability(options: {
           retryCount: Math.min(prev.retryCount + 1, MAX_RETRY_COUNT),
         }))
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useBackendAvailability.ts')
+    } catch (error) {
+      logger.warn('Backend availability check failed', error)
       setStatus(prev => ({
         isAvailable: false,
         isChecking: false,

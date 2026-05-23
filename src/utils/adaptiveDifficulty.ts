@@ -341,8 +341,8 @@ export function deserializeAdaptiveState(json: string): AdaptiveDifficultyState 
       ...parsed,
       history: parsed.history || [],
     }
-  } catch {
-    logger.warn('Operation failed in utils/adaptiveDifficulty.ts')
+  } catch (error) {
+    logger.warn('Failed to deserialize adaptive state', error)
     return createAdaptiveState()
   }
 }

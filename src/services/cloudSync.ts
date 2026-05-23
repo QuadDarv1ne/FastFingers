@@ -59,8 +59,8 @@ export function getBackendStatus(): BackendStatus {
       if (Date.now() - parsed.lastChecked < 5 * 60 * 1000) {
         return parsed
       }
-    } catch {
-      logger.warn('Operation failed in services/cloudSync.ts')
+    } catch (error) {
+      logger.warn('Failed to parse cached backend status', error)
       // Игнорируем ошибки парсинга
     }
   }
@@ -79,8 +79,8 @@ export function getBackendStatus(): BackendStatus {
 
   try {
     localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to save backend status', error)
     // Игнорируем ошибки сохранения
   }
 
@@ -106,8 +106,8 @@ export function updateBackendStatus(features?: Partial<BackendStatus['features']
 
   try {
     localStorage.setItem(BACKEND_STATUS_KEY, JSON.stringify(status))
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to save updated backend status', error)
     // Игнорируем ошибки сохранения
   }
 
@@ -127,8 +127,8 @@ export async function syncUserStats(user: User, stats: Partial<UserStats>): Prom
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
       return { success: true, isOffline: true }
-    } catch {
-      logger.warn('Operation failed in services/cloudSync.ts')
+    } catch (error) {
+      logger.warn('Failed to save user stats to localStorage', error)
       return { success: false, isOffline: true }
     }
   }
@@ -142,13 +142,13 @@ export async function syncUserStats(user: User, stats: Partial<UserStats>): Prom
     if (error) throw error
 
     return { success: true, isOffline: false }
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to sync user stats to Supabase', error)
     // Сохраняем локально при ошибке
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ userId: user.id, stats }))
-    } catch {
-      logger.warn('Operation failed in services/cloudSync.ts')
+    } catch (localStorageError) {
+      logger.warn('Failed to save user stats to localStorage during fallback', localStorageError)
       // Игнорируем ошибки localStorage
     }
 
@@ -185,8 +185,8 @@ export async function saveTypingSession(
     if (error) throw error
 
     return { success: true, isOffline: false }
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to save typing session to Supabase', error)
     _saveSessionToLocal(stats, xp)
     _queuePendingSession(userId, stats, xp)
     updateBackendStatus({ sync: false })
@@ -236,8 +236,8 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
       totalTime,
     }
     localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(historyData))
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to save session to localStorage', error)
     // Ignore storage errors
   }
 }
@@ -310,8 +310,8 @@ export async function loadUserSessions(
     }))
 
     return { sessions, isOffline: false }
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to load user sessions from Supabase', error)
     // Fallback на localStorage
     const stored = getFromStorageAsObject<Record<string, unknown>>(STORAGE_KEYS.HISTORY)
     const localSessions: CloudSession[] = Array.isArray(stored) ? stored : ((stored.sessions as CloudSession[]) || [])
@@ -328,8 +328,8 @@ export async function unlockAchievement(userId: string, achievementId: string): 
       user_id: userId,
       achievement_id: achievementId,
     })
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to unlock achievement', error)
     // Игнорируем ошибки достижений
   }
 }
@@ -351,8 +351,8 @@ export async function completeDailyChallenge(
       user_accuracy: accuracy,
       completed_at: new Date().toISOString(),
     })
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to complete daily challenge', error)
     // Игнорируем ошибки челленджей
   }
 }
@@ -386,8 +386,8 @@ export async function getDailyChallenge(date: string): Promise<{
     if (error) return null
 
     return data
-  } catch {
-    logger.warn('Operation failed in services/cloudSync.ts')
+  } catch (error) {
+    logger.warn('Failed to get daily challenge', error)
     updateBackendStatus({ challenges: false })
     // Fallback на генерацию локального челленджа
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)

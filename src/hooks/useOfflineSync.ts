@@ -46,8 +46,8 @@ export function useOfflineSync(options: {
       if (stored) {
         setQueue(JSON.parse(stored))
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useOfflineSync.ts')
+    } catch (error) {
+      logger.warn('Failed to load offline queue', error)
       setQueue([])
     }
   }, [])
@@ -55,8 +55,8 @@ export function useOfflineSync(options: {
   useEffect(() => {
     try {
       localStorage.setItem(QUEUE_KEY, JSON.stringify(queue))
-    } catch {
-      logger.warn('Operation failed in hooks/useOfflineSync.ts')
+    } catch (error) {
+      logger.warn('Failed to save offline queue', error)
       // Ignore storage errors
     }
   }, [queue])
@@ -82,8 +82,8 @@ export function useOfflineSync(options: {
         try {
           await onSyncRef.current(item)
           results.push({ id: item.id, success: true })
-        } catch {
-          logger.warn('Operation failed in hooks/useOfflineSync.ts')
+        } catch (error) {
+          logger.warn('Failed to sync offline item', error)
           results.push({ id: item.id, success: false })
         }
       }
@@ -123,8 +123,8 @@ export function useOfflineSync(options: {
     setQueue([])
     try {
       localStorage.removeItem(QUEUE_KEY)
-    } catch {
-      logger.warn('Operation failed in hooks/useOfflineSync.ts')
+    } catch (error) {
+      logger.warn('Failed to clear offline queue', error)
       // Ignore errors
     }
   }, [])
