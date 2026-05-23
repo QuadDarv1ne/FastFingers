@@ -94,13 +94,13 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   }, [timeLeft, handleFinish])
 
   // Старт при первом нажатии
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     setIsActive(true)
     totalCorrectRef.current = 0
     totalCharsRef.current = 0
     lastSegmentLengthRef.current = 0
     inputRef.current?.focus({ preventScroll: true })
-  }
+  }, [])
 
   // Обработка ввода
   const currentIndexRef = useRef(currentIndex)

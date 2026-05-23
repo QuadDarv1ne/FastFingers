@@ -426,11 +426,12 @@ export function useAutoSync(user: User | null, stats: UserStats) {
   }, [user])
 }
 
-const cleanupRegistered = { current: false }
 export function useCloudSyncCleanup() {
+  const cleanupRef = useRef(false)
+
   useEffect(() => {
-    if (cleanupRegistered.current) return
-    cleanupRegistered.current = true
+    if (cleanupRef.current) return
+    cleanupRef.current = true
     return () => {
       cloudSyncService.destroy()
     }

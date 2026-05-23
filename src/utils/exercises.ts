@@ -4,6 +4,15 @@ import { createScopedLogger } from './logger'
 
 const logger = createScopedLogger('exercises')
 
+export function shuffleArray<T>(arr: T[]): T[] {
+  const result = [...arr]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j]!, result[i]!]
+  }
+  return result
+}
+
 type Layout = 'qwerty' | 'jcuken' | 'dvorak';
 
 interface ExerciseFilters {
@@ -344,7 +353,7 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
     }
 
     if (unique) {
-      words = [...words].sort(() => Math.random() - 0.5)
+      words = shuffleArray([...words])
       const selected = words.slice(0, Math.min(safeWordCount, words.length))
       return selected.join(separator)
     }

@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 import { useAppTranslation } from '../i18n/config'
+import { shuffleArray } from '../utils/exercises'
 import type { Tournament, TournamentParticipant } from './TournamentMode'
 
 interface TournamentBracketProps {
@@ -42,7 +43,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
     const numRounds = Math.log2(bracketSize)
 
     // Заполняем первый раунд
-    const shuffled = [...participants].sort(() => Math.random() - 0.5)
+    const shuffled = shuffleArray(participants)
     const firstRoundMatches: BracketMatch[] = []
 
     for (let i = 0; i < bracketSize / 2; i++) {

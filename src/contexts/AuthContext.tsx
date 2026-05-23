@@ -8,6 +8,7 @@ import { createContext, useState, useEffect, ReactNode, useCallback, useMemo } f
 import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
 import { AuthError } from '../services/authErrors';
 import { authService } from '../services/authService';
+import { supabase } from '../services/supabase';
 
 interface AuthContextType extends AuthState {
   user: User | null;
@@ -65,6 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       error: null,
     });
+
+    // Subscribe to Supabase auth state changes (login/logout from other tabs, session expiry)
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, _session) => {
+        const updatedUser = authService.getCurrentUser();
+        setState({
+          user: updatedUser,
+          isAuthenticated: !!updatedUser,
+          isLoading: false,
+          error: null,
+        });
+      });
+      return () => subscription.unsubscribe();
+    }
+    return undefined;
   }, []);
 
   const refreshUser = useCallback(async () => {
