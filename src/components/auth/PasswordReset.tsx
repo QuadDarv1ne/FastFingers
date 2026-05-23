@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
+import { logger } from '@utils/logger'
 
 interface PasswordResetProps {
   onBack: () => void
@@ -22,7 +23,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   const [timeLeft, setTimeLeft] = useState(TOKEN_EXPIRY_SECONDS)
   const [passwordError, setPasswordError] = useState('')
   const [emailError, setEmailError] = useState('')
-  const [showToken, setShowToken] = useState(false)
 
   const emailInputRef = useRef<HTMLInputElement>(null)
   const tokenInputRef = useRef<HTMLInputElement>(null)
@@ -31,8 +31,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
   useEffect(() => {
     if (lastResetToken?.token) {
-      setToken(lastResetToken.token)
-      setShowToken(true)
       setStep('confirm')
       setTimeLeft(TOKEN_EXPIRY_SECONDS)
     }
@@ -48,7 +46,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           if (timerRef.current) clearInterval(timerRef.current)
           setStep('request')
           setTimeLeft(TOKEN_EXPIRY_SECONDS)
-          setShowToken(false)
           return 0
         }
         return prev - 1
@@ -111,7 +108,8 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     try {
       await resetPassword({ email })
       // Токен будет обработан через useEffect от lastResetToken
-    } catch {
+    } catch (err) {
+      logger.warn('Password reset request failed:', err)
       // Ошибка уже установлена в контексте
     }
   }
@@ -135,7 +133,8 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       setSuccessMessage('Пароль успешно изменён!')
       if (backTimerRef.current) clearTimeout(backTimerRef.current)
       backTimerRef.current = setTimeout(() => onBack(), 2000)
-    } catch {
+    } catch (err) {
+      logger.warn('Password confirm reset failed:', err)
       // Ошибка уже установлена в контексте
     }
   }
@@ -197,27 +196,12 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           </div>
         )}
 
-        {/* Отображение токена для демонстрации */}
-        {showToken && lastResetToken && (
-          <div className="mb-6 p-4 bg-primary-500/10 border border-primary-500/30 rounded-lg">
-            <p className="text-sm font-medium text-primary-400 mb-2">🔑 Токен для сброса пароля:</p>
-            <div className="flex gap-2">
-              <code className="flex-1 bg-dark-900 px-3 py-2 rounded font-mono text-lg tracking-wider">
-                {lastResetToken.token}
-              </code>
-              <button
-                type="button"
-                onClick={() => navigator.clipboard.writeText(lastResetToken.token)}
-                className="px-3 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg transition-colors"
-                title="Копировать"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </div>
-            <p className="text-xs text-dark-400 mt-2">
-              В реальном приложении токен будет отправлен на email
+        {/* Сообщение об отправке кода */}
+        {step === 'confirm' && (
+          <div className="mb-6 p-4 bg-success/20 border border-success/50 rounded-lg">
+            <p className="text-sm font-medium text-success mb-1">Код отправлен на email</p>
+            <p className="text-xs text-dark-400">
+              Введите 6-значный код из письма для сброса пароля
             </p>
           </div>
         )}

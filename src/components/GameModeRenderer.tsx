@@ -52,7 +52,10 @@ function HardcoreMotion({ children }: { children: ReactNode }) {
   return <motion.div {...ANIMATIONS.hardcore}>{children}</motion.div>
 }
 
-const LazyFallback = () => <div className="p-8 text-center">Loading...</div>
+const LazyFallback = () => {
+  const { t } = useAppTranslation()
+  return <div className="p-8 text-center">{t('action.loading')}</div>
+}
 
 function SectionErrorFallback({ label, onRetry, retryLabel }: { label: string; onRetry?: () => void; retryLabel?: string }) {
   return (
