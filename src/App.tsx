@@ -48,6 +48,13 @@ import { STORAGE_KEYS } from './constants/storageKeys'
 const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
+
+/** Safely parse integer from string; returns 0 for invalid/missing values */
+const safeParseInt = (value: string | null): number => {
+  if (!value) return 0
+  const parsed = Number.parseInt(value, 10)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
 const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
@@ -513,11 +520,13 @@ function AppContent() {
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
                 perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
-                duelsPlayed: parseInt(localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED) || '0'),
-                tournamentsPlayed: parseInt(localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED) || '0'),
+                duelsPlayed: safeParseInt(localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED)),
+                tournamentsPlayed: safeParseInt(localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
                 customExercisesCreated: customExercises.length,
-                dailyChallengesCompleted: parseInt(localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED) || '0'),
-                gameModesUsed: new Set([gameMode, ...((localStorage.getItem(STORAGE_KEYS.USED_GAME_MODES) || '').split(',').filter(Boolean))]).size,
+                dailyChallengesCompleted: safeParseInt(localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
+                gameModesUsed: new Set([gameMode, ...(localStorage.getItem(STORAGE_KEYS.USED_GAME_MODES) || '')
+                  .split(',')
+                  .filter((m): m is string => m.length > 0)]).size,
                 level: progress.level,
               }}
               onClose={() => setShowAchievements(false)}

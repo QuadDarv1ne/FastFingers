@@ -357,6 +357,13 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       {/* Лобби */}
       {duelState === 'lobby' && (
         <div className="space-y-6">
+          {/* Сообщение об ошибке */}
+          {message && (
+            <div className="p-4 bg-error/20 border border-error/50 rounded-lg text-center">
+              <p className="text-error font-medium">{message}</p>
+            </div>
+          )}
+
           {/* Выбор длительности */}
           <div>
             <span id="duration-label" className="block text-sm text-dark-400 mb-2">Длительность</span>

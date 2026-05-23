@@ -97,7 +97,7 @@ export function useTypingGame({
   const generateNewText = useCallback(() => {
     try {
       if (customText) {
-        if (!customText || customText.trim().length === 0) {
+        if (customText.trim().length === 0) {
           logger.warn('Custom text is empty, using fallback')
           setText('текст для печати')
         } else {
