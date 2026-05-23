@@ -282,7 +282,6 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         setIsReady(false)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Update reverb routing when theme changes - properly re-route entire audio graph

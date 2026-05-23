@@ -178,9 +178,14 @@ export function generateContrastReport(): string {
 }
 
 // Экспорт для использования в консоли
+declare global {
+  interface Window {
+    checkContrast: () => void
+  }
+}
+
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(window as any).checkContrast = () => {
+  window.checkContrast = () => {
     logger.warn(generateContrastReport())
   }
 }

@@ -73,8 +73,8 @@ export function DailyChallengeManager() {
       if (stored) setChallenges(JSON.parse(stored))
       const storedStreak = localStorage.getItem(STREAK_KEY)
       if (storedStreak) setStreak(JSON.parse(storedStreak))
-    } catch {
-      // Ignore
+    } catch (err) {
+      logger.warn('[DailyChallengeManager] Failed to load challenges from localStorage', err)
     }
   }, [])
 

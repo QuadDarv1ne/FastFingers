@@ -60,9 +60,14 @@ export class MusicGenerator {
 
   init(): void {
     if (!this.audioContext) {
-      // Safari uses webkitAudioContext
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext
+      const AudioContextClass = 'AudioContext' in window
+        ? window.AudioContext
+        : 'webkitAudioContext' in window
+          ? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+          : null
+      if (!AudioContextClass) {
+        throw new Error('Web Audio API not supported in this browser')
+      }
       this.audioContext = new AudioContextClass()
       this.masterGain = this.audioContext.createGain()
       this.masterGain.connect(this.audioContext.destination)

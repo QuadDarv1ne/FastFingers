@@ -1,7 +1,7 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTypingHistory } from '../hooks/useTypingHistory'
-import { useExport } from '../hooks/useExport'
+import { downloadCSV } from '../utils/export'
 import { formatDurationLong } from '../utils/format'
 import i18n from 'i18next'
 import type { ExportData } from '../utils/export'
@@ -12,7 +12,16 @@ interface TrainingHistoryProps {
 
 export function TrainingHistory({ onBack }: TrainingHistoryProps) {
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
-  const { exportDataToCSV, isExporting } = useExport({ filename: 'fastfingers_history.csv' })
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = useCallback((data: ExportData[]) => {
+    setIsExporting(true)
+    try {
+      downloadCSV(data, 'fastfingers_history.csv')
+    } finally {
+      setIsExporting(false)
+    }
+  }, [])
 
   // Статистика за разные периоды
   const stats24h = useMemo(() => getStatsForPeriod(1), [getStatsForPeriod])
@@ -54,7 +63,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => exportDataToCSV(exportData)}
+            onClick={() => handleExport(exportData)}
             disabled={isExporting || history.sessions.length === 0}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             title="Экспорт в CSV"

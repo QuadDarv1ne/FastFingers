@@ -30,7 +30,6 @@ export function useSelectedStudent() {
     setState({ userId: null, userName: null })
   }, [])
 
-  // Keep ref in sync for stale-closure safety
   const valueRef = useRef(value)
   valueRef.current = value
 

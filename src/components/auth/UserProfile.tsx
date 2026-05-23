@@ -1370,8 +1370,9 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-    } catch {
-      // Silent fail
+    } catch (err) {
+      logger.error('[UserProfile] Failed to export data', err)
+      showToast('Ошибка при экспорте данных', 'error')
     }
   }
 
@@ -1408,8 +1409,9 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       }
       keysToRemove.forEach(key => localStorage.removeItem(key))
       window.location.reload()
-    } catch {
-      // Silent fail
+    } catch (err) {
+      logger.error('[UserProfile] Failed to clear data', err)
+      showToast('Ошибка при очистке данных', 'error')
     }
   }
 

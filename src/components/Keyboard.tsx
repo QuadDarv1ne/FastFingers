@@ -10,7 +10,6 @@ import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
 import { getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
-import { useHapticFeedback } from '../hooks/useHapticFeedback'
 
 interface KeyboardProps {
   layout: KeyboardLayout
@@ -35,12 +34,9 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   const layoutData = layouts[layout]
   const skinColors = getKeyboardSkin(skin)
 
-  const { vibrate } = useHapticFeedback()
-
   const handleKeyTouch = useCallback((key: string) => {
-    vibrate([10]) // light haptic feedback
     onKeyTouch?.(key)
-  }, [vibrate, onKeyTouch])
+  }, [onKeyTouch])
 
   // Мемоизация вычисления подсветки и тепловой карты
   // heatmap стабилизирован — пересчитываем только когда реально изменились ключи
