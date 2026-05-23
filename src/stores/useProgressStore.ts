@@ -32,6 +32,24 @@ interface ProgressState {
 const MAX_SESSIONS = 1000
 const RECENT_SESSIONS_COUNT = 10
 
+// ─── Shared computation functions ────────────────────────────────────────────
+// Pure functions used by both imperative methods and reactive selectors.
+
+export function getBestWpmFromSessions(sessions: TypingSession[]): number {
+  return sessions.length > 0 ? Math.max(...sessions.map((s) => s.wpm)) : 0
+}
+
+export function getAvgAccuracyFromSessions(sessions: TypingSession[]): number {
+  const recent = sessions.slice(0, RECENT_SESSIONS_COUNT)
+  return recent.length > 0
+    ? Math.round(recent.reduce((sum, s) => sum + s.accuracy, 0) / recent.length)
+    : 0
+}
+
+export function getTotalPracticeTimeFromSessions(sessions: TypingSession[]): number {
+  return sessions.reduce((sum, s) => sum + s.duration, 0)
+}
+
 const calculateStreak = (lastDate: string | null, currentDate: string): number => {
   if (!lastDate) return 1
 
@@ -87,20 +105,11 @@ export const useProgressStore = create<ProgressState>()(
         lastPracticeDate: null
       }),
 
-      getBestWpm: () => {
-        const sessions = get().sessions
-        return sessions.length > 0 ? Math.max(...sessions.map(s => s.wpm)) : 0
-      },
+      getBestWpm: () => getBestWpmFromSessions(get().sessions),
 
-      getAvgAccuracy: () => {
-        const sessions = get().sessions.slice(0, RECENT_SESSIONS_COUNT)
-        if (sessions.length === 0) return 0
-        return Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length)
-      },
-      
-      getTotalPracticeTime: () => {
-        return get().sessions.reduce((sum, s) => sum + s.duration, 0)
-      },
+      getAvgAccuracy: () => getAvgAccuracyFromSessions(get().sessions),
+
+      getTotalPracticeTime: () => getTotalPracticeTimeFromSessions(get().sessions),
     }),
     {
       name: 'fastfingers-progress',
@@ -121,39 +130,22 @@ export const useProgressStore = create<ProgressState>()(
 
 /** Best WPM across all sessions */
 export const useBestWpm = () =>
-  useProgressStore((state) =>
-    state.sessions.length > 0
-      ? Math.max(...state.sessions.map((s) => s.wpm))
-      : 0
-  )
+  useProgressStore((state) => getBestWpmFromSessions(state.sessions))
 
 /** Average accuracy of the most recent sessions */
 export const useAvgAccuracy = () =>
-  useProgressStore((state) => {
-    const sessions = state.sessions.slice(0, RECENT_SESSIONS_COUNT)
-    return sessions.length > 0
-      ? Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length)
-      : 0
-  })
+  useProgressStore((state) => getAvgAccuracyFromSessions(state.sessions))
 
 /** Total practice time in seconds across all sessions */
 export const useTotalPracticeTime = () =>
-  useProgressStore((state) =>
-    state.sessions.reduce((sum, s) => sum + s.duration, 0)
-  )
+  useProgressStore((state) => getTotalPracticeTimeFromSessions(state.sessions))
 
 /** All three computed stats at once — single subscription for stats panels */
 export const useProgressStats = () =>
   useProgressStore((state) => {
-    const sessions = state.sessions
-    const bestWpm = sessions.length > 0
-      ? Math.max(...sessions.map((s) => s.wpm))
-      : 0
-    const recent = sessions.slice(0, RECENT_SESSIONS_COUNT)
-    const avgAccuracy = recent.length > 0
-      ? Math.round(recent.reduce((sum, s) => sum + s.accuracy, 0) / recent.length)
-      : 0
-    const totalPracticeTime = sessions.reduce((sum, s) => sum + s.duration, 0)
+    const bestWpm = getBestWpmFromSessions(state.sessions)
+    const avgAccuracy = getAvgAccuracyFromSessions(state.sessions)
+    const totalPracticeTime = getTotalPracticeTimeFromSessions(state.sessions)
     // Return a string key to avoid creating new objects in selector (prevents infinite loop)
     return `${bestWpm}|${avgAccuracy}|${totalPracticeTime}`
   })

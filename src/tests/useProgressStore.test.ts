@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { useProgressStore, useBestWpm, useAvgAccuracy, useTotalPracticeTime, useProgressStats } from '../stores/useProgressStore'
+import { useProgressStore, useBestWpm, useAvgAccuracy, useTotalPracticeTime, useProgressStats, getBestWpmFromSessions, getAvgAccuracyFromSessions, getTotalPracticeTimeFromSessions } from '../stores/useProgressStore'
 import { renderHook, act } from '@testing-library/react'
 
 describe('useProgressStore Integration', () => {
@@ -578,6 +578,67 @@ describe('useProgressStore Integration', () => {
         expect(bestWpm).toBe(55)
         expect(avgAccuracy).toBe(89) // среднее 85 и 92 = 88.5 → 89
         expect(totalPracticeTime).toBe(150)
+      })
+    })
+  })
+
+  describe('Shared computation functions', () => {
+    describe('getBestWpmFromSessions', () => {
+      it('должен возвращать 0 для пустого массива', () => {
+        expect(getBestWpmFromSessions([])).toBe(0)
+      })
+
+      it('должен возвращать максимальный WPM', () => {
+        const sessions = [
+          { wpm: 30 } as any,
+          { wpm: 55 } as any,
+          { wpm: 42 } as any,
+        ]
+        expect(getBestWpmFromSessions(sessions)).toBe(55)
+      })
+
+      it('должен возвращать WPM для одной сессии', () => {
+        const sessions = [{ wpm: 40 } as any]
+        expect(getBestWpmFromSessions(sessions)).toBe(40)
+      })
+    })
+
+    describe('getAvgAccuracyFromSessions', () => {
+      it('должен возвращать 0 для пустого массива', () => {
+        expect(getAvgAccuracyFromSessions([])).toBe(0)
+      })
+
+      it('должен усреднять точность всех сессий если их <= 10', () => {
+        const sessions = [
+          { accuracy: 80 } as any,
+          { accuracy: 90 } as any,
+          { accuracy: 100 } as any,
+        ]
+        expect(getAvgAccuracyFromSessions(sessions)).toBe(90)
+      })
+
+      it('должен учитывать только первые 10 сессий', () => {
+        const sessions = Array.from({ length: 15 }, (_, i) => ({ accuracy: i < 5 ? 50 : 90 } as any))
+        // Первые 10 сессий имеют accuracy 90 (сессии добавляются в начало, так что последние добавленные = первые в массиве)
+        // Sessions 0-4: accuracy 50, sessions 5-14: accuracy 90
+        // slice(0, 10) берет sessions 0-9: 5 с accuracy 50 и 5 с accuracy 90
+        const expected = Math.round((5 * 50 + 5 * 90) / 10)
+        expect(getAvgAccuracyFromSessions(sessions)).toBe(expected)
+      })
+    })
+
+    describe('getTotalPracticeTimeFromSessions', () => {
+      it('должен возвращать 0 для пустого массива', () => {
+        expect(getTotalPracticeTimeFromSessions([])).toBe(0)
+      })
+
+      it('должен суммировать duration всех сессий', () => {
+        const sessions = [
+          { duration: 60 } as any,
+          { duration: 120 } as any,
+          { duration: 90 } as any,
+        ]
+        expect(getTotalPracticeTimeFromSessions(sessions)).toBe(270)
       })
     })
   })
