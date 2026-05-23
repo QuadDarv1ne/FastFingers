@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 
 interface UseAccessibilityOptions {
   enabled?: boolean
@@ -14,6 +14,15 @@ export function useAccessibility({
   onEscape,
   onEnter,
 }: UseAccessibilityOptions = {}) {
+  const announceTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => {
+    return () => {
+      if (announceTimeoutRef.current) {
+        clearTimeout(announceTimeoutRef.current)
+      }
+    }
+  }, [])
   // Обработка клавиши Escape
   useEffect(() => {
     if (!enabled || !onEscape) return
@@ -93,10 +102,12 @@ export function useAccessibility({
   const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
     const announcer = document.getElementById('aria-announcer')
     if (announcer) {
+      if (announceTimeoutRef.current) {
+        clearTimeout(announceTimeoutRef.current)
+      }
       announcer.setAttribute('aria-live', priority)
       announcer.textContent = message
-      // Очистка через 1 секунду
-      setTimeout(() => {
+      announceTimeoutRef.current = setTimeout(() => {
         announcer.textContent = ''
       }, 1000)
     }

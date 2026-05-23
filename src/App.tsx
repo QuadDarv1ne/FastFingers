@@ -50,10 +50,22 @@ const Onboarding = lazy(() => import('./components/Onboarding').then((module) =>
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
 
 /** Safely parse integer from string; returns 0 for invalid/missing values */
-const safeParseInt = (value: string | null): number => {
-  if (!value) return 0
-  const parsed = Number.parseInt(value, 10)
-  return Number.isNaN(parsed) ? 0 : parsed
+const safeParseInt = (getValue: () => string | null): number => {
+  try {
+    const value = getValue()
+    if (!value) return 0
+    const parsed = Number.parseInt(value, 10)
+    return Number.isNaN(parsed) ? 0 : parsed
+  } catch {
+    return 0
+  }
+}
+const safeLocalStorageGet = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
 }
 const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
@@ -291,7 +303,7 @@ function AppContent() {
 
       <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label={t('stats.history')}>
+          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label={t('modes.select')}>
             <ModeButton
               isActive={gameMode === 'practice' && view === 'main'}
               onClick={() => {
@@ -520,11 +532,11 @@ function AppContent() {
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
                 perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
-                duelsPlayed: safeParseInt(localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED)),
-                tournamentsPlayed: safeParseInt(localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
+                duelsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED)),
+                tournamentsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
                 customExercisesCreated: customExercises.length,
-                dailyChallengesCompleted: safeParseInt(localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
-                gameModesUsed: new Set([gameMode, ...(localStorage.getItem(STORAGE_KEYS.USED_GAME_MODES) || '')
+                dailyChallengesCompleted: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
+                gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
                   .split(',')
                   .filter((m): m is string => m.length > 0)]).size,
                 level: progress.level,

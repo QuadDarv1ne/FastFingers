@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { logger } from '../utils/logger'
 
 interface UseClipboardOptions {
@@ -19,6 +19,18 @@ export function useClipboard({
   onError
 }: UseClipboardOptions = {}): UseClipboardReturn {
   const [copied, setCopied] = useState(false)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  useEffect(() => {
+    return () => {
+      timeoutRef.current.forEach(clearTimeout)
+    }
+  }, [])
+
+  const scheduleReset = useCallback(() => {
+    const id = setTimeout(() => setCopied(false), timeout)
+    timeoutRef.current.push(id)
+  }, [timeout])
 
   const copy = useCallback(async (text: string) => {
     try {
@@ -37,7 +49,7 @@ export function useClipboard({
           document.execCommand('copy')
           setCopied(true)
           onSuccess?.()
-          setTimeout(() => setCopied(false), timeout)
+          scheduleReset()
         } catch {
           logger.warn('Operation failed in hooks/useClipboard.ts')
           throw new Error('Failed to copy using execCommand')
@@ -50,14 +62,14 @@ export function useClipboard({
       await navigator.clipboard.writeText(text)
       setCopied(true)
       onSuccess?.()
-      setTimeout(() => setCopied(false), timeout)
+      scheduleReset()
     } catch (error) {
       logger.warn('Operation failed in hooks/useClipboard.ts')
       const err = error instanceof Error ? error : new Error('Unknown clipboard error')
       onError?.(err)
       throw err
     }
-  }, [timeout, onSuccess, onError])
+  }, [timeout, onSuccess, onError, scheduleReset])
 
   const reset = useCallback(() => {
     setCopied(false)

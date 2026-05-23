@@ -23,7 +23,7 @@ export const MusicControls = memo(function MusicControls({ className = '' }: Mus
     availableKeys,
   } = useMusicGenerator()
 
-  const currentGenreInfo = availableGenres.find(g => g.value === genre)
+  const currentGenreInfo = availableGenres.find(g => g.value === genre) ?? availableGenres[0]
 
   return (
     <div className={`glass rounded-xl p-4 ${className}`}>

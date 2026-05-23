@@ -49,6 +49,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
   const workerRef = useRef<Worker | null>(null)
   const pendingPromises = useRef<Map<number, PendingPromise<unknown>>>(new Map())
+  const timeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
   const messageIdRef = useRef(0)
   const isReadyRef = useRef(false)
   const isBusyRef = useRef(false)
@@ -77,6 +78,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           const pending = pendingPromises.current.get(messageId)
           if (pending) {
             pendingPromises.current.delete(messageId)
+            timeoutsRef.current.delete(messageId)
             pending.resolve(payload)
             isBusyRef.current = false
             setIsBusy(false)
@@ -102,6 +104,8 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         }
         isReadyRef.current = false
         currentPendingPromises.clear()
+        timeoutsRef.current.forEach(clearTimeout)
+        timeoutsRef.current.clear()
       }
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)
@@ -132,14 +136,15 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
       workerRef.current.postMessage({ type, payload, messageId })
 
-      // Таймаут на случай если воркер не ответит
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         if (pendingPromises.current.has(messageId)) {
           pendingPromises.current.delete(messageId)
+          timeoutsRef.current.delete(messageId)
           reject(new Error('Worker timeout'))
           setIsBusy(false)
         }
       }, 30000) // 30 секунд
+      timeoutsRef.current.set(messageId, timeoutId)
     })
   }, []) // Теперь не зависит от isReady/isBusy — используем refs
 

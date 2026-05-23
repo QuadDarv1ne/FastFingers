@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
@@ -16,6 +17,7 @@ interface SpeedTestProps {
 }
 
 export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProps) {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -30,6 +32,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const timeLeftRef = useRef(timeLeft)
   const totalCorrectRef = useRef(0)
   const totalCharsRef = useRef(0)
+  const lastSegmentLengthRef = useRef(0)
   inputResultsRef.current = inputResults
   timeLeftRef.current = timeLeft
 
@@ -40,8 +43,9 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const handleFinish = useCallback(() => {
     const results = inputResultsRef.current
     const elapsed = duration - timeLeftRef.current
-    const totalCorrect = totalCorrectRef.current + results.filter(r => r.isCorrect).length
-    const totalTotal = totalCharsRef.current + results.length
+    const newResults = results.slice(lastSegmentLengthRef.current)
+    const totalCorrect = totalCorrectRef.current + newResults.filter(r => r.isCorrect).length
+    const totalTotal = totalCharsRef.current + newResults.length
     const errors = totalTotal - totalCorrect
 
     const stats = calculateStats(totalCorrect, totalTotal, errors, elapsed)
@@ -94,6 +98,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     setIsActive(true)
     totalCorrectRef.current = 0
     totalCharsRef.current = 0
+    lastSegmentLengthRef.current = 0
     inputRef.current?.focus({ preventScroll: true })
   }
 
@@ -123,9 +128,11 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
       // Если текст заканчивается, сохраняем результаты сегмента и генерируем новый
       if (idx >= text.length - 10) {
-        totalCorrectRef.current += inputResultsRef.current.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
-        totalCharsRef.current += inputResultsRef.current.length + 1
+        const resultsSinceSegment = inputResultsRef.current.slice(lastSegmentLengthRef.current)
+        totalCorrectRef.current += resultsSinceSegment.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0)
+        totalCharsRef.current += resultsSinceSegment.length + 1
         generateNewText()
+        lastSegmentLengthRef.current = 0
       }
     }
 
@@ -226,7 +233,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
         }}
         role="button"
         tabIndex={0}
-        aria-label="Область ввода текста. Нажмите для фокуса"
+        aria-label={t('speedtest.input_area')}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4"
       >
         <input
