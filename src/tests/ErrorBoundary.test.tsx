@@ -34,9 +34,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
-    expect(screen.getByText('Попробовать снова')).toBeInTheDocument()
-    expect(screen.getByText('Обновить страницу')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
+    expect(screen.getByText('Try again')).toBeInTheDocument()
+    expect(screen.getByText('Refresh page')).toBeInTheDocument()
   })
 
   it('должен показывать кастомный fallback', () => {
@@ -69,24 +69,24 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Показать детали ошибки')).toBeInTheDocument()
+    expect(screen.getByText('Show error details')).toBeInTheDocument()
   })
 
-  it('должен позволять повторить попытку при клике на "Попробовать снова"', () => {
+  it('должен позволять повторить попытку при клике на "Try again"', () => {
     render(
       <ErrorBoundary>
         <BrokenComponent />
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByText('Попробовать снова'))
+    fireEvent.click(screen.getByText('Try again'))
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
   })
 
-  it('должен вызывать onRetry при клике на "Попробовать снова"', () => {
+  it('должен вызывать onRetry при клике на "Try again"', () => {
     const onRetry = vi.fn()
 
     render(
@@ -95,7 +95,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    fireEvent.click(screen.getByText('Попробовать снова'))
+    fireEvent.click(screen.getByText('Try again'))
 
     expect(onRetry).toHaveBeenCalled()
   })
@@ -117,7 +117,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const details = screen.getByText('Показать детали ошибки')
+    const details = screen.getByText('Show error details')
     expect(details).toBeInTheDocument()
   })
 
@@ -128,7 +128,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const reloadButton = screen.getByText('Обновить страницу')
+    const reloadButton = screen.getByText('Refresh page')
     expect(reloadButton).toBeInTheDocument()
   })
 
@@ -156,7 +156,7 @@ describe('ErrorBoundary', () => {
     )
 
     expect(screen.getByTestId('fallback')).toBeInTheDocument()
-    expect(screen.queryByText('Упс. Что-то пошло не так')).not.toBeInTheDocument()
+    expect(screen.queryByText('Oops. Something went wrong')).not.toBeInTheDocument()
   })
 
   it('должен иметь метод resetError который существует', () => {
@@ -176,7 +176,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
   })
 
   it('должен использовать getDerivedStateFromError для установки состояния', () => {
@@ -186,8 +186,8 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
-    expect(screen.getByText('Показать детали ошибки')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
+    expect(screen.getByText('Show error details')).toBeInTheDocument()
   })
 
   it('должен поддерживать resetKeys проп без ошибок', () => {
@@ -243,12 +243,12 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
 
-    const retryButton = screen.getByText('Попробовать снова')
+    const retryButton = screen.getByText('Try again')
     fireEvent.click(retryButton)
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
   })
 
   it('должен иметь правильные стили для иконки ошибки', () => {
@@ -258,7 +258,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const errorIcon = screen.getByText('Упс. Что-то пошло не так')
+    const errorIcon = screen.getByText('Oops. Something went wrong')
     expect(errorIcon).toBeInTheDocument()
   })
 
@@ -269,7 +269,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const details = screen.getByText('Показать детали ошибки')
+    const details = screen.getByText('Show error details')
     expect(details).toBeInTheDocument()
 
     fireEvent.click(details)
@@ -285,7 +285,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const container = screen.getByText('Упс. Что-то пошло не так').closest('.glass')
+    const container = screen.getByText('Oops. Something went wrong').closest('.glass')
     expect(container).toBeInTheDocument()
   })
 
@@ -318,7 +318,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    expect(screen.getByText('Упс. Что-то пошло не так')).toBeInTheDocument()
+    expect(screen.getByText('Oops. Something went wrong')).toBeInTheDocument()
   })
 
   it('должен рендерить fallback с React элементом', () => {
@@ -338,7 +338,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const reloadButton = screen.getByText('Обновить страницу')
+    const reloadButton = screen.getByText('Refresh page')
     expect(reloadButton).toBeInTheDocument()
     fireEvent.click(reloadButton)
     // Кнопка вызывает window.location.reload()
@@ -351,7 +351,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const details = screen.getByText('Показать детали ошибки')
+    const details = screen.getByText('Show error details')
     fireEvent.click(details)
 
     const preElement = document.querySelector('pre')
@@ -366,7 +366,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const container = screen.getByText('Упс. Что-то пошло не так').closest('.min-h-screen')
+    const container = screen.getByText('Oops. Something went wrong').closest('.min-h-screen')
     expect(container).toHaveClass('min-h-screen', 'bg-dark-900', 'flex', 'items-center', 'justify-center', 'p-4')
   })
 
@@ -401,7 +401,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const retryButton = screen.getByText('Попробовать снова')
+    const retryButton = screen.getByText('Try again')
     expect(retryButton).toHaveClass('px-4', 'py-2', 'bg-primary-600', 'hover:bg-primary-700', 'text-white', 'rounded-lg')
   })
 
@@ -412,7 +412,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const reloadButton = screen.getByText('Обновить страницу')
+    const reloadButton = screen.getByText('Refresh page')
     expect(reloadButton).toHaveClass('px-4', 'py-2', 'bg-dark-700', 'hover:bg-dark-600', 'text-white', 'rounded-lg')
   })
 })

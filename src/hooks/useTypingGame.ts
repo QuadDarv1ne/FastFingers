@@ -13,6 +13,8 @@ interface UseTypingGameOptions {
   onKeyInput?: (key: string, isCorrect: boolean) => void
   mode?: 'practice' | 'timed'
   duration?: number
+  /** Provide custom text instead of auto-generated practice text */
+  customText?: string
 }
 
 interface UseTypingGameReturn {
@@ -56,6 +58,7 @@ export function useTypingGame({
   onKeyInput,
   mode = 'practice',
   duration = DEFAULT_DURATION,
+  customText,
 }: UseTypingGameOptions = {}): UseTypingGameReturn {
   // Валидация входных параметров
   const safeWordCount = Math.max(
@@ -93,13 +96,22 @@ export function useTypingGame({
 
   const generateNewText = useCallback(() => {
     try {
-      const newText = generatePracticeText(safeWordCount, safeDifficulty)
-
-      if (!newText || newText.trim().length === 0) {
-        logger.warn('Generated empty text, using fallback')
-        setText('текст для печати')
+      if (customText) {
+        if (!customText || customText.trim().length === 0) {
+          logger.warn('Custom text is empty, using fallback')
+          setText('текст для печати')
+        } else {
+          setText(customText)
+        }
       } else {
-        setText(newText)
+        const newText = generatePracticeText(safeWordCount, safeDifficulty)
+
+        if (!newText || newText.trim().length === 0) {
+          logger.warn('Generated empty text, using fallback')
+          setText('текст для печати')
+        } else {
+          setText(newText)
+        }
       }
       
       setCurrentIndex(0)
@@ -126,7 +138,7 @@ export function useTypingGame({
       setAccuracy(100)
       setErrors(0)
     }
-  }, [safeWordCount, safeDifficulty, safeDuration])
+  }, [safeWordCount, safeDifficulty, safeDuration, customText])
 
   useEffect(() => {
     generateNewText()
@@ -315,14 +327,15 @@ export function useTypingGame({
 
     pendingCompletionRef.current = null
 
-    if (pending.shouldGenerateText) {
+    // Only auto-generate text when not using customText
+    if (pending.shouldGenerateText && !customText) {
       generateNewText()
     }
 
     if (mode === 'practice') {
       handleComplete(pending.results)
     }
-  }, [currentIndex, mode, generateNewText, handleComplete])
+  }, [currentIndex, mode, generateNewText, handleComplete, customText])
 
   const handleSkip = useCallback(() => {
     try {

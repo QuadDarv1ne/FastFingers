@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useHotkey } from '../hooks/useHotkeys'
@@ -12,6 +12,7 @@ import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 import { practiceTexts } from '../data/practiceTexts'
 import { useCountdown } from '@hooks/useCountdown'
+import { useTypingGame } from '@hooks/useTypingGame'
 
 interface CodeModeProps {
   onExit: () => void
@@ -70,7 +71,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
     return practiceTexts.filter(text => allowedIds.includes(text.id))
   }, [language])
 
-  // Выбранный текст
   const selectedText = useMemo(() => {
     if (selectedTextId) {
       return codeTexts.find(ct => ct.id === selectedTextId)
@@ -80,108 +80,38 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
 
   const textToType = selectedText?.text || ''
 
-  // Состояние печати
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [inputResults, setInputResults] = useState<Array<{ isCorrect: boolean }>>([])
-  const [isActive, setIsActive] = useState(false)
-  const [startTime, setStartTime] = useState<number | null>(null)
-  const [wpm, setWpm] = useState(0)
-  const [accuracy, setAccuracy] = useState(100)
+  const handleComplete = useCallback((stats: TypingStats) => {
+    showToast(`Код: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
+    onComplete(stats)
+  }, [onComplete, showToast])
 
-  const inputRef = useRef<HTMLInputElement>(null)
-  const currentIndexRef = useRef(0)
-  const inputResultsRef = useRef<Array<{ isCorrect: boolean }>>([])
-  const startTimeRef = useRef<number | null>(null)
-
-  // Sync refs with state
-  useEffect(() => { currentIndexRef.current = currentIndex }, [currentIndex])
-  useEffect(() => { inputResultsRef.current = inputResults }, [inputResults])
-  useEffect(() => { startTimeRef.current = startTime }, [startTime])
-
-  const startTyping = useCallback(() => {
-    setIsActive(true)
-    const now = Date.now()
-    setStartTime(now)
-    startTimeRef.current = now
-    setCurrentIndex(0)
-    currentIndexRef.current = 0
-    setInputResults([])
-    inputResultsRef.current = []
-    setWpm(0)
-    setAccuracy(100)
-    inputRef.current?.focus({ preventScroll: true })
-  }, [])
-
-  const { countdown, start: startCountdown } = useCountdown({
-    onComplete: startTyping,
+  const {
+    currentIndex,
+    inputResults,
+    isActive,
+    wpm,
+    accuracy,
+    inputRef,
+    handleInput,
+    handleStart: hookHandleStart,
+    reset,
+  } = useTypingGame({
+    mode: 'practice',
+    customText: textToType,
+    onComplete: handleComplete,
   })
 
-  // Старт с обратным отсчётом
+  const { countdown, start: startCountdown } = useCountdown({
+    onComplete: hookHandleStart,
+  })
+
   const handleStart = useCallback(() => {
-    startCountdown(3)
-  }, [startCountdown])
-
-  // Обработка ввода
-  const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    const inputValue = (e.target as HTMLInputElement).value
-    const charIndex = inputValue.length - 1
-
-    if (charIndex >= 0 && charIndex < textToType.length) {
-      const expectedChar = textToType[charIndex]
-      const actualChar = inputValue[charIndex]
-      const isCorrect = expectedChar === actualChar
-
-      setInputResults(prev => {
-        const newResults = [...prev, { isCorrect }]
-        inputResultsRef.current = newResults
-        return newResults
-      })
-      setCurrentIndex(prev => {
-        const newIndex = prev + 1
-        currentIndexRef.current = newIndex
-        return newIndex
-      })
-
-      // Обновляем статистику
-      const currentStartTime = startTimeRef.current
-      if (currentStartTime) {
-        const elapsedMinutes = (Date.now() - currentStartTime) / 60000
-        const results = inputResultsRef.current
-        const newCorrect = results.filter(r => r.isCorrect).length
-        const newTotal = results.length
-        const wpmValue = elapsedMinutes > 0 ? Math.round((newCorrect / 5) / elapsedMinutes) : 0
-        setWpm(wpmValue)
-        setAccuracy(Math.round((newCorrect / newTotal) * 100))
-      }
-
-      // Проверка завершения
-      if (currentIndexRef.current >= textToType.length - 1) {
-        setIsActive(false)
-        const results = inputResultsRef.current
-        const errorsCount = results.filter(r => !r.isCorrect).length
-        const correctChars = results.filter(r => r.isCorrect).length
-        const elapsed = currentStartTime ? Date.now() - currentStartTime : 0
-        const elapsedMinutes = elapsed / 60000
-        const finalWpm = elapsedMinutes > 0 ? Math.round((correctChars / 5) / elapsedMinutes) : 0
-        const finalCpm = elapsedMinutes > 0 ? Math.round(correctChars / elapsedMinutes) : 0
-        const finalAccuracy = results.length > 0 ? Math.round((correctChars / results.length) * 100) : 100
-
-        const stats: TypingStats = {
-          wpm: finalWpm,
-          cpm: finalCpm,
-          accuracy: finalAccuracy,
-          errors: errorsCount,
-          correctChars,
-          totalChars: textToType.length,
-          timeElapsed: elapsed,
-        }
-        showToast(`Код: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
-        onComplete(stats)
-      }
+    if (selectedTextId && textToType) {
+      reset()
+      startCountdown(3)
     }
-  }, [textToType, onComplete, showToast])
+  }, [selectedTextId, textToType, reset, startCountdown])
 
-  // Горячие клавиши
   useHotkey('escape', () => {
     if (countdown === null) {
       onExit()
@@ -194,40 +124,23 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
     }
   }, { enabled: true })
 
-  // Сброс при изменении выбранного текста
   useEffect(() => {
-    setCurrentIndex(0)
-    setInputResults([])
-    setIsActive(false)
-    setWpm(0)
-    setAccuracy(100)
-  }, [selectedTextId])
+    reset()
+  }, [selectedTextId, reset])
 
-  // Пропуск текущего текста
   const handleSkip = useCallback(() => {
-    setCurrentIndex(0)
-    setInputResults([])
-    setIsActive(false)
-    setWpm(0)
-    setAccuracy(100)
+    reset()
     setSelectedTextId(null)
-  }, [])
+    inputRef.current?.focus({ preventScroll: true })
+  }, [reset, inputRef])
 
-  // Выбор случайного текста
   const handleSelectRandomText = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * codeTexts.length)
     setSelectedTextId(codeTexts[randomIndex]?.id || null)
   }, [codeTexts])
 
-  // Обёртка для пропуска
-  const handleSkipWrapper = useCallback(() => {
-    handleSkip()
-    inputRef.current?.focus({ preventScroll: true })
-  }, [handleSkip])
-
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden">
-      {/* Overlay с обратным отсчётом */}
       <AnimatePresence>
         {countdown !== null && (
           <motion.div
@@ -250,7 +163,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         )}
       </AnimatePresence>
 
-      {/* Заголовок */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
@@ -290,7 +202,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         </div>
       </div>
 
-      {/* Выбор языка */}
       <div className="mb-6">
         <label htmlFor="language-select" className="block text-sm text-dark-400 mb-2">
           Язык программирования
@@ -313,7 +224,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         </div>
       </div>
 
-      {/* Список доступных текстов */}
       <div className="mb-6 max-h-40 overflow-y-auto">
         <p className="text-sm text-dark-400 mb-2">
           Доступно упражнений: <span className="text-white font-medium">{codeTexts.length}</span>
@@ -336,7 +246,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         </div>
       </div>
 
-      {/* Статистика в реальном времени */}
       <div className="grid grid-cols-3 gap-4 mb-6" role="region" aria-label={t('stats.title')}>
         <div className="bg-dark-800 rounded-lg p-4 text-center">
           <p className="text-sm text-dark-400">{t('common.wpm')}</p>
@@ -354,7 +263,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         </div>
       </div>
 
-      {/* Область ввода */}
       <div className="bg-dark-800/50 rounded-xl p-6 min-h-[120px] relative mb-4 font-mono">
         <input
           ref={inputRef}
@@ -397,7 +305,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           })}
         </div>
 
-        {/* Оверлей выбора текста */}
         {!selectedTextId && (
           <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
             <div className="text-center">
@@ -416,7 +323,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           </div>
         )}
 
-        {/* Оверлей старта */}
         {selectedTextId && !isActive && countdown === null && (
           <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
             <div className="text-center">
@@ -436,11 +342,10 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         )}
       </div>
 
-      {/* Кнопка пропуска */}
       {isActive && (
         <div className="flex justify-center">
           <button
-            onClick={handleSkipWrapper}
+            onClick={handleSkip}
             className="px-4 py-2 text-dark-400 hover:text-white transition-colors text-sm"
             aria-label={t('action.skip')}
           >
@@ -449,7 +354,6 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
         </div>
       )}
 
-      {/* Подсказки */}
       <div className="mt-4 text-center text-xs text-dark-500">
         <p>💡 Совет: обращай внимание на синтаксис и регистр символов!</p>
       </div>
