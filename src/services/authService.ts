@@ -24,7 +24,27 @@ const generateSalt = (): string => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
 
+const DEFAULT_USER_STATS = {
+  totalXp: 0,
+  level: 1,
+  bestWpm: 0,
+  bestAccuracy: 0,
+  totalWordsTyped: 0,
+  totalPracticeTime: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  completedChallenges: 0,
+};
+
 type StoredUser = User & { password: string; salt: string };
+
+const findUserOrThrow = (users: StoredUser[], predicate: (u: StoredUser) => boolean): StoredUser => {
+  const user = users.find(predicate);
+  if (!user) {
+    throw new AuthError('user-not-found', 'Пользователь не найден');
+  }
+  return user;
+};
 
 interface LoginAttempt {
   email: string;
@@ -225,17 +245,7 @@ export const authService = {
           name: sanitizedName,
           createdAt: new Date().toISOString(),
           role: 'user',
-          stats: {
-            totalXp: 0,
-            level: 1,
-            bestWpm: 0,
-            bestAccuracy: 0,
-            totalWordsTyped: 0,
-            totalPracticeTime: 0,
-            currentStreak: 0,
-            longestStreak: 0,
-            completedChallenges: 0,
-          },
+          stats: { ...DEFAULT_USER_STATS },
         };
         saveCurrentUser(user, true);
         return user;
@@ -323,17 +333,7 @@ export const authService = {
           createdAt: data.user.created_at,
           lastLogin: new Date().toISOString(),
           role: data.user.user_metadata?.role || 'user',
-          stats: data.user.user_metadata?.stats || {
-            totalXp: 0,
-            level: 1,
-            bestWpm: 0,
-            bestAccuracy: 0,
-            totalWordsTyped: 0,
-            totalPracticeTime: 0,
-            currentStreak: 0,
-            longestStreak: 0,
-            completedChallenges: 0,
-          },
+          stats: data.user.user_metadata?.stats || { ...DEFAULT_USER_STATS },
         };
         saveCurrentUser(user, credentials.rememberMe ?? true);
         return user;
@@ -427,19 +427,9 @@ export const authService = {
       throw new AuthError('invalid-token', 'Неверный или истёкший токен');
     }
     const users = getUsers();
-    const userIndex = users.findIndex(u => u.email === tokenData.email);
-
-    if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-
-    const user = users[userIndex];
-    if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-    const salt = user.salt || generateSalt();
-    user.password = await hashPassword(confirm.newPassword, salt);
-    if (!user.salt) user.salt = salt;
+    const user = findUserOrThrow(users, u => u.email === tokenData.email);
+    user.password = await hashPassword(confirm.newPassword, user.salt || generateSalt());
+    if (!user.salt) user.salt = generateSalt();
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);
@@ -453,17 +443,9 @@ export const authService = {
     await delay(PROFILE_UPDATE_DELAY_MS);
 
     const users = getUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
+    const user = findUserOrThrow(users, u => u.id === userId);
 
-    if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-
-    const user = users[userIndex];
-    if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-
+    const userIndex = users.indexOf(user);
     users[userIndex] = { ...user, ...updates };
     saveUsers(users);
 
@@ -479,17 +461,9 @@ export const authService = {
 
   async syncUserStats(userId: string, stats: Partial<User['stats']>): Promise<User> {
     const users = getUsers();
-    const userIndex = users.findIndex(u => u.id === userId);
+    const user = findUserOrThrow(users, u => u.id === userId);
 
-    if (userIndex === -1) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-
-    const user = users[userIndex];
-    if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
-    }
-
+    const userIndex = users.indexOf(user);
     users[userIndex] = { ...user, stats: { ...user.stats, ...stats } };
     saveUsers(users);
 

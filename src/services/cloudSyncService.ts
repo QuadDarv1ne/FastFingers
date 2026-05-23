@@ -38,6 +38,17 @@ interface HardcoreRecordRow {
   created_at: string
 }
 
+interface LeaderboardEntry {
+  game_mode: string
+  wpm: number
+  cpm: number
+  accuracy: number
+  score: number
+  season?: string
+}
+
+type FetchResult<T> = { data: T[] | null; error: Error | null }
+
 class CloudSyncService {
   private syncQueue: CloudSave[] = []
   private isSyncing = false
@@ -47,7 +58,6 @@ class CloudSyncService {
   private offlineHandler: () => void
 
   constructor() {
-    // Monitor online status
     this.onlineHandler = () => {
       this.isOnline = true
       this.flushOfflineCache()
@@ -62,7 +72,6 @@ class CloudSyncService {
     }
   }
 
-  // Clean up event listeners
   destroy(): void {
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', this.onlineHandler)
@@ -70,7 +79,6 @@ class CloudSyncService {
     }
   }
 
-  // Save user stats to Supabase
   async saveProgress(user: User, stats: UserStats): Promise<void> {
     const save: CloudSave = {
       userId: user.id,
@@ -79,10 +87,8 @@ class CloudSyncService {
       version: '1.0',
     }
 
-    // Add to queue
     this.syncQueue.push(save)
 
-    // Save to Supabase if online
     if (this.isOnline && supabase) {
       try {
         const { error } = await supabase
@@ -101,20 +107,16 @@ class CloudSyncService {
         logger.info('Progress saved to Supabase')
       } catch (error) {
         logger.error('Failed to save to Supabase:', error)
-        // Fallback to localStorage
         this.saveToLocalStorage(save)
         this.offlineCache.push({ type: 'stats', data: save })
       }
     } else {
-      // Fallback to localStorage
       this.saveToLocalStorage(save)
     }
 
-    // Clear from queue
     this.syncQueue = this.syncQueue.filter(s => s !== save)
   }
 
-  // Load user stats from Supabase
   async loadProgress(userId: string): Promise<CloudSave | null> {
     if (this.isOnline && supabase) {
       try {
@@ -125,7 +127,7 @@ class CloudSyncService {
           .single()
 
         if (error) {
-          if (error.code === 'PGRST116') return null // No rows found
+          if (error.code === 'PGRST116') return null
           throw error
         }
 
@@ -140,11 +142,9 @@ class CloudSyncService {
       }
     }
 
-    // Fallback to localStorage
     return this.loadFromLocalStorage(userId)
   }
 
-  // Full sync with merge
   async sync(user: User, localStats: UserStats): Promise<UserStats> {
     if (this.isSyncing) return localStats
     this.isSyncing = true
@@ -153,15 +153,11 @@ class CloudSyncService {
       const cloudSave = await this.loadProgress(user.id)
 
       if (!cloudSave) {
-        // No cloud data, upload local
         await this.saveProgress(user, localStats)
         return localStats
       }
 
-      // Merge stats
       const mergedStats = this.mergeStats(localStats, cloudSave.stats)
-
-      // Save merged data
       await this.saveProgress(user, mergedStats)
 
       return mergedStats
@@ -170,7 +166,6 @@ class CloudSyncService {
     }
   }
 
-  // Save typing session
   async saveTypingSession(
     userId: string,
     session: Omit<TypingSessionRow, 'id' | 'user_id' | 'created_at'>
@@ -191,7 +186,6 @@ class CloudSyncService {
     }
   }
 
-  // Save hardcore mode record
   async saveHardcoreRecord(
     userId: string,
     record: Omit<HardcoreRecordRow, 'id' | 'user_id' | 'created_at'>
@@ -207,21 +201,14 @@ class CloudSyncService {
         logger.info('Hardcore record saved')
       } catch (error) {
         logger.error('Failed to save hardcore record:', error)
+        this.offlineCache.push({ type: 'hardcore', data: { userId, ...record } })
       }
     }
   }
 
-  // Save leaderboard entry
   async saveLeaderboardEntry(
     userId: string,
-    entry: {
-      game_mode: string
-      wpm: number
-      cpm: number
-      accuracy: number
-      score: number
-      season?: string
-    }
+    entry: LeaderboardEntry
   ): Promise<void> {
     if (this.isOnline && supabase) {
       try {
@@ -234,12 +221,12 @@ class CloudSyncService {
         logger.info('Leaderboard entry saved')
       } catch (error) {
         logger.error('Failed to save leaderboard entry:', error)
+        this.offlineCache.push({ type: 'leaderboard', data: { userId, ...entry } })
       }
     }
   }
 
-  // Get user's hardcore records
-  async getHardcoreRecords(userId: string): Promise<HardcoreRecordRow[]> {
+  async getHardcoreRecords(userId: string): Promise<FetchResult<HardcoreRecordRow>> {
     if (this.isOnline && supabase) {
       try {
         const { data, error } = await supabase
@@ -250,19 +237,20 @@ class CloudSyncService {
           .limit(10)
 
         if (error) throw error
-        return data || []
+        return { data: data || [], error: null }
       } catch (error) {
-        logger.error('Failed to load hardcore records:', error)
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load hardcore records:', err)
+        return { data: [], error: err }
       }
     }
-    return []
+    return { data: [], error: new Error('Offline: no Supabase connection') }
   }
 
-  // Get typing sessions history
   async getTypingSessions(
     userId: string,
     limit = 50
-  ): Promise<TypingSessionRow[]> {
+  ): Promise<FetchResult<TypingSessionRow>> {
     if (this.isOnline && supabase) {
       try {
         const { data, error } = await supabase
@@ -273,15 +261,16 @@ class CloudSyncService {
           .limit(limit)
 
         if (error) throw error
-        return data || []
+        return { data: data || [], error: null }
       } catch (error) {
-        logger.error('Failed to load typing sessions:', error)
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error('Failed to load typing sessions:', err)
+        return { data: [], error: err }
       }
     }
-    return []
+    return { data: [], error: new Error('Offline: no Supabase connection') }
   }
 
-  // Merge stats from local and cloud
   private mergeStats(local: UserStats, cloud: UserStats): UserStats {
     return {
       totalXp: Math.max(local.totalXp, cloud.totalXp),
@@ -296,7 +285,6 @@ class CloudSyncService {
     }
   }
 
-  // Save to localStorage as fallback
   private saveToLocalStorage(save: CloudSave): void {
     try {
       const saves = this.getAllSaves()
@@ -307,7 +295,6 @@ class CloudSyncService {
     }
   }
 
-  // Load from localStorage
   private loadFromLocalStorage(userId: string): CloudSave | null {
     try {
       const saves = this.getAllSaves()
@@ -317,7 +304,6 @@ class CloudSyncService {
     }
   }
 
-  // Get all saves from localStorage
   private getAllSaves(): Record<string, CloudSave> {
     try {
       const stored = localStorage.getItem(CLOUD_SYNC_KEY)
@@ -327,7 +313,6 @@ class CloudSyncService {
     }
   }
 
-  // Flush offline cache when back online — only remove successfully flushed items
   private async flushOfflineCache(): Promise<void> {
     if (this.offlineCache.length === 0) return
 
@@ -350,7 +335,7 @@ class CloudSyncService {
             const data = item.data as { userId: string } & Partial<TypingSessionRow>
             if (data.wpm === undefined || data.cpm === undefined || data.accuracy === undefined || data.duration === undefined) {
               logger.error('Invalid session data in offline cache, skipping')
-              break // skip invalid data permanently
+              break
             }
             await this.saveTypingSession(data.userId, {
               wpm: data.wpm,
@@ -364,22 +349,49 @@ class CloudSyncService {
             })
             break
           }
+          case 'hardcore': {
+            const data = item.data as { userId: string } & Partial<HardcoreRecordRow>
+            if (data.streak === undefined || data.wpm === undefined || data.accuracy === undefined) {
+              logger.error('Invalid hardcore data in offline cache, skipping')
+              break
+            }
+            await this.saveHardcoreRecord(data.userId, {
+              streak: data.streak,
+              wpm: data.wpm,
+              accuracy: data.accuracy,
+            })
+            break
+          }
+          case 'leaderboard': {
+            const data = item.data as { userId: string } & Partial<LeaderboardEntry>
+            if (data.game_mode === undefined || data.wpm === undefined || data.score === undefined) {
+              logger.error('Invalid leaderboard data in offline cache, skipping')
+              break
+            }
+            await this.saveLeaderboardEntry(data.userId, {
+              game_mode: data.game_mode,
+              wpm: data.wpm,
+              cpm: data.cpm ?? 0,
+              accuracy: data.accuracy ?? 0,
+              score: data.score,
+              season: data.season,
+            })
+            break
+          }
         }
       } catch (error) {
         logger.error('Failed to flush cached operation, will retry:', error)
-        remaining.push(item) // keep failed items for retry
+        remaining.push(item)
       }
     }
 
     this.offlineCache = remaining
   }
 
-  // Get pending sync count
   getPendingSyncs(): number {
     return this.syncQueue.length + this.offlineCache.length
   }
 
-  // Clear user data
   clearUser(userId: string): void {
     try {
       const saves = this.getAllSaves()
@@ -390,7 +402,6 @@ class CloudSyncService {
     }
   }
 
-  // Check if online
   getIsOnline(): boolean {
     return this.isOnline
   }
@@ -398,7 +409,6 @@ class CloudSyncService {
 
 export const cloudSyncService = new CloudSyncService()
 
-// Hook for auto-sync
 export function useAutoSync(user: User | null, stats: UserStats) {
   const statsRef = useRef(stats)
   statsRef.current = stats
@@ -416,8 +426,6 @@ export function useAutoSync(user: User | null, stats: UserStats) {
   }, [user])
 }
 
-// Hook to ensure cloudSyncService event listeners are cleaned up on unmount
-// Use this once at the app root level to prevent memory leaks
 const cleanupRegistered = { current: false }
 export function useCloudSyncCleanup() {
   useEffect(() => {
