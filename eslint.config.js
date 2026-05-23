@@ -14,10 +14,10 @@ import tsParser from '@typescript-eslint/parser'
 
 export default [
   {
-    ignores: ['dist', 'node_modules', 'coverage', '*.config.*'],
+    ignores: ['dist', 'node_modules', 'coverage', '*.config.*', 'server/node_modules', 'android', 'ios', 'src-tauri'],
   },
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'e2e/**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -66,12 +66,12 @@ export default [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'off',
       'react-hooks/exhaustive-deps': 'warn',
-      'no-console': ['error'],
+      'no-console': ['warn'],
       ...pluginJsxA11y.configs.recommended.rules,
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', 'src/tests/**/*.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',

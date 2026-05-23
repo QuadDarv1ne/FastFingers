@@ -1,15 +1,24 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Keyboard } from '../components/Keyboard'
+
+// Mock i18n to return the key itself as translation
+vi.mock('../i18n/config', () => ({
+  useAppTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'ru' },
+  }),
+}))
 
 describe('Keyboard', () => {
   it('должен рендерить клавиатуру', () => {
     render(<Keyboard layout="jcuken" />)
-    expect(screen.getByText('Клавиатура')).toBeInTheDocument()
+    expect(screen.getByText('misc.keyboard')).toBeInTheDocument()
   })
 
   it('должен показывать название раскладки', () => {
     render(<Keyboard layout="jcuken" />)
+    // Layout name comes from layouts data, not i18n
     expect(screen.getByText('ЙЦУКЕН')).toBeInTheDocument()
   })
 

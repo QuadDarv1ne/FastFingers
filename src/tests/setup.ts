@@ -126,12 +126,12 @@ class MockWorker {
     }, 0)
   }
 
-  postMessage(message: any) {
+  postMessage(message: Record<string, unknown>) {
     // Имитируем обработку сообщений
     setTimeout(() => {
       if (this.onmessage) {
         const { type, messageId } = message
-        let result: any
+        let result: Record<string, unknown>
 
         try {
           switch (type) {
@@ -208,4 +208,4 @@ class MockWorker {
 vi.mock('../workers/stats.worker.ts', () => ({}))
 
 // Переопределяем глобальный Worker
-global.Worker = MockWorker as any
+global.Worker = MockWorker as unknown as typeof Worker
