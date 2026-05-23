@@ -7,6 +7,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
 import { logger } from '../utils/logger'
+import { setToStorageWithQuotaHandling } from '../utils/storage'
 
 interface AutoSaveData {
   progress: UserProgress
@@ -55,17 +56,16 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
    * Сохранение текущих данных
    */
   const saveData = useCallback(() => {
-    try {
-      const data: AutoSaveData = {
-        progress,
-        currentSession,
-        heatmap,
-        settings,
-        timestamp: Date.now(),
-      }
-      localStorage.setItem(storageKey, JSON.stringify(data))
-    } catch (error) {
-      logger.warn('Failed to save:', error)
+    const data: AutoSaveData = {
+      progress,
+      currentSession,
+      heatmap,
+      settings,
+      timestamp: Date.now(),
+    }
+    const result = setToStorageWithQuotaHandling(storageKey, data)
+    if (!result.success) {
+      logger.warn('Failed to save:', result.quotaExceeded ? 'quota exceeded' : 'unknown error')
     }
   }, [progress, currentSession, heatmap, settings, storageKey])
 
@@ -149,19 +149,14 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   // Сохранение при закрытии вкладки
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // Для надёжной отправки при выгрузке используем синхронное localStorage
-      try {
-        const data: AutoSaveData = {
-          progress,
-          currentSession,
-          heatmap,
-          settings,
-          timestamp: Date.now(),
-        }
-        localStorage.setItem(storageKey, JSON.stringify(data))
-      } catch {
-        // Fallback для старых браузеров
+      const data: AutoSaveData = {
+        progress,
+        currentSession,
+        heatmap,
+        settings,
+        timestamp: Date.now(),
       }
+      setToStorageWithQuotaHandling(storageKey, data)
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
@@ -174,18 +169,14 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   // Page Lifecycle API: сохранение при freeze (mobile/tab discard)
   useEffect(() => {
     const handleFreeze = () => {
-      try {
-        const data: AutoSaveData = {
-          progress,
-          currentSession,
-          heatmap,
-          settings,
-          timestamp: Date.now(),
-        }
-        localStorage.setItem(storageKey, JSON.stringify(data))
-      } catch {
-        // Ignore save errors during freeze
+      const data: AutoSaveData = {
+        progress,
+        currentSession,
+        heatmap,
+        settings,
+        timestamp: Date.now(),
       }
+      setToStorageWithQuotaHandling(storageKey, data)
     }
 
     document.addEventListener('freeze', handleFreeze, { once: true })

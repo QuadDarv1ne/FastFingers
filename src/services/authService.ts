@@ -2,7 +2,7 @@ import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, Pass
 import { AuthError } from './authErrors';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
-import { getFromStorageAsArray } from '../utils/storage';
+import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/storage';
 
 const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
@@ -71,11 +71,9 @@ const getUsers = (): StoredUser[] => {
 };
 
 const saveUsers = (users: StoredUser[]) => {
-  try {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  } catch {
-    logger.warn('Failed to save users');
-    // Ignore save errors
+  const result = setToStorageWithQuotaHandling(USERS_STORAGE_KEY, users);
+  if (!result.success) {
+    logger.warn('Failed to save users', result.quotaExceeded ? '(quota exceeded)' : '');
   }
 };
 
@@ -119,12 +117,18 @@ const getLoginAttempts = (): LoginAttempt[] => {
 const saveLoginAttempt = (email: string) => {
   const attempts = getLoginAttempts();
   attempts.push({ email, timestamp: Date.now() });
-  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+  const result = setToStorageWithQuotaHandling(LOGIN_ATTEMPTS_KEY, attempts);
+  if (!result.success) {
+    logger.warn('Failed to save login attempt', result.quotaExceeded ? '(quota exceeded)' : '');
+  }
 };
 
 const clearLoginAttempts = (email: string) => {
   const attempts = getLoginAttempts().filter(a => a.email !== email);
-  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+  const result = setToStorageWithQuotaHandling(LOGIN_ATTEMPTS_KEY, attempts);
+  if (!result.success) {
+    logger.warn('Failed to clear login attempts', result.quotaExceeded ? '(quota exceeded)' : '');
+  }
 };
 
 const checkLockout = (email: string): number | null => {
@@ -145,11 +149,13 @@ const cleanupExpiredTokens = () => {
     const now = Date.now();
     const validTokens = tokens.filter(t => new Date(t.expiresAt).getTime() > now);
     if (tokens.length !== validTokens.length) {
-      localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(validTokens));
+      const result = setToStorageWithQuotaHandling(RESET_TOKENS_KEY, validTokens);
+      if (!result.success) {
+        logger.warn('Failed to cleanup expired tokens', result.quotaExceeded ? '(quota exceeded)' : '');
+      }
     }
   } catch {
     logger.warn('Failed to cleanup expired tokens');
-    // Ignore errors
   }
 };
 
@@ -159,11 +165,13 @@ const cleanupOldAttempts = () => {
     const now = Date.now();
     const recentAttempts = attempts.filter(a => now - a.timestamp < LOCKOUT_TIME_MS * 2);
     if (attempts.length !== recentAttempts.length) {
-      localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(recentAttempts));
+      const result = setToStorageWithQuotaHandling(LOGIN_ATTEMPTS_KEY, recentAttempts);
+      if (!result.success) {
+        logger.warn('Failed to cleanup old login attempts', result.quotaExceeded ? '(quota exceeded)' : '');
+      }
     }
   } catch {
     logger.warn('Failed to cleanup old login attempts');
-    // Ignore errors
   }
 };
 
@@ -380,7 +388,10 @@ export const authService = {
 
     const tokens = getFromStorageAsArray<{ email: string; token: string; expiresAt: string }>(RESET_TOKENS_KEY);
     tokens.push({ email: request.email, token, expiresAt });
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
+    const result = setToStorageWithQuotaHandling(RESET_TOKENS_KEY, tokens);
+    if (!result.success) {
+      throw new AuthError('unknown', result.quotaExceeded ? 'Хранилище заполнено' : 'Ошибка сохранения');
+    }
 
     return { token, expiresAt };
   },
@@ -424,7 +435,10 @@ export const authService = {
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);
-    localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
+    const result = setToStorageWithQuotaHandling(RESET_TOKENS_KEY, tokens);
+    if (!result.success) {
+      logger.warn('Failed to save tokens after password reset', result.quotaExceeded ? '(quota exceeded)' : '');
+    }
   },
 
   async updateProfile(userId: string, updates: Partial<Pick<User, 'name' | 'avatar'>>): Promise<User> {

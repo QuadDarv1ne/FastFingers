@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
 import { createContext, useState, useEffect, ReactNode, useCallback, useContext } from 'react'
 import { useAuth } from '@hooks/useAuth'
+import { setToStorageWithQuotaHandling } from '@utils/storage'
 
 export interface Notification {
   id: string
@@ -39,10 +40,12 @@ const loadNotifications = (): Notification[] => {
 }
 
 const saveNotifications = (notifications: Notification[]) => {
-  try {
-    localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(notifications))
-  } catch {
-    // Ignore save errors
+  const result = setToStorageWithQuotaHandling(NOTIFICATIONS_STORAGE_KEY, notifications.slice(0, MAX_NOTIFICATIONS))
+  if (!result.success && result.quotaExceeded) {
+    // Aggressively trim: keep only last 10 unread + last 20 read
+    const unread = notifications.filter(n => !n.read).slice(0, 10)
+    const read = notifications.filter(n => n.read).slice(0, 20)
+    setToStorageWithQuotaHandling(NOTIFICATIONS_STORAGE_KEY, [...unread, ...read])
   }
 }
 

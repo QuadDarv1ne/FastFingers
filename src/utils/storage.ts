@@ -6,6 +6,15 @@ import { logger } from './logger'
 
 type StorageValue = string | number | boolean | object | null | undefined
 
+/** Event fired when localStorage quota is exceeded */
+export const STORAGE_QUOTA_EXCEEDED = 'fastfingers:storage-quota-exceeded'
+
+/** Result of a storage set operation with quota detection */
+export interface StorageSetResult {
+  success: boolean
+  quotaExceeded: boolean
+}
+
 const handleStorageError = (operation: string, key?: string, error?: unknown) => {
   // Логирование ошибок в development режиме
   if (import.meta.env.DEV) {
@@ -81,6 +90,38 @@ export function setToStorage<T extends StorageValue>(key: string, value: T): voi
     }
   } catch (error) {
     handleStorageError('saving to localStorage', key, error)
+  }
+}
+
+/**
+ * Сохранить значение в localStorage с определением ошибки переполнения квоты.
+ * Возвращает результат операции для возможности реакции вызывающего кода.
+ */
+export function setToStorageWithQuotaHandling(key: string, value: StorageValue): StorageSetResult {
+  if (!isLocalStorageAvailable()) {
+    return { success: false, quotaExceeded: false }
+  }
+
+  try {
+    if (value === null || value === undefined) {
+      localStorage.removeItem(key)
+    } else {
+      localStorage.setItem(key, JSON.stringify(value))
+    }
+    return { success: true, quotaExceeded: false }
+  } catch (error) {
+    const isQuotaExceeded = error instanceof DOMException
+      ? error.name === 'QuotaExceededError' || error.code === 22
+      : (error as Error & { code?: number })?.code === 22
+
+    if (isQuotaExceeded) {
+      logger.error('localStorage quota exceeded for key:', key)
+      window.dispatchEvent(new CustomEvent(STORAGE_QUOTA_EXCEEDED, { detail: { key } }))
+      return { success: false, quotaExceeded: true }
+    }
+
+    handleStorageError('saving to localStorage', key, error)
+    return { success: false, quotaExceeded: false }
   }
 }
 

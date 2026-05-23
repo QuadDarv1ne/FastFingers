@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   isLocalStorageAvailable,
   isSessionStorageAvailable,
@@ -10,12 +10,18 @@ import {
   getStorageSize,
   getFromStorageAsArray,
   getFromStorageAsObject,
+  setToStorageWithQuotaHandling,
+  STORAGE_QUOTA_EXCEEDED,
 } from './storage'
 
 describe('storage utils', () => {
   beforeEach(() => {
     localStorage.clear()
     sessionStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   describe('isLocalStorageAvailable', () => {
@@ -32,7 +38,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(isLocalStorageAvailable()).toBe(false)
-      vi.restoreAllMocks()
     })
   })
 
@@ -45,7 +50,6 @@ describe('storage utils', () => {
       const originalSessionStorage = (global as any).sessionStorage
       vi.spyOn(global as any, 'sessionStorage', 'get').mockReturnValue(undefined)
       expect(isSessionStorageAvailable()).toBe(false)
-      vi.restoreAllMocks()
       ;(global as any).sessionStorage = originalSessionStorage
     })
 
@@ -58,7 +62,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'sessionStorage', 'get').mockReturnValue(mockStorage)
       expect(isSessionStorageAvailable()).toBe(false)
-      vi.restoreAllMocks()
     })
   })
 
@@ -95,7 +98,6 @@ describe('storage utils', () => {
     it('should return defaultValue when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(getFromStorage('test', 'default')).toBe('default')
-      vi.restoreAllMocks()
     })
 
     it('should return defaultValue when JSON parse fails', () => {
@@ -146,7 +148,6 @@ describe('storage utils', () => {
     it('should not throw when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(() => setToStorage('test', 'value')).not.toThrow()
-      vi.restoreAllMocks()
     })
 
     it('should not throw when localStorage throws error', () => {
@@ -158,7 +159,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(() => setToStorage('test', 'value')).not.toThrow()
-      vi.restoreAllMocks()
     })
   })
 
@@ -176,7 +176,6 @@ describe('storage utils', () => {
     it('should not throw when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(() => removeFromStorage('test')).not.toThrow()
-      vi.restoreAllMocks()
     })
   })
 
@@ -191,7 +190,6 @@ describe('storage utils', () => {
     it('should not throw when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(() => clearStorage()).not.toThrow()
-      vi.restoreAllMocks()
     })
 
     it('should not throw when localStorage throws error', () => {
@@ -202,7 +200,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(() => clearStorage()).not.toThrow()
-      vi.restoreAllMocks()
     })
   })
 
@@ -219,14 +216,12 @@ describe('storage utils', () => {
     it('should return empty array when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(getStorageKeys()).toEqual([])
-      vi.restoreAllMocks()
     })
 
     it('should return empty array when localStorage throws error', () => {
       const mockStorage = {}
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(getStorageKeys()).toEqual([])
-      vi.restoreAllMocks()
     })
   })
 
@@ -234,14 +229,12 @@ describe('storage utils', () => {
     it('should return 0 when localStorage is not available', () => {
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
       expect(getStorageSize()).toBe(0)
-      vi.restoreAllMocks()
     })
 
     it('should return 0 when localStorage throws error', () => {
       const mockStorage = {}
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(getStorageSize()).toBe(0)
-      vi.restoreAllMocks()
     })
 
     it.skip('should calculate size correctly (skip: happy-dom localStorage limitation)', () => {
@@ -261,7 +254,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(() => removeFromStorage('test')).not.toThrow()
-      vi.restoreAllMocks()
     })
   })
 
@@ -274,7 +266,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(() => clearStorage()).not.toThrow()
-      vi.restoreAllMocks()
     })
   })
 
@@ -288,7 +279,6 @@ describe('storage utils', () => {
       }
       vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
       expect(getStorageSize()).toBe(0)
-      vi.restoreAllMocks()
     })
   })
 
@@ -329,6 +319,118 @@ describe('storage utils', () => {
     it('should return default when value is an array', () => {
       localStorage.setItem('isArray', JSON.stringify([1, 2]))
       expect(getFromStorageAsObject('isArray', {})).toEqual({})
+    })
+  })
+
+  describe('setToStorageWithQuotaHandling', () => {
+    it('should return success: true when storage is available and not full', () => {
+      const result = setToStorageWithQuotaHandling('test', 'hello')
+      expect(result.success).toBe(true)
+      expect(result.quotaExceeded).toBe(false)
+    })
+
+    it('should store the value correctly', () => {
+      setToStorageWithQuotaHandling('testObj', { name: 'test', count: 5 })
+      expect(JSON.parse(localStorage.getItem('testObj') || '')).toEqual({ name: 'test', count: 5 })
+    })
+
+    it('should remove item when value is null', () => {
+      localStorage.setItem('test', '"value"')
+      const result = setToStorageWithQuotaHandling('test', null)
+      expect(result.success).toBe(true)
+      expect(localStorage.getItem('test')).toBeNull()
+    })
+
+    it('should return quotaExceeded: true when localStorage throws QuotaExceededError', () => {
+      let callCount = 0
+      const mockStorage = {
+        setItem: vi.fn(() => {
+          callCount++
+          if (callCount > 1) {
+            throw new DOMException('Quota exceeded', 'QuotaExceededError')
+          }
+        }),
+        removeItem: vi.fn(),
+        getItem: vi.fn(() => null),
+        clear: vi.fn(),
+        length: 0,
+        key: vi.fn(() => null),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      const result = setToStorageWithQuotaHandling('test', 'value')
+      expect(result.success).toBe(false)
+      expect(result.quotaExceeded).toBe(true)
+    })
+
+    it('should return quotaExceeded: true for code 22 (Safari fallback)', () => {
+      let callCount = 0
+      const mockStorage = {
+        setItem: vi.fn(() => {
+          callCount++
+          if (callCount > 1) {
+            const err = new Error('Quota exceeded')
+            ;(err as Error & { code?: number }).code = 22
+            throw err
+          }
+        }),
+        removeItem: vi.fn(),
+        getItem: vi.fn(() => null),
+        clear: vi.fn(),
+        length: 0,
+        key: vi.fn(() => null),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      const result = setToStorageWithQuotaHandling('test', 'value')
+      expect(result.success).toBe(false)
+      expect(result.quotaExceeded).toBe(true)
+    })
+
+    it('should return quotaExceeded: false for other errors', () => {
+      const mockStorage = {
+        setItem: vi.fn(() => {
+          throw new Error('Some other error')
+        }),
+        removeItem: vi.fn(),
+        getItem: vi.fn(() => null),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      const result = setToStorageWithQuotaHandling('test', 'value')
+      expect(result.success).toBe(false)
+      expect(result.quotaExceeded).toBe(false)
+    })
+
+    it('should return success: false when localStorage is not available', () => {
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(undefined)
+      const result = setToStorageWithQuotaHandling('test', 'value')
+      expect(result.success).toBe(false)
+      expect(result.quotaExceeded).toBe(false)
+    })
+
+    it('should dispatch STORAGE_QUOTA_EXCEEDED event when quota is exceeded', () => {
+      let callCount = 0
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+      const mockStorage = {
+        setItem: vi.fn(() => {
+          callCount++
+          if (callCount > 1) {
+            throw new DOMException('Quota exceeded', 'QuotaExceededError')
+          }
+        }),
+        removeItem: vi.fn(),
+        getItem: vi.fn(() => null),
+        clear: vi.fn(),
+        length: 0,
+        key: vi.fn(() => null),
+      }
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+      setToStorageWithQuotaHandling('test', 'value')
+      expect(dispatchSpy).toHaveBeenCalledWith(expect.any(CustomEvent))
+      const call = dispatchSpy.mock.calls[0]
+      if (call) {
+        const event = call[0] as CustomEvent
+        expect(event.type).toBe(STORAGE_QUOTA_EXCEEDED)
+        expect(event.detail).toEqual({ key: 'test' })
+      }
     })
   })
 })

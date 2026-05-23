@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { UserProgress } from '@/types'
 import { useToast } from '@contexts/ToastContext'
+import { setToStorageWithQuotaHandling } from '@utils/storage'
 
 interface ExportImportProps {
   progress?: UserProgress
@@ -111,14 +112,34 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
           return
         }
 
-        // Import data
-        Object.entries(importData.data).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            localStorage.setItem(key, value)
-          }
-        })
+        // Import data with quota protection
+        const entries = Object.entries(importData.data)
+        let importedCount = 0
+        let quotaExceeded = false
 
-        showToast('Данные успешно импортированы', 'success')
+        for (let i = 0; i < entries.length; i++) {
+          const [key, value] = entries[i] as [string, string]
+          if (typeof value === 'string') {
+            const result = setToStorageWithQuotaHandling(key, value)
+            if (!result.success) {
+              if (result.quotaExceeded) {
+                quotaExceeded = true
+                break
+              }
+            } else {
+              importedCount++
+            }
+          }
+        }
+
+        if (quotaExceeded) {
+          showToast(
+            `Хранилище заполнено. Импортировано ${importedCount} из ${entries.length} элементов. Очистите данные и попробуйте снова.`,
+            'error'
+          )
+        } else {
+          showToast('Данные успешно импортированы', 'success')
+        }
         if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
         reloadTimerRef.current = setTimeout(() => {
           window.location.reload()
