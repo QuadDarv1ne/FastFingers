@@ -15,7 +15,7 @@ export interface CloudSave {
 }
 
 // Database schema types for Supabase
-interface TypingSessionRow {
+export interface TypingSessionRow {
   id: string
   user_id: string
   wpm: number
@@ -29,7 +29,7 @@ interface TypingSessionRow {
   created_at: string
 }
 
-interface HardcoreRecordRow {
+export interface HardcoreRecordRow {
   id: string
   user_id: string
   streak: number

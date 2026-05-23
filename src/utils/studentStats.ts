@@ -89,6 +89,8 @@ export function mapSupabaseSessions(sessions: SupabaseSession[]): SessionData[] 
   }))
 }
 
+export interface FetchResult<T> { data: T[] | null; error: Error | null }
+
 /** Compute full analytics from a sessions array. */
 export function computeStudentStats(sessions: SessionData[]): StudentStatsResult {
   const dayMs = 24 * 60 * 60 * 1000

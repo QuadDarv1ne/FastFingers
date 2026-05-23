@@ -62,8 +62,8 @@ export default defineConfig({
     {
       name: 'strip-console-except-logger',
       transform(code, id) {
-        // Only strip console calls in production, except in logger.ts
-        if (process.env.NODE_ENV === 'production' && !id.includes('logger.ts') && !id.includes('vite.config.ts')) {
+        // Only strip console calls in production src files, except logger.ts
+        if (process.env.NODE_ENV === 'production' && id.includes('/src/') && !id.includes('logger.ts')) {
           return {
             code: code.replace(
               /console\.(log|info|debug|warn|error)\s*\(/g,

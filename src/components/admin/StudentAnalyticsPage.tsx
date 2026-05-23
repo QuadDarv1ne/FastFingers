@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { cloudSyncService } from '../../services/cloudSyncService'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
-import { mapSupabaseSessions, computeStudentStats, type SessionData } from '../../utils/studentStats'
+import { mapSupabaseSessions, computeStudentStats, type SessionData, type FetchResult } from '../../utils/studentStats'
+import type { TypingSessionRow } from '../../services/cloudSyncService'
 import { logger } from '../../utils/logger'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
 import { getFromStorageAsArray } from '../../utils/storage'
@@ -33,8 +34,9 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
     setError(null)
     cloudSyncService
       .getTypingSessions(userId, 200)
-      .then(raw => {
-        setSessions(mapSupabaseSessions(raw))
+      .then((result: FetchResult<TypingSessionRow>) => {
+        if (result.error) throw result.error
+        setSessions(mapSupabaseSessions(result.data || []))
         setIsLoading(false)
       })
       .catch(err => {
@@ -175,7 +177,11 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
                 setError(null)
                 cloudSyncService
                   .getTypingSessions(userId, 200)
-                  .then(raw => { setSessions(mapSupabaseSessions(raw)); setIsLoading(false) })
+                  .then((result: FetchResult<TypingSessionRow>) => {
+                    if (result.error) throw result.error
+                    setSessions(mapSupabaseSessions(result.data || []))
+                    setIsLoading(false)
+                  })
                   .catch(err => { setError(err.message || 'Не удалось загрузить данные'); setIsLoading(false) })
               }}
               className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm"
