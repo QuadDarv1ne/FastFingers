@@ -114,3 +114,46 @@ export const useProgressStore = create<ProgressState>()(
     }
   )
 )
+
+// ─── Reactive selector helpers ───────────────────────────────────────────────
+// Components use these to subscribe to specific computed values.
+// Unlike imperative getState() calls, these trigger re-renders when the value changes.
+
+/** Best WPM across all sessions */
+export const useBestWpm = () =>
+  useProgressStore((state) =>
+    state.sessions.length > 0
+      ? Math.max(...state.sessions.map((s) => s.wpm))
+      : 0
+  )
+
+/** Average accuracy of the most recent sessions */
+export const useAvgAccuracy = () =>
+  useProgressStore((state) => {
+    const sessions = state.sessions.slice(0, RECENT_SESSIONS_COUNT)
+    return sessions.length > 0
+      ? Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length)
+      : 0
+  })
+
+/** Total practice time in seconds across all sessions */
+export const useTotalPracticeTime = () =>
+  useProgressStore((state) =>
+    state.sessions.reduce((sum, s) => sum + s.duration, 0)
+  )
+
+/** All three computed stats at once — single subscription for stats panels */
+export const useProgressStats = () =>
+  useProgressStore((state) => {
+    const sessions = state.sessions
+    const bestWpm = sessions.length > 0
+      ? Math.max(...sessions.map((s) => s.wpm))
+      : 0
+    const recent = sessions.slice(0, RECENT_SESSIONS_COUNT)
+    const avgAccuracy = recent.length > 0
+      ? Math.round(recent.reduce((sum, s) => sum + s.accuracy, 0) / recent.length)
+      : 0
+    const totalPracticeTime = sessions.reduce((sum, s) => sum + s.duration, 0)
+    // Return a string key to avoid creating new objects in selector (prevents infinite loop)
+    return `${bestWpm}|${avgAccuracy}|${totalPracticeTime}`
+  })

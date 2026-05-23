@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { useProgressStore } from '../stores/useProgressStore'
+import { useProgressStore, useBestWpm, useAvgAccuracy, useTotalPracticeTime, useProgressStats } from '../stores/useProgressStore'
+import { renderHook, act } from '@testing-library/react'
 
 describe('useProgressStore Integration', () => {
   beforeEach(() => {
@@ -400,6 +401,184 @@ describe('useProgressStore Integration', () => {
 
       expect(useProgressStore.getState().totalXp).toBe(1000)
       expect(useProgressStore.getState().level).toBe(4)
+    })
+  })
+
+  describe('Reactive selectors', () => {
+    describe('useBestWpm', () => {
+      it('должен возвращать 0 если нет сессий', () => {
+        const { result } = renderHook(() => useBestWpm())
+        expect(result.current).toBe(0)
+      })
+
+      it('должен обновляться реактивно при добавлении сессий', () => {
+        const { result } = renderHook(() => useBestWpm())
+        expect(result.current).toBe(0)
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-01T00:00:00.000Z',
+            wpm: 45,
+            accuracy: 90,
+            errors: 3,
+            correctChars: 200,
+            totalChars: 220,
+            duration: 60,
+            xp: 50,
+          })
+        })
+        expect(result.current).toBe(45)
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-02T00:00:00.000Z',
+            wpm: 60,
+            accuracy: 92,
+            errors: 2,
+            correctChars: 300,
+            totalChars: 325,
+            duration: 90,
+            xp: 70,
+          })
+        })
+        expect(result.current).toBe(60)
+      })
+    })
+
+    describe('useAvgAccuracy', () => {
+      it('должен возвращать 0 если нет сессий', () => {
+        const { result } = renderHook(() => useAvgAccuracy())
+        expect(result.current).toBe(0)
+      })
+
+      it('должен учитывать только последние 10 сессий', () => {
+        const { result } = renderHook(() => useAvgAccuracy())
+
+        // Добавляем 12 сессий чтобы превысить RECENT_SESSIONS_COUNT (10)
+        for (let i = 1; i <= 12; i++) {
+          act(() => {
+            useProgressStore.getState().addSession({
+              date: `2024-01-${String(i).padStart(2, '0')}T00:00:00.000Z`,
+              wpm: 40 + i,
+              accuracy: 80 + i,
+              errors: 5,
+              correctChars: 200,
+              totalChars: 220,
+              duration: 60,
+              xp: 50,
+            })
+          })
+        }
+
+        // Должно усреднять только последние 10 сессий (точности 83-92)
+        const expectedAvg = Math.round(
+          Array.from({ length: 10 }, (_, i) => 83 + i).reduce((a, b) => a + b, 0) / 10
+        )
+        expect(result.current).toBe(expectedAvg)
+      })
+    })
+
+    describe('useTotalPracticeTime', () => {
+      it('должен возвращать 0 если нет сессий', () => {
+        const { result } = renderHook(() => useTotalPracticeTime())
+        expect(result.current).toBe(0)
+      })
+
+      it('должен суммировать время всех сессий', () => {
+        const { result } = renderHook(() => useTotalPracticeTime())
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-01T00:00:00.000Z',
+            wpm: 30,
+            accuracy: 85,
+            errors: 5,
+            correctChars: 85,
+            totalChars: 100,
+            duration: 120,
+            xp: 80,
+          })
+        })
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-02T00:00:00.000Z',
+            wpm: 35,
+            accuracy: 90,
+            errors: 3,
+            correctChars: 90,
+            totalChars: 100,
+            duration: 180,
+            xp: 100,
+          })
+        })
+
+        expect(result.current).toBe(300)
+      })
+    })
+
+    describe('useProgressStats', () => {
+      it('должен возвращать все три значения одновременно', () => {
+        const { result } = renderHook(() => useProgressStats())
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-01T00:00:00.000Z',
+            wpm: 50,
+            accuracy: 90,
+            errors: 3,
+            correctChars: 250,
+            totalChars: 275,
+            duration: 120,
+            xp: 60,
+          })
+        })
+
+        const [bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
+        expect(bestWpm).toBe(50)
+        expect(avgAccuracy).toBe(90)
+        expect(totalPracticeTime).toBe(120)
+      })
+
+      it('должен обновляться при добавлении новой сессии', () => {
+        const { result } = renderHook(() => useProgressStats())
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-01T00:00:00.000Z',
+            wpm: 40,
+            accuracy: 85,
+            errors: 5,
+            correctChars: 200,
+            totalChars: 220,
+            duration: 60,
+            xp: 50,
+          })
+        })
+
+        let [bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
+        expect(bestWpm).toBe(40)
+        expect(avgAccuracy).toBe(85)
+        expect(totalPracticeTime).toBe(60)
+
+        act(() => {
+          useProgressStore.getState().addSession({
+            date: '2024-01-02T00:00:00.000Z',
+            wpm: 55,
+            accuracy: 92,
+            errors: 2,
+            correctChars: 280,
+            totalChars: 300,
+            duration: 90,
+            xp: 65,
+          })
+        })
+
+        ;[bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
+        expect(bestWpm).toBe(55)
+        expect(avgAccuracy).toBe(89) // среднее 85 и 92 = 88.5 → 89
+        expect(totalPracticeTime).toBe(150)
+      })
     })
   })
 })
