@@ -43,28 +43,18 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   // Track previous level to detect level-ups without side effects in setState
   const prevLevelRef = useRef(options?.initialLevel ?? 1);
 
-  // Persisted settings from Zustand store
-  const layout = useAppStore(s => s.layout);
-  const soundEnabled = useAppStore(s => s.soundEnabled);
-  const soundVolume = useAppStore(s => s.soundVolume);
-  const soundTheme = useAppStore(s => s.soundTheme);
-  const theme = useAppStore(s => s.theme);
-  const keyboardSkin = useAppStore(s => s.keyboardSkin);
-  const showKeyboard = useAppStore(s => s.showKeyboard);
-  const showStats = useAppStore(s => s.showStats);
-  const fontSize = useAppStore(s => s.fontSize);
-
-  const settings = useMemo<UserSettings>(() => ({
-    layout,
-    soundEnabled,
-    soundVolume,
-    soundTheme,
-    fontSize,
-    theme,
-    keyboardSkin,
-    showKeyboard,
-    showStats,
-  }), [layout, soundEnabled, soundVolume, soundTheme, fontSize, theme, keyboardSkin, showKeyboard, showStats]);
+  // Persisted settings from Zustand store - use a single selector to avoid multiple subscriptions
+  const settings = useAppStore(s => ({
+    layout: s.layout,
+    soundEnabled: s.soundEnabled,
+    soundVolume: s.soundVolume,
+    soundTheme: s.soundTheme,
+    theme: s.theme,
+    keyboardSkin: s.keyboardSkin,
+    showKeyboard: s.showKeyboard,
+    showStats: s.showStats,
+    fontSize: s.fontSize,
+  }));
 
   // Detect level-up and call callback as a side effect
   useEffect(() => {

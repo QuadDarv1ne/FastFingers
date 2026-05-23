@@ -199,7 +199,7 @@ export function GameModeRenderer({
   if (view === 'admin') {
     return (
       <ErrorBoundary key="admin" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.adminFailed', 'Failed to load admin panel')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} onNavigate={onSetView as (view: string) => void} /></Suspense></StatsMotion>
+        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} onNavigate={(v: string) => onSetView(v as View)} /></Suspense></StatsMotion>
       </ErrorBoundary>
     )
   }

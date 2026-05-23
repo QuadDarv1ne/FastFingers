@@ -7,7 +7,6 @@ import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/s
 const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
 const RESET_TOKENS_KEY = 'fastfingers_reset_tokens';
-const PASSWORD_SALT = 'fastfingers-salt-2026';
 const REGISTRATION_DELAY_MS = 500;
 const PROFILE_UPDATE_DELAY_MS = 300;
 const RESET_TOKEN_EXPIRY_MS = 3600000;
@@ -16,7 +15,16 @@ const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_TIME_MS = 300000;
 const LOGIN_ATTEMPTS_KEY = 'fastfingers_login_attempts';
 
-type StoredUser = User & { password: string };
+const generateSalt = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
+
+type StoredUser = User & { password: string; salt: string };
 
 interface LoginAttempt {
   email: string;
@@ -32,28 +40,26 @@ const generateId = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
 
-const hashPassword = async (password: string): Promise<string> => {
+const hashPassword = async (password: string, salt: string): Promise<string> => {
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     try {
       const encoder = new TextEncoder();
-      const data = encoder.encode(password + PASSWORD_SALT);
+      const data = encoder.encode(password + salt);
       const hashBuffer = await crypto.subtle.digest('SHA-256', data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     } catch {
       logger.warn('SHA-256 failed, using fallback hash');
-      // Fallback to simple hash
     }
   }
-  
-  // Fallback для старых браузеров — используем djb2 хеш
-  let hash = 5381
-  const str = password + PASSWORD_SALT
+
+  let hash = 5381;
+  const str = password + salt;
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i)
-    hash = hash >>> 0
+    hash = ((hash << 5) + hash) + str.charCodeAt(i);
+    hash = hash >>> 0;
   }
-  return hash.toString(16)
+  return hash.toString(16);
 };
 
 const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
@@ -101,7 +107,7 @@ const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.te
 
 const isValidPassword = (password: string): boolean => password.length >= MIN_PASSWORD_LENGTH;
 
-const withoutPassword = ({ password: _pwd, ...user }: StoredUser): User => user;
+const withoutPassword = ({ password: _pwd, salt: _salt, ...user }: StoredUser): User => user;
 
 const getLoginAttempts = (): LoginAttempt[] => {
   try {
@@ -242,7 +248,8 @@ export const authService = {
       throw new AuthError('email-in-use', 'Этот email уже зарегистрирован');
     }
 
-    const hashedPassword = await hashPassword(credentials.password);
+    const salt = generateSalt();
+    const hashedPassword = await hashPassword(credentials.password, salt);
     const now = new Date().toISOString();
 
     const newUser: StoredUser = {
@@ -250,6 +257,7 @@ export const authService = {
       email: sanitizedEmail,
       name: sanitizedName,
       password: hashedPassword,
+      salt,
       createdAt: now,
       role: users.length === 0 ? 'admin' : 'user',
       stats: {
@@ -283,7 +291,6 @@ export const authService = {
       throw new AuthError('invalid-email', 'Неверный формат email');
     }
 
-    // Check lockout before any auth attempt (applies to both Supabase and localStorage)
     const lockoutTime = checkLockout(sanitizedEmail);
     if (lockoutTime) {
       const minutes = Math.ceil(lockoutTime / 60000);
@@ -297,7 +304,6 @@ export const authService = {
       });
 
       if (error) {
-        // Track failed attempt for lockout
         saveLoginAttempt(sanitizedEmail);
         if (error.status === 401) {
           throw new AuthError('wrong-password', 'Неверный пароль');
@@ -342,7 +348,7 @@ export const authService = {
       throw new AuthError('user-not-found', 'Пользователь с таким email не найден');
     }
 
-    const hashedPassword = await hashPassword(credentials.password);
+    const hashedPassword = await hashPassword(credentials.password, user.salt);
     if (user.password !== hashedPassword) {
       saveLoginAttempt(sanitizedEmail);
       throw new AuthError('wrong-password', 'Неверный пароль');
@@ -431,7 +437,9 @@ export const authService = {
     if (!user) {
       throw new AuthError('user-not-found', 'Пользователь не найден');
     }
-    user.password = await hashPassword(confirm.newPassword);
+    const salt = user.salt || generateSalt();
+    user.password = await hashPassword(confirm.newPassword, salt);
+    if (!user.salt) user.salt = salt;
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);

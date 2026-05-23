@@ -59,6 +59,22 @@ export default defineConfig({
         plugins: [],
       },
     }),
+    {
+      name: 'strip-console-except-logger',
+      transform(code, id) {
+        // Only strip console calls in production, except in logger.ts
+        if (process.env.NODE_ENV === 'production' && !id.includes('logger.ts') && !id.includes('vite.config.ts')) {
+          return {
+            code: code.replace(
+              /console\.(log|info|debug|warn|error)\s*\(/g,
+              'void('
+            ),
+            map: null,
+          };
+        }
+        return null;
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
@@ -110,7 +126,7 @@ export default defineConfig({
     cssMinify: true,
     cssCodeSplit: true,
     esbuild: {
-      drop: ['console', 'debugger'],
+      drop: ['debugger'],
       legalComments: 'none',
       target: 'esnext',
       keepNames: false,

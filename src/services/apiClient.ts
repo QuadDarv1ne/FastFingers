@@ -167,7 +167,8 @@ export class ApiClient {
           clearTimeout(timeoutId)
         }
       } catch (error) {
-        logger.warn('Operation failed in services/apiClient.ts')
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.warn(`API request failed: ${method} ${url} (attempt ${attempt + 1}): ${errorMessage}`)
         lastError = error as Error
 
         // Не повторяем запрос при ошибках клиента (4xx)
@@ -203,7 +204,7 @@ export class ApiClient {
         details: data.details,
       }
     } catch {
-      logger.warn('Operation failed in services/apiClient.ts')
+      logger.warn(`API parse error: response status ${response.status}`);
       return {
         status: response.status,
         message: `HTTP ${response.status}`,
