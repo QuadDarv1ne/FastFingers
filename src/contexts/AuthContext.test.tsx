@@ -6,6 +6,10 @@ import type { User } from '../types/auth'
 
 import * as authServiceModule from '../services/authService'
 
+vi.mock('../services/supabase', () => ({
+  supabase: null,
+}))
+
 vi.mock('../services/authService', () => ({
   authService: {
     getCurrentUser: vi.fn(),

@@ -50,7 +50,14 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
       // Если нет фокусируемых элементов, фокусируемся на контейнере
       container.setAttribute('tabindex', '-1')
       container.focus()
-      return
+      return () => {
+        // Восстанавливаем прокрутку
+        document.body.style.overflow = previousOverflow.current ?? ''
+        // Возвращаем фокус предыдущему элементу
+        if (previousActiveElement.current instanceof HTMLElement) {
+          previousActiveElement.current.focus()
+        }
+      }
     }
 
     const firstElement = focusableElements[0]
