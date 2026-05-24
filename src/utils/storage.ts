@@ -16,10 +16,7 @@ export interface StorageSetResult {
 }
 
 const handleStorageError = (operation: string, key?: string, error?: unknown) => {
-  // Логирование ошибок в development режиме
-  if (import.meta.env.DEV) {
-    logger.warn(`Error ${operation}${key ? ` for key "${key}"` : ''}:`, error)
-  }
+  logger.warn(`Error ${operation}${key ? ` for key "${key}"` : ''}:`, error)
 }
 
 /**
