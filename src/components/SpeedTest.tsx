@@ -137,7 +137,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     }
 
     e.currentTarget.value = ''
-  }, [isActive, timeLeft, text, sound, generateNewText, duration])
+  }, [isActive, timeLeft, text, sound, generateNewText, duration, handleStart])
 
   // Подсчёт статистики в реальном времени
   useEffect(() => {
