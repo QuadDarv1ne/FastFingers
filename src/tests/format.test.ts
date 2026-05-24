@@ -8,6 +8,27 @@ import {
   calculateAge,
 } from '../utils/format'
 
+vi.mock('i18next', () => ({
+  default: {
+    t: (key: string, params?: Record<string, unknown>) => {
+      const translations: Record<string, string> = {
+        'time.justNow': 'только что',
+        'time.minutesAgo': '{{count}} мин. назад',
+        'time.hoursAgo': '{{count}} ч. назад',
+        'time.daysAgo': '{{count}} дн. назад',
+      }
+      let result = translations[key] ?? key
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          result = result.replace(`{{${k}}}`, String(v))
+        }
+      }
+      return result
+    },
+    language: 'ru',
+  },
+}))
+
 describe('format utils', () => {
   describe('formatDuration', () => {
     it('должен форматировать секунды в ММ:СС', () => {

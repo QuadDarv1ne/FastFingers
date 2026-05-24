@@ -65,10 +65,10 @@ export function formatRelativeTime(date: Date | string | number): string {
     const diffHours = Math.floor(diffMins / 60)
     const diffDays = Math.floor(diffHours / 24)
 
-    if (diffSecs < 60) return 'только что'
-    if (diffMins < 60) return `${diffMins} мин. назад`
-    if (diffHours < 24) return `${diffHours} ч. назад`
-    if (diffDays < 7) return `${diffDays} дн. назад`
+    if (diffSecs < 60) return i18n.t('time.justNow')
+    if (diffMins < 60) return i18n.t('time.minutesAgo', { count: diffMins })
+    if (diffHours < 24) return i18n.t('time.hoursAgo', { count: diffHours })
+    if (diffDays < 7) return i18n.t('time.daysAgo', { count: diffDays })
     return formatDate(date)
   } catch (error) {
     logger.warn('Failed to format relative time', error)
