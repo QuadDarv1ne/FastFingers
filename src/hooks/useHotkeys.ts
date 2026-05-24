@@ -55,19 +55,15 @@ export function useHotkeys(
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return
 
-    if (!ignoreInputFocus) {
-      const target = event.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || 
-          (target as HTMLElement).isContentEditable) {
-        return
-      }
+    if (!ignoreInputFocus && isInputElement(event.target as HTMLElement)) {
+      return
     }
 
     const parts = []
     if (event.ctrlKey || event.metaKey) parts.push('ctrl')
     if (event.shiftKey) parts.push('shift')
     if (event.altKey) parts.push('alt')
-    parts.push(event.key.toLowerCase())
+    parts.push(normalizeKey(event.key))
 
     const combination = parts.join('+')
     const handler = shortcutsRef.current[combination]

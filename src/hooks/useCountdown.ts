@@ -1,26 +1,27 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 
+const COMPLETED = -1
+
 interface UseCountdownOptions {
-  /** Callback invoked when countdown reaches zero */
   onComplete: () => void
 }
 
-/**
- * Custom hook for countdown timer with proper cleanup on unmount.
- * Prevents memory leaks from setInterval in components that may unmount
- * during an active countdown.
- */
 export function useCountdown({ onComplete }: UseCountdownOptions) {
   const [countdown, setCountdown] = useState<number | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const onCompleteRef = useRef(onComplete)
 
-  // Keep ref in sync without adding onComplete to dependency arrays
   useEffect(() => {
     onCompleteRef.current = onComplete
   }, [onComplete])
 
-  // Cleanup interval on unmount
+  useEffect(() => {
+    if (countdown === COMPLETED) {
+      setCountdown(null)
+      onCompleteRef.current()
+    }
+  }, [countdown])
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -30,7 +31,6 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
   }, [])
 
   const start = useCallback((seconds: number) => {
-    // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
     }
@@ -44,8 +44,7 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
             clearInterval(intervalRef.current)
           }
           intervalRef.current = null
-          onCompleteRef.current()
-          return null
+          return COMPLETED
         }
         return prev - 1
       })

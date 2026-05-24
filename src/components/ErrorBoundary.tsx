@@ -93,7 +93,7 @@ export class ErrorBoundary extends Component<Props, State> {
               An unexpected error occurred. Try refreshing the page or retry.
             </p>
 
-            {error && (
+            {import.meta.env.DEV && error && (
               <details className="text-left mb-6">
                 <summary className="cursor-pointer text-sm text-dark-500 hover:text-dark-400 mb-2">
                   Show error details
