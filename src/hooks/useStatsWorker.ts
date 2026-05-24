@@ -94,8 +94,6 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
       isReadyRef.current = true
       setIsReady(true)
-      const currentPendingPromises = pendingPromises.current
-      const timeouts = timeoutsRef.current
 
       return () => {
         const worker = workerRef.current
@@ -104,9 +102,11 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           workerRef.current = null
         }
         isReadyRef.current = false
-        currentPendingPromises.clear()
-        timeouts.forEach(clearTimeout)
-        timeouts.clear()
+        const abortError = new DOMException('Worker terminated', 'AbortError')
+        pendingPromises.current.forEach(({ reject }) => reject(abortError))
+        pendingPromises.current.clear()
+        timeoutsRef.current.forEach(clearTimeout)
+        timeoutsRef.current.clear()
       }
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)
@@ -192,6 +192,8 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       workerRef.current = null
       isReadyRef.current = false
       setIsReady(false)
+      const abortError = new DOMException('Worker terminated', 'AbortError')
+      pendingPromises.current.forEach(({ reject }) => reject(abortError))
       pendingPromises.current.clear()
     }
   }, [])

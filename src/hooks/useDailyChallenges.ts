@@ -103,7 +103,6 @@ export function useDailyChallenges() {
   const checkStreak = useCallback((today: string) => {
     setStreak(prev => {
       const lastDate = prev.lastPracticeDate
-      // Compute yesterday relative to the provided today date
       const todayDate = new Date(today + 'T00:00:00')
       todayDate.setDate(todayDate.getDate() - 1)
       const yesterdayStr = todayDate.toISOString().split('T')[0]
@@ -127,24 +126,24 @@ export function useDailyChallenges() {
 
       newLongest = Math.max(newLongest, newCurrent)
 
-      const newStreak: StreakData = {
+      return {
         ...prev,
         current: newCurrent,
         longest: newLongest,
         lastPracticeDate: today,
         practiceDates: newDates.slice(-365),
       }
-
-      try {
-        localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(newStreak))
-      } catch {
-        logger.warn('Operation failed in hooks/useDailyChallenges.ts')
-        // Ignore save errors
-      }
-
-      return newStreak
     })
   }, [])
+
+  // Persist streak to localStorage when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(streak))
+    } catch {
+      logger.warn('Operation failed in hooks/useDailyChallenges.ts')
+    }
+  }, [streak])
 
   // Проверка и создание челленджа на сегодня
   useEffect(() => {
