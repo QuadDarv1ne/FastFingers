@@ -59,22 +59,6 @@ export default defineConfig({
         plugins: [],
       },
     }),
-    {
-      name: 'strip-console-except-logger',
-      transform(code, id) {
-        // Only strip console calls in production src files, except logger.ts
-        if (process.env.NODE_ENV === 'production' && id.includes('/src/') && !id.includes('logger.ts')) {
-          return {
-            code: code.replace(
-              /console\.(log|info|debug|warn|error)\s*\(/g,
-              'void('
-            ),
-            map: null,
-          };
-        }
-        return null;
-      },
-    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
@@ -127,6 +111,7 @@ export default defineConfig({
     cssCodeSplit: true,
     esbuild: {
       drop: ['debugger'],
+      pure: ['console.log', 'console.info', 'console.debug'],
       legalComments: 'none',
       target: 'esnext',
       keepNames: false,

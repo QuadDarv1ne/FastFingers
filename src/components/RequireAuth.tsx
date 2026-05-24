@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { LoadingFallback } from './LoadingFallback'
 
@@ -24,6 +24,12 @@ interface RequireAuthProps {
 export function RequireAuth({ children, fallback, redirectTo }: RequireAuthProps) {
   const { isAuthenticated, isLoading } = useAuth()
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && redirectTo) {
+      window.location.href = redirectTo
+    }
+  }, [isLoading, isAuthenticated, redirectTo])
+
   // Показываем fallback во время загрузки
   if (isLoading) {
     return fallback || <LoadingFallback />
@@ -32,8 +38,6 @@ export function RequireAuth({ children, fallback, redirectTo }: RequireAuthProps
   // Если не авторизован - показываем fallback или перенаправляем
   if (!isAuthenticated) {
     if (redirectTo) {
-      // В реальном приложении здесь был бы редирект через react-router
-      window.location.href = redirectTo
       return fallback || <LoadingFallback />
     }
 

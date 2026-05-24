@@ -51,8 +51,8 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
       if (stored) {
         setGoals(JSON.parse(stored))
       }
-    } catch {
-      // Ignore parse errors
+    } catch (err) {
+      logger.warn('[UserProfile] Failed to parse goals', err)
     }
   }, [])
 
@@ -90,8 +90,8 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
           }
         }
-      } catch {
-        // Ignore errors
+      } catch (err) {
+        logger.error('[UserProfile] Failed to save user name', err)
       }
     }
     setIsEditing(false)
@@ -115,8 +115,8 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
         }
       }
       setName(newName)
-    } catch {
-      // Ignore errors
+    } catch (err) {
+      logger.error('[UserProfile] Failed to update user name', err)
     }
   }, [user])
 
@@ -132,8 +132,8 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
       keysToRemove.forEach(key => localStorage.removeItem(key))
       logout()
       onClose()
-    } catch {
-      // Ignore errors
+    } catch (err) {
+      logger.error('[UserProfile] Failed to delete account', err)
     }
   }, [logout, onClose])
 
@@ -232,8 +232,8 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
         const achievements = JSON.parse(stored)
         return achievements.filter((a: { unlocked: boolean }) => a.unlocked).length
       }
-    } catch {
-      // Ignore errors
+    } catch (err) {
+      logger.warn('[UserProfile] Failed to parse achievements', err)
     }
     return 0
   }, [])
