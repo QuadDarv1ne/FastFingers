@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 
 interface UsePaginationOptions<T> {
   items: T[]
@@ -58,6 +58,13 @@ export function usePagination<T>({
   const [currentItemsPerPage, setCurrentItemsPerPage] = useState(itemsPerPage)
 
   const totalPages = Math.ceil(items.length / currentItemsPerPage)
+
+  // Reset currentPage when items change and current page exceeds valid range
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [items.length, currentItemsPerPage, totalPages, currentPage])
 
   const paginatedItems = useMemo(() => {
     const startIndex = (currentPage - 1) * currentItemsPerPage
