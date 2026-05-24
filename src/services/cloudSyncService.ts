@@ -277,11 +277,11 @@ class CloudSyncService {
       level: Math.max(local.level, cloud.level),
       bestWpm: Math.max(local.bestWpm, cloud.bestWpm),
       bestAccuracy: Math.max(local.bestAccuracy, cloud.bestAccuracy),
-      totalWordsTyped: local.totalWordsTyped + cloud.totalWordsTyped,
-      totalPracticeTime: local.totalPracticeTime + cloud.totalPracticeTime,
+      totalWordsTyped: Math.max(local.totalWordsTyped, cloud.totalWordsTyped),
+      totalPracticeTime: Math.max(local.totalPracticeTime, cloud.totalPracticeTime),
       currentStreak: Math.max(local.currentStreak, cloud.currentStreak),
       longestStreak: Math.max(local.longestStreak, cloud.longestStreak),
-      completedChallenges: local.completedChallenges + cloud.completedChallenges,
+      completedChallenges: Math.max(local.completedChallenges, cloud.completedChallenges),
     }
   }
 
@@ -427,13 +427,8 @@ export function useAutoSync(user: User | null, stats: UserStats) {
 }
 
 export function useCloudSyncCleanup() {
-  const cleanupRef = useRef(false)
-
-  useEffect(() => {
-    if (cleanupRef.current) return
-    cleanupRef.current = true
-    return () => {
-      cloudSyncService.destroy()
-    }
-  }, [])
+  // No cleanup needed — the singleton lives for the entire app lifetime.
+  // Browser automatically removes event listeners on page unload.
+  // Calling destroy() would permanently break cloud sync if this hook
+  // ever unmounts (e.g. React StrictMode double-render, error boundary).
 }

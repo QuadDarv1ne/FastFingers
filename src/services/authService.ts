@@ -428,8 +428,9 @@ export const authService = {
     }
     const users = getUsers();
     const user = findUserOrThrow(users, u => u.email === tokenData.email);
-    user.password = await hashPassword(confirm.newPassword, user.salt || generateSalt());
-    if (!user.salt) user.salt = generateSalt();
+    const salt = user.salt || generateSalt();
+    user.password = await hashPassword(confirm.newPassword, salt);
+    user.salt = salt;
     saveUsers(users);
 
     tokens.splice(tokenIndex, 1);
