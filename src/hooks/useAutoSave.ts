@@ -51,23 +51,26 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
 
   const [isRestored, setIsRestored] = useState(false)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dataRef = useRef<AutoSaveData>({ progress, currentSession, heatmap, settings, timestamp: Date.now() })
 
-  /**
-   * Сохранение текущих данных
-   */
+  useEffect(() => {
+    dataRef.current = { progress, currentSession, heatmap, settings, timestamp: Date.now() }
+  }, [progress, currentSession, heatmap, settings])
+
   const saveData = useCallback(() => {
+    const d = dataRef.current
     const data: AutoSaveData = {
-      progress,
-      currentSession,
-      heatmap,
-      settings,
+      progress: d.progress,
+      currentSession: d.currentSession,
+      heatmap: d.heatmap,
+      settings: d.settings,
       timestamp: Date.now(),
     }
     const result = setToStorageWithQuotaHandling(storageKey, data)
     if (!result.success) {
       logger.warn('Failed to save:', result.quotaExceeded ? 'quota exceeded' : 'unknown error')
     }
-  }, [progress, currentSession, heatmap, settings, storageKey])
+  }, [storageKey])
 
   /**
    * Восстановление данных из автосохранения
@@ -146,17 +149,17 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     }
   }, [saveData])
 
-  // Сохранение при закрытии вкладки
+  // Сохранение при закрытии вкладки — регистрируется один раз, читает свежие данные из ref
   useEffect(() => {
     const handleBeforeUnload = () => {
-      const data: AutoSaveData = {
-        progress,
-        currentSession,
-        heatmap,
-        settings,
+      const d = dataRef.current
+      setToStorageWithQuotaHandling(storageKey, {
+        progress: d.progress,
+        currentSession: d.currentSession,
+        heatmap: d.heatmap,
+        settings: d.settings,
         timestamp: Date.now(),
-      }
-      setToStorageWithQuotaHandling(storageKey, data)
+      })
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
@@ -164,19 +167,19 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [progress, currentSession, heatmap, settings, storageKey])
+  }, [storageKey])
 
   // Page Lifecycle API: сохранение при freeze (mobile/tab discard)
   useEffect(() => {
     const handleFreeze = () => {
-      const data: AutoSaveData = {
-        progress,
-        currentSession,
-        heatmap,
-        settings,
+      const d = dataRef.current
+      setToStorageWithQuotaHandling(storageKey, {
+        progress: d.progress,
+        currentSession: d.currentSession,
+        heatmap: d.heatmap,
+        settings: d.settings,
         timestamp: Date.now(),
-      }
-      setToStorageWithQuotaHandling(storageKey, data)
+      })
     }
 
     document.addEventListener('freeze', handleFreeze, { once: true })
@@ -184,7 +187,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       document.removeEventListener('freeze', handleFreeze)
     }
-  }, [progress, currentSession, heatmap, settings, storageKey])
+  }, [storageKey])
 
   // Сохранение при потере фокуса (НЕ восстанавливаем при возврате чтобы не перезаписать текущий прогресс)
   useEffect(() => {
