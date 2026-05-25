@@ -85,6 +85,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const resultsRef = useRef<KeyInputResult[]>([])
   const isCompletingRef = useRef(false)
+  const isHandlingInputRef = useRef(false)
 
   useFocusTrap(completionRef, isComplete)
 
@@ -175,51 +176,61 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
   // Обработка ввода — оптимизировано с использованием refs
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
+    // Re-entrancy guard: предотвращаем повторный вход (paste, IME, autofill)
+    if (isHandlingInputRef.current) return
+    isHandlingInputRef.current = true
 
-    if (isComplete) return
+    try {
+      const value = e.currentTarget.value
 
-    if (!startTime && value) {
-      setStartTime(Date.now())
+      if (isComplete) return
+
+      if (!startTime && value) {
+        setStartTime(Date.now())
+      }
+
+      const newChar = value[value.length - 1]
+      if (!newChar || !text) return
+
+      const expectedChar = text[currentIndex]
+      if (!expectedChar) return
+
+      const isCorrect = newChar === expectedChar
+
+      if (isCorrect) correctCountRef.current++
+
+      if (sound) {
+        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+      }
+
+      onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+
+      const result: KeyInputResult = {
+        isCorrect,
+        char: newChar,
+        expectedChar,
+        timestamp: Date.now(),
+      }
+
+      const nextIndex = currentIndex + 1
+      setCurrentIndex(nextIndex)
+      setInputResults(prev => {
+        const newResults = [...prev, result]
+        resultsRef.current = newResults
+        return newResults
+      })
+
+      if (nextIndex >= textLengthRef.current) {
+        // Передаём newResults напрямую, а не через resultsRef
+        // Это предотвращает race condition с React batching
+        const newResults = [...resultsRef.current, result]
+        handleComplete(newResults)
+      }
+
+      e.currentTarget.value = ''
+    } finally {
+      isHandlingInputRef.current = false
     }
-
-    const newChar = value[value.length - 1]
-    if (!newChar || !text) return
-
-    const expectedChar = text[currentIndex]
-    if (!expectedChar) return
-
-    const isCorrect = newChar === expectedChar
-
-    if (isCorrect) correctCountRef.current++
-
-    if (sound) {
-      isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
-    }
-
-    onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
-
-    const result: KeyInputResult = {
-      isCorrect,
-      char: newChar,
-      expectedChar,
-      timestamp: Date.now(),
-    }
-
-    const nextIndex = currentIndex + 1
-    setCurrentIndex(nextIndex)
-    setInputResults(prev => {
-      const newResults = [...prev, result]
-      resultsRef.current = newResults
-      return newResults
-    })
-
-    if (nextIndex >= textLengthRef.current) {
-      // resultsRef.current was just updated by setInputResults above
-      handleComplete(resultsRef.current)
-    }
-
-    e.currentTarget.value = ''
   }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 
   // Пропуск упражнения
