@@ -1,5 +1,5 @@
 import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
-import { AuthError } from './authErrors';
+import { AuthError, isValidEmail, isValidPassword } from './authErrors';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
 import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/storage';
@@ -8,6 +8,8 @@ const USERS_STORAGE_KEY = 'fastfingers_users';
 const CURRENT_USER_KEY = 'fastfingers_current_user';
 const RESET_TOKENS_KEY = 'fastfingers_reset_tokens';
 const REGISTRATION_DELAY_MS = 500;
+const LOGIN_DELAY_MS = 300;
+const PASSWORD_RESET_DELAY_MS = 400;
 const PROFILE_UPDATE_DELAY_MS = 300;
 const RESET_TOKEN_EXPIRY_MS = 3600000;
 const MIN_PASSWORD_LENGTH = 8;
@@ -132,10 +134,6 @@ const removeCurrentUser = () => {
   sessionStorage.removeItem(CURRENT_USER_KEY);
 };
 
-const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const isValidPassword = (password: string): boolean => password.length >= MIN_PASSWORD_LENGTH;
-
 const withoutPassword = ({ password: _pwd, salt: _salt, ...user }: StoredUser): User => user;
 
 const getLoginAttempts = (): LoginAttempt[] => {
@@ -171,8 +169,8 @@ const checkLockout = (email: string): number | null => {
   const recentAttempts = attempts.filter(a => Date.now() - a.timestamp < LOCKOUT_TIME_MS);
 
   if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
-    const oldestRecent = Math.min(...recentAttempts.map(a => a.timestamp));
-    const remainingTime = LOCKOUT_TIME_MS - (Date.now() - oldestRecent);
+    const mostRecent = Math.max(...recentAttempts.map(a => a.timestamp));
+    const remainingTime = LOCKOUT_TIME_MS - (Date.now() - mostRecent);
     return remainingTime > 0 ? remainingTime : null;
   }
   return null;
@@ -302,7 +300,7 @@ export const authService = {
   },
 
   async login(credentials: LoginCredentials): Promise<User> {
-    await delay(REGISTRATION_DELAY_MS);
+    await delay(LOGIN_DELAY_MS);
 
     const sanitizedEmail = sanitizeEmail(credentials.email);
 
@@ -324,11 +322,12 @@ export const authService = {
 
       if (error) {
         saveLoginAttempt(sanitizedEmail);
-        if (error.status === 401) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes('invalid login credentials') || msg.includes('invalid password')) {
           throw new AuthError('wrong-password', 'Неверный пароль');
         }
-        if (error.status === 404) {
-          throw new AuthError('user-not-found', 'Пользователь не найден');
+        if (msg.includes('email not confirmed')) {
+          throw new AuthError('email-not-confirmed', 'Email не подтверждён. Проверьте почту.');
         }
         throw new AuthError('unknown', error.message);
       }
@@ -385,7 +384,7 @@ export const authService = {
   },
 
   async requestPasswordReset(request: PasswordResetRequest): Promise<{ token: string; expiresAt: string }> {
-    await delay(REGISTRATION_DELAY_MS);
+    await delay(PASSWORD_RESET_DELAY_MS);
 
     if (!isValidEmail(request.email)) {
       throw new AuthError('invalid-email', 'Неверный формат email');
@@ -412,7 +411,7 @@ export const authService = {
   },
 
   async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<void> {
-    await delay(REGISTRATION_DELAY_MS);
+    await delay(PASSWORD_RESET_DELAY_MS);
 
     if (!isValidPassword(confirm.newPassword)) {
       throw new AuthError('weak-password', `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`);
@@ -435,8 +434,13 @@ export const authService = {
     if (!tokenData) {
       throw new AuthError('invalid-token', 'Неверный или истёкший токен');
     }
+
     const users = getUsers();
-    const user = findUserOrThrow(users, u => u.email === tokenData.email);
+    const usersWithEmail = users.filter(u => u.email === tokenData.email);
+    if (usersWithEmail.length === 0) {
+      throw new AuthError('user-not-found', 'Пользователь не найден');
+    }
+    const user = usersWithEmail[0];
     const salt = user.salt || generateSalt();
     user.password = await hashPassword(confirm.newPassword, salt);
     user.salt = salt;

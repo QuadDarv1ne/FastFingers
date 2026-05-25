@@ -10,6 +10,7 @@ export type AuthErrorCode =
   | 'email-in-use'
   | 'user-not-found'
   | 'wrong-password'
+  | 'email-not-confirmed'
   | 'invalid-token'
   | 'token-expired'
   | 'unauthorized'

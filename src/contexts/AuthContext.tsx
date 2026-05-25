@@ -69,14 +69,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Subscribe to Supabase auth state changes (login/logout from other tabs, session expiry)
     if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, _session) => {
-        const updatedUser = authService.getCurrentUser();
-        setState({
-          user: updatedUser,
-          isAuthenticated: !!updatedUser,
-          isLoading: false,
-          error: null,
-        });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+          setState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (session?.user) {
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: session.user.user_metadata?.name || session.user.email || '',
+              createdAt: session.user.created_at,
+              role: session.user.user_metadata?.role || 'user',
+              stats: session.user.user_metadata?.stats || {
+                totalXp: 0, level: 1, bestWpm: 0, bestAccuracy: 0,
+                totalWordsTyped: 0, totalPracticeTime: 0,
+                currentStreak: 0, longestStreak: 0, completedChallenges: 0,
+              },
+            };
+            setState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+          }
+        } else {
+          const updatedUser = authService.getCurrentUser();
+          setState({
+            user: updatedUser,
+            isAuthenticated: !!updatedUser,
+            isLoading: false,
+            error: null,
+          });
+        }
       });
       return () => subscription.unsubscribe();
     }
@@ -153,15 +183,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [withActionState]);
 
   const logout = useCallback(async () => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       await authService.logout();
     } catch (error) {
       const authError = getAuthError(error);
-      setState(prev => ({
-        ...prev,
-        error: authError.message,
+      setState({
+        user: null,
+        isAuthenticated: false,
         isLoading: false,
-      }));
+        error: authError.message,
+      });
       throw error;
     }
     setState({
