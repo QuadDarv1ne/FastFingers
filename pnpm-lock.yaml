@@ -30,7 +30,7 @@ importers:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       i18next:
-        specifier: ^25.8.13
+        specifier: ^25.10.10
         version: 25.10.10(typescript@5.9.3)
       react:
         specifier: ^18.3.1
