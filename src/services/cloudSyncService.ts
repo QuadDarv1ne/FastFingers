@@ -53,6 +53,7 @@ class CloudSyncService {
   private syncQueue: CloudSave[] = []
   private isSyncing = false
   private isOnline = true
+  private isDestroyed = false
   private offlineCache: Array<{ type: string; data: unknown }> = []
   private onlineHandler: () => void
   private offlineHandler: () => void
@@ -73,6 +74,8 @@ class CloudSyncService {
   }
 
   destroy(): void {
+    if (this.isDestroyed) return
+    this.isDestroyed = true
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', this.onlineHandler)
       window.removeEventListener('offline', this.offlineHandler)
@@ -80,6 +83,7 @@ class CloudSyncService {
   }
 
   async saveProgress(user: User, stats: UserStats): Promise<void> {
+    if (this.isDestroyed) return
     const save: CloudSave = {
       userId: user.id,
       stats,
@@ -146,6 +150,7 @@ class CloudSyncService {
   }
 
   async sync(user: User, localStats: UserStats): Promise<UserStats> {
+    if (this.isDestroyed) return localStats
     if (this.isSyncing) return localStats
     this.isSyncing = true
 
@@ -427,8 +432,9 @@ export function useAutoSync(user: User | null, stats: UserStats) {
 }
 
 export function useCloudSyncCleanup() {
-  // No cleanup needed — the singleton lives for the entire app lifetime.
-  // Browser automatically removes event listeners on page unload.
-  // Calling destroy() would permanently break cloud sync if this hook
-  // ever unmounts (e.g. React StrictMode double-render, error boundary).
+  useEffect(() => {
+    return () => {
+      cloudSyncService.destroy()
+    }
+  }, [])
 }
