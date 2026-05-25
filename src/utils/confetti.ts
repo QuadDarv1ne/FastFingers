@@ -65,6 +65,7 @@ function untrackAnimation(id: number) {
 }
 
 export function triggerConfetti(options: ConfettiOptions = {}) {
+  clearAllConfetti()
   const { type = 'default', duration = 3000 } = options
   const end = Date.now() + duration
   const colors = COLORS[type]
@@ -102,6 +103,7 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
 }
 
 export function triggerConfettiRain(duration = 5000) {
+  clearAllConfetti()
   const end = Date.now() + duration
   const colors = COLORS.default
   const rainConfig = CONFETTI_CONFIG.rain

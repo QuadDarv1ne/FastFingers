@@ -142,9 +142,10 @@ export function useStatsWorker(): UseStatsWorkerReturn {
           pendingPromises.current.delete(messageId)
           timeoutsRef.current.delete(messageId)
           reject(new Error('Worker timeout'))
+          isBusyRef.current = false
           setIsBusy(false)
         }
-      }, 30000) // 30 секунд
+      }, 30000)
       timeoutsRef.current.set(messageId, timeoutId)
     })
   }, []) // Теперь не зависит от isReady/isBusy — используем refs

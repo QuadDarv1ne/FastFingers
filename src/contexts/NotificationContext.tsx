@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
 import { createContext, useState, useEffect, ReactNode, useCallback, useContext } from 'react'
-import { useAuth } from '@hooks/useAuth'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 
 export interface Notification {
@@ -62,7 +61,6 @@ const showBrowserNotification = (title: string, message: string) => {
 }
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const { user: _user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
 
   // Загружаем уведомления при монтировании
