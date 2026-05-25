@@ -50,16 +50,22 @@ export function getTotalPracticeTimeFromSessions(sessions: TypingSession[]): num
   return sessions.reduce((sum, s) => sum + s.duration, 0)
 }
 
-const calculateStreak = (lastDate: string | null, currentDate: string): number => {
-  if (!lastDate) return 1
+export type StreakResult = 'first' | 'increment' | 'unchanged' | 'reset'
+
+const calculateStreak = (lastDate: string | null, currentDate: string): StreakResult => {
+  if (!lastDate) return 'first'
 
   const last = new Date(lastDate)
   const current = new Date(currentDate)
-  const diffDays = Math.floor((current.getTime() - last.getTime()) / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return 0
-  if (diffDays === 1) return 1
-  return 0 // Streak broken — reset
+  // Compare calendar dates in UTC to match ISO timestamp inputs
+  const lastDay = Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), last.getUTCDate())
+  const currentDay = Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate())
+  const diffDays = Math.round((currentDay - lastDay) / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return 'unchanged'
+  if (diffDays === 1) return 'increment'
+  return 'reset'
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -84,17 +90,18 @@ export const useProgressStore = create<ProgressState>()(
       }),
 
       updateStreak: (date) => set((state) => {
-        const streakChange = calculateStreak(state.lastPracticeDate, date)
+        const action = calculateStreak(state.lastPracticeDate, date)
 
-        if (streakChange === 0) {
-          // Same day or broken streak — just update date, keep streak same for same day, reset for broken
-          const last = state.lastPracticeDate ? new Date(state.lastPracticeDate) : null
-          const current = new Date(date)
-          const diffDays = last ? Math.floor((current.getTime() - last.getTime()) / (1000 * 60 * 60 * 24)) : -1
-          if (diffDays > 1) return { streak: 1, lastPracticeDate: date } // Broken streak, reset to 1
-          return { lastPracticeDate: date } // Same day, no change
+        switch (action) {
+          case 'first':
+            return { streak: 1, lastPracticeDate: date }
+          case 'increment':
+            return { streak: state.streak + 1, lastPracticeDate: date }
+          case 'unchanged':
+            return { lastPracticeDate: date }
+          case 'reset':
+            return { streak: 1, lastPracticeDate: date }
         }
-        return { streak: state.streak + 1, lastPracticeDate: date }
       }),
 
       clearHistory: () => set({

@@ -174,6 +174,29 @@ describe('useProgressStore Integration', () => {
       // Серия не должна измениться
       expect(useProgressStore.getState().streak).toBe(1)
     })
+
+    it('должен сохранять серию при трёх сессиях в один день', () => {
+      useProgressStore.getState().updateStreak('2024-01-01T06:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(1)
+
+      useProgressStore.getState().updateStreak('2024-01-01T12:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(1)
+
+      useProgressStore.getState().updateStreak('2024-01-01T23:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(1)
+    })
+
+    it('должен увеличивать серию на следующий день после нескольких сессий в один день', () => {
+      useProgressStore.getState().updateStreak('2024-01-01T08:00:00.000Z')
+      useProgressStore.getState().updateStreak('2024-01-01T20:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(1)
+
+      useProgressStore.getState().updateStreak('2024-01-02T10:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(2)
+
+      useProgressStore.getState().updateStreak('2024-01-03T10:00:00.000Z')
+      expect(useProgressStore.getState().streak).toBe(3)
+    })
   })
 
   describe('clearHistory', () => {
