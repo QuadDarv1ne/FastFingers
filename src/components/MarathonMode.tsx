@@ -87,7 +87,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     }
   }, { enabled: true })
 
-  // Отслеживание майлстоунов — only trigger when crossing a boundary
+  // Отслеживание майлстоунов — detect milestones on time changes
   const shownMilestonesRef = useRef<Set<number>>(new Set())
   useEffect(() => {
     if (!isActive) return
@@ -103,14 +103,17 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
       milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
       setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
     }
+  }, [timeLeft, isActive])
 
+  // Cleanup milestone timer only on unmount
+  useEffect(() => {
     return () => {
       if (milestoneTimerRef.current) {
         clearTimeout(milestoneTimerRef.current)
         milestoneTimerRef.current = null
       }
     }
-  }, [timeLeft, isActive])
+  }, [])
 
   // Подсчёт комбо
   useEffect(() => {
