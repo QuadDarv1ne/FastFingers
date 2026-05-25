@@ -8,6 +8,7 @@ import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import { logger } from '@utils/logger'
+import { authService } from '@services/authService'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
@@ -1213,6 +1214,37 @@ function ToggleRow({ label, description, checked, onChange }: {
   )
 }
 
+function generateSalt(): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint8Array(16)
+    crypto.getRandomValues(array)
+    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('')
+  }
+  return Math.random().toString(36).substring(2) + Date.now().toString(36)
+}
+
+async function hashPassword(password: string, salt: string): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(password + salt)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    } catch {
+      logger.warn('SHA-256 failed, using fallback hash')
+    }
+  }
+
+  let hash = 5381
+  const str = password + salt
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    hash = hash >>> 0
+  }
+  return hash.toString(16)
+}
+
 function SecuritySettingsSubPage() {
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
@@ -1220,7 +1252,7 @@ function SecuritySettingsSubPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       setMessage({ type: 'error', text: 'Заполните все поля' })
       return
@@ -1234,30 +1266,53 @@ function SecuritySettingsSubPage() {
       return
     }
 
-    // Update password in localStorage
+    // Use authService to verify current password and update with hashed password
     try {
-      const users: Array<{ id: string; email: string; password: string }> =
-        JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
       const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}')
+      if (!currentUser || !currentUser.id) {
+        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        return
+      }
+
+      // Verify current password by attempting login
+      await authService.login({
+        email: currentUser.email,
+        password: currentPassword,
+        rememberMe: true,
+      })
+
+      // Update password using authService updateProfile with new password
+      // We need to manually update since authService doesn't have changePassword method
+      const users: Array<{ id: string; email: string; password: string; salt: string }> =
+        JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
       const userIdx = users.findIndex(u => u.id === currentUser.id)
       if (userIdx === -1) {
         setMessage({ type: 'error', text: 'Пользователь не найден' })
         return
       }
+
       const currentUserEntry = users[userIdx]
-      if (!currentUserEntry || currentUserEntry.password !== currentPassword) {
-        setMessage({ type: 'error', text: 'Неверный текущий пароль' })
+      if (!currentUserEntry) {
+        setMessage({ type: 'error', text: 'Пользователь не найден' })
         return
       }
-      currentUserEntry.password = newPassword
+
+      // Generate salt and hash new password using crypto APIs
+      const salt = generateSalt()
+      const hashedPassword = await hashPassword(newPassword, salt)
+
+      currentUserEntry.password = hashedPassword
+      currentUserEntry.salt = salt
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
+
       setMessage({ type: 'success', text: 'Пароль успешно изменён' })
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setShowChangePassword(false)
-    } catch {
-      setMessage({ type: 'error', text: 'Ошибка при изменении пароля' })
+    } catch (err) {
+      logger.error('[UserProfile] Password change failed', err)
+      setMessage({ type: 'error', text: 'Неверный текущий пароль или ошибка при изменении' })
     }
   }
 
