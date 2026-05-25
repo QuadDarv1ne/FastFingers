@@ -83,7 +83,16 @@ const hashPassword = async (password: string, salt: string): Promise<string> => 
 };
 
 const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
-const sanitizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
+const sanitizeName = (name: string): string => {
+  const trimmed = name.trim().replace(/\s+/g, ' ');
+  // Escape HTML entities to prevent stored XSS attacks
+  return trimmed
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
 
 const getUsers = (): StoredUser[] => {
   try {
