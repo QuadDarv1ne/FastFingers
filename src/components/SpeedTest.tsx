@@ -156,10 +156,15 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   }, [inputResults, timeLeft, duration])
 
   // Пропуск текста
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
+    totalCorrectRef.current = 0
+    totalCharsRef.current = 0
+    lastSegmentLengthRef.current = 0
+    shouldFinishRef.current = false
+    hasFinishedRef.current = false
     generateNewText()
     inputRef.current?.focus({ preventScroll: true })
-  }
+  }, [generateNewText])
 
   // Прогресс времени
   const timeProgress = ((duration - timeLeft) / duration) * 100
