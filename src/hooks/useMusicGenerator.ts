@@ -82,7 +82,7 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
     }
 
     return () => {
-      musicGenerator.stop()
+      musicGenerator.destroy()
     }
   }, [])
 
