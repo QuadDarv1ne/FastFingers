@@ -112,7 +112,11 @@ class CloudSyncService {
       } catch (error) {
         logger.error('Failed to save to Supabase:', error)
         this.saveToLocalStorage(save)
-        this.offlineCache.push({ type: 'stats', data: save })
+        // Avoid re-queueing during flush — the item is already in itemsToFlush
+        // and will be pushed back to offlineCache by flushOfflineCache on failure
+        if (!this.isFlushing) {
+          this.offlineCache.push({ type: 'stats', data: save })
+        }
       }
     } else {
       this.saveToLocalStorage(save)
@@ -318,14 +322,19 @@ class CloudSyncService {
     }
   }
 
-  private async flushOfflineCache(): Promise<void> {
-    if (this.offlineCache.length === 0) return
+  private isFlushing = false
 
+  private async flushOfflineCache(): Promise<void> {
+    if (this.offlineCache.length === 0 || this.isFlushing) return
+
+    this.isFlushing = true
     logger.info(`Flushing ${this.offlineCache.length} cached operations`)
 
-    const remaining: Array<{ type: string; data: unknown }> = []
+    // Snapshot the cache to avoid concurrent modification issues
+    const itemsToFlush = [...this.offlineCache]
+    this.offlineCache = []
 
-    for (const item of this.offlineCache) {
+    for (const item of itemsToFlush) {
       try {
         switch (item.type) {
           case 'stats': {
@@ -386,11 +395,11 @@ class CloudSyncService {
         }
       } catch (error) {
         logger.error('Failed to flush cached operation, will retry:', error)
-        remaining.push(item)
+        this.offlineCache.push(item)
       }
     }
 
-    this.offlineCache = remaining
+    this.isFlushing = false
   }
 
   getPendingSyncs(): number {
