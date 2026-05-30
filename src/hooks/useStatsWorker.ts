@@ -56,6 +56,9 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
   // Инициализация воркера
   useEffect(() => {
+    // Capture mutable refs to local variables for cleanup to avoid stale ref access
+    const pendingMap = pendingPromises.current
+    const timeoutsMap = timeoutsRef.current
     try {
       workerRef.current = new Worker(
         new URL('../workers/stats.worker.ts', import.meta.url),
@@ -67,18 +70,18 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
         if (type === 'ERROR') {
           setError(payload as string)
-          pendingPromises.current.forEach(({ reject }) => reject(new Error(payload as string)))
-          pendingPromises.current.clear()
+          pendingMap.forEach(({ reject }) => reject(new Error(payload as string)))
+          pendingMap.clear()
           isBusyRef.current = false
           setIsBusy(false)
           return
         }
 
         if (messageId !== undefined) {
-          const pending = pendingPromises.current.get(messageId)
+          const pending = pendingMap.get(messageId)
           if (pending) {
-            pendingPromises.current.delete(messageId)
-            timeoutsRef.current.delete(messageId)
+            pendingMap.delete(messageId)
+            timeoutsMap.delete(messageId)
             pending.resolve(payload)
             isBusyRef.current = false
             setIsBusy(false)
@@ -103,10 +106,10 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         }
         isReadyRef.current = false
         const abortError = new DOMException('Worker terminated', 'AbortError')
-        pendingPromises.current.forEach(({ reject }) => reject(abortError))
-        pendingPromises.current.clear()
-        timeoutsRef.current.forEach(clearTimeout)
-        timeoutsRef.current.clear()
+        pendingMap.forEach(({ reject }) => reject(abortError))
+        pendingMap.clear()
+        timeoutsMap.forEach((_, id) => clearTimeout(id))
+        timeoutsMap.clear()
       }
     } catch (err) {
       setError(`Failed to initialize worker: ${err instanceof Error ? err.message : 'Unknown error'}`)
@@ -132,6 +135,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       const messageId = messageIdRef.current++
       pendingPromises.current.set(messageId, { resolve: resolve as (value: unknown) => void, reject })
 
+      isBusyRef.current = true
       setIsBusy(true)
       setError(null)
 

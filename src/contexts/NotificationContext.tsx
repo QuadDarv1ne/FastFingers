@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
-import { createContext, useState, useEffect, ReactNode, useCallback, useContext } from 'react'
+import { createContext, useState, useEffect, ReactNode, useCallback, useContext, useMemo } from 'react'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 
 export interface Notification {
@@ -103,10 +103,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setNotifications([])
   }, [])
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = useMemo(
+    () => notifications.filter(n => !n.read).length,
+    [notifications]
+  )
 
-  return (
-    <NotificationContext.Provider value={{
+  const contextValue = useMemo(
+    () => ({
       notifications,
       unreadCount,
       addNotification,
@@ -114,7 +117,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       markAllAsRead,
       removeNotification,
       clearAll,
-    }}>
+    }),
+    [notifications, unreadCount, addNotification, markAsRead, markAllAsRead, removeNotification, clearAll]
+  )
+
+  return (
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   )

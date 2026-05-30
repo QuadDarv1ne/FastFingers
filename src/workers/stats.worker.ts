@@ -116,7 +116,8 @@ function analyzeTimeOfDay(sessions: TypingStats[]): TimeOfDayPerformance[] {
 
   sessions.forEach(session => {
     if (!session) return
-    const hour = new Date(session.date || '').getHours()
+    const dateValue = session.date ? new Date(session.date) : new Date()
+    const hour = isNaN(dateValue.getHours()) ? new Date().getHours() : dateValue.getHours()
     let slot: string
 
     if (hour >= 6 && hour < 12) slot = 'morning'

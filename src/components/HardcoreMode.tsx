@@ -248,7 +248,9 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     <div className="glass rounded-xl p-8 relative overflow-hidden border-red-500/20">
       {/* Rank Up Animation */}
       <AnimatePresence>
-        {showRankUp && (
+        {showRankUp && (() => {
+          const rankInfo = getRankByStreak(streak)
+          return (
           <motion.div
             initial={{ opacity: 0, y: -50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -257,12 +259,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           >
             <div className="text-center">
               <div className="text-3xl font-black text-white mb-1">
-                🎉 {getRankByStreak(streak).rank} <span className="text-lg font-medium">| {getRankByStreak(streak).name}</span>
+                🎉 {rankInfo.rank} <span className="text-lg font-medium">| {rankInfo.name}</span>
               </div>
-              <div className="text-sm text-white/90">{getRankUpMessage(getRankByStreak(streak))}</div>
+              <div className="text-sm text-white/90">{getRankUpMessage(rankInfo)}</div>
             </div>
           </motion.div>
-        )}
+          )
+        })()}
       </AnimatePresence>
 
       <AnimatePresence>
@@ -301,35 +304,42 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         )}
       </div>
 
-      {/* Карточка ранга */}
+      {/* Compute rank info once to avoid redundant calls */}
+      {(() => {
+        const rankInfo = getRankByStreak(streak)
+        const progressPct = getRankProgress(streak)
+
+        return (
       <div className="mb-4 p-4 bg-gradient-to-r from-dark-800 to-dark-700 rounded-xl border border-dark-600">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-dark-400">Текущий ранг</span>
-          <span className="text-xs text-dark-500">{getRankByStreak(streak).name}</span>
+          <span className="text-xs text-dark-500">{rankInfo.name}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span 
+          <span
             className="text-4xl font-black"
-            style={{ color: getRankByStreak(streak).color, textShadow: `0 0 20px ${getRankByStreak(streak).color}40` }}
+            style={{ color: rankInfo.color, textShadow: `0 0 20px ${rankInfo.color}40` }}
           >
             {currentRank}
           </span>
           <div className="flex-1">
             <div className="h-2 bg-dark-600 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 className="h-full"
-                style={{ backgroundColor: getRankByStreak(streak).color }}
+                style={{ backgroundColor: rankInfo.color }}
                 initial={{ width: 0 }}
-                animate={{ width: `${getRankProgress(streak)}%` }}
+                animate={{ width: `${progressPct}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
             <div className="text-xs text-dark-500 mt-1">
-              {getRankProgress(streak)}% до следующего ранга
+              {progressPct}% до следующего ранга
             </div>
           </div>
         </div>
       </div>
+        )
+      })()}
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard label="Серия" value={streak.toString()} icon="🔥" />

@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
 import { useAppStore } from '../stores/useAppStore';
+import { useShallow } from 'zustand/react/shallow';
 
 interface UseUserProgressOptions {
   initialLevel?: number;
@@ -43,8 +44,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   // Track previous level to detect level-ups without side effects in setState
   const prevLevelRef = useRef(options?.initialLevel ?? 1);
 
-  // Persisted settings from Zustand store - use a single selector to avoid multiple subscriptions
-  const settings = useAppStore(s => ({
+  // Persisted settings from Zustand store - use useShallow to stabilize object reference
+  const settings = useAppStore(useShallow(s => ({
     layout: s.layout,
     soundEnabled: s.soundEnabled,
     soundVolume: s.soundVolume,
@@ -54,7 +55,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     showKeyboard: s.showKeyboard,
     showStats: s.showStats,
     fontSize: s.fontSize,
-  }));
+  })));
 
   // Detect level-up and call callback as a side effect
   useEffect(() => {

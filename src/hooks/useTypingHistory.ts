@@ -3,6 +3,7 @@ import { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
 import { useAuth } from './useAuth'
+import { logger } from '../utils/logger'
 
 interface SessionData {
   id: string
@@ -121,8 +122,10 @@ export function useTypingHistory(): UseTypingHistoryReturn {
           setError(null)
           flushPendingSessions()
         })
-        .catch(() => {
-          // Ignore cloud sync errors
+        .catch((err) => {
+          // Cloud sync failed — session is saved locally and will sync later
+          setIsOnline(false)
+          logger.warn('Cloud sync failed:', err)
         })
     }
   }, [debouncedSave])

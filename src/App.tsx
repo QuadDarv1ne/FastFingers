@@ -712,13 +712,15 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
       >
         <span className="text-lg">🕐</span>
         <span className="hidden sm:inline">{t('label.test')}</span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {showDropdown && (
         <div data-speedtest-dropdown className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
-          {(Object.keys(durationLabels) as unknown as SpeedTestDuration[]).map((d) => (
+          {Object.entries(durationLabels).map(([key, label]) => {
+            const d = Number(key) as SpeedTestDuration
+            return (
             <button
               key={d}
               onClick={() => {
@@ -727,10 +729,11 @@ const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdow
               }}
               className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
             >
-              <span>{durationLabels[d]}</span>
+              <span>{label}</span>
               <span className="text-xs text-dark-500">{durationIcons[d]}</span>
             </button>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
