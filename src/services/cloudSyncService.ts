@@ -52,6 +52,7 @@ type FetchResult<T> = { data: T[] | null; error: Error | null }
 class CloudSyncService {
   private syncQueue: CloudSave[] = []
   private isSyncing = false
+  private isFlushing = false
   private isOnline = true
   private isDestroyed = false
   private offlineCache: Array<{ type: string; data: unknown }> = []
@@ -286,11 +287,11 @@ class CloudSyncService {
       level: Math.max(local.level, cloud.level),
       bestWpm: Math.max(local.bestWpm, cloud.bestWpm),
       bestAccuracy: Math.max(local.bestAccuracy, cloud.bestAccuracy),
-      totalWordsTyped: Math.max(local.totalWordsTyped, cloud.totalWordsTyped),
-      totalPracticeTime: Math.max(local.totalPracticeTime, cloud.totalPracticeTime),
+      totalWordsTyped: local.totalWordsTyped + cloud.totalWordsTyped,
+      totalPracticeTime: local.totalPracticeTime + cloud.totalPracticeTime,
       currentStreak: Math.max(local.currentStreak, cloud.currentStreak),
       longestStreak: Math.max(local.longestStreak, cloud.longestStreak),
-      completedChallenges: Math.max(local.completedChallenges, cloud.completedChallenges),
+      completedChallenges: local.completedChallenges + cloud.completedChallenges,
     }
   }
 
@@ -321,8 +322,6 @@ class CloudSyncService {
       return {}
     }
   }
-
-  private isFlushing = false
 
   private async flushOfflineCache(): Promise<void> {
     if (this.offlineCache.length === 0 || this.isFlushing) return

@@ -436,11 +436,10 @@ export const authService = {
     }
 
     const users = getUsers();
-    const usersWithEmail = users.filter(u => u.email === tokenData.email);
-    if (usersWithEmail.length === 0) {
+    const user = users.find(u => u.email === tokenData.email);
+    if (!user) {
       throw new AuthError('user-not-found', 'Пользователь не найден');
     }
-    const user = usersWithEmail[0];
     const salt = user.salt || generateSalt();
     user.password = await hashPassword(confirm.newPassword, salt);
     user.salt = salt;

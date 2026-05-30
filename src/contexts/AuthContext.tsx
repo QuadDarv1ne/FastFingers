@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Subscribe to Supabase auth state changes (login/logout from other tabs, session expiry)
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        if (event === 'SIGNED_OUT') {
           setState({
             user: null,
             isAuthenticated: false,
