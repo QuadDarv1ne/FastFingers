@@ -213,5 +213,3 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     forceSave,
   }
 }
-
-export default useAutoSave

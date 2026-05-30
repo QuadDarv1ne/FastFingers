@@ -1,55 +1,106 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { SprintMode } from '../components/SprintMode'
 
-describe('SprintMode constants', () => {
-  it('SPRINT_DURATION равен 60 секундам', () => {
-    const SPRINT_DURATION = 60
-    expect(SPRINT_DURATION).toBe(60)
-  })
+vi.mock('@hooks/useAuth', () => ({
+  useAuth: () => ({ user: null }),
+}))
 
-  it('COUNTDOWN_SECONDS равен 3', () => {
-    const COUNTDOWN_SECONDS = 3
-    expect(COUNTDOWN_SECONDS).toBe(3)
-  })
-})
+vi.mock('@contexts/ToastContext', () => ({
+  useToast: () => ({ showToast: vi.fn() }),
+}))
 
-describe('SprintMode logic', () => {
+vi.mock('@hooks/useTypingGame', () => ({
+  useTypingGame: () => ({
+    text: 'hello world',
+    currentIndex: 0,
+    inputResults: [],
+    isActive: false,
+    wpm: 0,
+    accuracy: 100,
+    timeLeft: 60,
+    inputRef: { current: null },
+    handleInput: vi.fn(),
+    handleSkip: vi.fn(),
+    handleStart: vi.fn(),
+  }),
+}))
+
+vi.mock('@hooks/useCountdown', () => ({
+  useCountdown: () => ({
+    countdown: null,
+    start: vi.fn(),
+  }),
+}))
+
+vi.mock('@hooks/useHotkeys', () => ({
+  useHotkey: vi.fn(),
+}))
+
+vi.mock('@hooks/useTypingSound', () => ({
+  useTypingSound: () => ({ playKeySound: vi.fn(), playErrorSound: vi.fn() }),
+}))
+
+describe('SprintMode', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('расчитывает WPM корректно', () => {
-    const correctChars = 100
-    const timeInMinutes = 1
-    
-    const wpm = Math.round(correctChars / 5 / timeInMinutes)
-    expect(wpm).toBe(20)
+  const defaultProps = {
+    duration: 60,
+    onExit: vi.fn(),
+    onComplete: vi.fn(),
+  }
+
+  it('рендерит заголовок режима спринта', () => {
+    render(<SprintMode {...defaultProps} />)
+    expect(screen.getByText('Спринт')).toBeInTheDocument()
   })
 
-  it('расчитывает точность корректно', () => {
-    const correct = 95
-    const total = 100
-    
-    const accuracy = Math.round((correct / total) * 100)
-    expect(accuracy).toBe(95)
+  it('показывает кнопку старта когда игра не активна', () => {
+    render(<SprintMode {...defaultProps} />)
+    expect(screen.getAllByRole('button', { name: 'Начать' })).toHaveLength(2)
   })
 
-  it('завершает спринт при 0 времени', () => {
-    const timeLeft = 0
-    const isActive = timeLeft > 0
-    expect(isActive).toBe(false)
+  it('показывает таймер с правильным временем', () => {
+    render(<SprintMode {...defaultProps} />)
+    expect(screen.getByText('60s')).toBeInTheDocument()
   })
 
-  it('обновляет статистику после ввода', () => {
-    const inputResults = [
-      { isCorrect: true, char: 'а' },
-      { isCorrect: true, char: 'в' },
-      { isCorrect: false, char: 'ы' },
-    ]
-    
-    const correct = inputResults.filter(r => r.isCorrect).length
-    const errors = inputResults.filter(r => !r.isCorrect).length
-    
-    expect(correct).toBe(2)
-    expect(errors).toBe(1)
+  it('показывает WPM значение', () => {
+    render(<SprintMode {...defaultProps} />)
+    const wpmSection = screen.getByText('WPM')
+    expect(wpmSection).toBeInTheDocument()
+    expect(wpmSection.closest('div')).toHaveTextContent('0')
+  })
+
+  it('показывает точность 100%', () => {
+    render(<SprintMode {...defaultProps} />)
+    expect(screen.getByText('100%')).toBeInTheDocument()
+  })
+
+  it('имеет кнопку выхода с aria-label', () => {
+    render(<SprintMode {...defaultProps} />)
+    const exitButton = screen.getByRole('button', { name: 'Выйти' })
+    expect(exitButton).toBeInTheDocument()
+  })
+
+  it('вызывает onExit при клике на кнопку выхода', () => {
+    const onExit = vi.fn()
+    render(<SprintMode {...defaultProps} onExit={onExit} />)
+    screen.getByRole('button', { name: 'Выйти' }).click()
+    expect(onExit).toHaveBeenCalled()
+  })
+
+  it('рендерит текст для набора', () => {
+    render(<SprintMode {...defaultProps} />)
+    expect(screen.getByText('h')).toBeInTheDocument()
+    expect(screen.getByText('e')).toBeInTheDocument()
+  })
+
+  it('имеет region для статистики', () => {
+    render(<SprintMode {...defaultProps} />)
+    const region = screen.getByRole('region')
+    expect(region).toBeInTheDocument()
   })
 })

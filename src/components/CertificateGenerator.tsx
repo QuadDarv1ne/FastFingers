@@ -7,6 +7,7 @@ import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { User } from '../types/auth'
 import { calculateRank, type CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { logger } from '../utils/logger'
 
 interface CertificateGeneratorProps {
   user: User
@@ -66,8 +67,9 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
     try {
       const { generateCertificate } = await import('../utils/certificateOptimized')
       await generateCertificate(certificateData, { language, download: true, theme })
-    } catch {
-      // Error handled silently
+    } catch (err) {
+      logger.error('Certificate generation failed:', err)
+      alert('Не удалось создать сертификат. Попробуйте ещё раз.')
     } finally {
       setIsGenerating(false)
     }

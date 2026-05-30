@@ -8,7 +8,7 @@ import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import { logger } from '@utils/logger'
-import { authService } from '@services/authService'
+import { authService, hashPassword } from '@services/authService'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
@@ -246,14 +246,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
 
   const totalAchievements = 18 // Total achievements defined in AchievementsPanel
 
-  if (!user) return null
-
-  const stats = user.stats
-  const tier = getLevelTier(stats.level)
-  const levelProgress = calculateLevelProgress(stats.totalXp)
-  const xpNeeded = xpForLevel(stats.level + 1) - stats.totalXp
-
-  const tabs: { id: TabId; label: string; icon: ReactNode }[] = [
+  const tabs: { id: TabId; label: string; icon: ReactNode }[] = useMemo(() => [
     {
       id: 'overview',
       label: t('profile.tab.overview', 'Обзор'),
@@ -291,7 +284,14 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
         </svg>
       ),
     },
-  ]
+  ], [t])
+
+  if (!user) return null
+
+  const stats = user.stats
+  const tier = getLevelTier(stats.level)
+  const levelProgress = calculateLevelProgress(stats.totalXp)
+  const xpNeeded = xpForLevel(stats.level + 1) - stats.totalXp
 
   return (
     <AnimatePresence>
@@ -1117,8 +1117,12 @@ function NotificationSettingsSubPage() {
 
   const enableBrowserNotifs = async () => {
     if ('Notification' in window) {
-      const perm = await Notification.requestPermission()
-      setBrowserEnabled(perm === 'granted')
+      try {
+        const perm = await Notification.requestPermission()
+        setBrowserEnabled(perm === 'granted')
+      } catch (err) {
+        logger.error('Failed to request notification permission:', err)
+      }
     }
   }
 
@@ -1226,28 +1230,6 @@ function generateSalt(): string {
     return Array.from(array, b => b.toString(16).padStart(2, '0')).join('')
   }
   return Math.random().toString(36).substring(2) + Date.now().toString(36)
-}
-
-async function hashPassword(password: string, salt: string): Promise<string> {
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    try {
-      const encoder = new TextEncoder()
-      const data = encoder.encode(password + salt)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-    } catch {
-      logger.warn('SHA-256 failed, using fallback hash')
-    }
-  }
-
-  let hash = 5381
-  const str = password + salt
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i)
-    hash = hash >>> 0
-  }
-  return hash.toString(16)
 }
 
 function SecuritySettingsSubPage() {

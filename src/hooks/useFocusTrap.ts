@@ -103,29 +103,3 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, isActive: boolean): vo
   }, [isActive, ref])
 }
 
-/**
- * Хук для управления фокусом (возврат фокуса после действия)
- * 
- * @example
- * const focusRef = useReturnFocus()
- * <button ref={focusRef}>Click me</button>
- */
-export function useReturnFocus<T extends HTMLElement = HTMLElement>(): RefObject<T> {
-  const ref = useRef<T>(null)
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-
-    const previousActiveElement = document.activeElement
-
-    return () => {
-      // Возвращаем фокус предыдущему элементу при размонтировании
-      if (previousActiveElement instanceof HTMLElement) {
-        previousActiveElement.focus()
-      }
-    }
-  }, [])
-
-  return ref
-}

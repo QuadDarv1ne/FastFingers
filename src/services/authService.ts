@@ -62,7 +62,7 @@ const generateId = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
 
-const hashPassword = async (password: string, salt: string): Promise<string> => {
+export const hashPassword = async (password: string, salt: string): Promise<string> => {
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     try {
       const encoder = new TextEncoder();
