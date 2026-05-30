@@ -55,10 +55,15 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
+ * Минимальная допустимая длина пароля
+ */
+export const MIN_PASSWORD_LENGTH = 8
+
+/**
  * Утилита для валидации пароля
  */
 export function isValidPassword(password: string): boolean {
-  return password.length >= 8
+  return password.length >= MIN_PASSWORD_LENGTH
 }
 
 /**
@@ -72,8 +77,8 @@ export function checkPasswordStrength(password: string): {
   const feedback: string[] = []
   let score = 0
 
-  if (password.length >= 8) score++
-  else feedback.push('Минимум 8 символов')
+  if (password.length >= MIN_PASSWORD_LENGTH) score++
+  else feedback.push(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
 
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
     score++

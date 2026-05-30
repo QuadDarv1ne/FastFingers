@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { logger } from '@utils/logger'
+import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 
 interface PasswordResetProps {
   onBack: () => void
 }
 
 const TOKEN_EXPIRY_SECONDS = 300 // 5 минут
-const MIN_PASSWORD_LENGTH = 8
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function PasswordReset({ onBack }: PasswordResetProps) {

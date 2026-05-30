@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { logger } from '@utils/logger'
+import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 
 interface LoginProps {
   onSwitchToRegister: () => void
@@ -20,7 +21,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
   const [showPassword, setShowPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  
+
   const emailInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -36,8 +37,8 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
   }, [email])
 
   useEffect(() => {
-    if (password && password.length < 8) {
-      setPasswordError('Пароль должен содержать минимум 8 символов')
+    if (password && password.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`)
     } else {
       setPasswordError('')
     }
@@ -45,14 +46,14 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!EMAIL_REGEX.test(email)) {
       setEmailError('Неверный формат email')
       return
     }
 
-    if (password.length < 8) {
-      setPasswordError('Пароль должен содержать минимум 8 символов')
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`)
       return
     }
     

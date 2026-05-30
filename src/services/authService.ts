@@ -1,5 +1,5 @@
 import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
-import { AuthError, isValidEmail, isValidPassword } from './authErrors';
+import { AuthError, isValidEmail, isValidPassword, MIN_PASSWORD_LENGTH } from './authErrors';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
 import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/storage';
@@ -12,7 +12,6 @@ const LOGIN_DELAY_MS = 300;
 const PASSWORD_RESET_DELAY_MS = 400;
 const PROFILE_UPDATE_DELAY_MS = 300;
 const RESET_TOKEN_EXPIRY_MS = 3600000;
-const MIN_PASSWORD_LENGTH = 8;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_TIME_MS = 300000;
 const LOGIN_ATTEMPTS_KEY = 'fastfingers_login_attempts';

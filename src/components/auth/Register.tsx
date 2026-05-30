@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
+import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 
 interface RegisterProps {
   onSwitchToLogin: () => void
@@ -8,7 +9,6 @@ interface RegisterProps {
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MIN_PASSWORD_LENGTH = 8
 
 export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) {
   const { register, isLoading, error, clearError } = useAuth()
