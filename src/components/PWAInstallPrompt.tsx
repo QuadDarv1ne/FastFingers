@@ -22,8 +22,12 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
   const { isReady, isInstalled, promptInstall, dismissPrompt } = usePWAInstall()
 
   const handleInstall = async () => {
-    await promptInstall()
-    onDismiss?.()
+    try {
+      await promptInstall()
+      onDismiss?.()
+    } catch (err) {
+      logger.error('PWA install prompt failed:', err)
+    }
   }
 
   const handleDismiss = () => {

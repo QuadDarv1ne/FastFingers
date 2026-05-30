@@ -287,7 +287,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   // Flush pending updates when duel ends
   useEffect(() => {
     if (duelState === 'completed') {
-      flushDuelProgress()
+      flushDuelProgress().catch((err) => logger.error('Failed to flush duel progress on completion:', err))
     }
   }, [duelState, flushDuelProgress])
 

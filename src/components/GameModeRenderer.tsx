@@ -7,14 +7,16 @@
 
 import { type ReactNode, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { TypingTrainer } from './TypingTrainer'
-import { Keyboard } from './Keyboard'
 import { ErrorBoundary } from './ErrorBoundary'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useAppTranslation } from '../i18n/config'
 import type { GameMode, View, SpeedTestDuration } from '../hooks/useGameMode'
 import type { UserSettings, TypingStats, KeyHeatmapData, Exercise } from '../types'
 import type { CustomExercise } from './CustomExerciseEditor'
+
+// Lazy-load heavy components only used in practice/default mode
+const TypingTrainer = lazy(() => import('./TypingTrainer').then(m => ({ default: m.TypingTrainer })))
+const Keyboard = lazy(() => import('./Keyboard').then(m => ({ default: m.Keyboard })))
 
 const ANIMATIONS = {
   // Stats/views — subtle slide up
@@ -297,26 +299,28 @@ export function GameModeRenderer({
           </Suspense>
         )}
 
-        <TypingTrainer
-          layout={settings.layout}
-          onSessionComplete={onSessionComplete}
-          onKeyInput={onKeyInput}
-          sound={sound}
-          customExercises={customExercises}
-          isChallenge={gameMode === 'challenge'}
-          challengeText={gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined}
-        />
-
-        {settings.showKeyboard && (
-          <Keyboard
+        <Suspense fallback={<div className="text-center text-dark-400 py-8">Загрузка тренажёра...</div>}>
+          <TypingTrainer
             layout={settings.layout}
-            highlightKey={null}
-            heatmap={showHeatmap ? heatmap : {}}
-            showHeatmap={showHeatmap}
-            onToggleHeatmap={onSetShowHeatmap}
-            skin={settings.keyboardSkin}
+            onSessionComplete={onSessionComplete}
+            onKeyInput={onKeyInput}
+            sound={sound}
+            customExercises={customExercises}
+            isChallenge={gameMode === 'challenge'}
+            challengeText={gameMode === 'challenge' && todayChallenge ? todayChallenge.text : undefined}
           />
-        )}
+
+          {settings.showKeyboard && (
+            <Keyboard
+              layout={settings.layout}
+              highlightKey={null}
+              heatmap={showHeatmap ? heatmap : {}}
+              showHeatmap={showHeatmap}
+              onToggleHeatmap={onSetShowHeatmap}
+              skin={settings.keyboardSkin}
+            />
+          )}
+        </Suspense>
       </GameMotion>
     </ErrorBoundary>
   )

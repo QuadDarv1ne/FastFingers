@@ -304,7 +304,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
           <h3 className="text-lg font-semibold text-white mb-4">📈 Прогресс скорости (WPM)</h3>
           <div className="h-64">
             {wpmTrend.length > 0 ? (
-              <SimpleLineChart data={wpmTrend as unknown as Record<string, string | number>[]} dataKey="wpm" xAxisKey="date" stroke="#8b5cf6" />
+              <SimpleLineChart data={wpmTrend} dataKey="wpm" xAxisKey="date" stroke="#8b5cf6" />
             ) : (
               <EmptyChart />
             )}
@@ -316,7 +316,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
           <h3 className="text-lg font-semibold text-white mb-4">🎯 Динамика точности</h3>
           <div className="h-64">
             {wpmTrend.length > 0 ? (
-              <SimpleLineChart data={wpmTrend as unknown as Record<string, string | number>[]} dataKey="accuracy" xAxisKey="date" stroke="#22c55e" />
+              <SimpleLineChart data={wpmTrend} dataKey="accuracy" xAxisKey="date" stroke="#22c55e" />
             ) : (
               <EmptyChart />
             )}
@@ -327,7 +327,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
         <div className="glass rounded-xl p-6">
           <h3 className="text-lg font-semibold text-white mb-4">📅 Активность по дням</h3>
           <div className="h-64">
-            <SimpleBarChart data={activityByDayOfWeek as unknown as Record<string, string | number>[]} dataKey="sessions" xAxisKey="day" fill="#8b5cf6" />
+            <SimpleBarChart data={activityByDayOfWeek} dataKey="sessions" xAxisKey="day" fill="#8b5cf6" />
           </div>
         </div>
 
@@ -549,14 +549,14 @@ function EmptyChart() {
 /* ---- Minimal inline chart components (no recharts dependency needed) ---- */
 
 function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
-  data: Array<Record<string, string | number>>
+  data: unknown[]
   dataKey: string
   xAxisKey: string
   stroke: string
 }) {
   if (data.length === 0) return <EmptyChart />
 
-  const values = data.map(d => d[dataKey] as number)
+  const values = data.map(d => (d as Record<string, unknown>)[dataKey] as number)
   const max = Math.max(...values, 1)
   const min = Math.min(...values, 0)
   const range = max - min || 1
@@ -565,9 +565,10 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
   const padding = 30
 
   const points = data.map((d, i) => {
+    const item = d as Record<string, unknown>
     const x = padding + (i / Math.max(data.length - 1, 1)) * (w - padding * 2)
-    const y = padding + (1 - ((d[dataKey] as number) - min) / range) * (h - padding * 2)
-    return { x, y, label: d[xAxisKey] as string, value: d[dataKey] as number }
+    const y = padding + (1 - ((item[dataKey] as number) - min) / range) * (h - padding * 2)
+    return { x, y, label: item[xAxisKey] as string, value: item[dataKey] as number }
   })
 
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
@@ -601,14 +602,14 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
 }
 
 function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
-  data: Array<Record<string, string | number>>
+  data: unknown[]
   dataKey: string
   xAxisKey: string
   fill: string
 }) {
   if (data.length === 0) return <EmptyChart />
 
-  const values = data.map(d => d[dataKey] as number)
+  const values = data.map(d => (d as Record<string, unknown>)[dataKey] as number)
   const max = Math.max(...values, 1)
   const w = 500
   const h = 220
@@ -623,13 +624,14 @@ function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
         <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="#374151" strokeWidth="0.5" />
       ))}
       {data.map((d, i) => {
+        const item = d as Record<string, unknown>
         const x = padding + i * (barWidth + gap)
-        const barH = ((d[dataKey] as number) / max) * (h - padding * 2)
+        const barH = ((item[dataKey] as number) / max) * (h - padding * 2)
         const y = h - padding - barH
         return (
           <g key={i}>
             <rect x={x} y={y} width={barWidth} height={barH} fill={fill} rx="4" />
-            <text x={x + barWidth / 2} y={h - 5} textAnchor="middle" fill="#6b7280" fontSize="10">{d[xAxisKey] as string}</text>
+            <text x={x + barWidth / 2} y={h - 5} textAnchor="middle" fill="#6b7280" fontSize="10">{item[xAxisKey] as string}</text>
           </g>
         )
       })}

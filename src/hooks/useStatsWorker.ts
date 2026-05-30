@@ -139,7 +139,16 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       setIsBusy(true)
       setError(null)
 
-      workerRef.current.postMessage({ type, payload, messageId })
+      try {
+        workerRef.current.postMessage({ type, payload, messageId })
+      } catch (err) {
+        // DataCloneError — payload contains non-serializable objects
+        pendingPromises.current.delete(messageId)
+        isBusyRef.current = false
+        setIsBusy(false)
+        reject(err instanceof Error ? err : new Error('Failed to send data to worker'))
+        return
+      }
 
       const timeoutId = setTimeout(() => {
         if (pendingPromises.current.has(messageId)) {

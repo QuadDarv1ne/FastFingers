@@ -342,13 +342,6 @@ async function loadLanguageFile(lang: string): Promise<Record<string, string>> {
   }
 }
 
-/**
- * Предзагрузить все языки (для SSR или когда нужен полный набор)
- */
-export async function preloadAllLanguages(): Promise<void> {
-  await Promise.all(SUPPORTED_LANGUAGES.map(loadLanguageFile))
-}
-
 // ============================================
 // Инициализация i18n
 // ============================================
@@ -375,20 +368,21 @@ loadLanguageFile('ru').then((translations) => {
   if (Object.keys(translations).length > 0) {
     i18n.addResourceBundle('ru', 'translation', translations, true, true)
   }
-})
+}).catch((err) => logger.warn('Failed to load default language (ru):', err))
 
 // Автоматически подгружаем язык при переключении
-i18n.on('languageChanged', async (lng) => {
+i18n.on('languageChanged', (lng) => {
   const isRTL = lng === 'he' || lng === 'ar'
   document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
   document.documentElement.lang = lng
 
   // Лениво загружаем переводы если ещё не загружены
   if (!loadedLanguages.has(lng)) {
-    const translations = await loadLanguageFile(lng)
-    if (Object.keys(translations).length > 0) {
-      i18n.addResourceBundle(lng, 'translation', translations, true, true)
-    }
+    loadLanguageFile(lng).then((translations) => {
+      if (Object.keys(translations).length > 0) {
+        i18n.addResourceBundle(lng, 'translation', translations, true, true)
+      }
+    }).catch((err) => logger.warn(`Failed to load language: ${lng}`, err))
   }
 })
 
