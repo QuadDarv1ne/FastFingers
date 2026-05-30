@@ -21,12 +21,34 @@ interface RequireAuthProps {
  *   <Profile />
  * </RequireAuth>
  */
+/**
+ * Validate redirect URL against open redirect attacks.
+ * Only allows relative paths or same-origin URLs.
+ */
+function isSafeRedirect(url: string): boolean {
+  try {
+    // Allow relative paths
+    if (url.startsWith('/')) return true
+    // Check if it's a same-origin URL
+    const parsed = new URL(url, window.location.origin)
+    return parsed.origin === window.location.origin
+  } catch {
+    // Invalid URL — reject
+    return false
+  }
+}
+
 export function RequireAuth({ children, fallback, redirectTo }: RequireAuthProps) {
   const { isAuthenticated, isLoading } = useAuth()
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && redirectTo) {
-      window.location.href = redirectTo
+      if (isSafeRedirect(redirectTo)) {
+        window.location.href = redirectTo
+      } else {
+        // Fallback to login page if redirect is unsafe
+        window.location.href = '/'
+      }
     }
   }, [isLoading, isAuthenticated, redirectTo])
 

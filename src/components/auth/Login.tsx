@@ -19,6 +19,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
   const [rememberMe, setRememberMe] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   
   const emailInputRef = useRef<HTMLInputElement>(null)
 
@@ -34,11 +35,24 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
     }
   }, [email])
 
+  useEffect(() => {
+    if (password && password.length < 8) {
+      setPasswordError('Пароль должен содержать минимум 8 символов')
+    } else {
+      setPasswordError('')
+    }
+  }, [password])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!EMAIL_REGEX.test(email)) {
       setEmailError('Неверный формат email')
+      return
+    }
+
+    if (password.length < 8) {
+      setPasswordError('Пароль должен содержать минимум 8 символов')
       return
     }
     
@@ -53,7 +67,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
     }
   }
 
-  const isFormValid = email && password && !emailError
+  const isFormValid = email && password && !emailError && !passwordError
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && isFormValid) {
@@ -140,6 +154,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-white transition-colors"
+                aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,6 +168,14 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 )}
               </button>
             </div>
+            {passwordError && (
+              <p className="text-xs text-error mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {passwordError}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-between">

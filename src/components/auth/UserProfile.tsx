@@ -99,23 +99,28 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
   }, [name, user])
 
   const handleUpdateName = useCallback((newName: string) => {
+    const trimmed = newName.trim()
+    if (!trimmed) return
+    if (trimmed.length > 100) return
+
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.USER)
       if (stored) {
         const userData = JSON.parse(stored)
-        userData.name = newName
+        userData.name = trimmed
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData))
       }
-      const users: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
+      const usersRaw = localStorage.getItem(STORAGE_KEYS.USERS)
+      const users: Array<Record<string, unknown>> = usersRaw ? JSON.parse(usersRaw) : []
       const idx = users.findIndex(u => u.id === user?.id)
       if (idx !== -1) {
         const userEntry = users[idx]
         if (userEntry) {
-          userEntry.name = newName
+          userEntry.name = trimmed
           localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
         }
       }
-      setName(newName)
+      setName(trimmed)
     } catch (err) {
       logger.error('[UserProfile] Failed to update user name', err)
     }
@@ -1268,8 +1273,13 @@ function SecuritySettingsSubPage() {
 
     // Use authService to verify current password and update with hashed password
     try {
-      const currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}')
-      if (!currentUser || !currentUser.id) {
+      const userRaw = localStorage.getItem(STORAGE_KEYS.USER)
+      if (!userRaw) {
+        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        return
+      }
+      const currentUser = JSON.parse(userRaw)
+      if (!currentUser || !currentUser.id || !currentUser.email) {
         setMessage({ type: 'error', text: 'Пользователь не найден' })
         return
       }

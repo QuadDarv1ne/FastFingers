@@ -36,10 +36,11 @@ export function CountdownTimer({
   onCompleteRef.current = onComplete
 
   useEffect(() => {
-    if (!isRunning || remaining <= 0) return
+    if (!isRunning) return
 
     const interval = setInterval(() => {
       setRemaining(prev => {
+        if (prev <= 0) return 0
         const newRemaining = prev - 1
         onTickRef.current?.(newRemaining)
 
@@ -53,7 +54,7 @@ export function CountdownTimer({
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isRunning, remaining])
+  }, [isRunning])
 
   useEffect(() => {
     if (completedRef.current && remaining <= 0) {
