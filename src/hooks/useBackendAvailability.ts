@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { isBackendAvailable } from '../services/cloudSync'
 import { logger } from '../utils/logger'
 
@@ -21,6 +21,8 @@ export function useBackendAvailability(options: {
   checkInterval?: number
 } = {}) {
   const { autoCheck = true, checkInterval = CHECK_INTERVAL_MS } = options
+  const mountedRef = useRef(true)
+  const checkingRef = useRef(false)
 
   const [status, setStatus] = useState<BackendStatus>({
     isAvailable: isBackendAvailable(),
@@ -30,9 +32,19 @@ export function useBackendAvailability(options: {
   })
 
   const checkBackend = useCallback(async () => {
-    // Не проверяем, если уже максимальное количество попыток
+    // Prevent overlapping checks
+    if (checkingRef.current) return
+    checkingRef.current = true
+
+    // Don't start check if unmounted
+    if (!mountedRef.current) {
+      checkingRef.current = false
+      return
+    }
+
     setStatus(prev => {
       if (prev.retryCount >= MAX_RETRY_COUNT && !prev.isAvailable) {
+        checkingRef.current = false
         return prev
       }
       return { ...prev, isChecking: true }
@@ -41,6 +53,7 @@ export function useBackendAvailability(options: {
     try {
       const available = isBackendAvailable()
 
+      if (!mountedRef.current) return
       if (available) {
         setStatus({
           isAvailable: true,
@@ -58,17 +71,20 @@ export function useBackendAvailability(options: {
       }
     } catch (error) {
       logger.warn('Backend availability check failed', error)
+      if (!mountedRef.current) return
       setStatus(prev => ({
         isAvailable: false,
         isChecking: false,
         lastChecked: Date.now(),
         retryCount: Math.min(prev.retryCount + 1, MAX_RETRY_COUNT),
       }))
+    } finally {
+      checkingRef.current = false
     }
   }, [])
 
   useEffect(() => {
-    // Первоначальная проверка
+    mountedRef.current = true
     checkBackend()
 
     if (!autoCheck) return
@@ -77,7 +93,10 @@ export function useBackendAvailability(options: {
       checkBackend()
     }, checkInterval)
 
-    return () => clearInterval(interval)
+    return () => {
+      mountedRef.current = false
+      clearInterval(interval)
+    }
   }, [checkBackend, autoCheck, checkInterval])
 
   const resetStatus = useCallback(() => {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { RefObject } from 'react'
 
 type Handler = (event: MouseEvent | TouchEvent) => void
@@ -19,13 +19,15 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   options: ClickOptions = DEFAULT_OPTIONS
 ): void {
   const { mouseEvent, touchEvent } = { ...DEFAULT_OPTIONS, ...options }
+  const handlerRef = useRef(handler)
+  handlerRef.current = handler
 
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
       if (!ref?.current || ref.current.contains(event.target as Node)) {
         return
       }
-      handler(event)
+      handlerRef.current(event)
     }
 
     document.addEventListener(mouseEvent, listener)
@@ -35,7 +37,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
       document.removeEventListener(mouseEvent, listener)
       document.removeEventListener(touchEvent, listener)
     }
-  }, [ref, handler, mouseEvent, touchEvent])
+  }, [ref, mouseEvent, touchEvent])
 }
 
 export function useClickInside<T extends HTMLElement = HTMLElement>(
@@ -44,13 +46,15 @@ export function useClickInside<T extends HTMLElement = HTMLElement>(
   options: ClickOptions = DEFAULT_OPTIONS
 ): void {
   const { mouseEvent, touchEvent } = { ...DEFAULT_OPTIONS, ...options }
+  const handlerRef = useRef(handler)
+  handlerRef.current = handler
 
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
       if (!ref?.current || !ref.current.contains(event.target as Node)) {
         return
       }
-      handler(event)
+      handlerRef.current(event)
     }
 
     document.addEventListener(mouseEvent, listener)
@@ -60,7 +64,7 @@ export function useClickInside<T extends HTMLElement = HTMLElement>(
       document.removeEventListener(mouseEvent, listener)
       document.removeEventListener(touchEvent, listener)
     }
-  }, [ref, handler, mouseEvent, touchEvent])
+  }, [ref, mouseEvent, touchEvent])
 }
 
 export default useClickOutside

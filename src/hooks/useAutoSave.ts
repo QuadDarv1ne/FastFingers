@@ -51,7 +51,9 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
 
   const [isRestored, setIsRestored] = useState(false)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const storageKeyRef = useRef(storageKey)
   const dataRef = useRef<AutoSaveData>({ progress, currentSession, heatmap, settings, timestamp: Date.now() })
+  storageKeyRef.current = storageKey
 
   useEffect(() => {
     dataRef.current = { progress, currentSession, heatmap, settings, timestamp: Date.now() }
@@ -170,10 +172,12 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   }, [storageKey])
 
   // Page Lifecycle API: сохранение при freeze (mobile/tab discard)
+  // freeze fires only once per page lifecycle, so register once with empty deps
   useEffect(() => {
     const handleFreeze = () => {
       const d = dataRef.current
-      setToStorageWithQuotaHandling(storageKey, {
+      const key = storageKeyRef.current
+      setToStorageWithQuotaHandling(key, {
         progress: d.progress,
         currentSession: d.currentSession,
         heatmap: d.heatmap,
@@ -187,7 +191,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     return () => {
       document.removeEventListener('freeze', handleFreeze)
     }
-  }, [storageKey])
+  }, [])
 
   // Сохранение при потере фокуса (НЕ восстанавливаем при возврате чтобы не перезаписать текущий прогресс)
   useEffect(() => {
