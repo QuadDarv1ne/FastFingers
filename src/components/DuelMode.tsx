@@ -15,6 +15,7 @@ import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { useSupabase } from '@hooks/useSupabase'
 import { logger } from '../utils/logger'
 import { useCountdown } from '@hooks/useCountdown'
+import { TypingDisplay } from './ui/TypingDisplay'
 
 interface DuelModeProps {
   onExit: () => void
@@ -29,6 +30,9 @@ interface DuelChallenge {
   id: string
   challenger: { id: string; name: string; avatar?: string }
   opponent: { id: string; name: string; avatar?: string }
+  /** Supabase row format — present when duel comes directly from the database */
+  challenger_id?: string
+  opponent_id?: string
   status: 'pending' | 'active' | 'completed' | 'cancelled'
   duration: DuelDuration
   betAmount: number
@@ -126,7 +130,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           setCurrentDuel(updatedDuel)
 
           // Extract opponent WPM and accuracy based on user role
-          const isChallenger = duel?.challenger?.id === curUser?.id
+          const currentDuel = currentDuelRef.current
+          const isChallenger = currentDuel?.challenger?.id === curUser?.id
           const oppWpm = isChallenger
             ? (updatedDuel.opponent_wpm as number) ?? 0
             : (updatedDuel.challenger_wpm as number) ?? 0
@@ -219,8 +224,11 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     if (!duel || !curUser?.id) return
 
     try {
-      const isChallenger = duel.challenger?.id === curUser.id
-      if (!duel.challenger || !duel.opponent) return
+      // Support both full objects (local) and ID-only (from Supabase)
+      const challengerId = duel.challenger_id ?? duel.challenger?.id
+      const opponentId = duel.opponent_id ?? duel.opponent?.id
+      if (!challengerId || !opponentId) return
+      const isChallenger = challengerId === curUser.id
       const userScore = Math.round(stats.wpm * (stats.accuracy / 100))
       const opponentScore = Math.round(opponentWpm * (opponentAccuracy / 100))
 
@@ -229,7 +237,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
       await completeDuel.mutateAsync({
         duelId: duel.id,
-        winnerId: userWon ? curUser.id : (isChallenger ? duel.opponent.id : duel.challenger.id),
+        winnerId: userWon ? curUser.id : (isChallenger ? opponentId : challengerId),
         challengerScore: isChallenger ? userScore : opponentScore,
         opponentScore: isChallenger ? opponentScore : userScore,
         challengerWpm: isChallenger ? stats.wpm : opponentWpm,
@@ -252,7 +260,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     const pending = pendingUpdateRef.current
     if (!pending) return
     pendingUpdateRef.current = null
-    const isChallenger = duel.challenger?.id === userRef.current?.id
+    const challengerId = duel.challenger_id ?? duel.challenger?.id
+    const isChallenger = challengerId === userRef.current?.id
     try {
       await supabase
         .from('duels')
@@ -484,7 +493,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
               <p className="text-2xl font-bold text-purple-400">{opponentWpm} WPM</p>
               <p className="text-xs text-dark-500">{opponentAccuracy}% accuracy</p>
               <div className="mt-2 h-2 bg-dark-700 rounded-full overflow-hidden">
-                <div className="h-full bg-purple-600 transition-all" style={{ width: `${opponentWpm / 2}%` }} />
+                <div className="h-full bg-purple-600 transition-all" style={{ width: `${Math.min(opponentWpm / 2, 100)}%` }} />
               </div>
             </div>
           </div>
@@ -525,32 +534,12 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
               autoCapitalize="off"
               spellCheck="false"
             />
-            <div className="font-mono text-sm leading-relaxed break-words">
-              {text.split('').map((char, index) => {
-                let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-                if (index < currentIndex) {
-                  status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-                } else if (index === currentIndex && isActive) {
-                  status = 'current'
-                }
-                return (
-                  <span
-                    key={index}
-                    className={`inline-block min-w-[0.6em] rounded ${
-                      status === 'correct'
-                        ? 'text-green-400'
-                        : status === 'incorrect'
-                        ? 'text-red-400'
-                        : status === 'current'
-                        ? 'text-violet-400 border-b-2 border-violet-500'
-                        : 'text-dark-500'
-                    }`}
-                  >
-                    {char}
-                  </span>
-                )
-              })}
-            </div>
+            <TypingDisplay
+              text={text}
+              currentIndex={currentIndex}
+              inputResults={inputResults}
+              isActive={isActive}
+            />
           </div>
         </div>
       )}

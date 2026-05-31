@@ -532,7 +532,7 @@ function AppContent() {
                 totalWords: progress.totalWordsTyped,
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
-                perfectSessions: history.sessions.filter(s => s.accuracy >= 100).length,
+                perfectSessions: history.sessions.filter(s => s.accuracy >= 99.99).length,
                 duelsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED)),
                 tournamentsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
                 customExercisesCreated: customExercises.length,

@@ -15,6 +15,7 @@ import { TypingStats } from '../types'
 import { useSupabase } from '@hooks/useSupabase'
 import { TournamentBracket } from './TournamentBracket'
 import { logger } from '../utils/logger'
+import { TypingDisplay } from './ui/TypingDisplay'
 
 interface TournamentModeProps {
   onExit: () => void
@@ -398,32 +399,12 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
             autoCapitalize="off"
             spellCheck="false"
           />
-          <div className="font-mono text-sm leading-relaxed break-words">
-            {matchText.split('').map((char, index) => {
-              let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-              if (index < currentIndex) {
-                status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-              } else if (index === currentIndex && isTypingActive) {
-                status = 'current'
-              }
-              return (
-                <span
-                  key={index}
-                  className={`inline-block min-w-[0.6em] rounded ${
-                    status === 'correct'
-                      ? 'text-green-400'
-                      : status === 'incorrect'
-                      ? 'text-red-400'
-                      : status === 'current'
-                      ? 'text-violet-400 border-b-2 border-violet-500'
-                      : 'text-dark-500'
-                  }`}
-                >
-                  {char}
-                </span>
-              )
-            })}
-          </div>
+          <TypingDisplay
+            text={matchText}
+            currentIndex={currentIndex}
+            inputResults={inputResults}
+            isActive={isTypingActive}
+          />
         </div>
 
         <p className="text-center text-dark-400 mt-4 text-sm">

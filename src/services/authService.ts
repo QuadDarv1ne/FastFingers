@@ -207,10 +207,13 @@ const cleanupOldAttempts = () => {
   }
 };
 
-cleanupExpiredTokens();
-cleanupOldAttempts();
-
 export const authService = {
+  /** Run one-time startup cleanup (expired tokens, old login attempts). */
+  init() {
+    cleanupExpiredTokens();
+    cleanupOldAttempts();
+  },
+
   async register(credentials: RegisterCredentials): Promise<User> {
     await delay(REGISTRATION_DELAY_MS);
 

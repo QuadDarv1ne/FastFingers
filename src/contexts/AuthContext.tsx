@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    authService.init();
     const user = authService.getCurrentUser();
     setState({
       user,
