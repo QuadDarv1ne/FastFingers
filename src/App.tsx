@@ -16,6 +16,7 @@ import { CookieConsentBanner } from './components/CookieConsentBanner'
 import { Footer } from './components/Footer'
 import { GameModeRenderer } from './components/GameModeRenderer'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { AppErrorBoundary } from './components/AppErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -39,6 +40,7 @@ import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useThemeContext } from './contexts/ThemeContext'
 import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
+import { useCloudSyncCleanup } from '@services/cloudSyncService'
 import { useAppTranslation } from './i18n/config'
 import { STORAGE_KEYS } from './constants/storageKeys'
 import { ModeButton } from './components/ui/ModeButton'
@@ -85,6 +87,7 @@ function AppContent() {
   const { t } = useAppTranslation()
   const { isAuthenticated, isLoading: authLoading, user } = useAuth()
   const { addNotification } = useNotifications()
+  useCloudSyncCleanup()
 
   const handleAuthSuccess = useCallback(() => {
     if (user?.name) {
@@ -623,14 +626,16 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <ToastProvider>
-          <AppContent />
-          <ToastContainer />
-        </ToastProvider>
-      </NotificationProvider>
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <NotificationProvider>
+          <ToastProvider>
+            <AppContent />
+            <ToastContainer />
+          </ToastProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </AppErrorBoundary>
   )
 }
 

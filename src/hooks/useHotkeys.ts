@@ -34,8 +34,16 @@ function matchesHotkey(event: KeyboardEvent, hotkey: string): boolean {
   return normalizeKey(event.key) === key
 }
 
-function isInputElement(target: HTMLElement): boolean {
-  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+function isElement(target: EventTarget | null): target is Element {
+  return target instanceof Element
+}
+
+function isInputElement(target: Element): boolean {
+  return (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    (target as HTMLElement).isContentEditable
+  )
 }
 
 export function useHotkeys(
@@ -55,7 +63,7 @@ export function useHotkeys(
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return
 
-    if (!ignoreInputFocus && isInputElement(event.target as HTMLElement)) {
+    if (!ignoreInputFocus && isElement(event.target) && isInputElement(event.target)) {
       return
     }
 
@@ -96,7 +104,7 @@ export function useHotkey(
     if (!enabled) return
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!ignoreInputFocus && isInputElement(e.target as HTMLElement)) return
+      if (!ignoreInputFocus && isElement(e.target) && isInputElement(e.target)) return
       if (matchesHotkey(e, hotkey)) {
         if (options.preventDefault !== false) e.preventDefault()
         if (options.stopPropagation) e.stopPropagation()
