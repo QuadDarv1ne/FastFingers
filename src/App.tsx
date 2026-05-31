@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useEffect, useCallback, Suspense, memo, useState, lazy } from 'react'
+import { useEffect, useCallback, Suspense, useState, lazy } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Header } from './components/Header'
 import { LoadingFallback } from './components/LoadingFallback'
@@ -24,15 +24,12 @@ import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
 import {
-  SoundTheme,
   UserProgress,
-  KeyboardLayout,
-  UserSettings,
 } from './types'
 import type { CustomExercise } from './components/CustomExerciseEditor'
 import { logger } from './utils/logger'
 
-import { useGameMode, type SpeedTestDuration } from './hooks/useGameMode'
+import { useGameMode } from './hooks/useGameMode'
 import { useUserProgress } from './hooks/useUserProgress'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useCustomExercises } from './hooks/useCustomExercises'
@@ -44,6 +41,10 @@ import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
 import { STORAGE_KEYS } from './constants/storageKeys'
+import { ModeButton } from './components/ui/ModeButton'
+import { SpeedTestDropdown } from './components/ui/SpeedTestDropdown'
+import { SettingsPanel } from './components/ui/SettingsPanel'
+import { SectionError } from './components/ui/SectionError'
 
 const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
@@ -616,245 +617,6 @@ function AppContent() {
 
       {/* Footer */}
       <Footer />
-    </div>
-  )
-}
-
-interface ModeButtonProps {
-  isActive: boolean
-  onClick: () => void
-  icon: string
-  label: string
-  title: string
-}
-
-const ModeButton = memo<ModeButtonProps>(function ModeButton({
-  isActive,
-  onClick,
-  icon,
-  label,
-  title,
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={isActive}
-      className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-        isActive
-          ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-          : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-      }`}
-      title={title}
-    >
-      <span className="text-lg">{icon}</span>
-      <span className="hidden sm:inline">{label}</span>
-    </button>
-  )
-})
-
-interface SpeedTestDropdownProps {
-  isActive: boolean
-  duration: SpeedTestDuration
-  onDurationChange: (duration: SpeedTestDuration) => void
-  onGameModeChange: (mode: 'speedtest') => void
-}
-
-const SpeedTestDropdown = memo<SpeedTestDropdownProps>(function SpeedTestDropdown({
-  isActive,
-  onDurationChange,
-  onGameModeChange,
-}) {
-  const { t } = useAppTranslation()
-
-  const durationLabels: Record<SpeedTestDuration, string> = {
-    15: `15 ${t('common.seconds')}`,
-    30: `30 ${t('common.seconds')}`,
-    60: `60 ${t('common.seconds')}`,
-  }
-
-  const [showDropdown, setShowDropdown] = useState(false)
-
-  useEffect(() => {
-    if (!showDropdown) return
-
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest('[data-speedtest-dropdown]')) {
-        setShowDropdown(false)
-      }
-    }
-
-    document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
-  }, [showDropdown])
-
-  const durationIcons: Record<SpeedTestDuration, string> = {
-    15: '⚡',
-    30: '⭐',
-    60: '🔥',
-  }
-
-  return (
-    <div className="relative">
-      <button
-        className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-          isActive
-            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-            : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
-        }`}
-        onClick={() => {
-          onGameModeChange('speedtest')
-          setShowDropdown((prev) => !prev)
-        }}
-        aria-expanded={showDropdown}
-        aria-haspopup="true"
-        title={t('tooltip.speedtest')}
-      >
-        <span className="text-lg">🕐</span>
-        <span className="hidden sm:inline">{t('label.test')}</span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      {showDropdown && (
-        <div data-speedtest-dropdown className="absolute top-full left-0 mt-2 glass p-2 rounded-xl z-50 min-w-[160px] animate-scale-in shadow-xl border border-dark-700/50">
-          {Object.entries(durationLabels).map(([key, label]) => {
-            const d = Number(key) as SpeedTestDuration
-            return (
-            <button
-              key={d}
-              onClick={() => {
-                onDurationChange(d)
-                setShowDropdown(false)
-              }}
-              className="w-full px-4 py-2.5 text-sm text-left hover:bg-dark-800/50 rounded-lg transition-all font-medium flex items-center justify-between"
-            >
-              <span>{label}</span>
-              <span className="text-xs text-dark-500">{durationIcons[d]}</span>
-            </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-})
-
-interface SettingsPanelProps {
-  settings: UserSettings
-  onSettingChange: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void
-  onShowStreakRewards: () => void
-  streak: number
-}
-
-const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
-  settings,
-  onSettingChange,
-  onShowStreakRewards,
-  streak,
-}) {
-  const { t } = useAppTranslation()
-  return (
-    <div className="glass rounded-xl p-6">
-      <h3 className="text-lg font-semibold mb-4">{t('misc.settings')}</h3>
-
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="layout-select" className="block text-sm text-dark-400 mb-2">
-            {t('misc.keyboard')}
-          </label>
-          <select
-            id="layout-select"
-            value={settings.layout}
-            onChange={(e) => onSettingChange('layout', e.target.value as KeyboardLayout)}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            aria-label={t('misc.keyboard')}
-          >
-            <option value="jcuken">{t('layout.jcuken')}</option>
-            <option value="qwerty">{t('layout.qwerty')}</option>
-            <option value="dvorak">{t('layout.dvorak')}</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="sound-theme-select" className="block text-sm text-dark-400 mb-2">
-            {t('misc.sound')}
-          </label>
-          <select
-            id="sound-theme-select"
-            value={settings.soundTheme}
-            onChange={(e) => onSettingChange('soundTheme', e.target.value as SoundTheme)}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            aria-label={t('misc.sound')}
-          >
-            <option value="default">🔊 {t('misc.theme')}</option>
-            <option value="piano">🎹 {t('sound.piano')}</option>
-            <option value="mechanical">⌨️ {t('sound.mechanical')}</option>
-            <option value="soft">🌸 {t('sound.soft')}</option>
-            <option value="retro">👾 {t('sound.retro')}</option>
-          </select>
-        </div>
-
-        <Toggle
-          label={t('misc.sound')}
-          checked={settings.soundEnabled}
-          onChange={(checked) => onSettingChange('soundEnabled', checked)}
-        />
-
-        <Toggle
-          label={t('misc.keyboard')}
-          checked={settings.showKeyboard}
-          onChange={(checked) => onSettingChange('showKeyboard', checked)}
-        />
-
-        <button
-          onClick={onShowStreakRewards}
-          className="w-full py-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 border border-orange-500/50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          aria-label={t('notification.streak')}
-        >
-          <span aria-hidden="true">🔥</span>
-          {t('notification.streak')} ({streak} {t('common.days')})
-        </button>
-      </div>
-    </div>
-  )
-})
-
-interface ToggleProps {
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-}
-
-const Toggle = memo<ToggleProps>(function Toggle({ label, checked, onChange }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-dark-400">{label}</span>
-      <button
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        onClick={() => onChange(!checked)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onChange(!checked)
-          }
-        }}
-        className={`w-12 h-6 rounded-full transition-colors ${checked ? 'bg-primary-600' : 'bg-dark-700'}`}
-      >
-        <div
-          className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-6' : 'translate-x-0.5'}`}
-        />
-      </button>
-    </div>
-  )
-})
-
-function SectionError({ message }: { message: string }) {
-  return (
-    <div className="glass rounded-xl p-6 text-center" role="alert">
-      <p className="text-sm text-dark-400">{message}</p>
     </div>
   )
 }
