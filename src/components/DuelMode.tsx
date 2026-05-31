@@ -15,7 +15,7 @@ import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { useSupabase } from '@hooks/useSupabase'
 import { logger } from '../utils/logger'
 import { useCountdown } from '@hooks/useCountdown'
-import { TypingDisplay } from './ui/TypingDisplay'
+import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 interface DuelModeProps {
   onExit: () => void
@@ -534,7 +534,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
               autoCapitalize="off"
               spellCheck="false"
             />
-            <TypingDisplay
+            <TypingTextDisplay
               text={text}
               currentIndex={currentIndex}
               inputResults={inputResults}

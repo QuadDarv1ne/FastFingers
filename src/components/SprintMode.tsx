@@ -10,6 +10,7 @@ import { useToast } from '@contexts/ToastContext'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useAppTranslation } from '../i18n/config'
 import { useCountdown } from '@hooks/useCountdown'
+import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 interface SprintModeProps {
   duration: number
@@ -194,32 +195,13 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
           spellCheck="false"
         />
 
-        <div className="font-mono text-lg leading-relaxed break-words" aria-live="polite" aria-atomic="true">
-          {text.split('').map((char, index) => {
-            let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-
-            if (index < currentIndex) {
-              status = inputResults[index]?.isCorrect ? 'correct' : 'incorrect'
-            } else if (index === currentIndex && isActive) {
-              status = 'current'
-            }
-
-            return (
-              <span
-                key={index}
-                className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded ${
-                  status === 'correct' ? 'bg-green-500/20 text-green-500' :
-                  status === 'incorrect' ? 'bg-red-500/20 text-red-500' :
-                  status === 'current' ? 'bg-violet-500/30 text-violet-500 border-2 border-violet-500 animate-pulse' :
-                  'text-dark-500'
-                }`}
-                aria-hidden="true"
-              >
-                {char}
-              </span>
-            )
-          })}
-        </div>
+        <TypingTextDisplay
+          text={text}
+          currentIndex={currentIndex}
+          inputResults={inputResults}
+          isActive={isActive}
+          enhanced
+        />
 
         {/* Оверлей старта */}
         {!isActive && timeLeft === duration && (

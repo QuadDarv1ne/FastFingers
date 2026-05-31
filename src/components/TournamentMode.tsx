@@ -15,7 +15,7 @@ import { TypingStats } from '../types'
 import { useSupabase } from '@hooks/useSupabase'
 import { TournamentBracket } from './TournamentBracket'
 import { logger } from '../utils/logger'
-import { TypingDisplay } from './ui/TypingDisplay'
+import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 interface TournamentModeProps {
   onExit: () => void
@@ -399,7 +399,7 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
             autoCapitalize="off"
             spellCheck="false"
           />
-          <TypingDisplay
+          <TypingTextDisplay
             text={matchText}
             currentIndex={currentIndex}
             inputResults={inputResults}
