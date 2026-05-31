@@ -10,12 +10,14 @@ interface AchievementData {
   icon: string
 }
 
+const t = i18n.t.bind(i18n)
+
 export function createAchievementNotification(
   achievement: AchievementData
 ): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'achievement',
-    title: `🏆 Достижение разблокировано!`,
+    title: `🏆 ${t('notification.achievement')}`,
     message: achievement.title,
     icon: achievement.icon,
   }
@@ -26,8 +28,8 @@ export function createLevelUpNotification(
 ): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'level',
-    title: '⭐ Уровень повышен!',
-    message: `Вы достигли ${level} уровня!`,
+    title: `⭐ ${t('notification.levelUp')}`,
+    message: t('notification.levelUpMessage', { level }),
     icon: '🎉',
   }
 }
@@ -38,8 +40,8 @@ export function createStreakNotification(
 ): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'streak',
-    title: '🔥 Серия!',
-    message: `${streak} дней подряд! +${xpBonus} XP бонус`,
+    title: `🔥 ${t('notification.streak')}`,
+    message: t('notification.streakMessage', { streak, xpBonus }),
     icon: '💪',
   }
 }
@@ -49,8 +51,8 @@ export function createChallengeCompleteNotification(
 ): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'challenge',
-    title: '✅ Челлендж завершён!',
-    message: `Ваша скорость: ${wpm} WPM`,
+    title: `✅ ${t('notification.challenge')}`,
+    message: t('notification.challengeMessage', { wpm }),
     icon: '🎯',
   }
 }
@@ -86,10 +88,10 @@ export function formatNotificationTimestamp(timestamp: string): string {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return 'Только что'
-  if (diffMins < 60) return `${diffMins} мин назад`
-  if (diffHours < 24) return `${diffHours} ч назад`
-  if (diffDays < 7) return `${diffDays} д назад`
+  if (diffMins < 1) return t('time.justNow')
+  if (diffMins < 60) return t('time.minutesAgo', { count: diffMins })
+  if (diffHours < 24) return t('time.hoursAgo', { count: diffHours })
+  if (diffDays < 7) return t('time.daysAgo', { count: diffDays })
 
   return date.toLocaleDateString(i18n.language, {
     day: 'numeric',

@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
+import { useAppTranslation } from '../i18n/config'
 
 export interface Achievement {
   id: string
@@ -43,307 +44,44 @@ interface AchievementsPanelProps {
   }
 }
 
-const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
-  // Speed achievements
-  {
-    id: 'speed-10',
-    title: 'Первые шаги',
-    description: 'Достигните скорости 10 WPM',
-    icon: '🐢',
-    category: 'speed',
-    requirement: { type: 'wpm', value: 10 },
-    rarity: 'common',
-  },
-  {
-    id: 'speed-30',
-    title: 'Набираю темп',
-    description: 'Достигните скорости 30 WPM',
-    icon: '🚶',
-    category: 'speed',
-    requirement: { type: 'wpm', value: 30 },
-    rarity: 'common',
-  },
-  {
-    id: 'speed-50',
-    title: 'Быстрые пальцы',
-    description: 'Достигните скорости 50 WPM',
-    icon: '🏃',
-    category: 'speed',
-    requirement: { type: 'wpm', value: 50 },
-    rarity: 'rare',
-  },
-  {
-    id: 'speed-70',
-    title: 'Скоростной печатник',
-    description: 'Достигните скорости 70 WPM',
-    icon: '⚡',
-    category: 'speed',
-    requirement: { type: 'wpm', value: 70 },
-    rarity: 'epic',
-  },
-  {
-    id: 'speed-100',
-    title: 'Мастер скорости',
-    description: 'Достигните скорости 100 WPM',
-    icon: '🚀',
-    category: 'speed',
-    requirement: { type: 'wpm', value: 100 },
-    rarity: 'legendary',
-  },
-
-  // Accuracy achievements
-  {
-    id: 'accuracy-90',
-    title: 'Точный стрелок',
-    description: 'Достигните точности 90%',
-    icon: '🎯',
-    category: 'accuracy',
-    requirement: { type: 'accuracy', value: 90 },
-    rarity: 'common',
-  },
-  {
-    id: 'accuracy-95',
-    title: 'Снайпер',
-    description: 'Достигните точности 95%',
-    icon: '🎖️',
-    category: 'accuracy',
-    requirement: { type: 'accuracy', value: 95 },
-    rarity: 'rare',
-  },
-  {
-    id: 'accuracy-98',
-    title: 'Перфекционист',
-    description: 'Достигните точности 98%',
-    icon: '💎',
-    category: 'accuracy',
-    requirement: { type: 'accuracy', value: 98 },
-    rarity: 'epic',
-  },
-  {
-    id: 'perfect-10',
-    title: 'Безупречность',
-    description: 'Завершите 10 сессий с точностью 100%',
-    icon: '👑',
-    category: 'accuracy',
-    requirement: { type: 'perfect-session', value: 10 },
-    rarity: 'legendary',
-  },
-
-  // Practice achievements
-  {
-    id: 'words-1000',
-    title: 'Тысяча слов',
-    description: 'Напечатайте 1000 слов',
-    icon: '📝',
-    category: 'practice',
-    requirement: { type: 'words', value: 1000 },
-    rarity: 'common',
-  },
-  {
-    id: 'words-10000',
-    title: 'Десять тысяч',
-    description: 'Напечатайте 10000 слов',
-    icon: '📚',
-    category: 'practice',
-    requirement: { type: 'words', value: 10000 },
-    rarity: 'rare',
-  },
-  {
-    id: 'words-50000',
-    title: 'Писатель',
-    description: 'Напечатайте 50000 слов',
-    icon: '✍️',
-    category: 'practice',
-    requirement: { type: 'words', value: 50000 },
-    rarity: 'epic',
-  },
-  {
-    id: 'sessions-50',
-    title: 'Постоянный ученик',
-    description: 'Завершите 50 сессий',
-    icon: '🎓',
-    category: 'practice',
-    requirement: { type: 'sessions', value: 50 },
-    rarity: 'rare',
-  },
-  {
-    id: 'sessions-100',
-    title: 'Мастер практики',
-    description: 'Завершите 100 сессий',
-    icon: '🏆',
-    category: 'practice',
-    requirement: { type: 'sessions', value: 100 },
-    rarity: 'epic',
-  },
-
-  // Streak achievements
-  {
-    id: 'streak-3',
-    title: 'Начало серии',
-    description: 'Тренируйтесь 3 дня подряд',
-    icon: '🔥',
-    category: 'streak',
-    requirement: { type: 'streak', value: 3 },
-    rarity: 'common',
-  },
-  {
-    id: 'streak-7',
-    title: 'Неделя силы',
-    description: 'Тренируйтесь 7 дней подряд',
-    icon: '💪',
-    category: 'streak',
-    requirement: { type: 'streak', value: 7 },
-    rarity: 'rare',
-  },
-  {
-    id: 'streak-30',
-    title: 'Месяц дисциплины',
-    description: 'Тренируйтесь 30 дней подряд',
-    icon: '🌟',
-    category: 'streak',
-    requirement: { type: 'streak', value: 30 },
-    rarity: 'epic',
-  },
-  {
-    id: 'streak-100',
-    title: 'Легенда постоянства',
-    description: 'Тренируйтесь 100 дней подряд',
-    icon: '👑',
-    category: 'streak',
-    requirement: { type: 'streak', value: 100 },
-    rarity: 'legendary',
-  },
-
-  // Special achievements
-  {
-    id: 'duel-1',
-    title: 'Первый бой',
-    description: 'Участвуйте в дуэли впервые',
-    icon: '⚔️',
-    category: 'special',
-    requirement: { type: 'duels', value: 1 },
-    rarity: 'common',
-  },
-  {
-    id: 'duel-10',
-    title: 'Боец',
-    description: 'Сыграйте 10 дуэлей',
-    icon: '🥊',
-    category: 'special',
-    requirement: { type: 'duels', value: 10 },
-    rarity: 'rare',
-  },
-  {
-    id: 'duel-50',
-    title: 'Чемпион дуэлей',
-    description: 'Сыграйте 50 дуэлей',
-    icon: '🏅',
-    category: 'special',
-    requirement: { type: 'duels', value: 50 },
-    rarity: 'epic',
-  },
-  {
-    id: 'tournament-1',
-    title: 'Первый турнир',
-    description: 'Участвуйте в турнире впервые',
-    icon: '🏟️',
-    category: 'special',
-    requirement: { type: 'tournaments', value: 1 },
-    rarity: 'rare',
-  },
-  {
-    id: 'tournament-5',
-    title: 'Турнирный боец',
-    description: 'Участвуйте в 5 турнирах',
-    icon: '🎖️',
-    category: 'special',
-    requirement: { type: 'tournaments', value: 5 },
-    rarity: 'epic',
-  },
-  {
-    id: 'custom-1',
-    title: 'Индивидуалист',
-    description: 'Создайте своё первое упражнение',
-    icon: '🛠️',
-    category: 'special',
-    requirement: { type: 'custom-exercises', value: 1 },
-    rarity: 'common',
-  },
-  {
-    id: 'custom-10',
-    title: 'Автор упражнений',
-    description: 'Создайте 10 упражнений',
-    icon: '📝',
-    category: 'special',
-    requirement: { type: 'custom-exercises', value: 10 },
-    rarity: 'rare',
-  },
-  {
-    id: 'daily-1',
-    title: 'Ежедневный участник',
-    description: 'Выполните ежедневное задание впервые',
-    icon: '📅',
-    category: 'special',
-    requirement: { type: 'daily-challenges', value: 1 },
-    rarity: 'common',
-  },
-  {
-    id: 'daily-7',
-    title: 'Неделя заданий',
-    description: 'Выполните 7 ежедневных заданий',
-    icon: '🗓️',
-    category: 'special',
-    requirement: { type: 'daily-challenges', value: 7 },
-    rarity: 'rare',
-  },
-  {
-    id: 'daily-30',
-    title: 'Марафон заданий',
-    description: 'Выполните 30 ежедневных заданий',
-    icon: '🏃',
-    category: 'special',
-    requirement: { type: 'daily-challenges', value: 30 },
-    rarity: 'epic',
-  },
-  {
-    id: 'modes-all',
-    title: 'Универсал',
-    description: 'Попробуйте все режимы игры хотя бы раз',
-    icon: '🎲',
-    category: 'special',
-    requirement: { type: 'game-modes', value: 1 },
-    rarity: 'rare',
-  },
-  {
-    id: 'level-10',
-    title: 'Опытный ученик',
-    description: 'Достигните 10 уровня',
-    icon: '🎓',
-    category: 'special',
-    requirement: { type: 'level', value: 10 },
-    rarity: 'rare',
-  },
-  {
-    id: 'level-25',
-    title: 'Мастер',
-    description: 'Достигните 25 уровня',
-    icon: '⭐',
-    category: 'special',
-    requirement: { type: 'level', value: 25 },
-    rarity: 'epic',
-  },
-  {
-    id: 'level-50',
-    title: 'Легенда',
-    description: 'Достигните 50 уровня',
-    icon: '👑',
-    category: 'special',
-    requirement: { type: 'level', value: 50 },
-    rarity: 'legendary',
-  },
-]
-
 export function AchievementsPanel({ onClose, progress: _progress, stats }: AchievementsPanelProps) {
+  const { t } = useAppTranslation()
+
+  const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = useMemo(() => [
+    { id: 'speed-10', title: t('achievement.speed10'), description: t('achievementDesc.speed10'), icon: '🐢', category: 'speed', requirement: { type: 'wpm', value: 10 }, rarity: 'common' },
+    { id: 'speed-30', title: t('achievement.speed30'), description: t('achievementDesc.speed30'), icon: '🚶', category: 'speed', requirement: { type: 'wpm', value: 30 }, rarity: 'common' },
+    { id: 'speed-50', title: t('achievement.speed50'), description: t('achievementDesc.speed50'), icon: '🏃', category: 'speed', requirement: { type: 'wpm', value: 50 }, rarity: 'rare' },
+    { id: 'speed-70', title: t('achievement.speed70'), description: t('achievementDesc.speed70'), icon: '⚡', category: 'speed', requirement: { type: 'wpm', value: 70 }, rarity: 'epic' },
+    { id: 'speed-100', title: t('achievement.speed100'), description: t('achievementDesc.speed100'), icon: '🚀', category: 'speed', requirement: { type: 'wpm', value: 100 }, rarity: 'legendary' },
+    { id: 'accuracy-90', title: t('achievement.accuracy90'), description: t('achievementDesc.accuracy90'), icon: '🎯', category: 'accuracy', requirement: { type: 'accuracy', value: 90 }, rarity: 'common' },
+    { id: 'accuracy-95', title: t('achievement.accuracy95'), description: t('achievementDesc.accuracy95'), icon: '🎖️', category: 'accuracy', requirement: { type: 'accuracy', value: 95 }, rarity: 'rare' },
+    { id: 'accuracy-98', title: t('achievement.accuracy98'), description: t('achievementDesc.accuracy98'), icon: '💎', category: 'accuracy', requirement: { type: 'accuracy', value: 98 }, rarity: 'epic' },
+    { id: 'perfect-10', title: t('achievement.perfect10'), description: t('achievementDesc.perfect10'), icon: '👑', category: 'accuracy', requirement: { type: 'perfect-session', value: 10 }, rarity: 'legendary' },
+    { id: 'words-1000', title: t('achievement.words1000'), description: t('achievementDesc.words1000'), icon: '📝', category: 'practice', requirement: { type: 'words', value: 1000 }, rarity: 'common' },
+    { id: 'words-10000', title: t('achievement.words10000'), description: t('achievementDesc.words10000'), icon: '📚', category: 'practice', requirement: { type: 'words', value: 10000 }, rarity: 'rare' },
+    { id: 'words-50000', title: t('achievement.words50000'), description: t('achievementDesc.words50000'), icon: '✍️', category: 'practice', requirement: { type: 'words', value: 50000 }, rarity: 'epic' },
+    { id: 'sessions-50', title: t('achievement.sessions50'), description: t('achievementDesc.sessions50'), icon: '🎓', category: 'practice', requirement: { type: 'sessions', value: 50 }, rarity: 'rare' },
+    { id: 'sessions-100', title: t('achievement.sessions100'), description: t('achievementDesc.sessions100'), icon: '🏆', category: 'practice', requirement: { type: 'sessions', value: 100 }, rarity: 'epic' },
+    { id: 'streak-3', title: t('achievement.streak3'), description: t('achievementDesc.streak3'), icon: '🔥', category: 'streak', requirement: { type: 'streak', value: 3 }, rarity: 'common' },
+    { id: 'streak-7', title: t('achievement.streak7'), description: t('achievementDesc.streak7'), icon: '💪', category: 'streak', requirement: { type: 'streak', value: 7 }, rarity: 'rare' },
+    { id: 'streak-30', title: t('achievement.streak30'), description: t('achievementDesc.streak30'), icon: '🌟', category: 'streak', requirement: { type: 'streak', value: 30 }, rarity: 'epic' },
+    { id: 'streak-100', title: t('achievement.streak100'), description: t('achievementDesc.streak100'), icon: '👑', category: 'streak', requirement: { type: 'streak', value: 100 }, rarity: 'legendary' },
+    { id: 'duel-1', title: t('achievement.duel1'), description: t('achievementDesc.duel1'), icon: '⚔️', category: 'special', requirement: { type: 'duels', value: 1 }, rarity: 'common' },
+    { id: 'duel-10', title: t('achievement.duel10'), description: t('achievementDesc.duel10'), icon: '🥊', category: 'special', requirement: { type: 'duels', value: 10 }, rarity: 'rare' },
+    { id: 'duel-50', title: t('achievement.duel50'), description: t('achievementDesc.duel50'), icon: '🏅', category: 'special', requirement: { type: 'duels', value: 50 }, rarity: 'epic' },
+    { id: 'tournament-1', title: t('achievement.tournament1'), description: t('achievementDesc.tournament1'), icon: '🏟️', category: 'special', requirement: { type: 'tournaments', value: 1 }, rarity: 'rare' },
+    { id: 'tournament-5', title: t('achievement.tournament5'), description: t('achievementDesc.tournament5'), icon: '🎖️', category: 'special', requirement: { type: 'tournaments', value: 5 }, rarity: 'epic' },
+    { id: 'custom-1', title: t('achievement.custom1'), description: t('achievementDesc.custom1'), icon: '🛠️', category: 'special', requirement: { type: 'custom-exercises', value: 1 }, rarity: 'common' },
+    { id: 'custom-10', title: t('achievement.custom10'), description: t('achievementDesc.custom10'), icon: '📝', category: 'special', requirement: { type: 'custom-exercises', value: 10 }, rarity: 'rare' },
+    { id: 'daily-1', title: t('achievement.daily1'), description: t('achievementDesc.daily1'), icon: '📅', category: 'special', requirement: { type: 'daily-challenges', value: 1 }, rarity: 'common' },
+    { id: 'daily-7', title: t('achievement.daily7'), description: t('achievementDesc.daily7'), icon: '🗓️', category: 'special', requirement: { type: 'daily-challenges', value: 7 }, rarity: 'rare' },
+    { id: 'daily-30', title: t('achievement.daily30'), description: t('achievementDesc.daily30'), icon: '🏃', category: 'special', requirement: { type: 'daily-challenges', value: 30 }, rarity: 'epic' },
+    { id: 'modes-all', title: t('achievement.modesAll'), description: t('achievementDesc.modesAll'), icon: '🎲', category: 'special', requirement: { type: 'game-modes', value: 1 }, rarity: 'rare' },
+    { id: 'level-10', title: t('achievement.level10'), description: t('achievementDesc.level10'), icon: '🎓', category: 'special', requirement: { type: 'level', value: 10 }, rarity: 'rare' },
+    { id: 'level-25', title: t('achievement.level25'), description: t('achievementDesc.level25'), icon: '⭐', category: 'special', requirement: { type: 'level', value: 25 }, rarity: 'epic' },
+    { id: 'level-50', title: t('achievement.level50'), description: t('achievementDesc.level50'), icon: '👑', category: 'special', requirement: { type: 'level', value: 50 }, rarity: 'legendary' },
+  ], [t])
+
   const [achievements, setAchievements] = useLocalStorageState<Achievement[]>(
     'fastfingers_achievements',
     []
@@ -402,16 +140,16 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>🏆</span>
-                Достижения
+                {t('stats.achievements')}
               </h2>
               <p className="text-dark-400 text-sm mt-1">
-                {unlockedAchievements.length} из {achievements.length} разблокировано
+                {unlockedAchievements.length} / {achievements.length} {t('profile.achievementsUnlocked')}
               </p>
             </div>
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-              aria-label="Закрыть"
+              aria-label={t('action.close')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -422,7 +160,7 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
           {/* Progress bar */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-dark-400">Общий прогресс</span>
+              <span className="text-dark-400">{t('stats.progress')}</span>
               <span className="font-semibold">
                 {Math.round((unlockedAchievements.length / achievements.length) * 100)}%
               </span>
@@ -445,7 +183,7 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
               <div key={category} className="card p-3">
                 <div className="text-center">
                   <div className="text-2xl mb-1">{getCategoryIcon(category)}</div>
-                  <div className="text-xs text-dark-400 mb-1">{getCategoryName(category)}</div>
+                  <div className="text-xs text-dark-400 mb-1">{getCategoryName(category, t)}</div>
                   <div className="text-lg font-bold">
                     {unlocked}/{total}
                   </div>
@@ -459,11 +197,11 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span>✨</span>
-                Разблокированные
+                {t('status.available')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {unlockedAchievements.map(ach => (
-                  <AchievementCard key={ach.id} achievement={ach} stats={stats} />
+                  <AchievementCard key={ach.id} achievement={ach} stats={stats} t={t} />
                 ))}
               </div>
             </div>
@@ -474,11 +212,11 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span>🔒</span>
-                Заблокированные
+                {t('status.locked')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {lockedAchievements.map(ach => (
-                  <AchievementCard key={ach.id} achievement={ach} stats={stats} />
+                  <AchievementCard key={ach.id} achievement={ach} stats={stats} t={t} />
                 ))}
               </div>
             </div>
@@ -492,9 +230,11 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
 function AchievementCard({
   achievement,
   stats,
+  t,
 }: {
   achievement: Achievement
   stats: AchievementsPanelProps['stats']
+  t: (key: string) => string
 }) {
   const progress = getAchievementProgress(achievement, stats)
   const rarityColors = {
@@ -519,7 +259,7 @@ function AchievementCard({
           <div className="flex items-start justify-between mb-1">
             <h4 className="font-semibold text-white">{achievement.title}</h4>
             <span className={`text-xs px-2 py-0.5 rounded-full ${getRarityBadgeClass(achievement.rarity)}`}>
-              {getRarityName(achievement.rarity)}
+              {getRarityName(achievement.rarity, t)}
             </span>
           </div>
           <p className="text-sm text-dark-400 mb-2">{achievement.description}</p>
@@ -527,7 +267,7 @@ function AchievementCard({
           {!achievement.unlocked && (
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-dark-500">Прогресс</span>
+                <span className="text-dark-500">{t('stats.progress')}</span>
                 <span className="font-semibold">{progress.toFixed(0)}%</span>
               </div>
               <div className="w-full h-1.5 bg-dark-800 rounded-full overflow-hidden">
@@ -541,7 +281,7 @@ function AchievementCard({
 
           {achievement.unlockedAt && (
             <p className="text-xs text-yellow-400 mt-2">
-              Разблокировано {new Date(achievement.unlockedAt).toLocaleDateString(i18n.language)}
+              {t('notification.achievement')} {new Date(achievement.unlockedAt).toLocaleDateString(i18n.language)}
             </p>
           )}
         </div>
@@ -646,25 +386,25 @@ function getCategoryIcon(category: Achievement['category']): string {
   return icons[category]
 }
 
-function getCategoryName(category: Achievement['category']): string {
-  const names = {
-    speed: 'Скорость',
-    accuracy: 'Точность',
-    practice: 'Практика',
-    streak: 'Серии',
-    special: 'Особые',
+function getCategoryName(category: Achievement['category'], t: (key: string) => string): string {
+  const keys: Record<Achievement['category'], string> = {
+    speed: 'common.speed',
+    accuracy: 'common.accuracy',
+    practice: 'mode.practice',
+    streak: 'common.streak',
+    special: 'achievement.category.special',
   }
-  return names[category]
+  return t(keys[category])
 }
 
-function getRarityName(rarity: Achievement['rarity']): string {
-  const names = {
-    common: 'Обычное',
-    rare: 'Редкое',
-    epic: 'Эпическое',
-    legendary: 'Легендарное',
+function getRarityName(rarity: Achievement['rarity'], t: (key: string) => string): string {
+  const keys: Record<Achievement['rarity'], string> = {
+    common: 'rarity.common',
+    rare: 'rarity.rare',
+    epic: 'rarity.epic',
+    legendary: 'rarity.legendary',
   }
-  return names[rarity]
+  return t(keys[rarity])
 }
 
 function getRarityBadgeClass(rarity: Achievement['rarity']): string {
