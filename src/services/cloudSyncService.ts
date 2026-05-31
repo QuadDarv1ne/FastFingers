@@ -7,7 +7,10 @@ const logger = createScopedLogger('cloudSync')
 const CLOUD_SYNC_KEY = 'fastfingers_cloud_sync'
 const SYNC_INTERVAL = 5 * 60 * 1000 // 5 минут
 
-export interface CloudSave {
+// Safe singleton pattern: reuse instance across HMR reloads to prevent listener accumulation
+const CLOUD_SYNC_INSTANCE_KEY = '__fastfingers_cloud_sync_instance__'
+
+interface CloudSave {
   userId: string
   stats: UserStats
   timestamp: number
@@ -420,22 +423,54 @@ class CloudSyncService {
   }
 }
 
-export const cloudSyncService = new CloudSyncService()
+// Safe singleton: reuse instance across HMR to avoid duplicate event listeners
+declare global {
+  interface Window {
+    [CLOUD_SYNC_INSTANCE_KEY]?: CloudSyncService
+  }
+}
+
+export const cloudSyncService = (() => {
+  if (typeof window !== 'undefined' && window[CLOUD_SYNC_INSTANCE_KEY]) {
+    return window[CLOUD_SYNC_INSTANCE_KEY]
+  }
+  const instance = new CloudSyncService()
+  if (typeof window !== 'undefined') {
+    window[CLOUD_SYNC_INSTANCE_KEY] = instance
+  }
+  return instance
+})()
 
 export function useAutoSync(user: User | null, stats: UserStats) {
+  const userRef = useRef(user)
+  userRef.current = user
   const statsRef = useRef(stats)
   statsRef.current = stats
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (!user) return
 
-    const interval = setInterval(async () => {
-      await cloudSyncService.saveProgress(user, statsRef.current).catch((err) => {
-        logger.error('Auto-sync failed:', err)
-      })
+    // Cancel any in-flight sync operation for the previous user
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = new AbortController()
+    const signal = abortControllerRef.current.signal
+
+    const interval = setInterval(() => {
+      if (signal.aborted) return
+      cloudSyncService
+        .saveProgress(userRef.current!, statsRef.current)
+        .catch((err) => {
+          if (!signal.aborted) {
+            logger.error('Auto-sync failed:', err)
+          }
+        })
     }, SYNC_INTERVAL)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      abortControllerRef.current?.abort()
+    }
   }, [user])
 }
 
