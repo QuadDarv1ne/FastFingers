@@ -48,7 +48,7 @@ export function LiveStats({
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {/* WPM */}
-      <StatCard
+      <LiveStatCard
         label="Скорость"
         value={wpm}
         unit="WPM"
@@ -58,7 +58,7 @@ export function LiveStats({
       />
 
       {/* Accuracy */}
-      <StatCard
+      <LiveStatCard
         label="Точность"
         value={accuracy}
         unit="%"
@@ -67,7 +67,7 @@ export function LiveStats({
       />
 
       {/* Errors */}
-      <StatCard
+      <LiveStatCard
         label="Ошибки"
         value={errors}
         unit=""
@@ -76,7 +76,7 @@ export function LiveStats({
       />
 
       {/* Time */}
-      <StatCard
+      <LiveStatCard
         label="Время"
         value={formatDuration(timeElapsed)}
         unit=""
@@ -86,7 +86,7 @@ export function LiveStats({
       />
 
       {/* Words */}
-      <StatCard
+      <LiveStatCard
         label="Слова"
         value={wordsTyped}
         unit=""
@@ -95,7 +95,7 @@ export function LiveStats({
       />
 
       {/* Combo */}
-      <StatCard
+      <LiveStatCard
         label="Комбо"
         value={combo}
         unit=""
@@ -107,7 +107,7 @@ export function LiveStats({
   )
 }
 
-interface StatCardProps {
+interface LiveStatCardProps {
   label: string
   value: number | string
   unit: string
@@ -118,7 +118,7 @@ interface StatCardProps {
   pulse?: boolean
 }
 
-function StatCard({
+function LiveStatCard({
   label,
   value,
   unit,
@@ -127,7 +127,7 @@ function StatCard({
   trend,
   isString,
   pulse,
-}: StatCardProps) {
+}: LiveStatCardProps) {
   return (
     <div className={`card p-4 ${pulse ? 'animate-pulse' : ''}`}>
       <div className="flex items-center justify-between mb-2">

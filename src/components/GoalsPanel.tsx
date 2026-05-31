@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
+import { StatCard } from './ui/StatCard'
 
 export interface Goal {
   id: string
@@ -413,30 +414,6 @@ function GoalCard({ goal, onDelete, onEdit }: { goal: Goal; onDelete?: () => voi
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string
-  value: number | string
-  icon: string
-  color: string
-}) {
-  return (
-    <div className="card p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xl">{icon}</span>
-        <span className="text-xs text-dark-400 font-medium uppercase">
-          {label}
-        </span>
-      </div>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   )
 }

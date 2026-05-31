@@ -8,6 +8,7 @@ import { SimpleAreaChart } from './SimpleAreaChart'
 import { SimplePieChart } from './SimplePieChart'
 import { PersonalRecords } from './PersonalRecords'
 import { WeeklyComparison } from './WeeklyComparison'
+import { StatCard } from './ui/StatCard'
 import { LoadingFallback } from './LoadingFallback'
 import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
@@ -235,26 +236,26 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Сводные карточки */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard
-            title={t('stats.totalSessionsLabel', 'Всего тренировок')}
+            label={t('stats.totalSessionsLabel', 'Всего тренировок')}
             value={history.totalSessions.toString()}
             icon="📊"
             trend={trends.sessions}
           />
           <StatCard
-            title={t('stats.practiceTime', 'Время практики')}
+            label={t('stats.practiceTime', 'Время практики')}
             value={`${Math.round(history.totalTime / 60)}ч`}
             icon="⏱️"
             trend={trends.time}
           />
           <StatCard
-            title={t('stats.bestWpm', 'Лучший WPM')}
+            label={t('stats.bestWpm', 'Лучший WPM')}
             value={stats30d.bestWpm.toString()}
             icon="🚀"
             trend={trends.bestWpm === 'record' ? t('stats.record', 'рекорд') : trends.bestWpm}
             highlight
           />
           <StatCard
-            title={t('stats.avgAccuracy', 'Средняя точность')}
+            label={t('stats.avgAccuracy', 'Средняя точность')}
             value={`${stats30d.avgAccuracy}%`}
             icon="🎯"
             trend={trends.accuracy}
@@ -478,29 +479,6 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 }, (prevProps, nextProps) => {
   return prevProps.onBack === nextProps.onBack
 })
-
-function StatCard({ title, value, icon, trend, highlight = false }: {
-  title: string
-  value: string
-  icon: string
-  trend: string
-  highlight?: boolean
-}) {
-  const trendColor = trend.startsWith('+') ? 'text-success bg-success/20'
-    : trend.startsWith('-') ? 'text-error bg-error/20'
-    : 'text-dark-400 bg-dark-500/20'
-
-  return (
-    <div className={`glass rounded-xl p-4 ${highlight ? 'ring-2 ring-primary-500' : ''}`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-2xl">{icon}</span>
-        <span className={`text-xs px-2 py-1 rounded-full ${trendColor}`}>{trend}</span>
-      </div>
-      <p className="text-sm text-dark-400">{title}</p>
-      <p className="text-2xl font-bold text-white mt-1">{value}</p>
-    </div>
-  )
-}
 
 function PeriodStats({ title, stats, t }: { title: string; stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number }; t: (key: string, fallback: string) => string }) {
   return (

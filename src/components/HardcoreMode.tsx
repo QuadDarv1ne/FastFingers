@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'
@@ -14,16 +14,7 @@ import { useNotifications } from '../contexts/NotificationContext'
 import { useToast } from '../contexts/ToastContext'
 import { logger } from '../utils/logger'
 import { triggerConfetti } from '../utils/confetti'
-
-const StatCard = memo(function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
-  return (
-    <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className="text-xs text-dark-400 mb-1">{label}</div>
-      <div className="text-xl font-bold text-white">{value}</div>
-    </div>
-  )
-})
+import { StatCard } from './ui/StatCard'
 
 interface HardcoreModeProps {
   onExit: () => void
@@ -342,9 +333,9 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       })()}
 
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard label="Серия" value={streak.toString()} icon="🔥" />
-        <StatCard label="WPM" value={wpm.toString()} icon="⚡" />
-        <StatCard label="Точность" value={`${accuracy}%`} icon="🎯" />
+        <StatCard size="sm" label="Серия" value={streak.toString()} icon="🔥" />
+        <StatCard size="sm" label="WPM" value={wpm.toString()} icon="⚡" />
+        <StatCard size="sm" label="Точность" value={`${accuracy}%`} icon="🎯" />
       </div>
 
       {bestStreak > 0 && (

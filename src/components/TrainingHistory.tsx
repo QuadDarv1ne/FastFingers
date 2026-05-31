@@ -3,6 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { downloadCSV } from '../utils/export'
 import { formatDurationLong } from '../utils/format'
+import { StatCard } from './ui/StatCard'
 import i18n from 'i18next'
 import type { ExportData } from '../utils/export'
 
@@ -233,28 +234,6 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
           </button>
         </div>
       )}
-    </div>
-  )
-}
-
-function StatCard({ 
-  label, 
-  value, 
-  icon,
-  highlight = false 
-}: { 
-  label: string
-  value: string
-  icon: string
-  highlight?: boolean
-}) {
-  return (
-    <div className={`bg-dark-800 rounded-xl p-4 ${highlight ? 'ring-2 ring-primary-500' : ''}`}>
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xl">{icon}</span>
-        <span className="text-sm text-dark-400">{label}</span>
-      </div>
-      <p className="text-2xl font-bold">{value}</p>
     </div>
   )
 }

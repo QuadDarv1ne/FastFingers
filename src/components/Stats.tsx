@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { UserProgress, TypingStats as TypingStatsType } from '../types'
 import { formatDuration } from '../utils/number'
 import { useAppTranslation } from '../i18n/config'
+import { StatCard } from './ui/StatCard'
 
 interface StatsProps {
   progress: UserProgress
@@ -64,8 +65,8 @@ export const Stats = memo(function Stats({ progress, currentStats, onViewHistory
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <StatCard label={t('common.best') + ' ' + t('common.wpm')} value={progress.bestWpm.toString()} color="text-gradient" icon="🏆" large />
-            <StatCard label={t('common.best') + ' ' + t('common.accuracy')} value={`${progress.bestAccuracy}%`} color="text-gradient-success" icon="💯" large />
+            <StatCard label={t('common.best') + ' ' + t('common.wpm')} value={progress.bestWpm.toString()} color="text-gradient" icon="🏆" wide />
+            <StatCard label={t('common.best') + ' ' + t('common.accuracy')} value={`${progress.bestAccuracy}%`} color="text-gradient-success" icon="💯" wide />
           </div>
 
           <div className="p-4 bg-dark-800/50 rounded-xl">
@@ -187,30 +188,6 @@ export const Stats = memo(function Stats({ progress, currentStats, onViewHistory
           </button>
         )}
       </div>
-    </div>
-  )
-})
-
-const StatCard = memo(function StatCard({
-  label,
-  value,
-  color = 'text-white',
-  large = false,
-  icon
-}: {
-  label: string
-  value: string
-  color?: string
-  large?: boolean
-  icon?: string
-}) {
-  return (
-    <div className={`${large ? 'col-span-2' : ''} p-4 bg-dark-800/30 rounded-xl hover:bg-dark-800/50 transition-colors`} role="listitem">
-      <div className="flex items-center gap-2 mb-1">
-        {icon && <span className="text-lg" aria-hidden="true">{icon}</span>}
-        <p className="text-xs text-dark-400 font-medium uppercase tracking-wide">{label}</p>
-      </div>
-      <p className={`text-3xl font-bold ${color}`} aria-live="polite">{value}</p>
     </div>
   )
 })

@@ -8,6 +8,7 @@ import { User } from '../types/auth'
 import { calculateRank, type CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { logger } from '../utils/logger'
+import { StatCard } from './ui/StatCard'
 
 interface CertificateGeneratorProps {
   user: User
@@ -161,10 +162,10 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 
               {/* Результат */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-                <StatCard label="Скорость" value={`${wpm} WPM`} icon="⚡" />
-                <StatCard label="Точность" value={`${accuracy}%`} icon="🎯" />
-                <StatCard label="Символы" value={`${cpm} CPM`} icon="📝" />
-                <StatCard label="Ранг" value={rank} icon={rankIcons[rank]} />
+                <StatCard size="sm" label="Скорость" value={`${wpm} WPM`} icon="⚡" />
+                <StatCard size="sm" label="Точность" value={`${accuracy}%`} icon="🎯" />
+                <StatCard size="sm" label="Символы" value={`${cpm} CPM`} icon="📝" />
+                <StatCard size="sm" label="Ранг" value={rank} icon={rankIcons[rank]} />
               </div>
 
               {/* Дополнительно */}
@@ -286,18 +287,6 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
     prevProps.onClose === nextProps.onClose
   )
 })
-
-function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
-  return (
-    <div className="bg-dark-900/50 rounded-lg p-3 border border-dark-700" role="listitem">
-      <div className="text-2xl mb-1" aria-hidden="true">
-        {icon}
-      </div>
-      <div className="text-xs text-dark-400">{label}</div>
-      <div className="text-lg font-bold text-white">{value}</div>
-    </div>
-  )
-}
 
 function RankInfo({ rank, requirement, color }: { rank: string; requirement: string; color: string }) {
   return (
