@@ -53,6 +53,42 @@
     <link rel="modulepreload" href="/src/main.tsx" />
     
     <title>FastFingers — Тренажёр слепой печати</title>
+    <script>
+      // Apply stored theme before React hydrates to prevent flash of wrong theme
+      (function(){
+        try{
+          var o=localStorage.getItem('fastfingers_theme_option');
+          var t=localStorage.getItem('fastfingers_theme');
+          var d=window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme=t||(o==='auto'? (d?'dark':'light') :'dark');
+          var colors={
+            dark:{bg:'#0f0f0f',surface:'#1e293b',text:'#f8fafc',textMuted:'#94a3b8',primary:'#7c3aed',primaryHover:'#6d28d9',success:'#22c55e',error:'#ef4444',border:'rgba(255,255,255,0.1)'},
+            light:{bg:'#ffffff',surface:'#f1f5f9',text:'#0f172a',textMuted:'#64748b',primary:'#7c3aed',primaryHover:'#6d28d9',success:'#16a34a',error:'#dc2626',border:'rgba(0,0,0,0.1)'},
+            purple:{bg:'#1a0b2e',surface:'#2d1b4e',text:'#f3e8ff',textMuted:'#c4b5fd',primary:'#a78bfa',primaryHover:'#8b5cf6',success:'#34d399',error:'#f87171',border:'rgba(167,139,250,0.2)'},
+            blue:{bg:'#0a1929',surface:'#1e3a5f',text:'#e0f2fe',textMuted:'#7dd3fc',primary:'#3b82f6',primaryHover:'#2563eb',success:'#10b981',error:'#f43f5e',border:'rgba(59,130,246,0.2)'},
+            orange:{bg:'#1c1410',surface:'#3d2817',text:'#fff7ed',textMuted:'#fdba74',primary:'#f97316',primaryHover:'#ea580c',success:'#22c55e',error:'#ef4444',border:'rgba(249,115,22,0.2)'},
+          };
+          var c=colors[theme]||colors.dark;
+          var r=document.documentElement;
+          r.style.setProperty('--color-bg',c.bg);
+          r.style.setProperty('--color-surface',c.surface);
+          r.style.setProperty('--color-text',c.text);
+          r.style.setProperty('--color-text-muted',c.textMuted);
+          r.style.setProperty('--color-primary',c.primary);
+          r.style.setProperty('--color-primary-hover',c.primaryHover);
+          r.style.setProperty('--color-success',c.success);
+          r.style.setProperty('--color-error',c.error);
+          r.style.setProperty('--color-border',c.border);
+          if(theme==='light')r.classList.add('light');
+          // Apply stored font size
+          var fs=localStorage.getItem('fastfingers_font_size');
+          if(fs)r.setAttribute('data-font-size',fs);
+          // Apply stored contrast
+          var ct=localStorage.getItem('fastfingers_contrast');
+          if(ct==='high')r.setAttribute('data-contrast','high');
+        }catch(e){}
+      })();
+    </script>
   </head>
   <body>
     <noscript>

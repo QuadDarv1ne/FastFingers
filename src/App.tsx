@@ -36,7 +36,7 @@ import { useCustomExercises } from './hooks/useCustomExercises'
 import { useTypingSound } from './hooks/useTypingSound'
 import { useTypingHistory } from './hooks/useTypingHistory'
 import { useDailyChallenges } from './hooks/useDailyChallenges'
-import { useTheme } from './hooks/useTheme'
+import { useThemeContext } from './contexts/ThemeContext'
 import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useAppTranslation } from './i18n/config'
@@ -167,7 +167,7 @@ function AppContent() {
 
   const { addSession, history } = useTypingHistory()
   const { todayChallenge, streak, stats: challengeStats, completeChallenge } = useDailyChallenges()
-  const { theme, themeOption, setTheme, setThemeOption } = useTheme()
+  const { theme, themeOption, setTheme, setThemeOption } = useThemeContext()
 
   const { handleSessionCompleteWithProgress } = useSessionHandlers({
     addSession,

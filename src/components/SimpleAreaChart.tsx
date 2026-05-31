@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react'
+import { getChartColors } from '../utils/getThemeColors'
 
 interface AreaChartData {
   [key: string]: string | number
@@ -106,6 +107,8 @@ export function SimpleAreaChart({
     setTooltip(null)
   }, [])
 
+  const colors = useMemo(() => getChartColors(), [])
+
   return (
     <div className="relative w-full" style={{ height: chartHeight }}>
       <svg
@@ -132,14 +135,14 @@ export function SimpleAreaChart({
                 y1={y}
                 x2={chartWidth - padding.right}
                 y2={y}
-                stroke="#334155"
+                stroke={colors.surface}
                 strokeDasharray="3 3"
               />
               <text
                 x={padding.left - 8}
                 y={y + 4}
                 textAnchor="end"
-                fill="#64748b"
+                fill={colors.textMuted}
                 fontSize={11}
               >
                 {tick}
@@ -164,7 +167,7 @@ export function SimpleAreaChart({
             cy={point.y}
             r={4}
             fill={stroke}
-            stroke="#1e293b"
+            stroke={colors.surface}
             strokeWidth={2}
             style={{ cursor: 'pointer' }}
             onMouseEnter={() => handleMouseEnter({ label: point.label, value: point.value })}
@@ -179,7 +182,7 @@ export function SimpleAreaChart({
             x={point.x}
             y={chartHeight - 8}
             textAnchor="middle"
-            fill="#64748b"
+            fill={colors.textMuted}
             fontSize={11}
           >
             {point.label}
@@ -192,7 +195,7 @@ export function SimpleAreaChart({
         <div
           className="absolute pointer-events-none z-10 px-3 py-2 rounded-lg text-sm"
           style={{
-            backgroundColor: '#1e293b',
+            backgroundColor: colors.surface,
             right: 16,
             top: 16,
           }}

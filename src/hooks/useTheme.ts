@@ -36,7 +36,7 @@ function getInitialTheme(): ThemeColor {
   }
 }
 
-interface UseThemeReturn {
+export interface UseThemeReturn {
   theme: ThemeColor
   themeOption: ThemeOption
   setTheme: (theme: ThemeColor) => void

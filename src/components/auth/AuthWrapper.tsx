@@ -4,7 +4,7 @@ import { Login } from './Login'
 import { Register } from './Register'
 import { PasswordReset } from './PasswordReset'
 import { ThemeToggle } from '../ThemeToggle'
-import { useTheme } from '@hooks/useTheme'
+import { useThemeContext } from '@contexts/ThemeContext'
 
 type AuthView = 'login' | 'register' | 'reset'
 
@@ -14,7 +14,7 @@ interface AuthWrapperProps {
 
 export function AuthWrapper({ onSuccess }: AuthWrapperProps) {
   const [view, setView] = useState<AuthView>('login')
-  const { theme, themeOption, setTheme, setThemeOption } = useTheme()
+  const { theme, themeOption, setTheme, setThemeOption } = useThemeContext()
 
   return (
     <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">

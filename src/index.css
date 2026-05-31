@@ -254,18 +254,18 @@ body.scroll-locked {
 }
 
 .glass {
-  background: rgba(30, 41, 59, 0.75);
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-border);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* Fallback для браузеров без backdrop-filter */
+/* Fallback для браузеров без backdrop-filter и color-mix */
 @supports not (backdrop-filter: blur(20px)) {
   .glass {
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
   }
 }
 
@@ -481,8 +481,8 @@ textarea:focus {
 }
 
 .light .glass {
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  border: 1px solid var(--color-border);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
 }
 

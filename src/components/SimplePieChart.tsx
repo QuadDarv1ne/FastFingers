@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react'
+import { getChartColors } from '../utils/getThemeColors'
 
 interface PieChartData {
   name: string
@@ -87,6 +88,8 @@ export function SimplePieChart({
     setTooltip(null)
   }, [])
 
+  const colors = useMemo(() => getChartColors(), [])
+
   return (
     <div className="relative w-full" style={{ height: chartHeight }}>
       <svg
@@ -100,7 +103,7 @@ export function SimplePieChart({
             key={index}
             d={slice.path}
             fill={slice.color}
-            stroke="#1e293b"
+            stroke={colors.surface}
             strokeWidth={2}
             style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
             onMouseEnter={() => handleMouseEnter(slice, slice.percent)}
@@ -115,7 +118,7 @@ export function SimplePieChart({
         <div
           className="absolute pointer-events-none z-10 px-3 py-2 rounded-lg text-sm"
           style={{
-            backgroundColor: '#1e293b',
+            backgroundColor: colors.surface,
             right: 16,
             top: 16,
           }}
