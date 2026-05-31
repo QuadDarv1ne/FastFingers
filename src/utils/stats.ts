@@ -184,28 +184,38 @@ export function getHeatmapColor(accuracy: number): string {
 export function calculateStreak(dates: number[]): number {
   if (dates.length === 0) return 0;
 
-  const uniqueDates = [...new Set(dates.map(d => new Date(d).toDateString()))];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  let streak = 0;
-  let currentDate = new Date(today);
+  // Normalize all dates to midnight string keys for O(1) lookup
+  const dateSet = new Set<string>();
+  for (const d of dates) {
+    const normalized = new Date(d);
+    normalized.setHours(0, 0, 0, 0);
+    dateSet.add(normalized.toDateString());
+  }
 
-  const hasToday = uniqueDates.some(d => new Date(d).toDateString() === today.toDateString());
+  const todayStr = today.toDateString();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  const hasYesterday = uniqueDates.some(d => new Date(d).toDateString() === yesterday.toDateString());
+  const hasToday = dateSet.has(todayStr);
+  const hasYesterday = dateSet.has(yesterday.toDateString());
 
   if (!hasToday && !hasYesterday) return 0;
 
   // Safety guard: streak cannot exceed 365 days (1 year)
   const MAX_STREAK_LIMIT = 365;
 
-  while (streak < MAX_STREAK_LIMIT) {
-    const dateStr = currentDate.toDateString();
-    const hasActivity = uniqueDates.some(d => new Date(d).toDateString() === dateStr);
+  let streak = 0;
+  let currentDate = new Date(today);
 
-    if (!hasActivity) break;
+  // Start from today if it has activity, otherwise from yesterday
+  if (!hasToday) {
+    currentDate = yesterday;
+  }
+
+  while (streak < MAX_STREAK_LIMIT) {
+    if (!dateSet.has(currentDate.toDateString())) break;
 
     streak++;
     currentDate.setDate(currentDate.getDate() - 1);
