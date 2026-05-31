@@ -134,6 +134,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await new Promise(resolve => setTimeout(resolve, ACTION_DELAY - elapsed));
       }
       return result;
+    } catch (error) {
+      // Ensure minimum pending duration even on error
+      const elapsed = Date.now() - startTime;
+      if (elapsed < ACTION_DELAY) {
+        await new Promise(resolve => setTimeout(resolve, ACTION_DELAY - elapsed));
+      }
+      throw error;
     } finally {
       setIsActionPending(false);
     }

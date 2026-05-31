@@ -49,6 +49,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const [showRankUp, setShowRankUp] = useState(false)
   const [currentRank, setCurrentRank] = useState<HardcoreRank>('C')
   const rankUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mountedRef = useRef(true)
 
   const {
     text,
@@ -96,16 +97,23 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     }
   }, [streak, previousStreak, addNotification])
 
+  // Track mount status to prevent setState after unmount
   useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
     const loadRecords = async () => {
       if (!user || !supabase || !supabaseReady) {
-        setIsLoadingRecords(false)
+        if (!cancelled) setIsLoadingRecords(false)
         return
       }
 
       try {
         let retries = 3
-        while (retries > 0) {
+        while (retries > 0 && !cancelled) {
           const { data, error } = await supabase
             .from('hardcore_records')
             .select('*')
@@ -114,22 +122,25 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
             .limit(10)
 
           if (!error) {
-            setRecords(data || [])
-            if (data && data.length > 0) {
-              const firstRecord = data[0]
-              if (firstRecord) setBestStreak(firstRecord.streak)
+            if (!cancelled) {
+              setRecords(data || [])
+              if (data && data.length > 0) {
+                const firstRecord = data[0]
+                if (firstRecord) setBestStreak(firstRecord.streak)
+              }
             }
             break
           }
           retries--
-          if (retries > 0) await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
+          if (retries > 0 && !cancelled) await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
         }
       } finally {
-        setIsLoadingRecords(false)
+        if (!cancelled) setIsLoadingRecords(false)
       }
     }
 
     loadRecords()
+    return () => { cancelled = true }
   }, [user, supabase, supabaseReady])
 
   const hasSavedRef = useRef(false)
@@ -166,7 +177,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       const saveRecord = async () => {
         let retries = 3
-        while (retries > 0) {
+        while (retries > 0 && mountedRef.current) {
           const result = await supabase?.from('hardcore_records').insert({
             user_id: user.id,
             streak: currentStreak,
@@ -175,15 +186,18 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           })
           if (!result?.error) break
           retries--
-          if (retries > 0) await new Promise(resolve => setTimeout(resolve, 500))
+          if (retries > 0 && mountedRef.current) await new Promise(resolve => setTimeout(resolve, 500))
         }
+        if (!mountedRef.current) return
+        showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
       }
 
       saveRecord().catch((error) => {
+        if (!mountedRef.current) return
         logger.error('Failed to save hardcore record:', error)
         showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
       })
-      setShowCertificate(true)
+      if (mountedRef.current) setShowCertificate(true)
     }
   }, [isActive, user, supabase, supabaseReady])
 
