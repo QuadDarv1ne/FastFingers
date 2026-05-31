@@ -283,14 +283,17 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   flushRef.current = flushDuelProgress
 
   // Обработка ввода с обновлением прогресса (throttled)
-  const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    handleInputBase(e)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInputBase(e as unknown as React.FormEvent<HTMLInputElement>)
     pendingUpdateRef.current = { wpm: wpmRef.current, accuracy: accuracyRef.current }
     const now = Date.now()
     if (now - lastUpdateRef.current >= 500) {
       lastUpdateRef.current = now
       flushRef.current()
     }
+    e.preventDefault()
   }, [handleInputBase])
 
   // Flush pending updates when duel ends
@@ -527,7 +530,8 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
               ref={inputRef}
               type="text"
               className="sr-only"
-              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              readOnly
               disabled={!isActive}
               autoComplete="off"
               autoCorrect="off"

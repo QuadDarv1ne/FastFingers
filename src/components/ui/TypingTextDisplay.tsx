@@ -26,22 +26,22 @@ export function TypingTextDisplay({ text, currentIndex, inputResults, isActive, 
         return (
           <span
             key={index}
-            className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded ${
+            className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded border-2 transition-colors duration-75 ${
               enhanced
                 ? status === 'correct'
-                  ? 'bg-green-500/20 text-green-500'
+                  ? 'bg-green-500/20 text-green-500 border-transparent'
                   : status === 'incorrect'
-                    ? 'bg-red-500/20 text-red-500'
+                    ? 'bg-red-500/20 text-red-500 border-transparent'
                     : status === 'current'
-                      ? 'bg-violet-500/30 text-violet-500 border-2 border-violet-500 animate-pulse'
-                      : 'text-dark-500'
+                      ? 'bg-violet-500/30 text-violet-500 border-violet-500 typing-cursor'
+                      : 'text-dark-500 border-transparent'
                 : status === 'correct'
-                  ? 'text-green-400'
+                  ? 'text-green-400 border-transparent'
                   : status === 'incorrect'
-                    ? 'text-red-400'
+                    ? 'text-red-400 border-transparent'
                     : status === 'current'
-                      ? 'text-violet-400 border-b-2 border-violet-500'
-                      : 'text-dark-500'
+                      ? 'text-violet-400 border-violet-500 typing-cursor'
+                      : 'text-dark-500 border-transparent'
             }`}
           >
             {char}

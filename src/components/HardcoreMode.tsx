@@ -226,6 +226,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     inputRef.current?.focus({ preventScroll: true })
   }, [resetGame, inputRef])
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+  }, [handleInput])
+
   const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
 
   const renderedChars = useMemo(() => {
@@ -367,7 +374,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         aria-label="Область ввода текста. Нажмите для фокуса"
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
-        <input ref={inputRef} type="text" className="opacity-0 absolute" onInput={handleInput} disabled={!isActive} aria-label="Поле ввода режима без ошибок" />
+        <input ref={inputRef} type="text" className="opacity-0 absolute" onKeyDown={handleKeyDown} readOnly aria-label="Поле ввода режима без ошибок" />
         <div className="font-mono text-lg leading-relaxed break-words">
           {renderedChars}
         </div>

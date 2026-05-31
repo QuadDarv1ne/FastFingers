@@ -174,28 +174,31 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     }
   }, [])
 
-  // Обработка ввода — оптимизировано с использованием refs
-  const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    // Re-entrancy guard: предотвращаем повторный вход (paste, IME, autofill)
-    if (isHandlingInputRef.current) return
+  // Обработка ввода — используем keydown для захвата реальных нажатий
+  // Это предотвращает бесконечный цикл и race condition с React batching
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isHandlingInputRef.current || isComplete) return
+
+    // Игнорируем модификаторы и служебные клавиши
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Tab' || e.key === 'Escape') return
+    // Игнорируем key repeat (когда клавишу держат)
+    if (e.repeat) return
+
     isHandlingInputRef.current = true
 
     try {
-      const value = e.currentTarget.value
-
-      if (isComplete) return
-
-      if (!startTime && value) {
+      if (!startTime) {
         setStartTime(Date.now())
       }
-
-      const newChar = value[value.length - 1]
-      if (!newChar || !text) return
 
       const expectedChar = text[currentIndex]
       if (!expectedChar) return
 
-      const isCorrect = newChar === expectedChar
+      // Для пробела e.key === ' ', для Enter — '\n' (считаем пробелом)
+      const inputChar = e.key === 'Enter' ? ' ' : e.key
+
+      const isCorrect = inputChar === expectedChar
 
       if (isCorrect) correctCountRef.current++
 
@@ -207,7 +210,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       const result: KeyInputResult = {
         isCorrect,
-        char: newChar,
+        char: inputChar,
         expectedChar,
         timestamp: Date.now(),
       }
@@ -220,16 +223,16 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         return newResults
       })
 
+      // Предотвращаем стандартное действие (ввод символа в input)
+      e.preventDefault()
+
       if (nextIndex >= textLengthRef.current) {
-        // Передаём newResults напрямую, а не через resultsRef
-        // Это предотвращает race condition с React batching
         const newResults = [...resultsRef.current, result]
         handleComplete(newResults)
       }
-
-      e.currentTarget.value = ''
     } finally {
-      isHandlingInputRef.current = false
+      // Небольшая задержка для предотвращения key repeat
+      setTimeout(() => { isHandlingInputRef.current = false }, 10)
     }
   }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 
@@ -252,11 +255,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   // Размер шрифта (мемоизация)
   const fontSizeStyle = useMemo(() => ({ fontSize: 'var(--font-size-practice)' }), [])
 
-  // Текущая клавиша для подсветки (мемоизация)
-  const currentKey = useMemo(() =>
-    text[currentIndex]?.toLowerCase() || '',
-    [text, currentIndex]
-  )
+  // Текущая клавиша для подсветки
+  const currentKey = text[currentIndex]?.toLowerCase() || ''
 
   // Опции категории с мемоизацией
   const categoryOptions = useMemo(() => {
@@ -279,26 +279,25 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     [t],
   )
 
-  // Рендеринг символов текста — мемоизирован, перерисовывается только при изменении статуса символов
-  const renderedChars = useMemo(() => {
-    return text.split('').map((char, i) => {
-      if (!char) return null
-      let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
-      if (i < currentIndex) {
-        const result = inputResults[i]
-        status = result?.isCorrect ? 'correct' : 'incorrect'
-      } else if (i === currentIndex && !isComplete) {
-        status = 'current'
-      }
-      return (
-        <CharDisplay
-          key={i}
-          char={char}
-          status={status}
-        />
-      )
-    })
-  }, [text, currentIndex, inputResults, isComplete])
+  // Рендеринг символов — без useMemo, CharDisplay сам мемоизирует изменения
+  // Это предотвращает пересоздание массива при каждом нажатии
+  const renderedChars = text.split('').map((char, i) => {
+    if (!char) return null
+    let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
+    if (i < currentIndex) {
+      const result = inputResults[i]
+      status = result?.isCorrect ? 'correct' : 'incorrect'
+    } else if (i === currentIndex && !isComplete) {
+      status = 'current'
+    }
+    return (
+      <CharDisplay
+        key={i}
+        char={char}
+        status={status}
+      />
+    )
+  })
 
   // Статистика для live region (O(1) via ref counter)
   const liveRegionText = useMemo(() => {
@@ -408,13 +407,25 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         <input
           ref={inputRef}
           type="text"
+          value=""
           className="sr-only"
           aria-hidden="true"
-          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          readOnly
+          onFocus={() => {
+            if (isComplete) return
+            if (blurTimerRef.current) {
+              clearTimeout(blurTimerRef.current)
+              blurTimerRef.current = null
+            }
+          }}
           onBlur={() => {
             if (isComplete) return
             if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
-            blurTimerRef.current = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100)
+            blurTimerRef.current = setTimeout(() => {
+              inputRef.current?.focus({ preventScroll: true })
+              blurTimerRef.current = null
+            }, 100)
           }}
           disabled={isComplete}
           aria-label={t('trainer.aria.inputField')}

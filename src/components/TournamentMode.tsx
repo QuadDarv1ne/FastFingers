@@ -142,6 +142,14 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
     sound,
   })
 
+  // Handle key down instead of input to avoid controlled input loop
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+  }, [handleInput])
+
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {
     if (!supabaseReady || !supabase) {
@@ -392,7 +400,8 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
             ref={inputRef}
             type="text"
             className="sr-only"
-            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            readOnly
             disabled={!isTypingActive}
             autoComplete="off"
             autoCorrect="off"

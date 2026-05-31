@@ -294,7 +294,6 @@ button,
 
 button:hover:not(:disabled),
 .btn:hover:not(:disabled) {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -425,7 +424,6 @@ textarea:focus-visible {
 .char.current {
   @apply bg-violet-500/30 text-violet-400 border-2 border-violet-500;
   animation: cursor-blink 1s infinite;
-  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
 }
 
 .char.pending {
@@ -435,14 +433,16 @@ textarea:focus-visible {
 @keyframes cursor-blink {
   0%,
   50% {
-    border-color: rgba(124, 58, 237, 1);
-    box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+    opacity: 1;
   }
   51%,
   100% {
-    border-color: rgba(124, 58, 237, 0.3);
-    box-shadow: 0 0 6px rgba(124, 58, 237, 0.2);
+    opacity: 0.5;
   }
+}
+
+.typing-cursor {
+  animation: cursor-blink 1s infinite;
 }
 
 /* Карточки */
@@ -451,7 +451,6 @@ textarea:focus-visible {
 }
 
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.15);
 }
@@ -659,10 +658,6 @@ textarea:focus {
 
 /* Hover только для устройств с mouse */
 @media (hover: hover) {
-  button:hover {
-    transform: translateY(-2px);
-  }
-
   .card:hover {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   }

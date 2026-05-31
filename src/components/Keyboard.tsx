@@ -11,6 +11,8 @@ import { getHeatmapColor } from '../utils/stats'
 import { getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
 
+const EMPTY_HEATMAP: KeyHeatmapData = {}
+
 interface KeyboardProps {
   layout: KeyboardLayout
   highlightKey?: string | null
@@ -40,6 +42,8 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
 
   // Мемоизация вычисления подсветки и тепловой карты
   // heatmap стабилизирован — пересчитываем только когда реально изменились ключи
+  // Когда heatmap скрыт, используем пустой объект чтобы не вызывать пересчёт
+  const effectiveHeatmap = showHeatmap ? heatmap : EMPTY_HEATMAP
   const keyStyles = useMemo(() => {
     if (!layoutData) return {}
 
@@ -51,7 +55,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
         const zoneColor = finger ? skinColors.zoneColors[finger] : skinColors.keyBorder
         const isHighlighted = highlightKey === key.toLowerCase()
 
-        const keyData = heatmap[key.toLowerCase()]
+        const keyData = effectiveHeatmap[key.toLowerCase()]
         const heatmapColor = showHeatmap && keyData && keyData.total >= 3
           ? getHeatmapColor(keyData.accuracy)
           : null
@@ -83,7 +87,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
     })
 
     return styles
-  }, [layoutData, highlightKey, heatmap, showHeatmap, skinColors, t])
+  }, [layoutData, highlightKey, effectiveHeatmap, showHeatmap, skinColors, t])
 
   if (!layoutData) return null
 

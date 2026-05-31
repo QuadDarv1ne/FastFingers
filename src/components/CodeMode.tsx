@@ -134,6 +134,14 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
     inputRef.current?.focus({ preventScroll: true })
   }, [reset, inputRef])
 
+  // Handle key down instead of input to avoid controlled input loop
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+  }, [handleInput])
+
   const handleSelectRandomText = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * codeTexts.length)
     setSelectedTextId(codeTexts[randomIndex]?.id || null)
@@ -269,7 +277,8 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           type="text"
           className="sr-only"
           aria-hidden="true"
-          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          readOnly
           disabled={!isActive || !selectedTextId}
           aria-label={t('exercise.custom')}
           autoComplete="off"

@@ -82,6 +82,14 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
     inputRef.current?.focus({ preventScroll: true })
   }, [handleSkip, inputRef])
 
+  // Handle key down instead of input to avoid controlled input loop
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+  }, [handleInput])
+
   // Прогресс времени
   const timeProgress = ((duration - timeLeft) / duration) * 100
 
@@ -186,7 +194,8 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
           type="text"
           className="sr-only"
           aria-hidden="true"
-          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          readOnly
           disabled={!isActive || countdown !== null}
           aria-label={t('exercise.custom')}
           autoComplete="off"

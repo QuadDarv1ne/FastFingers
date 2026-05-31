@@ -50,6 +50,13 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     sound,
   })
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key.length > 1 && e.key !== 'Enter') return
+    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+  }, [handleInput])
+
   // Старт при первом нажатии
   const handleStart = useCallback(() => {
     startGame()
@@ -141,7 +148,8 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
           ref={inputRef}
           type="text"
           className="opacity-0 absolute"
-          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          readOnly
           disabled={!isActive}
         />
 

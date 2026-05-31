@@ -8,7 +8,7 @@ export const Footer = memo(function Footer() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-dark-500">
-            &copy; {year} FastFingers. Дуплей Максим Игоревский. Все права защищены.
+            &copy; {year} FastFingers. Дуплей Максим Игоревич. Все права защищены.
           </div>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-dark-500 cursor-default">
