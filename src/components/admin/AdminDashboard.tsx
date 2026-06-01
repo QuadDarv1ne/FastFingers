@@ -9,6 +9,7 @@ import { DailyChallengeManager } from './DailyChallengeManager'
 import { practiceTexts } from '../../data/practiceTexts'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
 import { getFromStorageAsArray } from '../../utils/storage'
+import { logger } from '../../utils/logger'
 
 const APP_VERSION = '0.1.0'
 
@@ -21,6 +22,7 @@ function safeParseLength(key: string): number {
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed.length : 0
   } catch {
+    logger.warn(`Failed to parse stored data for key: ${key}`)
     return 0
   }
 }
@@ -66,6 +68,7 @@ function AdminOverview() {
         }))
         .sort((a, b) => b.totalXp - a.totalXp)
     } catch {
+      logger.warn('Failed to parse user summaries from localStorage')
       return []
     }
   }, [])

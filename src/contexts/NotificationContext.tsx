@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
 import { createContext, useState, useEffect, ReactNode, useCallback, useContext, useMemo } from 'react'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
+import { logger } from '../utils/logger'
 
 export interface Notification {
   id: string
@@ -34,6 +35,7 @@ const loadNotifications = (): Notification[] => {
     const stored = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)
     return stored ? JSON.parse(stored) : []
   } catch {
+    logger.warn('Failed to load notifications from localStorage')
     return []
   }
 }

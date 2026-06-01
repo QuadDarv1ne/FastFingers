@@ -1442,6 +1442,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         })
         window.location.reload()
       } catch {
+        showToast('Ошибка при импорте данных', 'error')
         setImporting(false)
       }
     }

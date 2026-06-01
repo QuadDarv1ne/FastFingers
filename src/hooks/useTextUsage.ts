@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getFromStorageAsObject } from '../utils/storage'
+import { logger } from '../utils/logger'
 
 export interface TextUsageStats {
   textId: string
@@ -25,11 +26,11 @@ function saveUsage(usage: Record<string, { count: number; totalWpm: number; tota
   try {
     localStorage.setItem(USAGE_KEY, JSON.stringify(usage))
   } catch {
-    // Ignore
+    logger.warn('Failed to save text usage data')
   }
 }
 
-export function recordTextUsage(textId: string, _title: string, wpm: number, accuracy: number) {
+export function recordTextUsage(textId: string, wpm: number, accuracy: number) {
   const usage = loadUsage()
   const entry = usage[textId] || { count: 0, totalWpm: 0, totalAccuracy: 0, lastUsed: '' }
   entry.count += 1

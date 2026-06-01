@@ -53,6 +53,7 @@ export class ApiDatabaseAdapter {
       if (!response.ok) return null
       return await response.json()
     } catch {
+      logger.warn('[DbAdapter] Failed to fetch available databases')
       return null
     }
   }

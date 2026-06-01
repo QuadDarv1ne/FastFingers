@@ -54,6 +54,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
       const users = getFromStorageAsArray<{ id: string; stats?: Record<string, unknown> }>(STORAGE_KEYS.USERS)
       return users.find(u => u?.id === userId)?.stats || null
     } catch {
+      logger.warn('Failed to parse user aggregate stats from localStorage')
       return null
     }
   }, [userId])

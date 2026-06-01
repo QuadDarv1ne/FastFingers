@@ -70,7 +70,7 @@ export function TextManager() {
   const [editing, setEditing] = useState<PracticeText | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<Partial<PracticeText>>({})
-  const { stats: usageStats, refresh: _refreshUsage, clearStats: clearUsageStats } = useTextUsageStats()
+  const { stats: usageStats, clearStats: clearUsageStats } = useTextUsageStats()
 
   const usageMap = useMemo(() => {
     const map = new Map<string, { count: number; avgWpm: number; avgAccuracy: number; lastUsed: string }>()
