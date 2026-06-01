@@ -12,6 +12,7 @@ vi.mock('../services/supabase', () => ({
 
 vi.mock('../services/authService', () => ({
   authService: {
+    init: vi.fn(),
     getCurrentUser: vi.fn(),
     login: vi.fn(),
     register: vi.fn(),

@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest'
+import { changeLanguage } from '../i18n/config'
 import {
   createAchievementNotification,
   createLevelUpNotification,
@@ -10,6 +11,9 @@ import {
 import { STORAGE_KEYS } from '../constants/storageKeys'
 
 describe('notifications utils', () => {
+  beforeAll(async () => {
+    await changeLanguage('ru')
+  })
   describe('createAchievementNotification', () => {
     it('должен создавать уведомление о достижении', () => {
       const achievement = {
@@ -22,7 +26,7 @@ describe('notifications utils', () => {
 
       expect(notification).toEqual({
         type: 'achievement',
-        title: '🏆 Достижение разблокировано!',
+        title: '🏆 Достижение разблокировано',
         message: 'Мастер печати',
         icon: '🏆',
       })
@@ -35,7 +39,7 @@ describe('notifications utils', () => {
 
       expect(notification).toEqual({
         type: 'level',
-        title: '⭐ Уровень повышен!',
+        title: '⭐ Уровень повышен',
         message: 'Вы достигли 5 уровня!',
         icon: '🎉',
       })
@@ -54,7 +58,7 @@ describe('notifications utils', () => {
 
       expect(notification).toEqual({
         type: 'streak',
-        title: '🔥 Серия!',
+        title: '🔥 Серия продолжается',
         message: '7 дней подряд! +150 XP бонус',
         icon: '💪',
       })
@@ -73,7 +77,7 @@ describe('notifications utils', () => {
 
       expect(notification).toEqual({
         type: 'challenge',
-        title: '✅ Челлендж завершён!',
+        title: '✅ Челлендж выполнен',
         message: 'Ваша скорость: 85 WPM',
         icon: '🎯',
       })
@@ -177,22 +181,22 @@ describe('notifications utils', () => {
   describe('formatNotificationTimestamp', () => {
     it('должен возвращать "Только что" для недавних уведомлений', () => {
       const now = new Date().toISOString()
-      expect(formatNotificationTimestamp(now)).toBe('Только что')
+      expect(formatNotificationTimestamp(now)).toBe('только что')
     })
 
     it('должен форматировать минуты назад', () => {
       const fiveMinsAgo = new Date(Date.now() - 5 * 60000).toISOString()
-      expect(formatNotificationTimestamp(fiveMinsAgo)).toBe('5 мин назад')
+      expect(formatNotificationTimestamp(fiveMinsAgo)).toBe('5 мин. назад')
     })
 
     it('должен форматировать часы назад', () => {
       const threeHoursAgo = new Date(Date.now() - 3 * 3600000).toISOString()
-      expect(formatNotificationTimestamp(threeHoursAgo)).toBe('3 ч назад')
+      expect(formatNotificationTimestamp(threeHoursAgo)).toBe('3 ч. назад')
     })
 
     it('должен форматировать дни назад', () => {
       const fiveDaysAgo = new Date(Date.now() - 5 * 86400000).toISOString()
-      expect(formatNotificationTimestamp(fiveDaysAgo)).toBe('5 д назад')
+      expect(formatNotificationTimestamp(fiveDaysAgo)).toBe('5 дн. назад')
     })
 
     it('должен форматировать дату для старых уведомлений', () => {
