@@ -458,8 +458,10 @@ export function useAutoSync(user: User | null, stats: UserStats) {
 
     const interval = setInterval(() => {
       if (signal.aborted) return
+      const currentUser = userRef.current
+      if (!currentUser) return
       cloudSyncService
-        .saveProgress(userRef.current!, statsRef.current)
+        .saveProgress(currentUser, statsRef.current)
         .catch((err) => {
           if (!signal.aborted) {
             logger.error('Auto-sync failed:', err)

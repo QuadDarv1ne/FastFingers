@@ -1,39 +1,30 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
-import { logger } from '../utils/logger'
+import { safeExecute } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 
 type ThemeOption = ThemeColor | 'auto'
 
 function getSystemDark(): boolean {
-  try {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-  } catch {
-    logger.warn('Operation failed in hooks/useTheme.ts')
-    return true
-  }
+  return safeExecute(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+    true
+  )
 }
 
 function getStoredThemeOption(): ThemeOption {
-  try {
+  return safeExecute(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.THEME_OPTION)
     return (stored as ThemeOption) || 'auto'
-  } catch {
-    logger.warn('Operation failed in hooks/useTheme.ts')
-    return 'auto'
-  }
+  }, 'auto')
 }
 
 function getInitialTheme(): ThemeColor {
-  try {
+  return safeExecute(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.THEME)
-    if (stored) return stored as ThemeColor
-    return 'dark'
-  } catch {
-    logger.warn('Operation failed in hooks/useTheme.ts')
-    return 'dark'
-  }
+    return (stored as ThemeColor) || 'dark'
+  }, 'dark')
 }
 
 export interface UseThemeReturn {
@@ -55,25 +46,19 @@ export function useTheme(): UseThemeReturn {
 
   const [theme, setThemeState] = useState<ThemeColor>(getInitialTheme)
 
-  const [customColors, setCustomColorsState] = useState<Partial<ThemeColors> | null>(() => {
-    try {
+  const [customColors, setCustomColorsState] = useState<Partial<ThemeColors> | null>(() =>
+    safeExecute(() => {
       const stored = localStorage.getItem(STORAGE_KEYS.CUSTOM_COLORS)
       return stored ? JSON.parse(stored) : null
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      return null
-    }
-  })
+    }, null)
+  )
 
-  const [fontSize, setFontSizeState] = useState<FontSize>(() => {
-    try {
+  const [fontSize, setFontSizeState] = useState<FontSize>(() =>
+    safeExecute(() => {
       const stored = localStorage.getItem(STORAGE_KEYS.FONT_SIZE)
       return (stored as FontSize) || 'medium'
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      return 'medium'
-    }
-  })
+    }, 'medium')
+  )
 
   useEffect(() => {
     const timer = requestAnimationFrame(() => {
@@ -84,12 +69,9 @@ export function useTheme(): UseThemeReturn {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-font-size', fontSize)
-    try {
+    safeExecute(() => {
       localStorage.setItem(STORAGE_KEYS.FONT_SIZE, fontSize)
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      // Ignore save errors
-    }
+    }, undefined)
   }, [fontSize])
 
   useEffect(() => {
@@ -109,46 +91,34 @@ export function useTheme(): UseThemeReturn {
 
   const setTheme = useCallback((newTheme: ThemeColor) => {
     setThemeState(newTheme)
-    try {
+    safeExecute(() => {
       localStorage.setItem(STORAGE_KEYS.THEME, newTheme)
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      // Ignore save errors
-    }
+    }, undefined)
   }, [])
 
   const setThemeOption = useCallback((option: ThemeOption) => {
     setThemeOptionState(option)
-    try {
+    safeExecute(() => {
       localStorage.setItem(STORAGE_KEYS.THEME_OPTION, option)
       if (option === 'auto') {
         const newTheme = isSystemDark ? 'dark' : 'light'
         setThemeState(newTheme)
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      // Ignore save errors
-    }
+    }, undefined)
   }, [isSystemDark])
 
   const setCustomColors = useCallback((colors: Partial<ThemeColors>) => {
     setCustomColorsState(colors)
-    try {
+    safeExecute(() => {
       localStorage.setItem(STORAGE_KEYS.CUSTOM_COLORS, JSON.stringify(colors))
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      // Ignore save errors
-    }
+    }, undefined)
   }, [])
 
   const setFontSize = useCallback((size: FontSize) => {
     setFontSizeState(size)
-    try {
+    safeExecute(() => {
       localStorage.setItem(STORAGE_KEYS.FONT_SIZE, size)
-    } catch {
-      logger.warn('Operation failed in hooks/useTheme.ts')
-      // Ignore save errors
-    }
+    }, undefined)
   }, [])
 
   return { 

@@ -96,7 +96,7 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
       }))
       setAchievements(initialAchievements)
     }
-  }, [achievements.length, setAchievements])
+  }, [achievements.length, ACHIEVEMENTS, setAchievements])
 
   // Check and unlock achievements
   useEffect(() => {

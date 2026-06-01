@@ -39,6 +39,10 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Test artifacts
+playwright-report/
+test-results/
+
 # Testing
 .pytest_cache/
 .mypy_cache/

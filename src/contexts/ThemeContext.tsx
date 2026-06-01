@@ -4,11 +4,9 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { createContext, useContext, ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { useTheme } from '../hooks/useTheme'
-import type { UseThemeReturn } from '../hooks/useTheme'
-
-const ThemeContext = createContext<UseThemeReturn | undefined>(undefined)
+import { ThemeContext } from './ThemeContextValue'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const themeValue = useTheme()
@@ -17,12 +15,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       {children}
     </ThemeContext.Provider>
   )
-}
-
-export function useThemeContext(): UseThemeReturn {
-  const ctx = useContext(ThemeContext)
-  if (!ctx) {
-    throw new Error('useThemeContext must be used within a ThemeProvider')
-  }
-  return ctx
 }

@@ -4,7 +4,7 @@ import { Login } from './Login'
 import { Register } from './Register'
 import { PasswordReset } from './PasswordReset'
 import { ThemeToggle } from '../ThemeToggle'
-import { useThemeContext } from '@contexts/ThemeContext'
+import { useThemeContext } from '@hooks/useThemeContext'
 
 type AuthView = 'login' | 'register' | 'reset'
 
