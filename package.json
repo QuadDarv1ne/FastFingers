@@ -62,7 +62,7 @@
     "i18next": "^25.8.13",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-i18next": "^16.5.4",
+    "react-i18next": "^16.6.6",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
