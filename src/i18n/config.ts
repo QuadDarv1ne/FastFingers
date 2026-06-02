@@ -313,13 +313,13 @@ export type TranslationKey =
   | 'admin.administrator'
   | 'admin.staticTexts'
 
-export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja' | 'ar'
+export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 
 // ============================================
 // Динамическая загрузка языков из JSON файлов
 // ============================================
 
-const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es', 'it', 'pt', 'ja', 'ar']
+const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ru', 'en', 'zh', 'he', 'de', 'fr', 'es', 'it', 'pt', 'ja']
 
 // Кэш загруженных языков
 const loadedLanguages = new Set<string>()
@@ -333,7 +333,7 @@ async function loadLanguageFile(lang: string): Promise<Record<string, string>> {
   }
 
   try {
-    const module = await import(/* webpackChunkName: "i18n-[request]" */ `./locales/${lang}.json`)
+    const module = await import(`./locales/${lang}.json`)
     loadedLanguages.add(lang)
     return module.default
   } catch {
@@ -372,7 +372,7 @@ loadLanguageFile('ru').then((translations) => {
 
 // Автоматически подгружаем язык при переключении
 i18n.on('languageChanged', (lng) => {
-  const isRTL = lng === 'he' || lng === 'ar'
+  const isRTL = lng === 'he'
   document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
   document.documentElement.lang = lng
 
