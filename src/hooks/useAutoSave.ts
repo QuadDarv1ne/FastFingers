@@ -186,7 +186,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
       })
     }
 
-    document.addEventListener('freeze', handleFreeze, { once: true })
+    document.addEventListener('freeze', handleFreeze)
 
     return () => {
       document.removeEventListener('freeze', handleFreeze)

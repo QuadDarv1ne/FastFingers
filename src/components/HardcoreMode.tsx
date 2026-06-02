@@ -177,6 +177,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
       const saveRecord = async () => {
         let retries = 3
+        let saved = false
         while (retries > 0 && mountedRef.current) {
           const result = await supabase?.from('hardcore_records').insert({
             user_id: user.id,
@@ -184,12 +185,17 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
             wpm: stats.wpm,
             accuracy: stats.accuracy,
           })
-          if (!result?.error) break
+          if (!result?.error) {
+            saved = true
+            break
+          }
           retries--
           if (retries > 0 && mountedRef.current) await new Promise(resolve => setTimeout(resolve, 500))
         }
         if (!mountedRef.current) return
-        showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+        if (!saved) {
+          showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+        }
       }
 
       saveRecord().catch((error) => {

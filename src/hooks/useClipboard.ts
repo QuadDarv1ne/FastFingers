@@ -29,6 +29,8 @@ export function useClipboard({
   }, [])
 
   const scheduleReset = useCallback(() => {
+    timeoutRef.current.forEach(clearTimeout)
+    timeoutRef.current = []
     const id = setTimeout(() => setCopied(false), timeout)
     timeoutRef.current.push(id)
   }, [timeout])

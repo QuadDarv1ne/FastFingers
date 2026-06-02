@@ -17,6 +17,10 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
 
   useEffect(() => {
     if (countdown === COMPLETED) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
       setCountdown(null)
       onCompleteRef.current()
     }
@@ -40,10 +44,6 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
     intervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current)
-          }
-          intervalRef.current = null
           return COMPLETED
         }
         return prev - 1
