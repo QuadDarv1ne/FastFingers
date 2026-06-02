@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { logger } from '../utils/logger'
 
 export function useLocalStorageState<T>(
@@ -15,9 +15,15 @@ export function useLocalStorageState<T>(
     }
   })
 
+  const prevJsonRef = useRef<string | null>(null)
+
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(state))
+      const next = JSON.stringify(state)
+      if (prevJsonRef.current !== next) {
+        prevJsonRef.current = next
+        localStorage.setItem(key, next)
+      }
     } catch {
       logger.warn('Operation failed in hooks/useLocalStorageState.ts')
       // Ignore save errors

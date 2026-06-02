@@ -196,7 +196,11 @@ export function useTypingGame({
       }
 
       try {
-        const elapsed = mode === 'timed' ? safeDuration - timeLeftRef.current : (Date.now() - (startTimeRef.current || 0)) / 1000
+        const elapsed = mode === 'timed'
+          ? startTimeRef.current
+            ? (Date.now() - startTimeRef.current) / 1000
+            : safeDuration - timeLeftRef.current
+          : (Date.now() - (startTimeRef.current || 0)) / 1000
         const correctChars = results.filter(r => r?.isCorrect).length
         const errorCount = results.filter(r => r && !r.isCorrect).length
 

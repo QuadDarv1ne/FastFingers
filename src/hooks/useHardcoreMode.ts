@@ -88,15 +88,16 @@ export function useHardcoreMode({
 
   const handleMistake = useCallback(() => {
     setIsActive(false)
+    setBestStreak?.(prev => Math.max(prev, streakRef.current))
 
     const correct = calculateCorrectCount(inputResults)
     const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const total = inputResults.length + 1 // including the current incorrect char
-    const errors = 1 // only the current one is incorrect
+    const total = inputResults.length + 1
+    const errors = 1
 
     const stats = calculateStats(correct, total, errors, timeElapsed)
     onComplete(stats)
-  }, [inputResults, startTime, calculateCorrectCount, onComplete])
+  }, [inputResults, startTime, calculateCorrectCount, onComplete, setBestStreak])
 
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     if (!isActive && countdown === null) {
