@@ -717,21 +717,6 @@ body {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Эффект подъёма для карточек */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
 /* Эффект вращения для иконок достижений */
 @keyframes rotate-glow {
   0% {
@@ -780,20 +765,6 @@ body {
   animation: wave 2s ease-in-out infinite;
 }
 
-/* Эффект радуги для специальных достижений */
-@keyframes rainbow {
-  0% {
-    filter: hue-rotate(0deg);
-  }
-  100% {
-    filter: hue-rotate(360deg);
-  }
-}
-
-.animate-rainbow {
-  animation: rainbow 3s linear infinite;
-}
-
 /* Эффект увеличения для комбо-счётчика */
 @keyframes combo-scale {
   0% {
@@ -809,52 +780,6 @@ body {
 
 .animate-combo-scale {
   animation: combo-scale 0.3s ease-out;
-}
-
-/* Эффект искр для достижений */
-@keyframes sparkles {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.sparkle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(circle, #fbbf24 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sparkles 1s ease-in-out infinite;
-}
-
-.sparkle:nth-child(1) {
-  top: 10%;
-  left: 20%;
-  animation-delay: 0s;
-}
-
-.sparkle:nth-child(2) {
-  top: 30%;
-  left: 80%;
-  animation-delay: 0.2s;
-}
-
-.sparkle:nth-child(3) {
-  top: 60%;
-  left: 10%;
-  animation-delay: 0.4s;
-}
-
-.sparkle:nth-child(4) {
-  top: 80%;
-  left: 70%;
-  animation-delay: 0.6s;
 }
 
 /* Эффект градиентной границы */
@@ -880,104 +805,6 @@ body {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-}
-
-/* Эффект бегущей строки для важных уведомлений */
-@keyframes marquee {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 10s linear infinite;
-}
-
-/* Эффект появления списка */
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.4s ease-out;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.4s ease-out;
-}
-
-/* Эффект пульсации для уведомлений */
-@keyframes notification-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
-.animate-notification-pulse {
-  animation: notification-pulse 2s ease-in-out infinite;
-}
-
-/* Эффект размытия для фона модальных окон */
-.blur-backdrop {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: rgba(0, 0, 0, 0.6);
-}
-
-/* Эффект свечения для активных клавиш */
-@keyframes key-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 8px rgba(124, 58, 237, 0.4), 0 0 16px rgba(124, 58, 237, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 16px rgba(124, 58, 237, 0.8), 0 0 32px rgba(124, 58, 237, 0.4);
-  }
-}
-
-.animate-key-glow {
-  animation: key-glow 1.5s ease-in-out infinite;
-}
-
-/* Эффект загрузки для кнопок */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-spinner {
-  animation: spin 1s linear infinite;
 }
 
 /* Эффект переливания для текста */
@@ -1006,20 +833,6 @@ body {
   animation: shimmer-text 3s linear infinite;
 }
 
-/* Эффект увеличения при наведении для иконок */
-.icon-hover-scale {
-  transition: transform 0.2s ease;
-}
-
-.icon-hover-scale:hover {
-  transform: scale(1.2) rotate(5deg);
-}
-
-/* Эффект тени для плавающих элементов */
-.shadow-floating {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(124, 58, 237, 0.2);
-}
-
 /* Эффект градиентного фона для карточек */
 .gradient-card {
   background: linear-gradient(
@@ -1032,12 +845,8 @@ body {
 
 /* Адаптивность для новых анимаций */
 @media (prefers-reduced-motion: reduce) {
-  .animate-float,
   .animate-rotate-glow,
-  .animate-rainbow,
   .animate-glow-pulse,
-  .animate-key-glow,
-  .animate-notification-pulse,
   .text-shimmer {
     animation: none;
   }
@@ -1054,12 +863,7 @@ body {
   .animate-scale-in,
   .animate-pulse-glow,
   .animate-combo-scale,
-  .animate-slide-in-left,
-  .animate-slide-in-right,
-  .animate-marquee,
-  .loading-spinner,
   .progress-wave::before,
-  .sparkle,
   .animate-shimmer,
   .char.current {
     animation: none !important;

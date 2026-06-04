@@ -59,6 +59,13 @@ const LazyFallback = () => {
   return <div className="p-8 text-center">{t('action.loading')}</div>
 }
 
+const retryBtn = (onRetry?: () => void, retryLabel = 'Try again') =>
+  onRetry ? (
+    <button onClick={onRetry} className="px-3 py-1.5 text-xs bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors">
+      {retryLabel}
+    </button>
+  ) : null
+
 function SectionErrorFallback({ label, onRetry, retryLabel }: { label: string; onRetry?: () => void; retryLabel?: string }) {
   return (
     <div className="glass rounded-xl p-8 text-center" role="alert">
@@ -68,15 +75,23 @@ function SectionErrorFallback({ label, onRetry, retryLabel }: { label: string; o
         </svg>
       </div>
       <p className="text-sm text-dark-300 mb-3">{label}</p>
-      {onRetry && (
-        <button
-          onClick={onRetry}
-          className="px-3 py-1.5 text-xs bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
-        >
-          {retryLabel || 'Try again'}
-        </button>
-      )}
+      {retryBtn(onRetry, retryLabel)}
     </div>
+  )
+}
+
+function LazyModeRenderer({ modeKey, MotionWrapper, errorLabel, onRetry, children }: {
+  modeKey: string
+  MotionWrapper: typeof StatsMotion | typeof GameMotion | typeof HardcoreMotion
+  errorLabel: string
+  onRetry: () => void
+  children: ReactNode
+}) {
+  const { t } = useAppTranslation()
+  return (
+    <ErrorBoundary key={modeKey} onRetry={onRetry} fallback={<SectionErrorFallback label={errorLabel} onRetry={onRetry} retryLabel={t('action.retry', 'Try again')} />}>
+      <MotionWrapper><Suspense fallback={<LazyFallback/>}>{children}</Suspense></MotionWrapper>
+    </ErrorBoundary>
   )
 }
 
@@ -154,44 +169,44 @@ export function GameModeRenderer({
   // Views
   if (view === 'history') {
     return (
-      <ErrorBoundary key="history" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.historyFailed', 'Failed to load training history')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><TrainingHistory onBack={() => onSetView('main')} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="history" MotionWrapper={StatsMotion} errorLabel={t('error.historyFailed', 'Failed to load training history')} onRetry={() => onSetView('main')}>
+        <TrainingHistory onBack={() => onSetView('main')} />
+      </LazyModeRenderer>
     )
   }
   if (view === 'custom-exercise') {
     return (
-      <ErrorBoundary key="custom-exercise" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.exerciseEditorFailed', 'Failed to load exercise editor')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><CustomExerciseEditor onSave={onSaveCustomExercise} onClose={() => onSetView('main')} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="custom-exercise" MotionWrapper={StatsMotion} errorLabel={t('error.exerciseEditorFailed', 'Failed to load exercise editor')} onRetry={() => onSetView('main')}>
+        <CustomExerciseEditor onSave={onSaveCustomExercise} onClose={() => onSetView('main')} />
+      </LazyModeRenderer>
     )
   }
   if (view === 'tips') {
     return (
-      <ErrorBoundary key="tips" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.tipsFailed', 'Failed to load tips')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><TypingTips /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="tips" MotionWrapper={StatsMotion} errorLabel={t('error.tipsFailed', 'Failed to load tips')} onRetry={() => onSetView('main')}>
+        <TypingTips />
+      </LazyModeRenderer>
     )
   }
   if (view === 'weekly') {
     return (
-      <ErrorBoundary key="weekly" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.weeklyStatsFailed', 'Failed to load weekly statistics')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><WeeklyProgress /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="weekly" MotionWrapper={StatsMotion} errorLabel={t('error.weeklyStatsFailed', 'Failed to load weekly statistics')} onRetry={() => onSetView('main')}>
+        <WeeklyProgress />
+      </LazyModeRenderer>
     )
   }
   if (view === 'statistics') {
     return (
-      <ErrorBoundary key="statistics" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.statisticsFailed', 'Failed to load statistics')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><StatisticsPage onBack={() => onSetView('main')} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="statistics" MotionWrapper={StatsMotion} errorLabel={t('error.statisticsFailed', 'Failed to load statistics')} onRetry={() => onSetView('main')}>
+        <StatisticsPage onBack={() => onSetView('main')} />
+      </LazyModeRenderer>
     )
   }
   if (view === 'learning') {
     return (
-      <ErrorBoundary key="learning" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.learningFailed', 'Failed to load learning mode')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><LearningMode onBack={() => onSetView('main')} onClose={() => onSetView('main')} onStartLesson={() => {}} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="learning" MotionWrapper={StatsMotion} errorLabel={t('error.learningFailed', 'Failed to load learning mode')} onRetry={() => onSetView('main')}>
+        <LearningMode onBack={() => onSetView('main')} onClose={() => onSetView('main')} onStartLesson={() => {}} />
+      </LazyModeRenderer>
     )
   }
 
@@ -200,74 +215,74 @@ export function GameModeRenderer({
 
   if (view === 'admin') {
     return (
-      <ErrorBoundary key="admin" onRetry={() => onSetView('main')} fallback={<SectionErrorFallback label={t('error.adminFailed', 'Failed to load admin panel')} onRetry={() => onSetView('main')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><AdminDashboard onClose={() => onSetView('main')} onNavigate={(v: string) => onSetView(v as View)} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="admin" MotionWrapper={StatsMotion} errorLabel={t('error.adminFailed', 'Failed to load admin panel')} onRetry={() => onSetView('main')}>
+        <AdminDashboard onClose={() => onSetView('main')} onNavigate={(v: string) => onSetView(v as View)} />
+      </LazyModeRenderer>
     )
   }
 
   if (view === 'student-analytics') {
     return (
-      <ErrorBoundary key="student-analytics" onRetry={() => onSetView('admin')} fallback={<SectionErrorFallback label={t('error.studentAnalyticsFailed', 'Failed to load student analytics')} onRetry={() => onSetView('admin')} retryLabel={retry} />}>
-        <StatsMotion><Suspense fallback={<LazyFallback/>}><StudentAnalyticsPage onBack={() => onSetView('admin')} /></Suspense></StatsMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="student-analytics" MotionWrapper={StatsMotion} errorLabel={t('error.studentAnalyticsFailed', 'Failed to load student analytics')} onRetry={() => onSetView('admin')}>
+        <StudentAnalyticsPage onBack={() => onSetView('admin')} />
+      </LazyModeRenderer>
     )
   }
 
   if (gameMode === 'reaction') {
     return (
-      <ErrorBoundary key="reaction" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.reactionFailed', 'Failed to load reaction game')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><ReactionGame onExit={exitToPractice} onComplete={(wpm, accuracy) => onCompleteChallenge('', wpm, accuracy)} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="reaction" MotionWrapper={GameMotion} errorLabel={t('error.reactionFailed', 'Failed to load reaction game')} onRetry={exitToPractice}>
+        <ReactionGame onExit={exitToPractice} onComplete={(wpm, accuracy) => onCompleteChallenge('', wpm, accuracy)} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'duel') {
     return (
-      <ErrorBoundary key="duel" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.duelFailed', 'Failed to load duel game')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><DuelMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="duel" MotionWrapper={GameMotion} errorLabel={t('error.duelFailed', 'Failed to load duel game')} onRetry={exitToPractice}>
+        <DuelMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'code') {
     return (
-      <ErrorBoundary key="code" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.codeFailed', 'Failed to load code mode')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><CodeMode onExit={exitToPractice} onComplete={onSessionComplete} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="code" MotionWrapper={GameMotion} errorLabel={t('error.codeFailed', 'Failed to load code mode')} onRetry={exitToPractice}>
+        <CodeMode onExit={exitToPractice} onComplete={onSessionComplete} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'marathon') {
     return (
-      <ErrorBoundary key="marathon" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.marathonFailed', 'Failed to load marathon mode')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><MarathonMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="marathon" MotionWrapper={GameMotion} errorLabel={t('error.marathonFailed', 'Failed to load marathon mode')} onRetry={exitToPractice}>
+        <MarathonMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'tournament') {
     return (
-      <ErrorBoundary key="tournament" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.tournamentFailed', 'Failed to load tournament')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><TournamentMode onExit={exitToPractice} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="tournament" MotionWrapper={GameMotion} errorLabel={t('error.tournamentFailed', 'Failed to load tournament')} onRetry={exitToPractice}>
+        <TournamentMode onExit={exitToPractice} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'sprint') {
     return (
-      <ErrorBoundary key="sprint" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.sprintFailed', 'Failed to load sprint mode')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><SprintMode duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="sprint" MotionWrapper={GameMotion} errorLabel={t('error.sprintFailed', 'Failed to load sprint mode')} onRetry={exitToPractice}>
+        <SprintMode duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'hardcore') {
     return (
-      <ErrorBoundary key="hardcore" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.hardcoreFailed', 'Failed to load hardcore mode')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <HardcoreMotion><Suspense fallback={<LazyFallback/>}><HardcoreMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></HardcoreMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="hardcore" MotionWrapper={HardcoreMotion} errorLabel={t('error.hardcoreFailed', 'Failed to load hardcore mode')} onRetry={exitToPractice}>
+        <HardcoreMode onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} />
+      </LazyModeRenderer>
     )
   }
   if (gameMode === 'speedtest') {
     return (
-      <ErrorBoundary key="speedtest" onRetry={exitToPractice} fallback={<SectionErrorFallback label={t('error.speedtestFailed', 'Failed to load speed test')} onRetry={exitToPractice} retryLabel={retry} />}>
-        <GameMotion><Suspense fallback={<LazyFallback/>}><SpeedTest duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} /></Suspense></GameMotion>
-      </ErrorBoundary>
+      <LazyModeRenderer modeKey="speedtest" MotionWrapper={GameMotion} errorLabel={t('error.speedtestFailed', 'Failed to load speed test')} onRetry={exitToPractice}>
+        <SpeedTest duration={speedTestDuration} onExit={exitToPractice} onComplete={onSessionComplete} sound={sound} />
+      </LazyModeRenderer>
     )
   }
 

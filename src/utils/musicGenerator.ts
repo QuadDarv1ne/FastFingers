@@ -5,7 +5,7 @@
 
 export type MusicGenre = 'ambient' | 'electronic' | 'classical' | 'jazz' | 'lofi' | 'cinematic'
 
-export interface MusicGeneratorOptions {
+interface MusicGeneratorOptions {
   genre: MusicGenre
   tempo: number // BPM
   volume: number // 0-1
@@ -41,7 +41,7 @@ const BASE_FREQUENCIES: Record<string, number> = {
   'B': 493.88,
 }
 
-export class MusicGenerator {
+class MusicGenerator {
   private audioContext: AudioContext | null = null
   private masterGain: GainNode | null = null
   private isPlaying: boolean = false
@@ -465,14 +465,6 @@ export class MusicGenerator {
     envelope.connect(this.masterGain)
 
     noise.start(time)
-  }
-
-  getGenre(): MusicGenre {
-    return this.currentGenre
-  }
-
-  isPlayingStatus(): boolean {
-    return this.isPlaying
   }
 }
 

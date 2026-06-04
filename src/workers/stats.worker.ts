@@ -300,6 +300,7 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
       type: 'ERROR',
       payload: error instanceof Error ? error.message : 'Unknown error',
     } as WorkerResult)
+    self.close()
   }
 }
 

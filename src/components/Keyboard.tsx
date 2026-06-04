@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { memo, useMemo, useCallback } from 'react'
+import { memo, useMemo } from 'react'
 import type { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
 import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
@@ -20,7 +20,6 @@ interface KeyboardProps {
   showHeatmap?: boolean
   onToggleHeatmap?: (show: boolean) => void
   skin?: KeyboardSkin
-  onKeyTouch?: (key: string) => void
 }
 
 export const Keyboard = memo<KeyboardProps>(function Keyboard({
@@ -30,15 +29,10 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   showHeatmap = false,
   onToggleHeatmap,
   skin = 'classic',
-  onKeyTouch,
 }: KeyboardProps) {
   const { t } = useAppTranslation()
   const layoutData = layouts[layout]
   const skinColors = getKeyboardSkin(skin)
-
-  const handleKeyTouch = useCallback((key: string) => {
-    onKeyTouch?.(key)
-  }, [onKeyTouch])
 
   // Мемоизация вычисления подсветки и тепловой карты
   // heatmap стабилизирован — пересчитываем только когда реально изменились ключи
@@ -147,17 +141,6 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   tabIndex={0}
                   aria-label={`${t('keyboard.key', 'Key')} ${key.toUpperCase()}`}
                   aria-pressed={highlightKey === key.toLowerCase()}
-                  onTouchStart={(e) => {
-                    e.preventDefault()
-                    handleKeyTouch(key.toLowerCase())
-                  }}
-                  onMouseDown={() => handleKeyTouch(key.toLowerCase())}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleKeyTouch(key.toLowerCase())
-                    }
-                  }}
                 >
                   {key.toUpperCase()}
                   {showHeatmap && heatmapData?.total && heatmapData.total >= 3 && (
@@ -177,12 +160,6 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             type="button"
             className="w-48 sm:w-64 h-9 bg-dark-800 rounded-lg flex items-center justify-center text-xs text-dark-500 touch-manipulation select-none active:bg-dark-700 transition-colors"
             aria-label={t('keyboard.space', 'Space')}
-            onTouchStart={(e) => {
-              e.preventDefault()
-              handleKeyTouch(' ')
-            }}
-            onMouseDown={() => handleKeyTouch(' ')}
-            onClick={() => handleKeyTouch(' ')}
           >
             {t('common.chars').charAt(0)}
           </button>

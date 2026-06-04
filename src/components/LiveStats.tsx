@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAppTranslation } from '../i18n/config'
 import { formatDuration } from '../utils/number'
 
 interface LiveStatsProps {
@@ -18,6 +19,7 @@ export function LiveStats({
   wordsTyped,
   combo,
 }: LiveStatsProps) {
+  const { t } = useAppTranslation()
   const [prevWpm, setPrevWpm] = useState(wpm)
   const [wpmTrend, setWpmTrend] = useState<'up' | 'down' | 'stable'>('stable')
 
@@ -49,7 +51,7 @@ export function LiveStats({
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {/* WPM */}
       <LiveStatCard
-        label="Скорость"
+        label={t('common.speed')}
         value={wpm}
         unit="WPM"
         color={getWpmColor(wpm)}
@@ -59,7 +61,7 @@ export function LiveStats({
 
       {/* Accuracy */}
       <LiveStatCard
-        label="Точность"
+        label={t('common.accuracy')}
         value={accuracy}
         unit="%"
         color={getAccuracyColor(accuracy)}
@@ -68,7 +70,7 @@ export function LiveStats({
 
       {/* Errors */}
       <LiveStatCard
-        label="Ошибки"
+        label={t('common.errors')}
         value={errors}
         unit=""
         color={errors > 10 ? 'text-red-400' : 'text-dark-400'}
@@ -77,7 +79,7 @@ export function LiveStats({
 
       {/* Time */}
       <LiveStatCard
-        label="Время"
+        label={t('common.time')}
         value={formatDuration(timeElapsed)}
         unit=""
         color="text-blue-400"
@@ -87,7 +89,7 @@ export function LiveStats({
 
       {/* Words */}
       <LiveStatCard
-        label="Слова"
+        label={t('common.words')}
         value={wordsTyped}
         unit=""
         color="text-purple-400"
@@ -96,7 +98,7 @@ export function LiveStats({
 
       {/* Combo */}
       <LiveStatCard
-        label="Комбо"
+        label={t('common.combo')}
         value={combo}
         unit=""
         color={combo >= 10 ? 'text-orange-400' : 'text-dark-400'}
@@ -169,6 +171,7 @@ export function LiveStatsCompact({
   accuracy: number
   errors: number
 }) {
+  const { t } = useAppTranslation()
   return (
     <div className="flex items-center gap-4 text-sm">
       <div className="flex items-center gap-1">
@@ -176,13 +179,13 @@ export function LiveStatsCompact({
         <span className="font-bold text-primary-400">{wpm.toFixed(0)}</span>
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-dark-400">Точность:</span>
+        <span className="text-dark-400">{t('common.accuracy')}:</span>
         <span className={`font-bold ${accuracy >= 95 ? 'text-green-400' : accuracy >= 85 ? 'text-yellow-400' : 'text-red-400'}`}>
           {accuracy.toFixed(0)}%
         </span>
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-dark-400">Ошибки:</span>
+        <span className="text-dark-400">{t('common.errors')}:</span>
         <span className="font-bold text-red-400">{errors}</span>
       </div>
     </div>
