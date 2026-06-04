@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAppTranslation } from '../i18n/config'
 
 interface ReactionGameProps {
   onExit: () => void
@@ -21,6 +22,7 @@ const KEY_ROWS = [
 ]
 
 export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
+  const { t } = useAppTranslation()
   const [targets, setTargets] = useState<KeyTarget[]>([])
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
@@ -49,7 +51,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   useEffect(() => { comboRef.current = combo }, [combo])
   useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
 
-  // Генерация случайной позиции
+  // Random position generation
   const getRandomPosition = useCallback(() => {
     const rowIndex = Math.floor(Math.random() * KEY_ROWS.length)
     const row = KEY_ROWS[rowIndex]
@@ -67,12 +69,12 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     }
   }, [])
 
-  // Создание новой цели
+  // Spawn a new target
   const spawnTarget = useCallback(() => {
     const newTarget = getRandomPosition()
     setTargets(prev => [...prev, newTarget])
     
-    // Цель исчезает через 1.5 секунды
+    // Target disappears after 1.5 seconds
     const timeoutId = setTimeout(() => {
       timeoutIdsRef.current.delete(timeoutId)
       targetTimeoutsRef.current.delete(newTarget.id)
@@ -89,7 +91,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     targetTimeoutsRef.current.set(newTarget.id, timeoutId)
   }, [getRandomPosition])
 
-  // Игровой цикл
+  // Game loop
   useEffect(() => {
     if (!isPlaying) return
 
@@ -127,7 +129,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     }
   }, [isPlaying, spawnTarget, onComplete])
 
-  // Старт игры
+  // Start game
   const handleStart = () => {
     setIsPlaying(true)
     setScore(0)
@@ -140,7 +142,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     spawnTarget()
   }
 
-  // Клик по цели
+  // Target click handler
   const handleTargetClick = useCallback((id: number) => {
     if (!isPlayingRef.current) return
 
@@ -162,7 +164,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
     })
   }, [])
 
-  // Обработка клавиатуры
+  // Keyboard handling
   useEffect(() => {
     if (!isPlaying) return
 
@@ -201,30 +203,30 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
   return (
     <div className="fixed inset-0 bg-dark-900 z-50 flex flex-col">
-      {/* Верхняя панель */}
+      {/* Top bar */}
       <div className="glass border-b border-dark-700 p-4">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
               <span>⚡</span>
-              Игра на реакцию
+              {t('reaction.title')}
             </h2>
-            <p className="text-sm text-dark-400">Нажимайте клавиши, когда они появляются</p>
+            <p className="text-sm text-dark-400">{t('reaction.subtitle')}</p>
           </div>
           
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <p className="text-xs text-dark-400">Счёт</p>
+              <p className="text-xs text-dark-400">{t('reaction.score')}</p>
               <p className="text-2xl font-bold text-primary-400">{score}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-dark-400">Комбо</p>
+              <p className="text-xs text-dark-400">{t('common.combo')}</p>
               <p className={`text-2xl font-bold ${combo >= 5 ? 'text-yellow-400' : 'text-dark-300'}`}>
                 x{combo}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-dark-400">Время</p>
+              <p className="text-xs text-dark-400">{t('common.time')}</p>
               <p className={`text-2xl font-bold font-mono ${timeLeft <= 5 ? 'text-error' : 'text-dark-300'}`}>
                 {timeLeft}s
               </p>
@@ -232,6 +234,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
             <button
               onClick={onExit}
               className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
+              aria-label={t('action.exit')}
             >
               <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -240,7 +243,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
           </div>
         </div>
         
-        {/* Прогресс бар времени */}
+        {/* Time progress bar */}
         <div className="mt-4 h-1 bg-dark-800 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-primary-600 to-purple-500"
@@ -250,9 +253,9 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
         </div>
       </div>
 
-      {/* Игровая зона */}
+      {/* Game area */}
       <div ref={gameAreaRef} className="flex-1 relative overflow-hidden">
-        {/* Сетка клавиатуры (фон) */}
+        {/* Keyboard grid (background) */}
         <div className="absolute inset-0 flex items-center justify-center opacity-20">
           <div className="space-y-2">
             {KEY_ROWS.map((row, i) => (
@@ -270,7 +273,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
           </div>
         </div>
 
-        {/* Цели */}
+        {/* Targets */}
         <AnimatePresence>
           {targets.map(target => (
             <motion.button
@@ -295,7 +298,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
           ))}
         </AnimatePresence>
 
-        {/* Оверлей старта */}
+        {/* Start overlay */}
         {!isPlaying && timeLeft === GAME_DURATION && (
           <div className="absolute inset-0 bg-dark-900/90 flex items-center justify-center">
             <div className="text-center max-w-md mx-auto p-8">
@@ -308,20 +311,19 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 <span className="text-5xl">⚡</span>
               </motion.div>
               
-              <h3 className="text-3xl font-bold mb-4">Игра на реакцию</h3>
+              <h3 className="text-3xl font-bold mb-4">{t('reaction.title')}</h3>
               <p className="text-dark-400 mb-6">
-                На экране будут появляться буквы. Нажимайте соответствующие клавиши 
-                как можно быстрее!
+                {t('reaction.subtitle')}
               </p>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Попал</p>
+                  <p className="text-sm text-dark-400">{t('reaction.hits')}</p>
                   <p className="text-2xl font-bold text-success">+10 XP</p>
                 </div>
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Комбо</p>
-                  <p className="text-2xl font-bold text-yellow-400">+1 за серию</p>
+                  <p className="text-sm text-dark-400">{t('common.combo')}</p>
+                  <p className="text-2xl font-bold text-yellow-400">{t('reaction.comboBonus')}</p>
                 </div>
               </div>
               
@@ -330,13 +332,13 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl 
                            font-bold text-lg transition-colors shadow-lg shadow-primary-500/30"
               >
-                Начать игру
+                {t('reaction.startGame')}
               </button>
             </div>
           </div>
         )}
 
-        {/* Оверлей завершения */}
+        {/* Completion overlay */}
         {!isPlaying && timeLeft === 0 && (
           <div className="absolute inset-0 bg-dark-900/90 flex items-center justify-center">
             <div className="text-center max-w-md mx-auto p-8">
@@ -350,25 +352,25 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 <span className="text-5xl">🎉</span>
               </motion.div>
               
-              <h3 className="text-3xl font-bold mb-6">Игра завершена</h3>
+              <h3 className="text-3xl font-bold mb-6">{t('reaction.gameOver')}</h3>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Счёт</p>
+                  <p className="text-sm text-dark-400">{t('reaction.score')}</p>
                   <p className="text-3xl font-bold text-primary-400">{score}</p>
                 </div>
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Точность</p>
+                  <p className="text-sm text-dark-400">{t('common.accuracy')}</p>
                   <p className="text-3xl font-bold text-success">
                     {hits + missed > 0 ? Math.round((hits / (hits + missed)) * 100) : 0}%
                   </p>
                 </div>
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Промахи</p>
+                  <p className="text-sm text-dark-400">{t('reaction.misses')}</p>
                   <p className="text-3xl font-bold text-error">{missed}</p>
                 </div>
                 <div className="bg-dark-800 rounded-lg p-4">
-                  <p className="text-sm text-dark-400">Макс. комбо</p>
+                  <p className="text-sm text-dark-400">{t('reaction.maxCombo')}</p>
                   <p className="text-3xl font-bold text-yellow-400">{maxCombo}</p>
                 </div>
               </div>
@@ -378,13 +380,13 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                   onClick={onExit}
                   className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
                 >
-                  Меню
+                  {t('reaction.menu')}
                 </button>
                 <button
                   onClick={handleStart}
                   className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
                 >
-                  Играть снова
+                  {t('reaction.playAgain')}
                 </button>
               </div>
             </div>
@@ -392,19 +394,19 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
         )}
       </div>
 
-      {/* Статистика */}
+      {/* Stats */}
       <div className="glass border-t border-dark-700 p-4">
         <div className="flex justify-center gap-8 text-sm">
           <div className="text-center">
-            <span className="text-dark-400">Попал: </span>
+            <span className="text-dark-400">{t('reaction.hitsLabel')} </span>
             <span className="text-success font-bold">{hits}</span>
           </div>
           <div className="text-center">
-            <span className="text-dark-400">Промах: </span>
+            <span className="text-dark-400">{t('reaction.missesLabel')} </span>
             <span className="text-error font-bold">{missed}</span>
           </div>
           <div className="text-center">
-            <span className="text-dark-400">Комбо: </span>
+            <span className="text-dark-400">{t('common.combo')}: </span>
             <span className="text-yellow-400 font-bold">x{combo}</span>
           </div>
         </div>
