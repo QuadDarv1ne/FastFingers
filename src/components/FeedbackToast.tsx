@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAppTranslation } from '../i18n/config'
 
 interface FeedbackToastProps {
   type: 'success' | 'error' | 'info' | 'warning'
@@ -16,6 +17,7 @@ export function FeedbackToast({
   onClose,
   duration = 3000
 }: FeedbackToastProps) {
+  const { t } = useAppTranslation()
   useEffect(() => {
     if (!isVisible || duration <= 0) return
 
@@ -74,6 +76,7 @@ export function FeedbackToast({
             <button
               onClick={onClose}
               className="ml-2 hover:bg-white/20 rounded-lg p-1 transition-colors"
+              aria-label={t('action.close')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

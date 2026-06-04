@@ -349,6 +349,7 @@ function GoalCard({ goal, onDelete, onEdit }: { goal: Goal; onDelete?: () => voi
                   onClick={() => onEdit({ title: goal.title, description: goal.description, target: goal.target, unit: goal.unit, icon: goal.icon })}
                   className="p-1 text-dark-400 hover:text-primary-400 transition-colors"
                   title="Редактировать"
+                  aria-label="Edit goal"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -360,6 +361,7 @@ function GoalCard({ goal, onDelete, onEdit }: { goal: Goal; onDelete?: () => voi
                   onClick={onDelete}
                   className="p-1 text-dark-400 hover:text-error transition-colors"
                   title="Удалить"
+                  aria-label="Delete goal"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -491,6 +493,7 @@ function AddGoalModal({
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
+            aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -639,7 +642,7 @@ function EditGoalModal({
       <div className="glass rounded-2xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold">Редактировать цель</h3>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center" aria-label="Close">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
