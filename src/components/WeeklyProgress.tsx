@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useAppTranslation } from '../i18n/config'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 
 interface WeeklyProgressProps {
@@ -6,11 +7,20 @@ interface WeeklyProgressProps {
 }
 
 export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
+  const { t } = useAppTranslation()
   const { history } = useTypingHistory()
 
-  // Получаем данные за последние 7 дней
+  // Get data for the last 7 days
   const weeklyData = useMemo(() => {
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+    const days = [
+      t('stats.day.mon'),
+      t('stats.day.tue'),
+      t('stats.day.wed'),
+      t('stats.day.thu'),
+      t('stats.day.fri'),
+      t('stats.day.sat'),
+      t('stats.day.sun'),
+    ]
     const today = new Date()
     const result = []
 
@@ -44,7 +54,7 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     }
 
     return result
-  }, [history.sessions])
+  }, [history.sessions, t])
 
   const maxSessions = Math.max(...weeklyData.map(d => d.sessions), 1)
   const maxXp = Math.max(...weeklyData.map(d => d.xp), 1)
@@ -75,9 +85,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     return (
       <div className="space-y-2">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-sm font-medium text-dark-400">Эта неделя</h3>
+          <h3 className="text-sm font-medium text-dark-400">{t('weekly.thisWeek')}</h3>
           <span className="text-xs text-primary-400">
-            {totalSessions} тренировок
+            {t('weekly.sessionsCount', { count: totalSessions })}
           </span>
         </div>
         <div className="flex gap-1 h-16">
@@ -93,11 +103,11 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
                   minHeight: day.sessions > 0 ? '4px' : '0',
                 }}
               />
-              {/* Тултип */}
+              {/* Tooltip */}
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 
                             bg-dark-900 text-xs text-white rounded opacity-0 group-hover:opacity-100 
                             transition-opacity whitespace-nowrap pointer-events-none z-10">
-                {day.sessions} тренировок
+                {t('weekly.sessionsCount', { count: day.sessions })}
                 <br />
                 {day.xp} XP
               </div>
@@ -117,21 +127,21 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     <div className="glass rounded-xl p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold">Прогресс за неделю</h2>
-          <p className="text-sm text-dark-400">Активность за последние 7 дней</p>
+          <h2 className="text-lg font-bold">{t('weekly.title')}</h2>
+          <p className="text-sm text-dark-400">{t('weekly.activity')}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-dark-400">Всего</p>
+          <p className="text-sm text-dark-400">{t('weekly.totalLabel')}</p>
           <p className="text-xl font-bold text-primary-400">
             {totalSessions}
           </p>
-          <p className="text-xs text-dark-500">тренировок</p>
+          <p className="text-xs text-dark-500">{t('weekly.trainings')}</p>
         </div>
       </div>
 
-      {/* График тренировок */}
+      {/* Training chart */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-dark-400 mb-3">Тренировки по дням</h3>
+        <h3 className="text-sm font-medium text-dark-400 mb-3">{t('weekly.byDay')}</h3>
         <div className="flex gap-2 h-32">
           {weeklyData.map((day, index) => (
             <div
@@ -146,14 +156,14 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
                   minHeight: day.sessions > 0 ? '8px' : '0',
                 }}
               />
-              {/* Тултип */}
+              {/* Tooltip */}
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 
                             bg-dark-900 text-xs text-white rounded opacity-0 group-hover:opacity-100 
                             transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-lg">
                 <p className="font-bold">{day.dayName}, {day.dayNum}</p>
-                <p className="text-primary-400">{day.sessions} тренировок</p>
+                <p className="text-primary-400">{t('weekly.sessionsCount', { count: day.sessions })}</p>
                 <p className="text-yellow-400">{day.xp} XP</p>
-                <p className="text-dark-400">{Math.round(day.totalTime / 60)} мин</p>
+                <p className="text-dark-400">{Math.round(day.totalTime / 60)} {t('weekly.minutes')}</p>
               </div>
             </div>
           ))}
@@ -171,9 +181,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
         </div>
       </div>
 
-      {/* Статистика по XP */}
+      {/* XP statistics */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-dark-400 mb-3">Заработанный XP</h3>
+        <h3 className="text-sm font-medium text-dark-400 mb-3">{t('weekly.earnedXp')}</h3>
         <div className="flex gap-2 h-20">
           {weeklyData.map((day, index) => (
             <div
@@ -193,10 +203,10 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
         </div>
       </div>
 
-      {/* Сводка */}
+      {/* Summary */}
       <div className="grid grid-cols-4 gap-3">
         <div className="bg-dark-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-dark-400">Тренировок</p>
+          <p className="text-xs text-dark-400">{t('weekly.trainings')}</p>
           <p className="text-lg font-bold text-primary-400">
             {totalSessions}
           </p>
@@ -208,15 +218,15 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
           </p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-dark-400">Ср. WPM</p>
+          <p className="text-xs text-dark-400">{t('weekly.avgWpmLabel')}</p>
           <p className="text-lg font-bold text-success">
             {avgWpmWeek}
           </p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-dark-400">Время</p>
+          <p className="text-xs text-dark-400">{t('weekly.timeLabel')}</p>
           <p className="text-lg font-bold text-dark-300">
-            {totalTimeWeek} мин
+            {totalTimeWeek} {t('weekly.minutes')}
           </p>
         </div>
       </div>
