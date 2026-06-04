@@ -15,6 +15,7 @@ FastFingers is a typing trainer (blind typing) built with React 18, TypeScript, 
 ## Branch Strategy
 - Only `main` branch is used. No `dev` branch exists.
 - All changes are committed directly to `main`.
+- Remote branches (dependabot, feature, etc.) are deleted after merge.
 
 ## Commands
 
@@ -23,12 +24,21 @@ FastFingers is a typing trainer (blind typing) built with React 18, TypeScript, 
 - `npm run test:run -- src/path/to/test` — single test file
 - `npm run test:coverage` — with coverage
 
+### TypeScript
+- `npx tsc --noEmit` — type check without emitting
+
 ### Build
 - `npm run build` — TypeScript check + production build
 - `npm run build:fast` — skip TypeScript check
 
 ### Lint
 - `npm run lint`
+
+## Code Conventions
+- Use `import type` for types-only imports (`import type { X }` not `import { X }`)
+- Avoid thunk wrappers when direct values suffice (`safeParseInt(value)` not `safeParseInt(() => value)`)
+- `ErrorBoundary.componentDidCatch` owns Sentry reporting (not wrappers) to prevent double-reporting
+- Cumulative stats in merge logic use `Math.max` (not `+`) to prevent unbounded growth on repeated sync
 
 ## Project Structure
 ```

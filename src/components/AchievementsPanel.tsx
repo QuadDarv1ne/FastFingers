@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 import { useAppTranslation } from '../i18n/config'
@@ -87,6 +87,8 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
     []
   )
 
+  const checkKeyRef = useRef('')
+
   // Initialize achievements
   useEffect(() => {
     if (achievements.length === 0) {
@@ -98,8 +100,12 @@ export function AchievementsPanel({ onClose, progress: _progress, stats }: Achie
     }
   }, [achievements.length, ACHIEVEMENTS, setAchievements])
 
-  // Check and unlock achievements
+  // Check and unlock achievements — only re-checks when relevant stats values change
   useEffect(() => {
+    const checkKey = `${stats.maxWpm}|${stats.maxAccuracy}|${stats.totalWords}|${stats.totalSessions}|${stats.currentStreak}|${stats.perfectSessions}|${stats.duelsPlayed}|${stats.tournamentsPlayed}|${stats.customExercisesCreated}|${stats.dailyChallengesCompleted}|${stats.gameModesUsed}|${stats.level}`
+    if (checkKeyRef.current === checkKey) return
+    checkKeyRef.current = checkKey
+
     const updated = achievements.map(ach => {
       if (ach.unlocked) return ach
 

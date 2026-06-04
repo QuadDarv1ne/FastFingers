@@ -557,7 +557,7 @@ describe('useProgressStore Integration', () => {
           })
         })
 
-        const [bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
+        const { bestWpm, avgAccuracy, totalPracticeTime } = result.current
         expect(bestWpm).toBe(50)
         expect(avgAccuracy).toBe(90)
         expect(totalPracticeTime).toBe(120)
@@ -579,10 +579,10 @@ describe('useProgressStore Integration', () => {
           })
         })
 
-        let [bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
-        expect(bestWpm).toBe(40)
-        expect(avgAccuracy).toBe(85)
-        expect(totalPracticeTime).toBe(60)
+        const first = result.current
+        expect(first.bestWpm).toBe(40)
+        expect(first.avgAccuracy).toBe(85)
+        expect(first.totalPracticeTime).toBe(60)
 
         act(() => {
           useProgressStore.getState().addSession({
@@ -597,10 +597,10 @@ describe('useProgressStore Integration', () => {
           })
         })
 
-        ;[bestWpm, avgAccuracy, totalPracticeTime] = result.current.split('|').map(Number)
-        expect(bestWpm).toBe(55)
-        expect(avgAccuracy).toBe(89) // среднее 85 и 92 = 88.5 → 89
-        expect(totalPracticeTime).toBe(150)
+        const second = result.current
+        expect(second.bestWpm).toBe(55)
+        expect(second.avgAccuracy).toBe(89)
+        expect(second.totalPracticeTime).toBe(150)
       })
     })
   })

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 import { calculateLevel } from '../utils/stats'
 
 interface TypingSession {
@@ -149,10 +150,8 @@ export const useTotalPracticeTime = () =>
 
 /** All three computed stats at once — single subscription for stats panels */
 export const useProgressStats = () =>
-  useProgressStore((state) => {
-    const bestWpm = getBestWpmFromSessions(state.sessions)
-    const avgAccuracy = getAvgAccuracyFromSessions(state.sessions)
-    const totalPracticeTime = getTotalPracticeTimeFromSessions(state.sessions)
-    // Return a string key to avoid creating new objects in selector (prevents infinite loop)
-    return `${bestWpm}|${avgAccuracy}|${totalPracticeTime}`
-  })
+  useProgressStore(useShallow((state) => ({
+    bestWpm: getBestWpmFromSessions(state.sessions),
+    avgAccuracy: getAvgAccuracyFromSessions(state.sessions),
+    totalPracticeTime: getTotalPracticeTimeFromSessions(state.sessions),
+  })))

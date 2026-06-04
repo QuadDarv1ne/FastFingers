@@ -8,6 +8,7 @@ try {
   await build()
   console.log('✓ Build completed successfully')
 } catch (error) {
-  console.error('✗ Build failed:', error.message)
+  const message = error instanceof Error ? error.message : String(error)
+  console.error('✗ Build failed:', message)
   process.exit(1)
 }

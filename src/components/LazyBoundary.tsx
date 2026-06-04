@@ -4,14 +4,15 @@ import { LoadingFallback } from './LoadingFallback'
 
 interface LazyBoundaryProps {
   children: ReactNode
-  fallback?: ReactNode
+  loadingFallback?: ReactNode
+  errorFallback?: ReactNode
   onError?: (error: Error) => void
 }
 
-export function LazyBoundary({ children, fallback, onError }: LazyBoundaryProps) {
+export function LazyBoundary({ children, loadingFallback, errorFallback, onError }: LazyBoundaryProps) {
   return (
-    <ErrorBoundary fallback={fallback || <LoadingFallback />} onError={onError}>
-      <Suspense fallback={fallback || <LoadingFallback />}>
+    <ErrorBoundary fallback={errorFallback || loadingFallback || <LoadingFallback />} onError={onError}>
+      <Suspense fallback={loadingFallback || <LoadingFallback />}>
         {children}
       </Suspense>
     </ErrorBoundary>
