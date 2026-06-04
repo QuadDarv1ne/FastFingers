@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useAppTranslation } from '../i18n/config'
 import { useSessionTimer } from '@hooks/useSessionTimer'
 import { useNotifications } from '@hooks/useNotifications'
 
@@ -11,23 +12,24 @@ export function SessionTimerWidget({
   isTyping,
   onBreakStart,
 }: SessionTimerWidgetProps) {
+  const { t } = useAppTranslation()
   const { addNotification } = useNotifications()
 
   const timer = useSessionTimer({
-    breakInterval: 600, // 10 минут
-    breakDuration: 60, // 1 минута
+    breakInterval: 600, // 10 minutes
+    breakDuration: 60, // 1 minute
     onBreakReminder: () => {
       addNotification({
         type: 'info',
-        title: 'Время для перерыва',
-        message: 'Вы печатаете уже 10 минут. Сделайте небольшой перерыв!',
+        title: t('session.breakTitle'),
+        message: t('session.breakMessage'),
         icon: '☕',
       })
     },
     enabled: true,
   })
 
-  // Автоматический старт/пауза при печати
+  // Auto start/pause on typing
   useEffect(() => {
     if (isTyping && !timer.isActive) {
       timer.start()
@@ -41,33 +43,33 @@ export function SessionTimerWidget({
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <span>⏱️</span>
-          Таймер сессии
+          {t('session.timer')}
         </h3>
         {timer.isActive && (
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-xs text-green-400">Активна</span>
+            <span className="text-xs text-green-400">{t('session.active')}</span>
           </div>
         )}
       </div>
 
-      {/* Время сессии */}
+      {/* Session time */}
       <div className="mb-4">
         <div className="flex items-baseline gap-2 mb-1">
           <span className="text-3xl font-bold text-gradient">
             {timer.formatTime(timer.sessionTime)}
           </span>
-          <span className="text-xs text-dark-400">текущая сессия</span>
+          <span className="text-xs text-dark-400">{t('session.currentSession')}</span>
         </div>
         <div className="text-sm text-dark-400">
-          Сегодня: {timer.formatTime(timer.totalTime)}
+          {t('session.today')} {timer.formatTime(timer.totalTime)}
         </div>
       </div>
 
-      {/* Прогресс до перерыва */}
+      {/* Break progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-xs mb-2">
-          <span className="text-dark-400">До перерыва</span>
+          <span className="text-dark-400">{t('session.untilBreak')}</span>
           <span className="font-medium">
             {timer.formatTime(
               Math.max(
@@ -101,17 +103,17 @@ export function SessionTimerWidget({
         </div>
       </div>
 
-      {/* Уведомление о перерыве */}
+      {/* Break notification */}
       {timer.needsBreak && (
         <div className="p-3 bg-orange-500/20 border border-orange-500/50 rounded-lg mb-4 animate-scale-in">
           <div className="flex items-start gap-2 mb-3">
             <span className="text-xl">☕</span>
             <div className="flex-1">
               <p className="text-sm font-semibold text-orange-400">
-                Пора отдохнуть!
+                {t('session.breakTitle')}
               </p>
               <p className="text-xs text-dark-300 mt-1">
-                Рекомендуем сделать перерыв на {timer.breakDuration} секунд
+                {t('session.breakRecommend', { duration: timer.breakDuration })}
               </p>
             </div>
           </div>
@@ -123,19 +125,19 @@ export function SessionTimerWidget({
               }}
               className="flex-1 px-3 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-medium transition-colors"
             >
-              Сделать перерыв
+              {t('session.takeBreak')}
             </button>
             <button
               onClick={timer.skipBreak}
               className="px-3 py-2 bg-dark-700 hover:bg-dark-600 rounded-lg text-xs font-medium transition-colors"
             >
-              Пропустить
+              {t('action.skip')}
             </button>
           </div>
         </div>
       )}
 
-      {/* Кнопки управления */}
+      {/* Controls */}
       <div className="flex gap-2">
         {!timer.isActive ? (
           <button
@@ -153,7 +155,7 @@ export function SessionTimerWidget({
                 clipRule="evenodd"
               />
             </svg>
-            Старт
+            {t('action.start')}
           </button>
         ) : (
           <button
@@ -171,13 +173,14 @@ export function SessionTimerWidget({
                 clipRule="evenodd"
               />
             </svg>
-            Пауза
+            {t('action.pause')}
           </button>
         )}
         <button
           onClick={timer.reset}
           className="px-3 py-2 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm font-medium transition-colors"
-          title="Сбросить сессию"
+          title={t('session.resetTitle')}
+          aria-label={t('session.resetTitle')}
         >
           <svg
             className="w-4 h-4"
@@ -195,11 +198,10 @@ export function SessionTimerWidget({
         </button>
       </div>
 
-      {/* Советы */}
+      {/* Tips */}
       <div className="mt-4 p-3 bg-dark-800/50 rounded-lg">
         <p className="text-xs text-dark-400">
-          💡 <span className="font-medium">Совет:</span> Регулярные перерывы
-          помогают избежать усталости и улучшают концентрацию.
+          💡 <span className="font-medium">{t('session.tip')}</span> {t('session.tipText')}
         </p>
       </div>
     </div>
