@@ -47,12 +47,18 @@ const CONFETTI_CONFIG = {
 const SIDE_SHOT_DELAYS = [300, 600, 900] as const
 
 let activeAnimationIds = new Set<number>()
+let activeTimeouts: ReturnType<typeof setTimeout>[] = []
 
 export function clearAllConfetti() {
   for (const id of activeAnimationIds) {
     cancelAnimationFrame(id)
   }
   activeAnimationIds.clear()
+
+  for (const timeout of activeTimeouts) {
+    clearTimeout(timeout)
+  }
+  activeTimeouts = []
 }
 
 function trackAnimation(id: number) {
@@ -79,7 +85,9 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
 
   const sideTimeouts: ReturnType<typeof setTimeout>[] = []
   for (let i = 0; i < SIDE_SHOT_DELAYS.length; i++) {
-    sideTimeouts.push(setTimeout(sideConfetti, SIDE_SHOT_DELAYS[i]))
+    const timeout = setTimeout(sideConfetti, SIDE_SHOT_DELAYS[i])
+    sideTimeouts.push(timeout)
+    activeTimeouts.push(timeout)
   }
 
   let continuousId: number
@@ -96,7 +104,11 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
   continuousId = trackAnimation(requestAnimationFrame(frame))
 
   return () => {
-    sideTimeouts.forEach(clearTimeout)
+    for (const timeout of sideTimeouts) {
+      clearTimeout(timeout)
+      const idx = activeTimeouts.indexOf(timeout)
+      if (idx !== -1) activeTimeouts.splice(idx, 1)
+    }
     cancelAnimationFrame(continuousId)
     untrackAnimation(continuousId)
   }

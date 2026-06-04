@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import {
   AdaptiveDifficultyState,
   createAdaptiveState,
@@ -16,11 +16,10 @@ import {
   getLevelBadge,
   getDifficultyMultiplier,
   analyzeDifficultyHistory,
-  serializeAdaptiveState,
-  deserializeAdaptiveState,
-  DifficultyTrend,
+  type DifficultyTrend,
 } from '../utils/adaptiveDifficulty'
-import { PracticeText, practiceTexts } from '../data/practiceTexts'
+import type { PracticeText } from '../data/practiceTexts'
+import { practiceTexts } from '../data/practiceTexts'
 import { useLocalStorageState } from './useLocalStorageState'
 
 const STORAGE_KEY = 'fastfingers_adaptive_difficulty'
@@ -119,6 +118,4 @@ export function useAdaptiveDifficulty(
 export type { AdaptiveDifficultyState }
 export {
   createAdaptiveState,
-  serializeAdaptiveState,
-  deserializeAdaptiveState,
 }

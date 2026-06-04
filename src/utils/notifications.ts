@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 import { Notification as BellNotification } from '../components/NotificationBell'
 import { Notification as ContextNotification } from '../contexts/NotificationContext'
-import { getFromStorageAsArray } from './storage'
+import { getFromStorageAsArray, setToStorage } from './storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface AchievementData {
@@ -74,7 +74,7 @@ export function addNotification(
   // Keep only last 50 notifications
   const trimmed = notifications.slice(0, 50)
 
-  localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(trimmed))
+  setToStorage(STORAGE_KEYS.NOTIFICATIONS, trimmed)
 
   // Dispatch custom event for real-time updates
   window.dispatchEvent(new CustomEvent('notification-added'))

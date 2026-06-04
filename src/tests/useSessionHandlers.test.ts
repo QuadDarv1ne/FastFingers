@@ -111,6 +111,9 @@ describe('useSessionHandlers', () => {
 
     const expectedXp = Math.floor(100 / 5) + Math.floor(90 / 10)
     expect(mockSetLastSessionXp).toHaveBeenCalledWith(expectedXp)
+    expect(mockAddSession).toHaveBeenCalled()
+    expect(mockHandleSessionComplete).toHaveBeenCalled()
+    expect(mockSetShowSessionSummary).toHaveBeenCalledWith(true)
   })
 
   it('должен рассчитать XP для reaction game с нулевым score', () => {
@@ -121,5 +124,7 @@ describe('useSessionHandlers', () => {
     })
 
     expect(mockSetLastSessionXp).toHaveBeenCalledWith(0)
+    expect(mockAddSession).toHaveBeenCalled()
+    expect(mockHandleSessionComplete).toHaveBeenCalled()
   })
 })

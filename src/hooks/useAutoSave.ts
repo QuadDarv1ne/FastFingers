@@ -68,11 +68,11 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
       settings: d.settings,
       timestamp: Date.now(),
     }
-    const result = setToStorageWithQuotaHandling(storageKey, data)
+    const result = setToStorageWithQuotaHandling(storageKeyRef.current, data)
     if (!result.success) {
       logger.warn('Failed to save:', result.quotaExceeded ? 'quota exceeded' : 'unknown error')
     }
-  }, [storageKey])
+  }, [])
 
   /**
    * Восстановление данных из автосохранения
@@ -151,47 +151,27 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     }
   }, [saveData])
 
-  // Сохранение при закрытии вкладки — регистрируется один раз, читает свежие данные из ref
+  // Сохранение при закрытии вкладки
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      const d = dataRef.current
-      setToStorageWithQuotaHandling(storageKey, {
-        progress: d.progress,
-        currentSession: d.currentSession,
-        heatmap: d.heatmap,
-        settings: d.settings,
-        timestamp: Date.now(),
-      })
-    }
+    const handleBeforeUnload = () => saveData()
 
     window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [storageKey])
+  }, [saveData])
 
   // Page Lifecycle API: сохранение при freeze (mobile/tab discard)
-  // freeze fires only once per page lifecycle, so register once with empty deps
   useEffect(() => {
-    const handleFreeze = () => {
-      const d = dataRef.current
-      const key = storageKeyRef.current
-      setToStorageWithQuotaHandling(key, {
-        progress: d.progress,
-        currentSession: d.currentSession,
-        heatmap: d.heatmap,
-        settings: d.settings,
-        timestamp: Date.now(),
-      })
-    }
+    const handleFreeze = () => saveData()
 
     document.addEventListener('freeze', handleFreeze)
 
     return () => {
       document.removeEventListener('freeze', handleFreeze)
     }
-  }, [])
+  }, [saveData])
 
   // Сохранение при потере фокуса (НЕ восстанавливаем при возврате чтобы не перезаписать текущий прогресс)
   useEffect(() => {

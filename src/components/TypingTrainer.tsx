@@ -227,8 +227,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       e.preventDefault()
 
       if (nextIndex >= textLengthRef.current) {
-        const newResults = [...resultsRef.current, result]
-        handleComplete(newResults)
+        handleComplete(resultsRef.current)
       }
     } finally {
       // Небольшая задержка для предотвращения key repeat
@@ -390,9 +389,6 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       <div
         ref={textContainerRef}
         className="card cursor-text min-h-[250px] sm:min-h-[280px] relative group hover:border-primary-500/30 transition-all"
-        role="textbox"
-        aria-readonly="true"
-        aria-label={t('trainer.aria.practiceArea')}
       >
         {/* Подсказка о фокусе — скрыта на мобильных для экономии места */}
         {!isComplete && (
@@ -409,7 +405,6 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           type="text"
           value=""
           className="sr-only"
-          aria-hidden="true"
           onKeyDown={handleKeyDown}
           readOnly
           onFocus={() => {
@@ -432,7 +427,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
-          spellCheck="false"
+          spellCheck={false}
         />
 
         {/* Live region для screen reader */}
@@ -445,7 +440,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         </div>
         
         {/* Индикатор прогресса */}
-        <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label={t('trainer.aria.progress')}>
+        <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-0" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-valuetext={`${text.length > 0 ? Math.round((currentIndex / text.length) * 100) : 0}%`} aria-label={t('trainer.aria.progress')}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
             <span className="text-dark-400 font-medium">{t('trainer.progressLabel')}</span>
             <span className="text-primary-400 font-bold">{text.length > 0 ? Math.round((currentIndex / text.length) * 100) : 0}%</span>

@@ -64,11 +64,8 @@ function generateDailyChallenge(date: string): DailyChallenge {
   }
 }
 
-// Получение текущей даты в формате YYYY-MM-DD
 function getTodayDate(): string {
-  const date = new Date().toISOString().split('T')[0]
-  if (!date) return new Date().toISOString().split('T')[0] ?? ''
-  return date
+  return new Date().toISOString().split('T')[0] ?? ''
 }
 
 export function useDailyChallenges() {

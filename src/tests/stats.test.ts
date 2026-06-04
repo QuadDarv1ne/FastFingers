@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculateStats,
-  formatTime,
   formatWPM,
   calculateLevel,
   xpForLevel,
@@ -22,6 +21,7 @@ import {
   calculateStreak,
   calculateStreakBonus,
 } from '../utils/stats'
+import { formatDuration as formatTime } from '../utils/number'
 import { KeystrokeData, TypingStats } from '../types'
 
 describe('stats utils', () => {

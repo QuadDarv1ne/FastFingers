@@ -283,8 +283,7 @@ body.scroll-locked {
 }
 
 /* Улучшенные кнопки */
-button,
-.btn {
+button {
   transition: all 0.2s ease;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -292,18 +291,15 @@ button,
   touch-action: manipulation;
 }
 
-button:hover:not(:disabled),
-.btn:hover:not(:disabled) {
+button:hover:not(:disabled) {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-button:active:not(:disabled),
-.btn:active:not(:disabled) {
+button:active:not(:disabled) {
   transform: translateY(0) scale(0.97);
 }
 
-button:disabled,
-.btn:disabled {
+button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -346,44 +342,39 @@ textarea:focus-visible {
 
   /* Disable hover effects only on devices WITHOUT hover capability */
   @media (hover: none) {
-    button:hover,
-    .btn:hover {
+    button:hover {
       transform: none;
     }
   }
 
   /* Better active states for touch */
   button:active,
-  .btn:active,
   [role="button"]:active {
     transform: scale(0.95);
     opacity: 0.8;
   }
 }
 
-/* Фокус клавиши */
+/* Фокус клавиши — без scale, только glow */
 .key-highlight {
-  animation: key-pulse 0.3s ease-out;
+  animation: key-pulse 0.2s ease-out;
 }
 
 @keyframes key-pulse {
   0% {
-    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px 5px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 12px 3px rgba(124, 58, 237, 0.3);
   }
   100% {
-    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
   }
 }
 
-/* Ошибка */
+/* Ошибка — мягкое смещение без дрыганья */
 .shake {
-  animation: shake 0.3s ease-in-out;
+  animation: shake 0.2s ease-in-out;
 }
 
 @keyframes shake {
@@ -392,10 +383,10 @@ textarea:focus-visible {
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-5px);
+    transform: translateX(-2px);
   }
   75% {
-    transform: translateX(5px);
+    transform: translateX(2px);
   }
 }
 
@@ -439,10 +430,6 @@ textarea:focus-visible {
   100% {
     opacity: 0.5;
   }
-}
-
-.typing-cursor {
-  animation: cursor-blink 1s infinite;
 }
 
 /* Карточки */
@@ -1137,8 +1124,7 @@ html[data-contrast='high'] .text-shimmer {
   }
 
   /* Адаптивные кнопки */
-  button,
-  .btn {
+  button {
     min-height: 44px; /* Минимальный размер для touch */
     padding: 0.75rem 1rem !important;
     font-size: 0.875rem !important;

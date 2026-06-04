@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import {
+import type {
   TypingStats,
   KeyHeatmapData,
   KeystrokeData,
@@ -12,12 +12,8 @@ import {
   FunnelStage,
   TimeOfDayPerformance,
 } from '../types'
-import { formatNumber, formatDuration } from './number'
 
 export type KeyHeatmap = KeyHeatmapData
-
-// Экспорт для обратной совместимости
-export { formatNumber, formatDuration as formatTime }
 
 // Константы для calculateSessionXp
 const XP_PER_10_SECONDS = 1

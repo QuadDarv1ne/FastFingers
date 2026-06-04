@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { TypingStats, KeyInputResult } from '../types'
+import type { TypingStats, KeyInputResult } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from './useTypingSound'

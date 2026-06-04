@@ -52,23 +52,17 @@ const ExportImport = lazy(() => import('./components/ExportImport').then((module
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
 
-/** Safely parse integer from string; returns 0 for invalid/missing values */
-const safeParseInt = (getValue: () => string | null): number => {
-  try {
-    const value = getValue()
-    if (!value) return 0
-    const parsed = Number.parseInt(value, 10)
-    return Number.isNaN(parsed) ? 0 : parsed
-  } catch {
-    return 0
-  }
-}
 const safeLocalStorageGet = (key: string): string | null => {
   try {
     return localStorage.getItem(key)
   } catch {
     return null
   }
+}
+const safeParseInt = (value: string | null): number => {
+  if (!value) return 0
+  const parsed = Number.parseInt(value, 10)
+  return Number.isNaN(parsed) ? 0 : parsed
 }
 const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
@@ -536,10 +530,10 @@ function AppContent() {
                 totalSessions: history.totalSessions,
                 currentStreak: progress.streak,
                 perfectSessions: history.sessions.filter(s => s.accuracy >= 99.99).length,
-                duelsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.DUELS_PLAYED)),
-                tournamentsPlayed: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
+                duelsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DUELS_PLAYED)),
+                tournamentsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
                 customExercisesCreated: customExercises.length,
-                dailyChallengesCompleted: safeParseInt(() => localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
+                dailyChallengesCompleted: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
                 gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
                   .split(',')
                   .filter((m): m is string => m.length > 0)]).size,

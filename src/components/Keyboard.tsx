@@ -5,7 +5,7 @@
  */
 
 import { memo, useMemo, useCallback } from 'react'
-import { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
+import type { KeyboardLayout, KeyHeatmapData, KeyboardSkin } from '../types'
 import { layouts, fingerZones } from '../utils/layouts'
 import { getHeatmapColor } from '../utils/stats'
 import { getKeyboardSkin } from '../utils/keyboardSkins'

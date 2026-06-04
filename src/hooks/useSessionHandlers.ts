@@ -60,7 +60,22 @@ export function useSessionHandlers({
   const handleReactionGameComplete = useCallback((score: number, accuracy: number) => {
     const xp = Math.floor(score / 5) + Math.floor(accuracy / 10)
     setLastSessionXp(xp)
-  }, [setLastSessionXp])
+
+    const reactionStats: TypingStats = {
+      wpm: 0,
+      cpm: Math.round(score),
+      accuracy,
+      errors: 0,
+      correctChars: score,
+      totalChars: score,
+      timeElapsed: 30,
+      date: new Date().toISOString(),
+    }
+
+    addSession(reactionStats, xp)
+    handleSessionComplete(reactionStats, xp)
+    setShowSessionSummary(true)
+  }, [addSession, handleSessionComplete, setLastSessionXp, setShowSessionSummary])
 
   return {
     handleSessionCompleteWithProgress,
