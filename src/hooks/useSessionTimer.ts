@@ -102,20 +102,18 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
     }
 
     intervalRef.current = setInterval(() => {
+      let shouldRemind = false
+
       setState(prev => {
         const newSessionTime = prev.sessionTime + 1
         const newTotalTime = prev.totalTime + 1
 
-        // Проверка на необходимость перерыва
         const timeSinceBreak = prev.lastBreakTime
           ? newTotalTime - prev.lastBreakTime
           : newTotalTime
 
         const needsBreak = timeSinceBreak >= breakInterval
-
-        if (needsBreak && !prev.needsBreak) {
-          onBreakReminderRef.current?.()
-        }
+        shouldRemind = needsBreak && !prev.needsBreak
 
         return {
           ...prev,
@@ -124,6 +122,10 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           needsBreak,
         }
       })
+
+      if (shouldRemind) {
+        onBreakReminderRef.current?.()
+      }
     }, 1000)
 
     return () => {
