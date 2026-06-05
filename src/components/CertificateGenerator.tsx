@@ -77,6 +77,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   }
 
   const handleShare = async () => {
+    let downloaded = false
     try {
       const { generateCertificate } = await import('../utils/certificateOptimized')
       const blob = await generateCertificate(certificateData, { language, download: false, theme })
@@ -89,9 +90,12 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         })
       } else {
         await handleDownload()
+        downloaded = true
       }
     } catch {
-      await handleDownload()
+      if (!downloaded) {
+        await handleDownload()
+      }
     }
   }
 
