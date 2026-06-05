@@ -39,18 +39,20 @@ export function CountdownTimer({
     if (!isRunning) return
 
     const interval = setInterval(() => {
+      let nextRemaining: number | null = null
+
       setRemaining(prev => {
         if (prev <= 0) return 0
-        const newRemaining = prev - 1
-        onTickRef.current?.(newRemaining)
-
-        if (newRemaining <= 0) {
-          completedRef.current = true
-          return 0
-        }
-
-        return newRemaining
+        nextRemaining = prev - 1
+        return nextRemaining
       })
+
+      if (nextRemaining !== null) {
+        onTickRef.current?.(nextRemaining)
+        if (nextRemaining <= 0) {
+          completedRef.current = true
+        }
+      }
     }, 1000)
 
     return () => clearInterval(interval)
