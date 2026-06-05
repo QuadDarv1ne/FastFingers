@@ -31,9 +31,11 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
   const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mountedRef = useRef(true)
 
   useEffect(() => {
     return () => {
+      mountedRef.current = false
       if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
     }
   }, [])
@@ -85,6 +87,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
     const reader = new FileReader()
 
     reader.onload = (e) => {
+      if (!mountedRef.current) return
       try {
         const content = e.target?.result as string
         const importData = JSON.parse(content)
@@ -142,6 +145,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         }
         if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
         reloadTimerRef.current = setTimeout(() => {
+          if (!mountedRef.current) return
           window.location.reload()
         }, 1000)
       } catch {
@@ -151,6 +155,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
     }
 
     reader.onerror = () => {
+      if (!mountedRef.current) return
       showToast('Ошибка при чтении файла', 'error')
       setImporting(false)
     }
