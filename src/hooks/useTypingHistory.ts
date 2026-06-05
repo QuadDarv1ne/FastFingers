@@ -65,19 +65,21 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   userRef.current = user
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    }
+  }, [])
+
   const debouncedSave = useCallback((historyData: HistoryData) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
       saveHistory(historyData, setError)
       saveTimeoutRef.current = null
     }, 500)
-  }, [])
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
-    }
   }, [])
 
   const [isLoading, setIsLoading] = useState(true)
@@ -103,26 +105,31 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       xp,
     }
 
+    let newHistoryForSave: HistoryData | null = null
+
     setHistory(prev => {
-      const newHistory = {
+      newHistoryForSave = {
         ...prev,
         sessions: [session, ...prev.sessions].slice(0, MAX_SESSIONS),
         totalSessions: prev.totalSessions + 1,
         totalTime: prev.totalTime + Math.floor(stats.timeElapsed / 60),
       }
-      debouncedSave(newHistory)
-      return newHistory
+      return newHistoryForSave
     })
+
+    if (newHistoryForSave) debouncedSave(newHistoryForSave)
 
     // Сохранение в облако с fallback
     if (userRef.current) {
       saveTypingSession(userRef.current.id, stats, xp)
         .then(() => {
+          if (!mountedRef.current) return
           setIsOnline(isBackendAvailable())
           setError(null)
           flushPendingSessions()
         })
         .catch((err) => {
+          if (!mountedRef.current) return
           // Cloud sync failed — session is saved locally and will sync later
           setIsOnline(false)
           logger.warn('Cloud sync failed:', err)
@@ -131,12 +138,15 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   }, [debouncedSave])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
+    let newHistoryForSave: HistoryData | null = null
+
     setHistory(prev => {
       const newHeatmap = updateKeyHeatmap({ ...prev.heatmap }, key, isCorrect)
-      const newHistory = { ...prev, heatmap: newHeatmap }
-      debouncedSave(newHistory)
-      return newHistory
+      newHistoryForSave = { ...prev, heatmap: newHeatmap }
+      return newHistoryForSave
     })
+
+    if (newHistoryForSave) debouncedSave(newHistoryForSave)
   }, [debouncedSave])
 
   const clearHistory = useCallback(() => {
