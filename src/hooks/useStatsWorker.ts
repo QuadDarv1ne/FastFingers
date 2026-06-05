@@ -209,6 +209,8 @@ export function useStatsWorker(): UseStatsWorkerReturn {
       const abortError = new DOMException('Worker terminated', 'AbortError')
       pendingPromises.current.forEach(({ reject }) => reject(abortError))
       pendingPromises.current.clear()
+      timeoutsRef.current.forEach((id) => clearTimeout(id))
+      timeoutsRef.current.clear()
     }
   }, [])
 
