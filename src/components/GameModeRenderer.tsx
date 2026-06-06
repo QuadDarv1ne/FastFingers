@@ -329,7 +329,7 @@ export function GameModeRenderer({
             <Keyboard
               layout={settings.layout}
               highlightKey={null}
-              heatmap={showHeatmap ? heatmap : {}}
+              heatmap={showHeatmap ? heatmap : undefined}
               showHeatmap={showHeatmap}
               onToggleHeatmap={onSetShowHeatmap}
               skin={settings.keyboardSkin}
