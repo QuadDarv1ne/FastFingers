@@ -107,7 +107,7 @@ export function SimpleAreaChart({
     setTooltip(null)
   }, [])
 
-  const colors = useMemo(() => getChartColors(), [])
+  const colors = getChartColors()
 
   return (
     <div className="relative w-full" style={{ height: chartHeight }}>
