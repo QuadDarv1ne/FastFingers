@@ -74,6 +74,15 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
   const intervalRef = useRef<ReturnType<typeof setInterval>>()
   const onBreakReminderRef = useRef(onBreakReminder)
   onBreakReminderRef.current = onBreakReminder
+  const prevNeedsBreakRef = useRef(state.needsBreak)
+
+  // Отслеживание перехода needsBreak для вызова onBreakReminder (вне setState updater)
+  useEffect(() => {
+    if (state.needsBreak && !prevNeedsBreakRef.current) {
+      onBreakReminderRef.current?.()
+    }
+    prevNeedsBreakRef.current = state.needsBreak
+  }, [state.needsBreak])
 
   // Сохранение в localStorage
   useEffect(() => {
@@ -102,8 +111,6 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
     }
 
     intervalRef.current = setInterval(() => {
-      let shouldRemind = false
-
       setState(prev => {
         const newSessionTime = prev.sessionTime + 1
         const newTotalTime = prev.totalTime + 1
@@ -113,19 +120,9 @@ export function useSessionTimer(options: SessionTimerOptions = {}) {
           : newTotalTime
 
         const needsBreak = timeSinceBreak >= breakInterval
-        shouldRemind = needsBreak && !prev.needsBreak
 
-        return {
-          ...prev,
-          sessionTime: newSessionTime,
-          totalTime: newTotalTime,
-          needsBreak,
-        }
+        return { ...prev, sessionTime: newSessionTime, totalTime: newTotalTime, needsBreak }
       })
-
-      if (shouldRemind) {
-        onBreakReminderRef.current?.()
-      }
     }, 1000)
 
     return () => {
