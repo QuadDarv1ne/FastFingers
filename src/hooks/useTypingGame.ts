@@ -266,54 +266,46 @@ export function useTypingGame({
           return
         }
 
-        setCurrentIndex(prevIndex => {
-          const expectedChar = text[prevIndex]
-          
-          // Защита от выхода за границы текста
-          if (!expectedChar || prevIndex >= text.length) {
-            isHandlingInput.current = false
-            return prevIndex
+        const expectedChar = text[currentIndex]
+
+        if (!expectedChar || currentIndex >= text.length) {
+          isHandlingInput.current = false
+          return
+        }
+
+        const isCorrect = newChar === expectedChar
+        const result: KeyInputResult = {
+          isCorrect,
+          char: newChar,
+          expectedChar,
+          timestamp: Date.now(),
+        }
+
+        try {
+          if (sound) {
+            isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
           }
+        } catch (soundError) {
+          logger.warn('Sound playback error:', soundError)
+        }
 
-          const isCorrect = newChar === expectedChar
+        try {
+          onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+        } catch (callbackError) {
+          logger.warn('onKeyInput callback error:', callbackError)
+        }
 
-          try {
-            if (sound) {
-              isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
-            }
-          } catch (soundError) {
-            logger.warn('Sound playback error:', soundError)
+        setInputResults(prev => [...prev, result])
+
+        const isTextComplete = mode === 'practice' && currentIndex >= text.length - 1
+        if (isTextComplete) {
+          pendingCompletionRef.current = {
+            results: [...inputResults, result],
+            shouldGenerateText: true,
           }
+        }
 
-          try {
-            onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
-          } catch (callbackError) {
-            logger.warn('onKeyInput callback error:', callbackError)
-          }
-
-          const result: KeyInputResult = {
-            isCorrect,
-            char: newChar,
-            expectedChar,
-            timestamp: Date.now(),
-          }
-
-          setInputResults(prev => {
-            const newResults = [...prev, result]
-            return newResults
-          })
-
-          // Queue completion work to be handled by useEffect (avoid side effects in setState)
-          const isComplete = mode === 'practice' && prevIndex >= text.length - 1
-          if (isComplete) {
-            pendingCompletionRef.current = {
-              results: [...inputResultsRef.current, result],
-              shouldGenerateText: true,
-            }
-          }
-
-          return prevIndex + 1
-        })
+        setCurrentIndex(prev => prev + 1)
 
         e.currentTarget.value = ''
       } catch (error) {
@@ -322,7 +314,7 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput]
+    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, inputResults]
   )
 
   // Process completion side effects outside of setState updaters
