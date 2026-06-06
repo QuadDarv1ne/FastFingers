@@ -6,7 +6,7 @@
 
 import { memo, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { KeyboardLayout, TypingStats, KeyInputResult, Exercise } from '../types'
+import { TypingStats, KeyInputResult, Exercise } from '../types'
 import { getRandomExercise, generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
@@ -20,9 +20,9 @@ import {
 } from '../hooks/useAdaptiveDifficulty'
 
 const logger = createScopedLogger('TypingTrainer')
+const EMPTY_EXERCISES: Exercise[] = []
 
 interface TypingTrainerProps {
-  layout: KeyboardLayout
   onSessionComplete: (stats: TypingStats) => void
   onKeyInput?: (key: string, isCorrect: boolean) => void
   sound?: ReturnType<typeof useTypingSound>
@@ -63,7 +63,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   onSessionComplete,
   onKeyInput,
   sound,
-  customExercises = [],
+  customExercises = EMPTY_EXERCISES,
   isChallenge = false,
   challengeText
 }: TypingTrainerProps) {
@@ -217,11 +217,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 
       const nextIndex = currentIndex + 1
       setCurrentIndex(nextIndex)
-      setInputResults(prev => {
-        const newResults = [...prev, result]
-        resultsRef.current = newResults
-        return newResults
-      })
+      const newResults = [...resultsRef.current, result]
+      resultsRef.current = newResults
+      setInputResults(newResults)
 
       // Предотвращаем стандартное действие (ввод символа в input)
       e.preventDefault()

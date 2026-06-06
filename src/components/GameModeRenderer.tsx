@@ -316,7 +316,6 @@ export function GameModeRenderer({
 
         <Suspense fallback={<div className="text-center text-dark-400 py-8">Загрузка тренажёра...</div>}>
           <TypingTrainer
-            layout={settings.layout}
             onSessionComplete={onSessionComplete}
             onKeyInput={onKeyInput}
             sound={sound}

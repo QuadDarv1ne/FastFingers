@@ -149,17 +149,18 @@ export function useTypingGame({
     if (mode !== 'timed' || !isActive) return
 
     const interval = window.setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          timeExpiredRef.current = true
-          return 0
-        }
-        return prev - 1
-      })
+      setTimeLeft(prev => prev - 1)
     }, 1000)
 
     return () => window.clearInterval(interval)
   }, [mode, isActive, safeDuration])
+
+  // Extract side effect outside setState updater (React purity)
+  useEffect(() => {
+    if (timeLeft <= 0 && mode === 'timed' && isActive) {
+      timeExpiredRef.current = true
+    }
+  }, [timeLeft, mode, isActive])
 
   // Синхронизация timeLeft при изменении duration
   useEffect(() => {
