@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout } from '../types';
+import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout, FontSize } from '../types';
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
 import { useAppStore } from '../stores/useAppStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -91,7 +91,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
 
   const updateSetting = useCallback(<K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     switch (key) {
-      case 'fontSize': useAppStore.getState().setFontSize(value as import('../types').FontSize); break;
+      case 'fontSize': useAppStore.getState().setFontSize(value as FontSize); break;
       case 'layout': useAppStore.getState().setLayout(value as KeyboardLayout); break;
       case 'soundEnabled': useAppStore.getState().setSoundEnabled(value as boolean); break;
       case 'soundVolume': useAppStore.getState().setSoundVolume(value as number); break;

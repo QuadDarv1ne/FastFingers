@@ -141,7 +141,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     let newHistoryForSave: HistoryData | null = null
 
     setHistory(prev => {
-      const newHeatmap = updateKeyHeatmap({ ...prev.heatmap }, key, isCorrect)
+      const newHeatmap = updateKeyHeatmap(prev.heatmap, key, isCorrect)
       newHistoryForSave = { ...prev, heatmap: newHeatmap }
       return newHistoryForSave
     })
