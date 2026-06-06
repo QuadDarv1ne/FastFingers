@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { TypingStats, KeyHeatmapData } from '../types'
+import type { TypingStats, KeyHeatmapData } from '../types'
 import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
 import { useAuth } from './useAuth'
