@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 
 interface ComboCounterProps {
   combo: number
@@ -8,34 +8,34 @@ interface ComboCounterProps {
 
 export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProps) {
   const [isAnimating, setIsAnimating] = useState(false)
-  const [prevCombo, setPrevCombo] = useState(combo)
   const [showBreak, setShowBreak] = useState(false)
   const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const breakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const prevComboRef = useRef(combo)
+  const onComboBreakRef = useRef(onComboBreak)
+  onComboBreakRef.current = onComboBreak
 
   useEffect(() => {
-    // Clear any existing timers
+    const prev = prevComboRef.current
+    prevComboRef.current = combo
+
     if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
     if (breakTimerRef.current) clearTimeout(breakTimerRef.current)
 
-    if (combo > prevCombo) {
+    if (combo > prev) {
       setIsAnimating(true)
       animationTimerRef.current = setTimeout(() => setIsAnimating(false), 300)
-    } else if (combo === 0 && prevCombo > 0) {
+    } else if (combo === 0 && prev > 0) {
       setShowBreak(true)
-      onComboBreak?.()
+      onComboBreakRef.current?.()
       breakTimerRef.current = setTimeout(() => setShowBreak(false), 2000)
     }
-    setPrevCombo(combo)
 
-    // Cleanup on unmount or re-run
     return () => {
       if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
       if (breakTimerRef.current) clearTimeout(breakTimerRef.current)
     }
-  }, [combo, prevCombo, onComboBreak])
-
-  if (combo === 0 && !showBreak) return null
+  }, [combo])
 
   const getComboLevel = () => {
     if (combo >= 100) return { level: 'legendary', color: 'from-yellow-500 to-orange-500', label: 'ЛЕГЕНДА' }
@@ -47,6 +47,15 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
 
   const comboLevel = getComboLevel()
   const progress = Math.min((combo / 100) * 100, 100)
+  const particlePositions = useMemo(() =>
+    [...Array(5)].map(() => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+    })),
+    []
+  )
+
+  if (combo === 0 && !showBreak) return null
 
   return (
     <div className="fixed top-20 right-4 z-30">
@@ -57,7 +66,7 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
               <div className="text-3xl mb-2">💔</div>
               <p className="text-sm font-bold text-red-400">КОМБО ПРЕРВАНО</p>
               <p className="text-xs text-dark-400 mt-1">
-                Было: {prevCombo}
+                Было: {prevComboRef.current}
               </p>
             </div>
           </div>
@@ -119,8 +128,8 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
                   key={i}
                   className="absolute w-2 h-2 bg-yellow-400 rounded-full animate-ping"
                   style={{
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
+                    top: particlePositions[i]?.top ?? '50%',
+                    left: particlePositions[i]?.left ?? '50%',
                     animationDelay: `${i * 0.1}s`,
                   }}
                 />

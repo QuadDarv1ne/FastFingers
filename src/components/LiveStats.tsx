@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { formatDuration } from '../utils/number'
 
@@ -20,19 +20,20 @@ export function LiveStats({
   combo,
 }: LiveStatsProps) {
   const { t } = useAppTranslation()
-  const [prevWpm, setPrevWpm] = useState(wpm)
   const [wpmTrend, setWpmTrend] = useState<'up' | 'down' | 'stable'>('stable')
+  const prevWpmRef = useRef(wpm)
 
   useEffect(() => {
-    if (wpm > prevWpm + 2) {
+    const prev = prevWpmRef.current
+    prevWpmRef.current = wpm
+    if (wpm > prev + 2) {
       setWpmTrend('up')
-    } else if (wpm < prevWpm - 2) {
+    } else if (wpm < prev - 2) {
       setWpmTrend('down')
     } else {
       setWpmTrend('stable')
     }
-    setPrevWpm(wpm)
-  }, [wpm, prevWpm])
+  }, [wpm])
 
   const getAccuracyColor = (acc: number): string => {
     if (acc >= 95) return 'text-green-400'
