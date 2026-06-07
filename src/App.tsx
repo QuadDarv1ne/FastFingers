@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useEffect, useCallback, Suspense, useState, lazy } from 'react'
+import { useEffect, useCallback, Suspense, lazy } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Header } from './components/Header'
 import { LoadingFallback } from './components/LoadingFallback'
@@ -40,6 +40,7 @@ import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useCloudSyncCleanup } from '@services/cloudSyncService'
 import { useAppTranslation } from './i18n/config'
 import { STORAGE_KEYS } from './constants/storageKeys'
+import { useModals } from './hooks/useModals'
 import { ModeButton } from './components/ui/ModeButton'
 import { SpeedTestDropdown } from './components/ui/SpeedTestDropdown'
 import { SettingsPanel } from './components/ui/SettingsPanel'
@@ -80,6 +81,25 @@ function AppContent() {
   const { addNotification } = useNotifications()
   useCloudSyncCleanup()
 
+  const {
+    showAchievements,
+    showSessionSummary,
+    showStreakRewards,
+    showProfile,
+    showGoals,
+    showOnboarding,
+    activeChallenge,
+    lastSessionXp,
+    setShowAchievements,
+    setShowSessionSummary,
+    setShowStreakRewards,
+    setShowProfile,
+    setShowGoals,
+    setActiveChallenge,
+    setLastSessionXp,
+    handleOnboardingComplete,
+  } = useModals()
+
   const handleAuthSuccess = useCallback(() => {
     if (user?.name) {
       addNotification({
@@ -90,23 +110,6 @@ function AppContent() {
       })
     }
   }, [user, addNotification, t])
-
-  const [showAchievements, setShowAchievements] = useState(false)
-  const [showSessionSummary, setShowSessionSummary] = useState(false)
-  const [showStreakRewards, setShowStreakRewards] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [showGoals, setShowGoals] = useState(false)
-  const [lastSessionXp, setLastSessionXp] = useState(0)
-  const [activeChallenge, setActiveChallenge] = useState<string | null>(null)
-
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    try {
-      const seen = localStorage.getItem(STORAGE_KEYS.ONBOARDING)
-      return !seen
-    } catch {
-      return true
-    }
-  })
 
   const {
     gameMode,
@@ -208,12 +211,7 @@ function AppContent() {
 
     window.addEventListener('startChallenge', handleStartChallenge as EventListener)
     return () => window.removeEventListener('startChallenge', handleStartChallenge as EventListener)
-  }, [setGameMode])
-
-  const handleOnboardingComplete = useCallback(() => {
-    localStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true')
-    setShowOnboarding(false)
-  }, [])
+  }, [setGameMode, setActiveChallenge])
 
   const handleSaveCustomExercise = useCallback(
     (exercise: CustomExercise) => {
