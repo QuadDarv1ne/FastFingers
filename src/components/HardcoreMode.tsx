@@ -15,6 +15,7 @@ import { useToast } from '../contexts/ToastContext'
 import { logger } from '../utils/logger'
 import { triggerConfetti } from '../utils/confetti'
 import { StatCard } from './ui/StatCard'
+import { useAppTranslation } from '../i18n/config'
 
 interface HardcoreModeProps {
   onExit: () => void
@@ -36,6 +37,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   onComplete,
   sound,
 }: HardcoreModeProps) {
+  const { t } = useAppTranslation()
   const { user } = useAuth()
   const { addNotification } = useNotifications()
   const { showToast } = useToast()
@@ -75,7 +77,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       const newRank = getRankByStreak(streak)
       setShowRankUp(true)
       addNotification(createAchievementNotification({
-        title: `Ранг повышен!`,
+        title: t('hardcore.rankUp'),
         description: getRankUpMessage(newRank),
         icon: newRank.rank,
       }))
@@ -95,7 +97,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     return () => {
       if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)
     }
-  }, [streak, previousStreak, addNotification])
+  }, [streak, previousStreak, addNotification, t])
 
   // Track mount status to prevent setState after unmount
   useEffect(() => {
@@ -172,7 +174,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       const stats = calculateStats(correct, results.length, errors, timeElapsed)
 
       setLastStats(stats)
-      showToastRef.current(`Хардкор: серия ${currentStreak}, ${stats.wpm} WPM`, currentStreak > 10 ? 'success' : 'info', 4000)
+      showToastRef.current(t('hardcore.sessionResult', { streak: currentStreak, wpm: stats.wpm }), currentStreak > 10 ? 'success' : 'info', 4000)
       onCompleteRef.current(stats)
 
       const saveRecord = async () => {
@@ -194,18 +196,18 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         }
         if (!mountedRef.current) return
         if (!saved) {
-          showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+          showToastRef.current(t('hardcore.saveError'), 'error', 5000)
         }
       }
 
       saveRecord().catch((error) => {
         if (!mountedRef.current) return
         logger.error('Failed to save hardcore record:', error)
-        showToastRef.current('Не удалось сохранить рекорд. Попробуйте позже.', 'error', 5000)
+        showToastRef.current(t('hardcore.saveError'), 'error', 5000)
       })
       if (mountedRef.current) setShowCertificate(true)
     }
-  }, [isActive, user, supabase, supabaseReady])
+  }, [isActive, user, supabase, supabaseReady, t])
 
   // Reset saved flag when starting a new session
   useEffect(() => {
@@ -311,13 +313,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            <span>💀</span> Без ошибок
+            <span>💀</span> {t('hardcore.title')}
           </h2>
-          <p className="text-sm text-dark-400">Любая ошибка завершает сессию</p>
+          <p className="text-sm text-dark-400">{t('hardcore.subtitle')}</p>
         </div>
         {!isActive && countdown === null && (
-          <button onClick={handleStart} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold transition-all">
-            Старт (R)
+          <button onClick={handleStart} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold transition-all" aria-label={t('action.start')}>
+            {t('action.start')} (R)
           </button>
         )}
       </div>
@@ -330,7 +332,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         return (
       <div className="mb-4 p-4 bg-gradient-to-r from-dark-800 to-dark-700 rounded-xl border border-dark-600">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-dark-400">Текущий ранг</span>
+          <span className="text-sm text-dark-400">{t('hardcore.currentRank')}</span>
           <span className="text-xs text-dark-500">{rankInfo.name}</span>
         </div>
         <div className="flex items-center gap-3">
@@ -351,7 +353,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
               />
             </div>
             <div className="text-xs text-dark-500 mt-1">
-              {progressPct}% до следующего ранга
+              {t('hardcore.rankProgress', { pct: progressPct })}
             </div>
           </div>
         </div>
@@ -360,14 +362,14 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       })()}
 
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard size="sm" label="Серия" value={streak.toString()} icon="🔥" />
-        <StatCard size="sm" label="WPM" value={wpm.toString()} icon="⚡" />
-        <StatCard size="sm" label="Точность" value={`${accuracy}%`} icon="🎯" />
+        <StatCard size="sm" label={t('hardcore.streak')} value={streak.toString()} icon="🔥" />
+        <StatCard size="sm" label={t('common.wpm')} value={wpm.toString()} icon="⚡" />
+        <StatCard size="sm" label={t('common.accuracy')} value={`${accuracy}%`} icon="🎯" />
       </div>
 
       {bestStreak > 0 && (
         <div className="mb-4 p-3 bg-dark-800/50 rounded-lg flex items-center justify-between">
-          <span className="text-sm text-dark-400">Лучшая серия</span>
+          <span className="text-sm text-dark-400">{t('hardcore.bestStreak')}</span>
           <span className="text-lg font-bold text-primary-400">{bestStreak} 🔥</span>
         </div>
       )}
@@ -377,18 +379,18 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.focus({ preventScroll: true }) }}
         role="button"
         tabIndex={0}
-        aria-label="Область ввода текста. Нажмите для фокуса"
+        aria-label={t('hardcore.inputArea')}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
-        <input ref={inputRef} type="text" className="opacity-0 absolute" onKeyDown={handleKeyDown} readOnly aria-label="Поле ввода режима без ошибок" />
+        <input ref={inputRef} type="text" className="opacity-0 absolute" onKeyDown={handleKeyDown} readOnly aria-label={t('hardcore.inputField')} />
         <div className="font-mono text-lg leading-relaxed break-words">
           {renderedChars}
         </div>
       </div>
 
-      <div className="mb-6" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label="Прогресс">
+      <div className="mb-6" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-label={t('trainer.aria.progress')}>
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="text-dark-400">Прогресс</span>
+          <span className="text-dark-400">{t('trainer.progressLabel')}</span>
           <span className="text-primary-400 font-bold">{Math.round(textProgress)}%</span>
         </div>
         <div className="h-3 bg-dark-800 rounded-full overflow-hidden">
@@ -397,18 +399,18 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       </div>
 
       <div className="flex justify-between items-center">
-        <button onClick={handleSkip} className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2" aria-label="Пропустить">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-          Пропустить
+        <button onClick={handleSkip} className="px-4 py-2 text-dark-400 hover:text-white hover:bg-dark-800/50 rounded-lg transition-all text-sm font-medium flex items-center gap-2" aria-label={t('action.skip')}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+          {t('action.skip')}
         </button>
-        <button onClick={onExit} className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-all">Выйти</button>
+        <button onClick={onExit} className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-all" aria-label={t('action.exit')}>{t('action.exit')}</button>
       </div>
 
-      {isLoadingRecords && <div className="mt-6 text-center text-dark-400 text-sm">Загрузка рекордов...</div>}
-      
+      {isLoadingRecords && <div className="mt-6 text-center text-dark-400 text-sm">{t('hardcore.loadingRecords')}</div>}
+
       {!isLoadingRecords && records.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-3 text-dark-300">🏆 Ваши рекорды</h3>
+          <h3 className="text-lg font-semibold mb-3 text-dark-300">🏆 {t('hardcore.yourRecords')}</h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {records.slice(0, 5).map((record, i) => (
               <div key={record.id} className="flex items-center justify-between p-3 bg-dark-800/30 rounded-lg">

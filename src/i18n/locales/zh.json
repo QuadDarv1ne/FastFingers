@@ -447,5 +447,18 @@
   "duel.errorSearch": "搜索对手出错",
   "duel.duration.30": "30 秒",
   "duel.duration.60": "1 分钟",
-  "duel.duration.120": "2 分钟"
+  "duel.duration.120": "2 分钟",
+  "hardcore.title": "零失误",
+  "hardcore.subtitle": "任何错误都会结束",
+  "hardcore.currentRank": "当前段位",
+  "hardcore.rankProgress": "{{pct}}% 到下一段位",
+  "hardcore.streak": "连击",
+  "hardcore.bestStreak": "最佳连击",
+  "hardcore.inputArea": "打字区域，点击聚焦",
+  "hardcore.inputField": "零失误模式输入框",
+  "hardcore.loadingRecords": "加载记录中...",
+  "hardcore.yourRecords": "你的记录",
+  "hardcore.rankUp": "段位提升！",
+  "hardcore.saveError": "保存记录失败，请稍后重试。",
+  "hardcore.sessionResult": "硬核模式：连击 {{streak}}，{{wpm}} WPM"
 }
