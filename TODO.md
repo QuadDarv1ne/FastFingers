@@ -223,9 +223,9 @@ Coverage gaps / Пробелы в покрытии:
 
 ## 📝 Technical Debt / Технические долги
 
-1. **App.tsx** — 735 lines, extract mode logic into separate hooks
-   / 735 строк, вынести логику режимов в отдельные хуки
-   (✅ in progress — created useModeNavigation, GameModeRenderer / в процессе — создан useModeNavigation, GameModeRenderer)
+1. **App.tsx** — 623 lines (was 735), extract mode logic into separate hooks
+   / 623 строки (было 735), вынести логику режимов в отдельные хуки
+   (✅ in progress — created useModeNavigation, GameModeRenderer, useModals / в процессе — создан useModeNavigation, GameModeRenderer, useModals)
 2. **useTypingSound** — check for memory leaks on frequent play/stop
    / проверить утечки памяти при частых play/stop
 3. **HardcoreMode** — optimized (284 lines), but can be improved further
@@ -243,6 +243,13 @@ Coverage gaps / Пробелы в покрытии:
 ---
 
 ## ✅ Completed (Recent) / Выполнено (Последнее)
+
+### 2026-06-07 — App.tsx Refactoring: Modal State Extraction / Рефакторинг App.tsx: извлечение состояния модалов
+- ✅ Created `useModals` hook in `src/hooks/useModals.ts` for centralized modal/panel state management
+- ✅ Extracted 8 state variables + 10 setters + 2 utilities from `AppContent` (showAchievements, showSessionSummary, showStreakRewards, showProfile, showGoals, showOnboarding, activeChallenge, lastSessionXp)
+- ✅ Added `closeAllModals` utility for bulk modal dismissal
+- ✅ Reduced `AppContent` complexity, improved separation of concerns
+- ✅ All tests pass (1048 passed), TypeScript 0 errors, ESLint 0 warnings, Build ~5.9s
 
 ### 2026-05-17 — Admin Panel & Error Handling / Панель администратора и обработка ошибок
 - ✅ Standardized error handling: added `logger.warn` to 67 catch blocks in 18 files
@@ -523,7 +530,7 @@ Coverage gaps / Пробелы в покрытии:
 
 ---
 
-*Last updated: 2026-05-17 | Последнее обновление: 2026-05-17*
+*Last updated: 2026-06-07 | Последнее обновление: 2026-06-07*
 
 ---
 
@@ -575,3 +582,14 @@ Coverage gaps / Пробелы в покрытии:
 ---
 
 *Review conducted: 2026-05-17 | Ревью проведено: 2026-05-17*
+
+---
+
+## 📋 Quality Assurance / Обеспечение качества (2026-06-07)
+
+- ✅ All 1048 tests pass (1 skipped)
+- ✅ TypeScript: 0 errors
+- ✅ ESLint: 0 errors, 0 warnings
+- ✅ Build: ~5.9s (production)
+- ✅ Git: clean working tree, only `main` branch exists
+- ✅ Bundle: animations-vendor 125KB, react-vendor 185KB, auth-vendor 207KB (gzipped: 41KB, 59KB, 54KB)
