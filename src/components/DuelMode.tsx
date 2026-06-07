@@ -17,6 +17,8 @@ import { logger } from '../utils/logger'
 import { useCountdown } from '@hooks/useCountdown'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
+import { useAppTranslation } from '../i18n/config'
+
 interface DuelModeProps {
   onExit: () => void
   onComplete: (stats: TypingStats) => void
@@ -42,13 +44,10 @@ interface DuelChallenge {
   opponent_accuracy?: number
 }
 
-const DURATION_LABELS: Record<DuelDuration, string> = {
-  30: '30 секунд',
-  60: '1 минута',
-  120: '2 минуты',
-}
+const DURATION_OPTIONS: DuelDuration[] = [30, 60, 120]
 
 export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
+  const { t } = useAppTranslation()
   const { user } = useAuth()
   const { client: supabase, isReady: supabaseReady } = useSupabase()
   const { useUserDuels, completeDuel } = useDuels()
@@ -158,7 +157,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     if (!user?.id || !supabase || !supabaseReady) return
 
     setDuelState('searching')
-    setMessage('Поиск соперника...')
+    setMessage(t('duel.searching'))
 
     try {
       const { data, error } = await supabase
@@ -187,7 +186,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
         setCurrentDuel(newDuel)
         setDuelState('waiting')
-        setMessage('Ожидание соперника...')
+        setMessage(t('duel.waiting'))
       } else {
         const { error: acceptError } = await supabase
           .from('duels')
@@ -212,10 +211,10 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       }
     } catch (err) {
       logger.error('Error finding opponent:', err)
-      setMessage('Ошибка поиска соперника')
+      setMessage(t('duel.errorSearch'))
       setDuelState('lobby')
     }
-  }, [user?.id, supabase, supabaseReady, duration, betAmount, handleStart])
+  }, [user?.id, supabase, supabaseReady, duration, betAmount, handleStart, t])
 
   // Завершение дуэли
   const handleDuelComplete = useCallback(async (stats: TypingStats) => {
@@ -342,25 +341,25 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            ⚔️ Дуэль
+            ⚔️ {t('duel.title')}
           </h2>
           <p className="text-sm text-dark-400">
-            {duelState === 'lobby' && 'Сразись с другим игроком'}
-            {duelState === 'searching' && 'Поиск соперника...'}
-            {duelState === 'waiting' && 'Ожидание соперника...'}
-            {duelState === 'active' && 'Бой начался!'}
-            {duelState === 'completed' && 'Дуэль завершена'}
+            {duelState === 'lobby' && t('duel.subtitleLobby')}
+            {duelState === 'searching' && t('duel.searching')}
+            {duelState === 'waiting' && t('duel.waiting')}
+            {duelState === 'active' && t('duel.active')}
+            {duelState === 'completed' && t('duel.completed')}
           </p>
         </div>
 
         <button
           onClick={onExit}
           className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-          title="Выйти"
-          aria-label="Выйти"
+          title={t('action.exit')}
+          aria-label={t('action.exit')}
           disabled={duelState === 'active'}
         >
-          <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -378,9 +377,9 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
           {/* Выбор длительности */}
           <div>
-            <span id="duration-label" className="block text-sm text-dark-400 mb-2">Длительность</span>
+            <span id="duration-label" className="block text-sm text-dark-400 mb-2">{t('duel.duration')}</span>
             <div className="flex gap-2" role="group" aria-labelledby="duration-label">
-              {([30, 60, 120] as DuelDuration[]).map((d) => (
+              {DURATION_OPTIONS.map((d) => (
                 <button
                   key={d}
                   onClick={() => setDuration(d)}
@@ -390,7 +389,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
                       : 'bg-dark-800 text-dark-400 hover:bg-dark-700'
                   }`}
                 >
-                  {DURATION_LABELS[d]}
+                  {t(`duel.duration.${d}`)}
                 </button>
               ))}
             </div>
@@ -398,7 +397,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
           {/* Ставка */}
           <div>
-            <label htmlFor="bet-amount" className="block text-sm text-dark-400 mb-2">Ставка (XP)</label>
+            <label htmlFor="bet-amount" className="block text-sm text-dark-400 mb-2">{t('duel.bet')}</label>
             <input
               id="bet-amount"
               type="number"
@@ -416,21 +415,23 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             <button
               onClick={findRandomOpponent}
               className="w-full py-4 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 rounded-xl font-bold text-lg transition-all"
+              aria-label={t('duel.quickMatch')}
             >
-              🎯 Быстрый матч
+              🎯 {t('duel.quickMatch')}
             </button>
             <button
               className="w-full py-4 bg-dark-800 hover:bg-dark-700 rounded-xl font-medium transition-all"
               disabled
+              aria-label={t('duel.findFriend')}
             >
-              🔍 Найти друга (скоро)
+              🔍 {t('duel.findFriend')}
             </button>
           </div>
 
           {/* История дуэлей */}
           {userDuels && userDuels.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-sm font-semibold text-dark-300 mb-3">Последние дуэли</h3>
+              <h3 className="text-sm font-semibold text-dark-300 mb-3">{t('duel.recentDuels')}</h3>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {userDuels.slice(0, 5).map((duel: DuelsData) => {
                   const isChallenger = duel.challenger_id === user?.id
@@ -439,7 +440,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
                     <div key={duel.id} className="p-3 bg-dark-800 rounded-lg flex items-center justify-between">
                       <div>
                         <p className="font-medium text-sm">
-                          {isChallenger ? 'Вы' : 'Вызов'} vs{' '}
+                          {isChallenger ? t('duel.you') : t('duel.challenge')} vs{' '}
                           {isChallenger
                             ? duel.opponent?.name || '???'
                             : duel.challenger?.name || '???'}
@@ -447,15 +448,15 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
                         <p className="text-xs text-dark-500">
                           {duel.status === 'completed'
                             ? isWinner
-                              ? '🏆 Победа'
-                              : '❌ Поражение'
+                              ? `🏆 ${t('duel.win')}`
+                              : `❌ ${t('duel.loss')}`
                             : duel.status === 'active'
-                            ? '🔴 В процессе'
-                            : '⏳ Ожидание'}
+                            ? `🔴 ${t('duel.inProgress')}`
+                            : `⏳ ${t('duel.waitingStatus')}`}
                         </p>
                       </div>
                       <span className="text-xs text-dark-500">
-                        {duel.duration && DURATION_LABELS[duel.duration as DuelDuration]}
+                        {duel.duration && t(`duel.duration.${duel.duration}`)}
                       </span>
                     </div>
                   )
@@ -475,7 +476,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
             className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full mx-auto mb-4"
           />
           <p className="text-lg text-dark-300">{message}</p>
-          <p className="text-sm text-dark-500 mt-2">Можно отменить Escape</p>
+          <p className="text-sm text-dark-500 mt-2">{t('duel.escapeHint')}</p>
         </div>
       )}
 
@@ -485,16 +486,16 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           {/* Прогресс соперников */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-dark-800 rounded-lg p-4 text-center">
-              <p className="text-sm text-dark-400">Вы</p>
-              <p className="text-2xl font-bold text-primary-400">{wpm} WPM</p>
+              <p className="text-sm text-dark-400">{t('duel.you')}</p>
+              <p className="text-2xl font-bold text-primary-400">{wpm} {t('common.wpm')}</p>
               <div className="mt-2 h-2 bg-dark-700 rounded-full overflow-hidden">
                 <div className="h-full bg-primary-600 transition-all" style={{ width: `${timeProgress}%` }} />
               </div>
             </div>
             <div className="bg-dark-800 rounded-lg p-4 text-center">
-              <p className="text-sm text-dark-400">Соперник</p>
-              <p className="text-2xl font-bold text-purple-400">{opponentWpm} WPM</p>
-              <p className="text-xs text-dark-500">{opponentAccuracy}% accuracy</p>
+              <p className="text-sm text-dark-400">{t('duel.opponent')}</p>
+              <p className="text-2xl font-bold text-purple-400">{opponentWpm} {t('common.wpm')}</p>
+              <p className="text-xs text-dark-500">{opponentAccuracy}% {t('common.accuracy')}</p>
               <div className="mt-2 h-2 bg-dark-700 rounded-full overflow-hidden">
                 <div className="h-full bg-purple-600 transition-all" style={{ width: `${Math.min(opponentWpm / 2, 100)}%` }} />
               </div>
@@ -511,15 +512,15 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           {/* Статистика */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-dark-800 rounded-lg p-4 text-center">
-              <p className="text-sm text-dark-400">WPM</p>
+              <p className="text-sm text-dark-400">{t('common.wpm')}</p>
               <p className="text-2xl font-bold text-primary-400">{wpm}</p>
             </div>
             <div className="bg-dark-800 rounded-lg p-4 text-center">
-              <p className="text-sm text-dark-400">Точность</p>
+              <p className="text-sm text-dark-400">{t('common.accuracy')}</p>
               <p className="text-2xl font-bold text-success">{accuracy}%</p>
             </div>
             <div className="bg-dark-800 rounded-lg p-4 text-center">
-              <p className="text-sm text-dark-400">Символы</p>
+              <p className="text-sm text-dark-400">{t('duel.symbols')}</p>
               <p className="text-2xl font-bold text-dark-300">{currentIndex}</p>
             </div>
           </div>
@@ -558,23 +559,24 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           >
             <span className="text-5xl">🏆</span>
           </motion.div>
-          <h3 className="text-2xl font-bold text-gradient mb-4">Дуэль завершена!</h3>
+          <h3 className="text-2xl font-bold text-gradient mb-4">{t('duel.completedTitle')}</h3>
           <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-6">
             <div className="bg-dark-800 rounded-lg p-4">
-              <p className="text-sm text-dark-400">Ваш WPM</p>
+              <p className="text-sm text-dark-400">{t('duel.yourWpm')}</p>
               <p className="text-2xl font-bold text-primary-400">{wpm}</p>
             </div>
             <div className="bg-dark-800 rounded-lg p-4">
-              <p className="text-sm text-dark-400">WPM соперника</p>
+              <p className="text-sm text-dark-400">{t('duel.opponentWpm')}</p>
               <p className="text-2xl font-bold text-purple-400">{opponentWpm}</p>
-              <p className="text-xs text-dark-500">{opponentAccuracy}% accuracy</p>
+              <p className="text-xs text-dark-500">{opponentAccuracy}% {t('common.accuracy')}</p>
             </div>
           </div>
           <button
             onClick={onExit}
             className="px-8 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-all"
+            aria-label={t('duel.continue')}
           >
-            Продолжить
+            {t('duel.continue')}
           </button>
         </div>
       )}
