@@ -238,7 +238,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
               className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
               aria-label={t('action.exit')}
             >
-              <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -333,6 +333,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 onClick={handleStart}
                 className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl 
                            font-bold text-lg transition-colors shadow-lg shadow-primary-500/30"
+                aria-label={t('reaction.startGame')}
               >
                 {t('reaction.startGame')}
               </button>
@@ -381,12 +382,14 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
                 <button
                   onClick={onExit}
                   className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
+                  aria-label={t('reaction.menu')}
                 >
                   {t('reaction.menu')}
                 </button>
                 <button
                   onClick={handleStart}
                   className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+                  aria-label={t('reaction.playAgain')}
                 >
                   {t('reaction.playAgain')}
                 </button>

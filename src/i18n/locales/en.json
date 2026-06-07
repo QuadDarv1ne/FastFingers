@@ -395,6 +395,7 @@
   "tooltip.tournament": "Participate in tournaments and win",
   "trainer.adaptation": "Adaptation",
   "trainer.aria.adaptiveToggle": "Enable adaptive difficulty",
+  "trainer.aria.adaptiveDisable": "Disable adaptive difficulty",
   "trainer.aria.category": "Exercise category",
   "trainer.aria.controls": "Exercise controls",
   "trainer.aria.difficulty": "Exercise difficulty",

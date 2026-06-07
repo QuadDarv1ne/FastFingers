@@ -359,9 +359,11 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               </div>
               <button
                 id="adaptive-toggle"
+                role="switch"
+                aria-checked={adaptive.isEnabled}
                 onClick={adaptive.toggleEnabled}
                 className={`w-10 h-5 rounded-full transition-colors ${adaptive.isEnabled ? 'bg-primary-600' : 'bg-dark-700'}`}
-                aria-label={adaptive.isEnabled ? t('trainer.aria.adaptiveToggle') : t('trainer.aria.adaptiveToggle')}
+                aria-label={adaptive.isEnabled ? t('trainer.aria.adaptiveDisable') : t('trainer.aria.adaptiveToggle')}
               >
                 <div className={`w-4 h-4 bg-white rounded-full transition-transform ${adaptive.isEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
               </button>

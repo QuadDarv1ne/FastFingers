@@ -322,6 +322,7 @@
   "tooltip.tournament": "参加锦标赛并获胜",
   "trainer.adaptation": "自适应",
   "trainer.aria.adaptiveToggle": "启用自适应难度",
+  "trainer.aria.adaptiveDisable": "禁用自适应难度",
   "trainer.aria.category": "练习类别",
   "trainer.aria.controls": "练习控制",
   "trainer.aria.difficulty": "练习难度",

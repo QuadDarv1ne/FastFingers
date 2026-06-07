@@ -396,6 +396,7 @@
   "tooltip.tournament": "Участвуй в турнирах и побеждай",
   "trainer.adaptation": "Адаптация",
   "trainer.aria.adaptiveToggle": "Включить адаптивную сложность",
+  "trainer.aria.adaptiveDisable": "Выключить адаптивную сложность",
   "trainer.aria.category": "Категория упражнения",
   "trainer.aria.controls": "Управление упражнением",
   "trainer.aria.difficulty": "Сложность упражнения",
