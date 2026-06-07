@@ -153,7 +153,7 @@ export function useTypingGame({
     }, 1000)
 
     return () => window.clearInterval(interval)
-  }, [mode, isActive, safeDuration])
+  }, [mode, isActive])
 
   // Extract side effect outside setState updater (React purity)
   useEffect(() => {

@@ -1,12 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { UserProgress } from '@/types'
 import { useToast } from '@contexts/ToastContext'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
-
-interface ExportImportProps {
-  progress?: UserProgress
-  onImport?: (data: { progress: UserProgress }) => void
-}
+import { useAppTranslation } from '../i18n/config'
 
 const CURRENT_VERSION = '1.0'
 
@@ -27,7 +22,8 @@ function validateBackupData(data: unknown): data is BackupData {
   )
 }
 
-export function ExportImport({ progress: _progress, onImport: _onImport }: ExportImportProps) {
+export function ExportImport() {
+  const { t } = useAppTranslation()
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
   const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -44,7 +40,6 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
     try {
       const data: Record<string, string> = {}
 
-      // Collect all FastFingers data from localStorage
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
         if (key?.startsWith('fastfingers_')) {
@@ -73,9 +68,9 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
 
-      showToast('Данные успешно экспортированы', 'success')
+      showToast(t('exportImport.exportSuccess'), 'success')
     } catch {
-      showToast('Ошибка при экспорте данных', 'error')
+      showToast(t('exportImport.exportError'), 'error')
     }
   }
 
@@ -92,16 +87,13 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
         const content = e.target?.result as string
         const importData = JSON.parse(content)
 
-        // Validate backup data structure
         if (!validateBackupData(importData)) {
-          throw new Error('Неверный формат файла резервной копии')
+          throw new Error(t('exportImport.invalidFormat'))
         }
 
-        // Check version compatibility
         if (importData.version !== CURRENT_VERSION) {
           const confirmed = confirm(
-            `Версия файла (${importData.version}) отличается от текущей (${CURRENT_VERSION}). ` +
-            'Возможны проблемы совместимости. Продолжить?'
+            t('exportImport.versionMismatch', { version: importData.version, current: CURRENT_VERSION })
           )
           if (!confirmed) {
             setImporting(false)
@@ -109,13 +101,11 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
           }
         }
 
-        // Confirm before overwriting
-        if (!confirm('Это действие перезапишет все текущие данные. Продолжить?')) {
+        if (!confirm(t('exportImport.confirmOverwrite'))) {
           setImporting(false)
           return
         }
 
-        // Import data with quota protection
         const entries = Object.entries(importData.data)
         let importedCount = 0
         let quotaExceeded = false
@@ -137,11 +127,11 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
 
         if (quotaExceeded) {
           showToast(
-            `Хранилище заполнено. Импортировано ${importedCount} из ${entries.length} элементов. Очистите данные и попробуйте снова.`,
+            t('exportImport.quotaExceeded', { count: importedCount, total: entries.length }),
             'error'
           )
         } else {
-          showToast('Данные успешно импортированы', 'success')
+          showToast(t('exportImport.importSuccess'), 'success')
         }
         if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
         reloadTimerRef.current = setTimeout(() => {
@@ -149,14 +139,14 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
           window.location.reload()
         }, 1000)
       } catch {
-        showToast('Ошибка при импорте данных', 'error')
+        showToast(t('exportImport.importError'), 'error')
         setImporting(false)
       }
     }
 
     reader.onerror = () => {
       if (!mountedRef.current) return
-      showToast('Ошибка при чтении файла', 'error')
+      showToast(t('exportImport.readError'), 'error')
       setImporting(false)
     }
 
@@ -164,15 +154,11 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
   }
 
   const handleClearData = () => {
-    if (!confirm('Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!')) {
+    if (!confirm(t('exportImport.confirmClear1'))) {
       return
     }
 
-    if (
-      !confirm(
-        'Последнее предупреждение! Все ваши достижения, статистика и настройки будут удалены. Продолжить?'
-      )
-    ) {
+    if (!confirm(t('exportImport.confirmClear2'))) {
       return
     }
 
@@ -187,41 +173,38 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
 
       keysToRemove.forEach((key) => localStorage.removeItem(key))
 
-      showToast('Все данные удалены', 'success')
+      showToast(t('exportImport.clearSuccess'), 'success')
       if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
       reloadTimerRef.current = setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch {
-      showToast('Ошибка при удалении данных', 'error')
+      showToast(t('exportImport.clearError'), 'error')
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span>💾</span>
-            Экспорт и импорт данных
+            {t('exportImport.title')}
           </h2>
-          <p className="text-dark-400 text-sm mt-1">Сохраните или восстановите свой прогресс</p>
+          <p className="text-dark-400 text-sm mt-1">{t('exportImport.subtitle')}</p>
         </div>
       </div>
 
       <div className="space-y-6">
-        {/* Export section */}
         <div className="card p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-2xl">
               📤
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Экспорт данных</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('exportImport.exportSection')}</h3>
               <p className="text-dark-400 text-sm mb-4">
-                Сохраните все ваши данные в файл. Включает статистику, достижения, настройки и
-                прогресс.
+                {t('exportImport.exportDesc')}
               </p>
               <button
                 onClick={handleExport}
@@ -235,22 +218,21 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
-                Экспортировать данные
+                {t('exportImport.exportBtn')}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Import section */}
         <div className="card p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-2xl">
               📥
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Импорт данных</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('exportImport.importSection')}</h3>
               <p className="text-dark-400 text-sm mb-4">
-                Восстановите данные из ранее сохранённого файла. Текущие данные будут перезаписаны.
+                {t('exportImport.importDesc')}
               </p>
               <label className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-all flex items-center gap-2 cursor-pointer inline-flex">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,7 +243,7 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                   />
                 </svg>
-                {importing ? 'Импортирование...' : 'Импортировать данные'}
+                {importing ? t('exportImport.importing') : t('exportImport.importBtn')}
                 <input
                   type="file"
                   accept=".json"
@@ -274,16 +256,15 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
           </div>
         </div>
 
-        {/* Clear data section */}
         <div className="card p-6 border border-red-500/30 bg-red-500/5">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center text-2xl">
               ⚠️
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2 text-red-400">Опасная зона</h3>
+              <h3 className="text-lg font-semibold mb-2 text-red-400">{t('exportImport.dangerZone')}</h3>
               <p className="text-dark-400 text-sm mb-4">
-                Удалить все данные приложения. Это действие необратимо!
+                {t('exportImport.clearDataDesc')}
               </p>
               <button
                 onClick={handleClearData}
@@ -297,23 +278,22 @@ export function ExportImport({ progress: _progress, onImport: _onImport }: Expor
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
-                Удалить все данные
+                {t('exportImport.clearDataBtn')}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-4 bg-dark-800/30 rounded-lg">
           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <span>ℹ️</span>
-            Информация
+            {t('exportImport.infoTitle')}
           </h4>
           <ul className="text-xs text-dark-400 space-y-1">
-            <li>• Экспортированные данные сохраняются в формате JSON</li>
-            <li>• Рекомендуется регулярно создавать резервные копии</li>
-            <li>• Импорт данных перезапишет все текущие настройки</li>
-            <li>• Данные хранятся локально в вашем браузере</li>
+            <li>• {t('exportImport.infoJson')}</li>
+            <li>• {t('exportImport.infoBackup')}</li>
+            <li>• {t('exportImport.infoOverwrite')}</li>
+            <li>• {t('exportImport.infoLocal')}</li>
           </ul>
         </div>
       </div>

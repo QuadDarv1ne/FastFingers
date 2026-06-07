@@ -141,6 +141,11 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   tabIndex={0}
                   aria-label={`${t('keyboard.key', 'Key')} ${key.toUpperCase()}`}
                   aria-pressed={highlightKey === key.toLowerCase()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                    }
+                  }}
                 >
                   {key.toUpperCase()}
                   {showHeatmap && heatmapData?.total && heatmapData.total >= 3 && (

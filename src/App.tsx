@@ -24,9 +24,6 @@ import { ToastProvider } from './contexts/ToastContext'
 import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from './utils/confetti'
-import {
-  UserProgress,
-} from './types'
 import type { CustomExercise } from './components/CustomExerciseEditor'
 import { logger } from './utils/logger'
 
@@ -131,7 +128,6 @@ function AppContent() {
     updateHeatmap,
     setShowHeatmap,
     updateSetting,
-    importProgress,
   } = useUserProgress({
     onLevelUp: (newLevel) => {
       addNotification(createLevelUpNotification(newLevel))
@@ -230,13 +226,6 @@ function AppContent() {
       setGameMode('practice')
     },
     [addExercise, setView, setGameMode, t]
-  )
-
-  const handleImportProgress = useCallback(
-    (data: { progress: UserProgress }) => {
-      importProgress(data.progress)
-    },
-    [importProgress]
   )
 
   if (authLoading) {
@@ -497,7 +486,7 @@ function AppContent() {
 
             <ErrorBoundary key="export-import" fallback={<SectionError message={t('error.exportImportFailed', 'Failed to load export/import')} />}>
               <div className="glass rounded-xl p-6">
-                <ExportImport progress={progress} onImport={handleImportProgress} />
+                <ExportImport />
               </div>
             </ErrorBoundary>
           </div>
