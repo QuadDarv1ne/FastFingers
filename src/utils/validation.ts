@@ -51,23 +51,6 @@ export function isValidUsername(username: string): boolean {
 }
 
 /**
- * Проверка телефона (российский формат)
- */
-export function isValidPhone(phone: string): boolean {
-  if (!phone || typeof phone !== 'string') return false
-  const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/
-  return phoneRegex.test(phone.trim())
-}
-
-/**
- * Очистить телефон от лишних символов
- */
-export function cleanPhone(phone: string): string {
-  if (!phone) return ''
-  return phone.replace(/[^\d+]/g, '')
-}
-
-/**
  * Проверка URL
  */
 export function isValidUrl(url: string): boolean {
@@ -101,12 +84,4 @@ export function truncate(str: string, maxLength: number): string {
   return str.slice(0, maxLength) + '...'
 }
 
-/**
- * Маска для кредитной карты
- */
-export function maskCardNumber(cardNumber: string): string {
-  if (!cardNumber) return ''
-  const cleaned = cardNumber.replace(/\D/g, '')
-  const masked = cleaned.slice(-4).padStart(cleaned.length, '*')
-  return masked.replace(/(\d{4})/g, '$1 ').trim()
-}
+

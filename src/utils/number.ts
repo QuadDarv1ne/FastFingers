@@ -50,49 +50,6 @@ export function formatPercent(value: number, decimals = 0, locale = 'ru-RU'): st
   }
 }
 
-/**
- * Форматировать число как валюту
- */
-export function formatCurrency(
-  amount: number,
-  currency = 'RUB',
-  locale = 'ru-RU'
-): string {
-  try {
-    const safeAmount = Number(amount) || 0
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-    }).format(safeAmount)
-  } catch {
-    logger.warn('Operation failed in utils/number.ts')
-    return '0'
-  }
-}
-
-/**
- * Форматировать байты в человекочитаемый формат
- */
-export function formatBytes(bytes: number, decimals = 2): string {
-  try {
-    const safeBytes = Number(bytes) || 0
-    if (safeBytes === 0) return '0 Б'
-
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ', 'ПБ']
-
-    const i = Math.floor(Math.log(safeBytes) / Math.log(k))
-    const value = safeBytes / Math.pow(k, i)
-
-    return `${parseFloat(value.toFixed(dm))} ${sizes[i]}`
-  } catch {
-    logger.warn('Operation failed in utils/number.ts')
-    return '0 Б'
-  }
-}
-
 export function roundTo(num: number, decimals = 0): number {
   try {
     const safeNum = Number(num) || 0

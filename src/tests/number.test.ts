@@ -3,8 +3,6 @@ import {
   formatNumber,
   formatCompactNumber,
   formatPercent,
-  formatCurrency,
-  formatBytes,
   roundTo,
   clamp,
   isInRange,
@@ -30,21 +28,6 @@ describe('number utils', () => {
       expect(formatPercent(50)).toContain('50')
       expect(formatPercent(50)).toContain('%')
       expect(formatPercent(75.5, 1)).toContain('75')
-    })
-  })
-
-  describe('formatCurrency', () => {
-    it('должен форматировать валюту', () => {
-      expect(formatCurrency(1000)).toContain('000')
-      expect(formatCurrency(1000, 'USD')).toContain('$')
-    })
-  })
-
-  describe('formatBytes', () => {
-    it('должен форматировать байты', () => {
-      expect(formatBytes(0)).toBe('0 Б')
-      expect(formatBytes(1024)).toBe('1 КБ')
-      expect(formatBytes(1048576)).toBe('1 МБ')
     })
   })
 

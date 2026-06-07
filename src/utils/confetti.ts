@@ -49,7 +49,7 @@ const SIDE_SHOT_DELAYS = [300, 600, 900] as const
 let activeAnimationIds = new Set<number>()
 let activeTimeouts: ReturnType<typeof setTimeout>[] = []
 
-export function clearAllConfetti() {
+function clearAllConfetti() {
   for (const id of activeAnimationIds) {
     cancelAnimationFrame(id)
   }
@@ -114,35 +114,4 @@ export function triggerConfetti(options: ConfettiOptions = {}) {
   }
 }
 
-export function triggerConfettiRain(duration = 5000) {
-  clearAllConfetti()
-  const end = Date.now() + duration
-  const colors = COLORS.default
-  const rainConfig = CONFETTI_CONFIG.rain
 
-  let rainId: number
-  const frame = () => {
-    confetti({
-      ...rainConfig,
-      origin: { x: Math.random(), y: rainConfig.origin.y },
-      scalar: Math.random() * (rainConfig.scalarMax - rainConfig.scalarMin) + rainConfig.scalarMin,
-      colors,
-    })
-
-    if (Date.now() < end) {
-      rainId = requestAnimationFrame(frame)
-    } else {
-      untrackAnimation(rainId)
-    }
-  }
-  rainId = trackAnimation(requestAnimationFrame(frame))
-
-  return () => {
-    cancelAnimationFrame(rainId)
-    untrackAnimation(rainId)
-  }
-}
-
-export function triggerConfettiAt(x: number, y: number) {
-  confetti({ ...CONFETTI_CONFIG.burst, origin: { x, y }, colors: COLORS.default })
-}

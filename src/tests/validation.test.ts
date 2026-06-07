@@ -4,12 +4,9 @@ import {
   isPasswordStrong,
   getPasswordStrength,
   isValidUsername,
-  isValidPhone,
-  cleanPhone,
   isValidUrl,
   isEmpty,
   truncate,
-  maskCardNumber,
 } from '../utils/validation'
 
 describe('validation utils', () => {
@@ -61,20 +58,6 @@ describe('validation utils', () => {
     })
   })
 
-  describe('isValidPhone', () => {
-    it('должен принимать российские номера', () => {
-      expect(isValidPhone('+7 999 123-45-67')).toBe(true)
-      expect(isValidPhone('8 999 123 45 67')).toBe(true)
-    })
-  })
-
-  describe('cleanPhone', () => {
-    it('должен очищать номер от лишних символов', () => {
-      expect(cleanPhone('+7 (999) 123-45-67')).toBe('+79991234567')
-      expect(cleanPhone('8-999-123-45-67')).toBe('89991234567')
-    })
-  })
-
   describe('isValidUrl', () => {
     it('должен принимать валидные URL', () => {
       expect(isValidUrl('https://example.com')).toBe(true)
@@ -112,9 +95,4 @@ describe('validation utils', () => {
     })
   })
 
-  describe('maskCardNumber', () => {
-    it('должен маскировать номер карты', () => {
-      expect(maskCardNumber('1234567890123456')).toBe('************3456')
-    })
-  })
 })
