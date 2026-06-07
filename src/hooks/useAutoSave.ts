@@ -53,7 +53,10 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const storageKeyRef = useRef(storageKey)
   const dataRef = useRef<AutoSaveData>({ progress, currentSession, heatmap, settings, timestamp: Date.now() })
+  const onRestoreRef = useRef(onRestore)
+  const restoredRef = useRef(false)
   storageKeyRef.current = storageKey
+  onRestoreRef.current = onRestore
 
   useEffect(() => {
     dataRef.current = { progress, currentSession, heatmap, settings, timestamp: Date.now() }
@@ -78,8 +81,11 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
    * Восстановление данных из автосохранения
    */
   const restoreData = useCallback(() => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+
     try {
-      const saved = localStorage.getItem(storageKey)
+      const saved = localStorage.getItem(storageKeyRef.current)
       if (!saved) {
         setIsRestored(true)
         return
@@ -87,19 +93,17 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
 
       const data: AutoSaveData = JSON.parse(saved)
 
-      // Проверяем, не устарела ли сессия (более 5 минут)
       const isExpired = Date.now() - data.timestamp > SESSION_TIMEOUT
 
       if (isExpired) {
-        // Сессия устарела, очищаем автосохранение
-        localStorage.removeItem(storageKey)
+        localStorage.removeItem(storageKeyRef.current)
         setIsRestored(true)
         return
       }
 
-      // Восстанавливаем сессию
-      if (onRestore && data.currentSession) {
-        onRestore(data)
+      const cb = onRestoreRef.current
+      if (cb && data.currentSession) {
+        cb(data)
       }
 
       setIsRestored(true)
@@ -107,7 +111,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
       logger.warn('Failed to restore:', error)
       setIsRestored(true)
     }
-  }, [storageKey, onRestore])
+  }, [])
 
   /**
    * Очистка автосохранения

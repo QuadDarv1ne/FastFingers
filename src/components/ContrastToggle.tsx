@@ -15,6 +15,10 @@ export function ContrastToggle() {
     } else {
       document.documentElement.removeAttribute('data-contrast')
     }
+
+    return () => {
+      document.documentElement.removeAttribute('data-contrast')
+    }
   }, [])
 
   const toggleContrast = useCallback(() => {

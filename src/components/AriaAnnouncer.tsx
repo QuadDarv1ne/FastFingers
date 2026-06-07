@@ -21,8 +21,6 @@ export function AriaAnnouncer({ message = '', priority = 'polite' }: AriaAnnounc
     return () => clearTimeout(timer)
   }, [message])
 
-  if (!text) return null
-
   return (
     <div
       id="aria-announcer"
