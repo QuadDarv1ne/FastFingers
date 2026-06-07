@@ -44,12 +44,14 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const targetTimeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
 
   // Keep refs in sync
-  useEffect(() => { scoreRef.current = score }, [score])
-  useEffect(() => { missedRef.current = missed }, [missed])
-  useEffect(() => { hitsRef.current = hits }, [hits])
-  useEffect(() => { targetsRef.current = targets }, [targets])
-  useEffect(() => { comboRef.current = combo }, [combo])
-  useEffect(() => { isPlayingRef.current = isPlaying }, [isPlaying])
+  useEffect(() => {
+    scoreRef.current = score
+    missedRef.current = missed
+    hitsRef.current = hits
+    targetsRef.current = targets
+    comboRef.current = combo
+    isPlayingRef.current = isPlaying
+  }, [score, missed, hits, targets, combo, isPlaying])
 
   // Random position generation
   const getRandomPosition = useCallback(() => {
