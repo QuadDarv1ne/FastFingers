@@ -43,6 +43,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
 
   // Track previous level to detect level-ups without side effects in setState
   const prevLevelRef = useRef(options?.initialLevel ?? 1);
+  const onLevelUpRef = useRef(options?.onLevelUp);
+  onLevelUpRef.current = options?.onLevelUp;
 
   // Persisted settings from Zustand store - use useShallow to stabilize object reference
   const settings = useAppStore(useShallow(s => ({
@@ -60,10 +62,10 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
   // Detect level-up and call callback as a side effect
   useEffect(() => {
     if (progress.level > prevLevelRef.current) {
-      options?.onLevelUp?.(progress.level);
+      onLevelUpRef.current?.(progress.level);
     }
     prevLevelRef.current = progress.level;
-  }, [progress.level, options]);
+  }, [progress.level]);
 
   const handleSessionComplete = useCallback((stats: TypingStats, totalXp: number) => {
     setCurrentStats(stats);

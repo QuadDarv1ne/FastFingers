@@ -25,14 +25,14 @@ export function useSessionHandlers({
   todayChallenge,
   completeChallenge,
   handleSessionComplete,
-  streak,
+  streak: { current: currentStreak },
   setLastSessionXp,
   setShowSessionSummary,
 }: UseSessionHandlersOptions): UseSessionHandlersReturn {
   const handleSessionCompleteWithProgress = useCallback(
     (stats: TypingStats) => {
       const xp = calculateSessionXp(stats)
-      const streakBonus = calculateStreakXpBonus(streak.current)
+      const streakBonus = calculateStreakXpBonus(currentStreak)
       const totalXp = xp + streakBonus
       setLastSessionXp(totalXp)
 
@@ -51,7 +51,7 @@ export function useSessionHandlers({
       todayChallenge,
       completeChallenge,
       handleSessionComplete,
-      streak,
+      currentStreak,
       setLastSessionXp,
       setShowSessionSummary,
     ]

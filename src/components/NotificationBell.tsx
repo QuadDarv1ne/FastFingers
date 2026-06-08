@@ -16,10 +16,7 @@ export interface Notification {
   icon: string
 }
 
-interface NotificationBellProps {
-}
-
-export function NotificationBell({}: NotificationBellProps) {
+export function NotificationBell() {
   const { t } = useAppTranslation()
   const [notifications, setNotifications] = useLocalStorageState<Notification[]>(
     STORAGE_KEYS.NOTIFICATIONS,

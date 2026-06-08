@@ -104,9 +104,15 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
       milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
       setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
     }
+
+    return () => {
+      if (milestoneTimerRef.current) {
+        clearTimeout(milestoneTimerRef.current)
+        milestoneTimerRef.current = null
+      }
+    }
   }, [timeLeft, isActive])
 
-  // Cleanup milestone timer only on unmount
   useEffect(() => {
     return () => {
       if (milestoneTimerRef.current) {

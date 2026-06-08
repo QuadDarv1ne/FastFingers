@@ -199,13 +199,16 @@ export function useDailyChallenges() {
   )
 
   // Статистика челленджей
-  const stats = {
-    total: challenges.length,
-    completed: challenges.filter(c => c.completed).length,
-    completionRate: challenges.length > 0 
-      ? Math.round((challenges.filter(c => c.completed).length / challenges.length) * 100) 
-      : 0,
-  }
+  const stats = useMemo(
+    () => ({
+      total: challenges.length,
+      completed: challenges.filter(c => c.completed).length,
+      completionRate: challenges.length > 0 
+        ? Math.round((challenges.filter(c => c.completed).length / challenges.length) * 100) 
+        : 0,
+    }),
+    [challenges]
+  )
 
   return {
     todayChallenge,
