@@ -180,7 +180,7 @@ jobs:
           path: dist/
 
       - name: Deploy to Netlify Preview
-        uses: nwtgck/actions-netlify@v3
+        uses: nwtgck/actions-netlify@v4
         with:
           publish-dir: './dist'
           production-deploy: false
