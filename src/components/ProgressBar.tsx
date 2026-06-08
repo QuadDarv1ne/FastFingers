@@ -23,7 +23,7 @@ export function ProgressBar({
   const percentage = Math.min(100, Math.max(0, (value / safeMax) * 100))
 
   return (
-    <div className={`progress-bar progress-bar--${size}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} aria-label={label}>
+    <div className={`progress-bar progress-bar--${size}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} aria-valuetext={label ? `${label}: ${Math.round(value)} / ${max}` : `${Math.round(value)} / ${max}`} aria-label={label}>
       {(label || showValue) && (
         <div className="progress-bar__header">
           {label && <span className="progress-bar__label">{label}</span>}

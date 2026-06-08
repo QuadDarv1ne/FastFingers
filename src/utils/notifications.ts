@@ -1,8 +1,27 @@
 import i18n from 'i18next'
-import { Notification as BellNotification } from '../components/NotificationBell'
-import { Notification as ContextNotification } from '../contexts/NotificationContext'
 import { getFromStorageAsArray, setToStorage } from './storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+
+interface Notification {
+  id: string
+  type: 'achievement' | 'challenge' | 'streak' | 'level' | 'info'
+  title: string
+  message: string
+  icon: string
+  timestamp: number
+  read: boolean
+  action?: () => void
+}
+
+interface StoredNotification {
+  id: string
+  type: 'achievement' | 'milestone' | 'streak' | 'challenge' | 'info'
+  title: string
+  message: string
+  timestamp: string
+  read: boolean
+  icon: string
+}
 
 interface AchievementData {
   title: string
@@ -14,7 +33,7 @@ const t = i18n.t.bind(i18n)
 
 export function createAchievementNotification(
   achievement: AchievementData
-): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
+): Omit<Notification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'achievement',
     title: `🏆 ${t('notification.achievement')}`,
@@ -25,7 +44,7 @@ export function createAchievementNotification(
 
 export function createLevelUpNotification(
   level: number
-): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
+): Omit<Notification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'level',
     title: `⭐ ${t('notification.levelUp')}`,
@@ -37,7 +56,7 @@ export function createLevelUpNotification(
 export function createStreakNotification(
   streak: number,
   xpBonus: number
-): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
+): Omit<Notification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'streak',
     title: `🔥 ${t('notification.streak')}`,
@@ -48,7 +67,7 @@ export function createStreakNotification(
 
 export function createChallengeCompleteNotification(
   wpm: number
-): Omit<ContextNotification, 'id' | 'timestamp' | 'read'> {
+): Omit<Notification, 'id' | 'timestamp' | 'read'> {
   return {
     type: 'challenge',
     title: `✅ ${t('notification.challenge')}`,
@@ -58,11 +77,11 @@ export function createChallengeCompleteNotification(
 }
 
 export function addNotification(
-  notification: Omit<BellNotification, 'id' | 'timestamp' | 'read'>
+  notification: Omit<StoredNotification, 'id' | 'timestamp' | 'read'>
 ) {
   const notifications = getFromStorageAsArray(STORAGE_KEYS.NOTIFICATIONS)
 
-  const newNotification: BellNotification = {
+  const newNotification: StoredNotification = {
     ...notification,
     id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     timestamp: new Date().toISOString(),

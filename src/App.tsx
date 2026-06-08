@@ -181,8 +181,8 @@ function AppContent() {
     [showOnboarding, showAchievements, showProfile]
   )
 
-  useHotkeys(
-    {
+  const hotkeyShortcuts = useMemo(
+    () => ({
       'ctrl+1': () => {
         setGameMode('practice')
         setView('main')
@@ -203,9 +203,11 @@ function AppContent() {
         const button = document.querySelector('[data-action="new-exercise"]') as HTMLElement
         button?.click()
       },
-    },
-    hotkeyOptions
+    }),
+    [setGameMode, setView, setShowProfile]
   )
+
+  useHotkeys(hotkeyShortcuts, hotkeyOptions)
 
   useEffect(() => {
     const handleStartChallenge = (e: Event) => {

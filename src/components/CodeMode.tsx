@@ -287,7 +287,7 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
           spellCheck="false"
         />
 
-        <div className="font-mono text-base leading-relaxed break-all whitespace-pre-wrap" aria-live="polite" aria-atomic="true">
+        <div className="font-mono text-base leading-relaxed break-all whitespace-pre-wrap">
           {textToType.split('').map((char, index) => {
             let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
 
