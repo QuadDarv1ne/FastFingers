@@ -80,5 +80,3 @@ export function useClipboard({
 
   return { copied, copy, reset }
 }
-
-export default useClipboard

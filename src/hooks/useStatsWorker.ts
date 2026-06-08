@@ -227,5 +227,3 @@ export function useStatsWorker(): UseStatsWorkerReturn {
     terminate,
   }
 }
-
-export default useStatsWorker

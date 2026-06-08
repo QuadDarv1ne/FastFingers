@@ -127,5 +127,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return children
   }
 }
-
-export default ErrorBoundary

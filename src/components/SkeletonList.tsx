@@ -52,5 +52,3 @@ export function SkeletonList({ count = 3, variant = 'card' }: SkeletonListProps)
     </div>
   )
 }
-
-export default SkeletonList

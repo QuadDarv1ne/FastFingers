@@ -189,5 +189,3 @@ export function useIndexedDBAll<T extends { id: string }>(
     refresh: loadData,
   }
 }
-
-export default useIndexedDB

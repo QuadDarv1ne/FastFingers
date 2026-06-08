@@ -1106,13 +1106,13 @@ function NotificationSettingsSubPage() {
     return typeof Notification !== 'undefined' && Notification.permission === 'granted'
   })
   const [soundEnabled, setSoundEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_SOUND) || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_SOUND) || 'true') } catch { logger.warn('Failed to parse NOTIF_SOUND'); return true }
   })
   const [levelUpEnabled, setLevelUpEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_LEVELUP) || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_LEVELUP) || 'true') } catch { logger.warn('Failed to parse NOTIF_LEVELUP'); return true }
   })
   const [achievementEnabled, setAchievementEnabled] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_ACHIEVEMENT) || 'true') } catch { return true }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIF_ACHIEVEMENT) || 'true') } catch { logger.warn('Failed to parse NOTIF_ACHIEVEMENT'); return true }
   })
 
   const enableBrowserNotifs = async () => {

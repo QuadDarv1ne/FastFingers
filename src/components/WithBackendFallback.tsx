@@ -50,5 +50,3 @@ export const WithBackendFallback = memo<WithBackendFallbackProps>(function WithB
 
   return <>{children}</>
 })
-
-export default WithBackendFallback

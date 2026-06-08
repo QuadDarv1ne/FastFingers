@@ -18,5 +18,3 @@ export function LazyBoundary({ children, loadingFallback, errorFallback, onError
     </ErrorBoundary>
   )
 }
-
-export default LazyBoundary

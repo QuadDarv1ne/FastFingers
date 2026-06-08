@@ -171,5 +171,3 @@ export function StreakRewardsPanel({ currentStreak, onClose }: StreakRewardsProp
     </div>
   )
 }
-
-export default StreakRewardsPanel

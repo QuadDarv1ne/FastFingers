@@ -29,5 +29,3 @@ export function useOnlineStatus() {
     isOffline: !isOnline,
   }
 }
-
-export default useOnlineStatus

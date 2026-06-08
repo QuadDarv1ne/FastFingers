@@ -42,5 +42,3 @@ export function useAbortController() {
 
   return { getSignal, abort }
 }
-
-export default useAbortController

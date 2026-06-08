@@ -84,5 +84,3 @@ export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function B
     </div>
   )
 })
-
-export default BackendFallbackBanner

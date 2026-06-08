@@ -118,5 +118,3 @@ export function useBackendAvailability(options: {
     isOfflineMode: !status.isAvailable,
   }
 }
-
-export default useBackendAvailability

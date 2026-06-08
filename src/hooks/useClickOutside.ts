@@ -65,5 +65,3 @@ export function useClickInside<T extends HTMLElement = HTMLElement>(
     }
   }, [ref, mouseEvent, touchEvent])
 }
-
-export default useClickOutside

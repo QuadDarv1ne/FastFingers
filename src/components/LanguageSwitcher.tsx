@@ -89,5 +89,3 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
     </div>
   )
 }
-
-export default LanguageSwitcher
