@@ -99,7 +99,7 @@ export const useProgressStore = create<ProgressState>()(
           case 'increment':
             return { streak: state.streak + 1, lastPracticeDate: date }
           case 'unchanged':
-            return { lastPracticeDate: date }
+            return { streak: state.streak, lastPracticeDate: date }
           case 'reset':
             return { streak: 1, lastPracticeDate: date }
         }

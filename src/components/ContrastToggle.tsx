@@ -12,12 +12,12 @@ export function ContrastToggle() {
     setIsHighContrast(isHigh)
     if (isHigh) {
       document.documentElement.setAttribute('data-contrast', 'high')
-    } else {
-      document.documentElement.removeAttribute('data-contrast')
     }
 
     return () => {
-      document.documentElement.removeAttribute('data-contrast')
+      if (document.documentElement.getAttribute('data-contrast') === 'high') {
+        document.documentElement.removeAttribute('data-contrast')
+      }
     }
   }, [])
 

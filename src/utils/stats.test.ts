@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculateStats,
-  formatWPM,
   calculateLevel,
   xpForLevel,
   calculateLevelProgress,
@@ -85,12 +84,6 @@ describe('calculateStats', () => {
     expect(stats.cpm).toBe(0)
     expect(stats.errors).toBe(0)
     expect(stats.correctChars).toBe(0)
-  })
-})
-
-describe('formatWPM', () => {
-  it('converts number to string', () => {
-    expect(formatWPM(42)).toBe('42')
   })
 })
 

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   calculateStats,
-  formatWPM,
   calculateLevel,
   xpForLevel,
   calculateLevelProgress,
@@ -55,14 +54,6 @@ describe('stats utils', () => {
       expect(formatTime(5)).toBe('00:05')
       expect(formatTime(65)).toBe('01:05')
       expect(formatTime(125)).toBe('02:05')
-    })
-  })
-
-  describe('formatWPM', () => {
-    it('должен форматировать WPM как строку', () => {
-      expect(formatWPM(0)).toBe('0')
-      expect(formatWPM(45)).toBe('45')
-      expect(formatWPM(120)).toBe('120')
     })
   })
 

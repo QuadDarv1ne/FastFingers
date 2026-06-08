@@ -76,14 +76,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       const tooltipContent = shortcut ? `${tooltip}${tooltip ? ' • ' : ''}${shortcut}` : tooltip || ''
       return (
         <Tooltip content={tooltipContent}>
-          <button ref={ref} className={classes} disabled={disabled || isLoading} {...props}>
+          <button ref={ref} className={classes} disabled={disabled || isLoading} aria-busy={isLoading || undefined} {...props}>
             {buttonContent}
           </button>
         </Tooltip>
       )
     }
 
-    return <button ref={ref} className={classes} disabled={disabled || isLoading} {...props}>{buttonContent}</button>
+    return <button ref={ref} className={classes} disabled={disabled || isLoading} aria-busy={isLoading || undefined} {...props}>{buttonContent}</button>
   }
 )
 

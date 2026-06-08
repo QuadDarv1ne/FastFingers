@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useEffect, useCallback, Suspense, lazy } from 'react'
+import { useEffect, useCallback, useMemo, Suspense, lazy } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Header } from './components/Header'
 import { LoadingFallback } from './components/LoadingFallback'
@@ -176,6 +176,11 @@ function AppContent() {
     setShowSessionSummary,
   })
 
+  const hotkeyOptions = useMemo(
+    () => ({ enabled: !showOnboarding && !showAchievements && !showProfile }),
+    [showOnboarding, showAchievements, showProfile]
+  )
+
   useHotkeys(
     {
       'ctrl+1': () => {
@@ -199,7 +204,7 @@ function AppContent() {
         button?.click()
       },
     },
-    { enabled: !showOnboarding && !showAchievements && !showProfile }
+    hotkeyOptions
   )
 
   useEffect(() => {

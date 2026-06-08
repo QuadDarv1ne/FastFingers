@@ -82,11 +82,6 @@ export function calculateStats(
 }
 
 /**
- * Форматирование WPM для отображения
- */
-export const formatWPM = (wpm: number): string => wpm.toString()
-
-/**
  * Расчёт уровня пользователя на основе XP
  * @param xp - Текущий опыт пользователя
  * @returns Номер уровня (начиная с 1)

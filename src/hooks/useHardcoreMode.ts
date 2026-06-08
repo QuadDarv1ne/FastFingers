@@ -143,6 +143,7 @@ export function useHardcoreMode({
   }, [currentIndex, generateNewText])
 
   const resetGame = useCallback(() => {
+    pendingCompletionRef.current = false
     setStreak(0)
     setBestStreak?.(prev => Math.max(prev, streakRef.current))
     generateNewText()
