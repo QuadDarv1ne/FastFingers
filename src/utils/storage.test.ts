@@ -237,11 +237,26 @@ describe('storage utils', () => {
       expect(getStorageSize()).toBe(0)
     })
 
-    it.skip('should calculate size correctly (skip: happy-dom localStorage limitation)', () => {
-      localStorage.setItem('test', 'value')
+    it('should calculate size correctly', () => {
+      const mockStorage = {} as Storage
+
+      Object.defineProperties(mockStorage, {
+        getItem: { value: (key: string) => (mockStorage as unknown as Record<string, string>)[key] ?? null, enumerable: false, writable: true, configurable: true },
+        setItem: { value: (key: string, value: string) => { (mockStorage as unknown as Record<string, string>)[key] = value }, enumerable: false, writable: true },
+        removeItem: { value: (key: string) => { delete (mockStorage as unknown as Record<string, string>)[key] }, enumerable: false, writable: true },
+        clear: { value: () => { Object.keys(mockStorage).forEach((k) => delete (mockStorage as unknown as Record<string, string>)[k]) }, enumerable: false, writable: true },
+        key: { value: (index: number) => Object.keys(mockStorage)[index] ?? null, enumerable: false, writable: true },
+        length: { get: () => Object.keys(mockStorage).length, enumerable: false },
+      })
+
+      vi.spyOn(global as any, 'localStorage', 'get').mockReturnValue(mockStorage)
+
+      mockStorage.setItem('test', 'value')
       const size = getStorageSize()
       expect(size).toBeGreaterThan(0)
-      localStorage.removeItem('test')
+
+      mockStorage.removeItem('test')
+      expect(getStorageSize()).toBe(0)
     })
   })
 

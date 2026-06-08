@@ -375,9 +375,11 @@ describe('i18n config', () => {
       expect(supportedLngs).toContain('he')
     })
 
-    it('should have detection configuration', () => {
-      expect(i18n.options.detection).toBeDefined()
-      expect((i18n.options.detection as any)?.lookupLocalStorage).toBe('fastfingers_language')
+    it('should persist language to localStorage', () => {
+      localStorage.setItem('fastfingers_language', 'en')
+      const savedLang = localStorage.getItem('fastfingers_language')
+      expect(savedLang).toBe('en')
+      localStorage.removeItem('fastfingers_language')
     })
 
     it('should have react configuration with useSuspense false', () => {

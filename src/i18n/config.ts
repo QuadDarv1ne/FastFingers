@@ -8,6 +8,8 @@ import i18n, { TFunction } from 'i18next'
 import { initReactI18next, useTranslation } from 'react-i18next'
 import { logger } from '../utils/logger'
 
+const STORAGE_KEY = 'fastfingers_language'
+
 // ============================================
 // Типы для ключей переводов
 // ============================================
@@ -400,10 +402,18 @@ async function loadLanguageFile(lang: string): Promise<Record<string, string>> {
 // Инициализация i18n
 // ============================================
 
+const savedLang = (() => {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY)
+    if (v && SUPPORTED_LANGUAGES.includes(v as SupportedLanguage)) return v as SupportedLanguage
+  } catch { /* localStorage unavailable */ }
+  return 'ru'
+})()
+
 i18n
   .use(initReactI18next)
   .init({
-    lng: 'ru',
+    lng: savedLang,
     fallbackLng: 'ru',
     supportedLngs: SUPPORTED_LANGUAGES,
     interpolation: {
@@ -411,9 +421,6 @@ i18n
     },
     react: {
       useSuspense: false,
-    },
-    detection: {
-      lookupLocalStorage: 'fastfingers_language',
     },
   })
 
@@ -473,6 +480,7 @@ export async function changeLanguage(lang: SupportedLanguage): Promise<TFunction
       i18n.addResourceBundle(lang, 'translation', translations, true, true)
     }
   }
+  try { localStorage.setItem(STORAGE_KEY, lang) } catch { /* ignore */ }
   return i18n.changeLanguage(lang)
 }
 

@@ -435,7 +435,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
           {liveRegionText}
         </div>
 
-        <div className="font-mono leading-relaxed sm:leading-loose break-words select-none max-w-full overflow-wrap-anywhere text-lg sm:text-xl" style={fontSizeStyle} aria-live="polite">
+        <div className="font-mono leading-relaxed sm:leading-loose break-words select-none max-w-full overflow-wrap-anywhere text-lg sm:text-xl" style={fontSizeStyle}>
           {renderedChars}
         </div>
         

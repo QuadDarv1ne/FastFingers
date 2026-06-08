@@ -86,7 +86,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
   if (!layoutData) return null
 
   return (
-    <div className="card" role="region" aria-label={t('misc.keyboard')}>
+    <div id="keyboard" className="card" role="region" aria-label={t('misc.keyboard')}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center">

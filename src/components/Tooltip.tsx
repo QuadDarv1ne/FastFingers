@@ -45,19 +45,17 @@ export function Tooltip({ content, children, position = 'top', delay = 300 }: To
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      role="tooltip"
-      aria-hidden={!isVisible}
     >
       {children}
       <AnimatePresence>
         {isVisible && (
           <motion.div
+            role="tooltip"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.15 }}
             className={`absolute ${positionClasses[position]} z-50 pointer-events-none`}
-            role="presentation"
           >
             <div className="bg-dark-800 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-xl border border-dark-700 whitespace-nowrap">
               {content}

@@ -18,7 +18,7 @@ export const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
 }) {
   const { t } = useAppTranslation()
   return (
-    <div className="glass rounded-xl p-6">
+    <div id="settings" className="glass rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4">{t('misc.settings')}</h3>
 
       <div className="space-y-4">

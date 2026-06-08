@@ -16,15 +16,22 @@ export function convertToCSV(data: ExportData[]): string {
   if (!data || data.length === 0) return ''
 
   const headers = ['Date', 'WPM', 'CPM', 'Accuracy (%)', 'Errors', 'Time (s)', 'Correct Chars', 'Total Chars']
+  const escapeCsv = (val: string): string => {
+    if (val.includes(',') || val.includes('"') || val.includes('\n') || val.includes('\r')) {
+      return `"${val.replace(/"/g, '""')}"`
+    }
+    return val
+  }
+
   const rows = data.map(row => [
-    row.date ?? '',
-    row.wpm?.toString() ?? '0',
-    row.cpm?.toString() ?? '0',
-    row.accuracy?.toString() ?? '0',
-    row.errors?.toString() ?? '0',
-    row.timeElapsed?.toString() ?? '0',
-    row.correctChars?.toString() ?? '0',
-    row.totalChars?.toString() ?? '0',
+    escapeCsv(row.date ?? ''),
+    escapeCsv(row.wpm?.toString() ?? '0'),
+    escapeCsv(row.cpm?.toString() ?? '0'),
+    escapeCsv(row.accuracy?.toString() ?? '0'),
+    escapeCsv(row.errors?.toString() ?? '0'),
+    escapeCsv(row.timeElapsed?.toString() ?? '0'),
+    escapeCsv(row.correctChars?.toString() ?? '0'),
+    escapeCsv(row.totalChars?.toString() ?? '0'),
   ])
 
   return [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
