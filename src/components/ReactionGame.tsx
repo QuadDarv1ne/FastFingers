@@ -99,13 +99,7 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
 
     const gameInterval = setInterval(() => {
       setTimeLeft(time => {
-        if (time <= 1) {
-          setIsPlaying(false)
-          const totalAttempts = hitsRef.current + missedRef.current
-          const accuracy = totalAttempts > 0 ? Math.round((hitsRef.current / totalAttempts) * 100) : 0
-          onComplete(scoreRef.current, accuracy)
-          return 0
-        }
+        if (time <= 1) return 0
         return time - 1
       })
     }, 1000)
@@ -129,7 +123,17 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       timeouts.clear()
       targetTimeouts.clear()
     }
-  }, [isPlaying, spawnTarget, onComplete])
+  }, [isPlaying, spawnTarget])
+
+  // End game when timer reaches zero
+  useEffect(() => {
+    if (!isPlaying || timeLeft > 0) return
+
+    setIsPlaying(false)
+    const totalAttempts = missedRef.current + hitsRef.current
+    const accuracy = totalAttempts > 0 ? Math.round((hitsRef.current / totalAttempts) * 100) : 0
+    onComplete(scoreRef.current, accuracy)
+  }, [isPlaying, timeLeft, onComplete])
 
   // Start game
   const handleStart = () => {
