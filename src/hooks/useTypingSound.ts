@@ -79,8 +79,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     activeOscillatorsRef.current.delete(oscillator)
     try {
       oscillator.disconnect()
-    } catch {
-      // Ignore cleanup errors
+    } catch (err) {
+      logger.warn('Failed to disconnect oscillator', err)
     }
   }, [])
 
@@ -266,8 +266,8 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
         try {
           osc.stop()
           osc.disconnect()
-        } catch {
-          // Ignore cleanup errors
+        } catch (err) {
+          logger.warn('Failed to stop oscillator', err)
         }
       })
       oscillators.clear()

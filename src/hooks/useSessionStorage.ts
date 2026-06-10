@@ -26,8 +26,8 @@ export function useSessionStorage<T>(
       const item = sessionStorage.getItem(key)
       if (!item) return initialValue
       return deserialize(item)
-    } catch {
-      logger.warn('Operation failed in hooks/useSessionStorage.ts')
+    } catch (err) {
+      logger.warn('Failed to read from sessionStorage', { key }, err)
       return initialValue
     }
   }, [initialValue, key, deserialize])
@@ -43,9 +43,8 @@ export function useSessionStorage<T>(
       if (event.key === key && event.newValue) {
         try {
           setStoredValue(deserialize(event.newValue))
-        } catch {
-          logger.warn('Operation failed in hooks/useSessionStorage.ts')
-          // ignore
+        } catch (err) {
+          logger.warn('Failed to deserialize sessionStorage change', { key }, err)
         }
       }
     }
@@ -67,9 +66,8 @@ export function useSessionStorage<T>(
             newValue: serialize(valueToStore),
           })
         )
-      } catch {
-        logger.warn('Operation failed in hooks/useSessionStorage.ts')
-        // ignore
+      } catch (err) {
+        logger.warn('Failed to save to sessionStorage', { key }, err)
       }
     },
     [key, storedValue, serialize]
@@ -86,9 +84,8 @@ export function useSessionStorage<T>(
           newValue: null,
         })
       )
-    } catch {
-      logger.warn('Operation failed in hooks/useSessionStorage.ts')
-      // ignore
+    } catch (err) {
+      logger.warn('Failed to remove from sessionStorage', { key }, err)
     }
   }, [key, initialValue])
 

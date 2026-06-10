@@ -9,8 +9,8 @@ export function useLocalStorageState<T>(
     try {
       const item = localStorage.getItem(key)
       return item ? JSON.parse(item) : defaultValue
-    } catch {
-      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
+    } catch (err) {
+      logger.warn('Failed to parse stored state', { key }, err)
       return defaultValue
     }
   })
@@ -24,9 +24,8 @@ export function useLocalStorageState<T>(
         prevJsonRef.current = next
         localStorage.setItem(key, next)
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
-      // Ignore save errors
+    } catch (err) {
+      logger.warn('Failed to save state to localStorage', { key }, err)
     }
   }, [key, state])
 
@@ -34,9 +33,8 @@ export function useLocalStorageState<T>(
     try {
       localStorage.removeItem(key)
       setState(defaultValue)
-    } catch {
-      logger.warn('Operation failed in hooks/useLocalStorageState.ts')
-      // Ignore remove errors
+    } catch (err) {
+      logger.warn('Failed to remove state from localStorage', { key }, err)
     }
   }, [key, defaultValue])
 
