@@ -153,7 +153,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
         clearTimeout(saveTimeoutRef.current)
       }
     }
-  }, [saveData])
+  }, [saveData, progress, currentSession, heatmap, settings])
 
   // Сохранение при закрытии вкладки
   useEffect(() => {

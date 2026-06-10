@@ -26,7 +26,7 @@ export function useTypingTimer({
     if (mode !== 'timed' || !isActive) return
 
     const interval = window.setInterval(() => {
-      setTimeLeft(prev => prev - 1)
+      setTimeLeft(prev => prev > 0 ? prev - 1 : 0)
     }, 1000)
 
     return () => window.clearInterval(interval)

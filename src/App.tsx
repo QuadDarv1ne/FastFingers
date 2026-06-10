@@ -229,6 +229,22 @@ function AppContent() {
     [addExercise, setView, setGameMode, t]
   )
 
+  const gameModeButtons = useMemo(() => [
+    { mode: 'reaction' as const, icon: '🎮', label: t('nav.reaction'), title: t('mode.game') },
+    { mode: 'marathon' as const, icon: '🏃', label: t('label.marathon'), title: t('tooltip.marathon') },
+    { mode: 'code' as const, icon: '💻', label: t('label.code'), title: t('tooltip.code') },
+    { mode: 'duel' as const, icon: '⚔️', label: t('label.duel'), title: t('tooltip.duel') },
+    { mode: 'tournament' as const, icon: '🏆', label: t('label.tournament'), title: t('tooltip.tournament') },
+  ], [t])
+
+  const viewButtons = useMemo(() => [
+    { view: 'custom-exercise' as const, icon: '✏️', label: t('nav.custom'), title: t('exercise.custom') },
+    { view: 'tips' as const, icon: '💡', label: t('nav.tips'), title: t('nav.tips') },
+    { view: 'weekly' as const, icon: '📈', label: t('nav.week'), title: t('stats.progress') },
+    { view: 'statistics' as const, icon: '📊', label: t('nav.statistics'), title: t('stats.title') },
+    { view: 'learning' as const, icon: '📚', label: t('nav.learning'), title: t('nav.learning') },
+  ], [t])
+
   if (authLoading) {
     return (
       <div
@@ -294,30 +310,21 @@ function AppContent() {
           <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label={t('modes.select')}>
             <ModeButton
               isActive={gameMode === 'practice' && view === 'main'}
-              onClick={() => {
-                setGameMode('practice')
-                setView('main')
-              }}
+              onClick={() => { setGameMode('practice'); setView('main') }}
               icon="📝"
               label={t('nav.practice')}
               title={t('mode.practice')}
             />
             <ModeButton
               isActive={gameMode === 'sprint'}
-              onClick={() => {
-                setGameMode('sprint')
-                setView('main')
-              }}
+              onClick={() => { setGameMode('sprint'); setView('main') }}
               icon="⚡"
               label={t('nav.sprint')}
               title={t('tooltip.sprint')}
             />
             <ModeButton
               isActive={gameMode === 'hardcore'}
-              onClick={() => {
-                setGameMode('hardcore')
-                setView('main')
-              }}
+              onClick={() => { setGameMode('hardcore'); setView('main') }}
               icon="💀"
               label={t('mode.hardcore')}
               title={t('tooltip.hardcore')}
@@ -328,76 +335,26 @@ function AppContent() {
               onDurationChange={setSpeedTestDuration}
               onGameModeChange={setGameMode}
             />
-            <ModeButton
-              isActive={view === 'custom-exercise'}
-              onClick={() => setView('custom-exercise')}
-              icon="✏️"
-              label={t('nav.custom')}
-              title={t('exercise.custom')}
-            />
-            <ModeButton
-              isActive={view === 'tips'}
-              onClick={() => setView('tips')}
-              icon="💡"
-              label={t('nav.tips')}
-              title={t('nav.tips')}
-            />
-            <ModeButton
-              isActive={view === 'weekly'}
-              onClick={() => setView('weekly')}
-              icon="📈"
-              label={t('nav.week')}
-              title={t('stats.progress')}
-            />
-            <ModeButton
-              isActive={view === 'statistics'}
-              onClick={() => setView('statistics')}
-              icon="📊"
-              label={t('nav.statistics')}
-              title={t('stats.title')}
-            />
-            <ModeButton
-              isActive={view === 'learning'}
-              onClick={() => setView('learning')}
-              icon="📚"
-              label={t('nav.learning')}
-              title={t('nav.learning')}
-            />
-            <ModeButton
-              isActive={gameMode === 'reaction'}
-              onClick={() => setGameMode('reaction')}
-              icon="🎮"
-              label={t('nav.reaction')}
-              title={t('mode.game')}
-            />
-            <ModeButton
-              isActive={gameMode === 'marathon'}
-              onClick={() => setGameMode('marathon')}
-              icon="🏃"
-              label={t('label.marathon')}
-              title={t('tooltip.marathon')}
-            />
-            <ModeButton
-              isActive={gameMode === 'code'}
-              onClick={() => setGameMode('code')}
-              icon="💻"
-              label={t('label.code')}
-              title={t('tooltip.code')}
-            />
-            <ModeButton
-              isActive={gameMode === 'duel'}
-              onClick={() => setGameMode('duel')}
-              icon="⚔️"
-              label={t('label.duel')}
-              title={t('tooltip.duel')}
-            />
-            <ModeButton
-              isActive={gameMode === 'tournament'}
-              onClick={() => setGameMode('tournament')}
-              icon="🏆"
-              label={t('label.tournament')}
-              title={t('tooltip.tournament')}
-            />
+            {gameModeButtons.map(b => (
+              <ModeButton
+                key={b.mode}
+                isActive={gameMode === b.mode}
+                onClick={() => setGameMode(b.mode)}
+                icon={b.icon}
+                label={b.label}
+                title={b.title}
+              />
+            ))}
+            {viewButtons.map(b => (
+              <ModeButton
+                key={b.view}
+                isActive={view === b.view}
+                onClick={() => setView(b.view)}
+                icon={b.icon}
+                label={b.label}
+                title={b.title}
+              />
+            ))}
             {user?.role === 'admin' && (
               <ModeButton
                 isActive={view === 'admin'}

@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { User } from '../types/auth'
-import { calculateRank } from '../utils/certificateOptimized'
+import { calculateRank } from '../utils/certificateTypes'
 
 describe('certificateOptimized', () => {
   beforeEach(() => {

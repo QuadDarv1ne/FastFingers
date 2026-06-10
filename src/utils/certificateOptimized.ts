@@ -7,7 +7,7 @@
 
 import type { User } from '../types/auth'
 import type { CertificateData, CertificateOptions } from './certificateTypes'
-import { generateCertificateId } from './certificateTypes'
+import { generateCertificateId, calculateRank } from './certificateTypes'
 
 const rankColors = {
   Bronze: { primary: '#CD7F32', secondary: '#8B4513' },
@@ -229,16 +229,6 @@ export async function generateCertificate(
       resolve(blob)
     }, 'image/png', 0.95)
   })
-}
-
-export function calculateRank(wpm: number, accuracy: number): CertificateData['rank'] {
-  const score = wpm * (accuracy / 100)
-  if (score >= 100) return 'Master'
-  if (score >= 80) return 'Diamond'
-  if (score >= 60) return 'Platinum'
-  if (score >= 45) return 'Gold'
-  if (score >= 30) return 'Silver'
-  return 'Bronze'
 }
 
 export function generateSprintCertificate(
