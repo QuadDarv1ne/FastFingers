@@ -57,7 +57,6 @@ class CloudSyncService {
   private isSyncing = false
   private isFlushing = false
   private isOnline = true
-  private isDestroyed = false
   private offlineCache: Array<{ type: string; data: unknown }> = []
   private onlineHandler: () => void
   private offlineHandler: () => void
@@ -78,16 +77,14 @@ class CloudSyncService {
   }
 
   destroy(): void {
-    if (this.isDestroyed) return
-    this.isDestroyed = true
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', this.onlineHandler)
       window.removeEventListener('offline', this.offlineHandler)
+      delete window[CLOUD_SYNC_INSTANCE_KEY]
     }
   }
 
   async saveProgress(user: User, stats: UserStats): Promise<void> {
-    if (this.isDestroyed) return
     const save: CloudSave = {
       userId: user.id,
       stats,
@@ -158,7 +155,6 @@ class CloudSyncService {
   }
 
   async sync(user: User, localStats: UserStats): Promise<UserStats> {
-    if (this.isDestroyed) return localStats
     if (this.isSyncing) return localStats
     this.isSyncing = true
 
@@ -476,10 +472,3 @@ export function useAutoSync(user: User | null, stats: UserStats) {
   }, [user])
 }
 
-export function useCloudSyncCleanup() {
-  useEffect(() => {
-    return () => {
-      cloudSyncService.destroy()
-    }
-  }, [])
-}

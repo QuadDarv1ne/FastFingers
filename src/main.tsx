@@ -11,7 +11,6 @@ import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 import { Providers } from './contexts/Providers.tsx'
 import { ThemeProvider } from './contexts/ThemeContext.tsx'
-import { CloudSyncCleanup } from './components/CloudSyncCleanup.tsx'
 import { initSentry } from './utils/sentry'
 import './i18n/config'
 import './index.css'
@@ -29,7 +28,6 @@ ReactDOM.createRoot(rootElement).render(
     <ErrorBoundary>
       <Providers>
         <ThemeProvider>
-          <CloudSyncCleanup />
           <App />
         </ThemeProvider>
       </Providers>

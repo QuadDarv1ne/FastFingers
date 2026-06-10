@@ -1,39 +1,42 @@
 import { Shortcut } from './KeyboardShortcuts'
+import { useAppTranslation } from '../i18n/config'
 
 interface KeyboardShortcutsHelpProps {
   onClose: () => void
 }
 
 export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
+  const { t } = useAppTranslation()
+
   const shortcuts: Omit<Shortcut, 'action'>[] = [
     // Navigation
     {
       key: 'Escape',
-      description: 'Закрыть текущее окно',
+      description: t('shortcuts.close'),
       category: 'navigation',
     },
     {
       key: 'N',
       ctrl: true,
-      description: 'Новое упражнение',
+      description: t('shortcuts.newExercise'),
       category: 'navigation',
     },
     {
       key: 'R',
       ctrl: true,
-      description: 'Перезапустить упражнение',
+      description: t('shortcuts.restartExercise'),
       category: 'navigation',
     },
     {
       key: 'S',
       ctrl: true,
-      description: 'Открыть статистику',
+      description: t('shortcuts.showStats'),
       category: 'navigation',
     },
     {
       key: 'L',
       ctrl: true,
-      description: 'Режим обучения',
+      description: t('shortcuts.toggleLearning'),
       category: 'navigation',
     },
 
@@ -41,13 +44,13 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
     {
       key: 'Space',
       ctrl: true,
-      description: 'Пауза / Продолжить',
+      description: t('shortcuts.pauseResume'),
       category: 'typing',
     },
     {
       key: 'Enter',
       ctrl: true,
-      description: 'Завершить упражнение',
+      description: t('shortcuts.stopExercise'),
       category: 'typing',
     },
 
@@ -55,19 +58,19 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
     {
       key: ',',
       ctrl: true,
-      description: 'Открыть настройки',
+      description: t('shortcuts.openSettings'),
       category: 'settings',
     },
     {
       key: 'T',
       ctrl: true,
-      description: 'Сменить тему',
+      description: t('shortcuts.themeSwitch'),
       category: 'settings',
     },
     {
       key: 'M',
       ctrl: true,
-      description: 'Вкл/Выкл звук',
+      description: t('shortcuts.toggleSound'),
       category: 'settings',
     },
 
@@ -75,22 +78,22 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
     {
       key: '?',
       shift: true,
-      description: 'Показать горячие клавиши',
+      description: t('shortcuts.showHotkeys'),
       category: 'general',
     },
     {
       key: 'K',
       ctrl: true,
-      description: 'Командная палитра',
+      description: t('shortcuts.commandPalette'),
       category: 'general',
     },
   ]
 
   const categories = {
-    navigation: { title: 'Навигация', icon: '🧭' },
-    typing: { title: 'Печать', icon: '⌨️' },
-    settings: { title: 'Настройки', icon: '⚙️' },
-    general: { title: 'Общее', icon: '✨' },
+    navigation: { title: t('shortcuts.category.navigation'), icon: '🧭' },
+    typing: { title: t('shortcuts.category.typing'), icon: '⌨️' },
+    settings: { title: t('shortcuts.category.settings'), icon: '⚙️' },
+    general: { title: t('shortcuts.category.general'), icon: '✨' },
   }
 
   const groupedShortcuts = Object.entries(categories).map(([key, meta]) => ({
@@ -107,16 +110,16 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>⌨️</span>
-                Горячие клавиши
+                {t('shortcuts.modalTitle')}
               </h2>
               <p className="text-dark-400 text-sm mt-1">
-                Быстрый доступ к функциям
+                {t('shortcuts.fastAccess')}
               </p>
             </div>
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-              aria-label="Закрыть"
+              aria-label={t('action.close')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,7 +138,7 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
               <div className="space-y-2">
                 {group.shortcuts.map((shortcut, index) => (
                   <div
-                    key={index}
+                    key={`${group.title}-${index}`}
                     className="flex items-center justify-between p-3 bg-dark-800/30 rounded-lg"
                   >
                     <span className="text-sm text-dark-300">
@@ -157,10 +160,10 @@ export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
           <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
               <span>💡</span>
-              Совет
+              {t('shortcuts.tipTitle')}
             </h4>
             <p className="text-xs text-dark-400">
-              На Mac используйте Cmd вместо Ctrl. Горячие клавиши работают в любом месте приложения.
+              {t('shortcuts.tip')}
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { KeyboardSkin } from '../types'
 import { keyboardSkinPresets, getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
@@ -15,6 +15,12 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
   const [focusedIndex, setFocusedIndex] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const showMenuRef = useRef(showMenu)
+  const focusedIndexRef = useRef(focusedIndex)
+  const onSkinChangeRef = useRef(onSkinChange)
+  showMenuRef.current = showMenu
+  focusedIndexRef.current = focusedIndex
+  onSkinChangeRef.current = onSkinChange
 
   useClickOutside(menuRef, () => setShowMenu(false))
 
@@ -26,8 +32,8 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
   const currentSkinColors = getKeyboardSkin(skin)
 
   // Обработка клавиатуры
-  const handleKeyDown = useMemo(() => (e: KeyboardEvent) => {
-    if (!showMenu) return
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!showMenuRef.current) return
 
     switch (e.key) {
       case 'Escape':
@@ -45,16 +51,16 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
       case 'Enter':
       case ' ':
         e.preventDefault()
-        if (showMenu) {
-          const selected = keyboardSkinPresets[focusedIndex]
+        if (showMenuRef.current) {
+          const selected = keyboardSkinPresets[focusedIndexRef.current]
           if (selected) {
-            onSkinChange(selected.value)
+            onSkinChangeRef.current(selected.value)
           }
           setShowMenu(false)
         }
         break
     }
-  }, [showMenu, focusedIndex, onSkinChange])
+  }, [])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
@@ -107,6 +113,7 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
       </button>
 
       {showMenu && (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
         <div
           ref={menuRef}
           tabIndex={-1}
@@ -115,15 +122,6 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
           aria-orientation="vertical"
           aria-activedescendant={`skin-item-${focusedIndex}`}
           onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowDown') {
-              e.preventDefault()
-              setFocusedIndex(prev => (prev + 1) % keyboardSkinPresets.length)
-            } else if (e.key === 'ArrowUp') {
-              e.preventDefault()
-              setFocusedIndex(prev => (prev - 1 + keyboardSkinPresets.length) % keyboardSkinPresets.length)
-            }
-          }}
         >
             <div className="px-3 py-2 border-b border-dark-700 mb-2">
               <p className="text-xs font-semibold text-dark-300">🎨 {t('misc.keyboard')}</p>

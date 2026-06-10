@@ -98,6 +98,10 @@ export function useTypingGame({
   const inputResultsRef = useRef<KeyInputResult[]>([])
   const pendingCompletionRef = useRef<{ results: KeyInputResult[]; shouldGenerateText: boolean } | null>(null)
   const startTimeRef = useRef<number | null>(null)
+  const onCompleteRef = useRef(onComplete)
+  const modeRef = useRef(mode)
+  onCompleteRef.current = onComplete
+  modeRef.current = mode
 
   const generateNewText = useCallback(() => {
     try {
@@ -164,13 +168,13 @@ export function useTypingGame({
         return
       }
 
-      if (!startTimeRef.current && mode !== 'timed') {
+      if (!startTimeRef.current && modeRef.current !== 'timed') {
         logger.warn('handleComplete called without startTime')
         return
       }
 
       try {
-        const elapsed = mode === 'timed'
+        const elapsed = modeRef.current === 'timed'
           ? startTimeRef.current
             ? (Date.now() - startTimeRef.current) / 1000
             : safeDuration - timeLeftRef.current
@@ -187,7 +191,7 @@ export function useTypingGame({
         setWpm(stats.wpm)
         setAccuracy(stats.accuracy)
         setErrors(errorCount)
-        onComplete?.(stats)
+        onCompleteRef.current?.(stats)
       } catch (error) {
         logger.error('Error in handleComplete:', error)
         setIsComplete(true)
@@ -196,7 +200,7 @@ export function useTypingGame({
         setErrors(0)
       }
     },
-    [onComplete, mode, safeDuration, timeLeftRef]
+    [safeDuration, timeLeftRef]
   )
 
   useEffect(() => {
@@ -204,10 +208,10 @@ export function useTypingGame({
     timeExpiredRef.current = false
     setIsActive(false)
     setIsComplete(true)
-    if (mode === 'timed') {
+    if (modeRef.current === 'timed') {
       handleComplete(inputResultsRef.current)
     }
-  }, [timeLeft, mode, handleComplete, timeExpiredRef])
+  }, [timeLeft, handleComplete, timeExpiredRef])
 
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {

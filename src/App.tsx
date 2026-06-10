@@ -36,7 +36,6 @@ import { useDailyChallenges } from './hooks/useDailyChallenges'
 import { useThemeContext } from './hooks/useThemeContext'
 import { useHotkeys } from './hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
-import { useCloudSyncCleanup } from '@services/cloudSyncService'
 import { useAppTranslation } from './i18n/config'
 import { STORAGE_KEYS } from './constants/storageKeys'
 import { useModals } from './hooks/useModals'
@@ -78,7 +77,6 @@ function AppContent() {
   const { t } = useAppTranslation()
   const { isAuthenticated, isLoading: authLoading, user } = useAuth()
   const { addNotification } = useNotifications()
-  useCloudSyncCleanup()
 
   const {
     showAchievements,

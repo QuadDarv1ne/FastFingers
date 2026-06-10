@@ -295,7 +295,6 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       lastUpdateRef.current = now
       flushRef.current()
     }
-    e.preventDefault()
   }, [handleInputBase])
 
   // Flush pending updates when duel ends
