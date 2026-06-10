@@ -285,7 +285,10 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key.length > 1 && e.key !== 'Enter') return
-    handleInputBase(e as unknown as React.FormEvent<HTMLInputElement>)
+    e.preventDefault()
+    const input = e.currentTarget
+    input.value = e.key === 'Enter' ? '\n' : e.key
+    handleInputBase({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
     pendingUpdateRef.current = { wpm: wpmRef.current, accuracy: accuracyRef.current }
     const now = Date.now()
     if (now - lastUpdateRef.current >= 500) {
@@ -532,7 +535,6 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
               type="text"
               className="sr-only"
               onKeyDown={handleKeyDown}
-              readOnly
               disabled={!isActive}
               autoComplete="off"
               autoCorrect="off"

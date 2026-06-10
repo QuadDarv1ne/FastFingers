@@ -146,8 +146,10 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key.length > 1 && e.key !== 'Enter') return
-    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
     e.preventDefault()
+    const input = e.currentTarget
+    input.value = e.key === 'Enter' ? '\n' : e.key
+    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
   }, [handleInput])
 
   // Загрузка турниров
@@ -402,7 +404,6 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
             type="text"
             className="sr-only"
             onKeyDown={handleKeyDown}
-            readOnly
             disabled={!isTypingActive}
             autoComplete="off"
             autoCorrect="off"

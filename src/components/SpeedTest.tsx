@@ -53,8 +53,10 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key.length > 1 && e.key !== 'Enter') return
-    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
     e.preventDefault()
+    const input = e.currentTarget
+    input.value = e.key === 'Enter' ? '\n' : e.key
+    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
   }, [handleInput])
 
   // Skip text wrapper
@@ -144,7 +146,6 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
           type="text"
           className="opacity-0 absolute"
           onKeyDown={handleKeyDown}
-          readOnly
           disabled={!isActive}
         />
 

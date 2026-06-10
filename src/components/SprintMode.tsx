@@ -86,8 +86,10 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key.length > 1 && e.key !== 'Enter') return
-    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
     e.preventDefault()
+    const input = e.currentTarget
+    input.value = e.key === 'Enter' ? '\n' : e.key
+    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
   }, [handleInput])
 
   // Прогресс времени
@@ -195,7 +197,6 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
           className="sr-only"
           aria-hidden="true"
           onKeyDown={handleKeyDown}
-          readOnly
           disabled={!isActive || countdown !== null}
           aria-label={t('exercise.custom')}
           autoComplete="off"

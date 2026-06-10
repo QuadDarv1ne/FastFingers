@@ -238,8 +238,10 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key.length > 1 && e.key !== 'Enter') return
-    handleInput(e as unknown as React.FormEvent<HTMLInputElement>)
     e.preventDefault()
+    const input = e.currentTarget
+    input.value = e.key === 'Enter' ? '\n' : e.key
+    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
   }, [handleInput])
 
   const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
@@ -383,7 +385,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         aria-label={t('hardcore.inputArea')}
         className="bg-dark-800/50 rounded-xl p-6 cursor-text min-h-[120px] relative mb-4 border border-red-500/10"
       >
-        <input ref={inputRef} type="text" className="opacity-0 absolute" onKeyDown={handleKeyDown} readOnly aria-label={t('hardcore.inputField')} />
+        <input ref={inputRef} type="text" className="opacity-0 absolute" onKeyDown={handleKeyDown} aria-label={t('hardcore.inputField')} />
         <div className="font-mono text-lg leading-relaxed break-words">
           {renderedChars}
         </div>
