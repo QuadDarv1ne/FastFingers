@@ -34,12 +34,10 @@ export function NotificationBell() {
 
   useClickOutside(dropdownRef, handleClose)
 
-  // Блокировка скролла + Escape handler
+  // Escape handler
   useEffect(() => {
     if (!isOpen) return
 
-    document.body.classList.add('scroll-locked')
-    
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
     }
@@ -47,7 +45,6 @@ export function NotificationBell() {
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      document.body.classList.remove('scroll-locked')
     }
   }, [isOpen])
 
