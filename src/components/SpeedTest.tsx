@@ -57,11 +57,6 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     e.preventDefault()
   }, [handleInput])
 
-  // Start on first keypress
-  const handleStart = useCallback(() => {
-    startGame()
-  }, [startGame])
-
   // Skip text wrapper
   const handleSkipWrapper = useCallback(() => {
     handleSkip()
@@ -176,7 +171,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
               </motion.div>
               <p className="text-lg text-dark-300 mb-4">{t('speedtest.startPrompt')}</p>
               <button
-                onClick={handleStart}
+                onClick={startGame}
                 className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
               >
                 {t('speedtest.startButton')}
