@@ -199,10 +199,7 @@ function AppContent() {
       'ctrl+4': () => setView('learning'),
       'ctrl+5': () => setView('tips'),
       'ctrl+p': () => setShowProfile(true),
-      'ctrl+n': () => {
-        const button = document.querySelector('[data-action="new-exercise"]') as HTMLElement
-        button?.click()
-      },
+      'ctrl+n': () => setView('custom-exercise'),
     }),
     [setGameMode, setView, setShowProfile]
   )

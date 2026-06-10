@@ -132,11 +132,11 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           const currentDuel = currentDuelRef.current
           const isChallenger = currentDuel?.challenger?.id === curUser?.id
           const oppWpm = isChallenger
-            ? (updatedDuel.opponent_wpm as number) ?? 0
-            : (updatedDuel.challenger_wpm as number) ?? 0
+            ? Number(updatedDuel.opponent_wpm) || 0
+            : Number(updatedDuel.challenger_wpm) || 0
           const oppAccuracy = isChallenger
-            ? (updatedDuel.opponent_accuracy as number) ?? 100
-            : (updatedDuel.challenger_accuracy as number) ?? 100
+            ? Number(updatedDuel.opponent_accuracy) || 100
+            : Number(updatedDuel.challenger_accuracy) || 100
           setOpponentWpm(oppWpm)
           setOpponentAccuracy(oppAccuracy)
 

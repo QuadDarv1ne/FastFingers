@@ -86,7 +86,12 @@ export function ExportImport() {
     reader.onload = (e) => {
       if (!mountedRef.current) return
       try {
-        const content = e.target?.result as string
+        const content = e.target?.result
+        if (typeof content !== 'string') {
+          setImporting(false)
+          showToast(t('exportImport.importError'), 'error')
+          return
+        }
         const importData = JSON.parse(content)
 
         if (!validateBackupData(importData)) {

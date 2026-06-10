@@ -140,7 +140,12 @@ export function TextManager() {
 
     reader.onload = () => {
       try {
-        const parsed = JSON.parse(reader.result as string)
+        if (typeof reader.result !== 'string') {
+          showToast(t('admin.importInvalid', 'Неверный формат файла'), 'error')
+          setImporting(false)
+          return
+        }
+        const parsed = JSON.parse(reader.result)
         if (!Array.isArray(parsed)) {
           showToast(t('admin.importInvalid', 'Файл должен содержать массив текстов'), 'error')
           setImporting(false)

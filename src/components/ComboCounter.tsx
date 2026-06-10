@@ -13,7 +13,13 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
   const breakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevComboRef = useRef(combo)
   const onComboBreakRef = useRef(onComboBreak)
+  const mountedRef = useRef(true)
   onComboBreakRef.current = onComboBreak
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   useEffect(() => {
     const prev = prevComboRef.current
@@ -24,11 +30,15 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
 
     if (combo > prev) {
       setIsAnimating(true)
-      animationTimerRef.current = setTimeout(() => setIsAnimating(false), 300)
+      animationTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setIsAnimating(false)
+      }, 300)
     } else if (combo === 0 && prev > 0) {
       setShowBreak(true)
       onComboBreakRef.current?.()
-      breakTimerRef.current = setTimeout(() => setShowBreak(false), 2000)
+      breakTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setShowBreak(false)
+      }, 2000)
     }
 
     return () => {
