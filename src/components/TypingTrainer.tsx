@@ -493,16 +493,16 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         <AnimatePresence>
           {isComplete && (
             <motion.div
-              ref={completionRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10"
+              className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm rounded-2xl z-10"
               role="dialog"
               aria-modal="true"
               aria-labelledby="completion-title"
             >
-              <div className="text-center px-6">
+              <div ref={completionRef} className="w-full h-full flex items-center justify-center">
+                <div className="text-center px-6">
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
@@ -543,6 +543,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </motion.button>
+              </div>
               </div>
             </motion.div>
           )}
