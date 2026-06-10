@@ -74,9 +74,8 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
         if (savedKey && KEYS.find(k => k.value === savedKey)) {
           setKeyState(savedKey)
         }
-      } catch {
-        logger.warn('Operation failed in hooks/useMusicGenerator.ts')
-        // Ignore errors
+      } catch (err) {
+        logger.warn('Failed to load music settings from localStorage', err)
       }
       initializedRef.current = true
     }
@@ -93,9 +92,8 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
       localStorage.setItem(STORAGE_KEYS.MUSIC_TEMPO, String(tempo))
       localStorage.setItem(STORAGE_KEYS.MUSIC_VOLUME, String(volume))
       localStorage.setItem(STORAGE_KEYS.MUSIC_KEY, key)
-    } catch {
-      logger.warn('Operation failed in hooks/useMusicGenerator.ts')
-      // Ignore errors
+    } catch (err) {
+      logger.warn('Failed to save music settings to localStorage', err)
     }
   }, [genre, tempo, volume, key])
 

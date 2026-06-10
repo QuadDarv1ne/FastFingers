@@ -1,15 +1,5 @@
+import type { FingerZone } from '../types'
 import { logger } from './logger'
-
-export type FingerZone =
-  | 'left-pinky'
-  | 'left-ring'
-  | 'left-middle'
-  | 'left-index'
-  | 'right-index'
-  | 'right-middle'
-  | 'right-ring'
-  | 'right-pinky'
-  | 'thumb'
 
 export interface KeyInfo {
   key: string

@@ -1,5 +1,4 @@
-/** Темы оформления клавиатуры (скины) */
-export type KeyboardSkin = 'classic' | 'neon' | 'cyberpunk' | 'minimal' | 'ocean' | 'sunset' | 'matrix' | 'monokai' | 'galaxy'
+import type { KeyboardSkin } from '../types'
 
 export interface KeyboardSkinColors {
   keyBg: string

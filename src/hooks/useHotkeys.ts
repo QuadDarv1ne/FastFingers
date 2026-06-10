@@ -42,7 +42,7 @@ function isInputElement(target: Element): boolean {
   return (
     target.tagName === 'INPUT' ||
     target.tagName === 'TEXTAREA' ||
-    (target as HTMLElement).isContentEditable
+    (target instanceof HTMLElement && target.isContentEditable)
   )
 }
 
