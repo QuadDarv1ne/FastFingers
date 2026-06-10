@@ -69,8 +69,9 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         const { type, payload, messageId } = event.data
 
         if (type === 'ERROR') {
-          setError(payload as string)
-          pendingMap.forEach(({ reject }) => reject(new Error(payload as string)))
+          const errorMsg = typeof payload === 'string' ? payload : String(payload)
+          setError(errorMsg)
+          pendingMap.forEach(({ reject }) => reject(new Error(errorMsg)))
           pendingMap.clear()
           isBusyRef.current = false
           setIsBusy(false)

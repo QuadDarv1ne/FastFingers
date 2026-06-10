@@ -325,8 +325,8 @@ function getUsers(raw: unknown): UsersRelation {
   }
   const obj = raw as Record<string, unknown>
   return {
-    name: (obj.name as string) || 'Unknown',
-    avatar: (obj.avatar as string | null) || null,
+    name: typeof obj.name === 'string' ? obj.name : 'Unknown',
+    avatar: typeof obj.avatar === 'string' ? obj.avatar : null,
     stats: obj.stats as Record<string, unknown> | undefined,
   }
 }
