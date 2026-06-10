@@ -112,4 +112,3 @@ export function safeExecute<T>(
   }
 }
 
-export default logger
