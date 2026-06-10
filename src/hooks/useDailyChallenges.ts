@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { logger } from '../utils/logger'
+import { getTodayDate } from '../utils/format'
 
 interface DailyChallenge {
   id: string
@@ -62,10 +63,6 @@ function generateDailyChallenge(date: string): DailyChallenge {
     completed: false,
     xpReward: 100 + (diffIndex * 50),
   }
-}
-
-function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0] ?? ''
 }
 
 export function useDailyChallenges() {

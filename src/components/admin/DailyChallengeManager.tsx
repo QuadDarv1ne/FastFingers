@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { logger } from '../../utils/logger'
+import { getTodayDate } from '../../utils/format'
 
 interface DailyChallenge {
   id: string
@@ -24,10 +25,6 @@ interface StreakData {
 const CHALLENGES_KEY = 'fastfingers_challenges'
 const STREAK_KEY = 'fastfingers_streak'
 const COMPLETIONS_KEY = 'fastfingers_dailyChallengesCompleted'
-
-function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0] || ''
-}
 
 function generateChallenge(date: string, text?: string, wpm?: number, acc?: number): DailyChallenge {
   const seed = date.split('-').reduce((a, b) => a + parseInt(b), 0)
