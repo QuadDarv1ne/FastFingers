@@ -136,7 +136,7 @@ export function SessionSummary({
             <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, (xpEarned / 100) * 100)}%` }}
+                animate={{ width: `${Math.min(100, xpEarned)}%` }}
                 transition={{ duration: 1, delay: 0.8 }}
                 className="h-full bg-gradient-to-r from-primary-600 to-purple-500"
               />
