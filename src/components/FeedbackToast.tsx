@@ -10,6 +10,33 @@ interface FeedbackToastProps {
   duration?: number
 }
 
+const TOAST_CONFIG = {
+  success: {
+    icon: '✅',
+    bgColor: 'from-green-600/90 to-emerald-600/90',
+    borderColor: 'border-green-500/50',
+    textColor: 'text-white',
+  },
+  error: {
+    icon: '❌',
+    bgColor: 'from-red-600/90 to-rose-600/90',
+    borderColor: 'border-red-500/50',
+    textColor: 'text-white',
+  },
+  warning: {
+    icon: '⚠️',
+    bgColor: 'from-yellow-600/90 to-orange-600/90',
+    borderColor: 'border-yellow-500/50',
+    textColor: 'text-white',
+  },
+  info: {
+    icon: 'ℹ️',
+    bgColor: 'from-blue-600/90 to-cyan-600/90',
+    borderColor: 'border-blue-500/50',
+    textColor: 'text-white',
+  },
+} as const
+
 export function FeedbackToast({
   type,
   message,
@@ -25,34 +52,7 @@ export function FeedbackToast({
     return () => clearTimeout(timer)
   }, [isVisible, duration, onClose])
 
-  const config = {
-    success: {
-      icon: '✅',
-      bgColor: 'from-green-600/90 to-emerald-600/90',
-      borderColor: 'border-green-500/50',
-      textColor: 'text-white',
-    },
-    error: {
-      icon: '❌',
-      bgColor: 'from-red-600/90 to-rose-600/90',
-      borderColor: 'border-red-500/50',
-      textColor: 'text-white',
-    },
-    warning: {
-      icon: '⚠️',
-      bgColor: 'from-yellow-600/90 to-orange-600/90',
-      borderColor: 'border-yellow-500/50',
-      textColor: 'text-white',
-    },
-    info: {
-      icon: 'ℹ️',
-      bgColor: 'from-blue-600/90 to-cyan-600/90',
-      borderColor: 'border-blue-500/50',
-      textColor: 'text-white',
-    },
-  }
-
-  const { icon, bgColor, borderColor, textColor } = config[type]
+  const { icon, bgColor, borderColor, textColor } = TOAST_CONFIG[type]
 
   return (
     <AnimatePresence>
