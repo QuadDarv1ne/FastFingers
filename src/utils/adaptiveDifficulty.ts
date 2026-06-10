@@ -93,10 +93,8 @@ function calculateAccuracyScore(currentAccuracy: number, targetAccuracy: number)
 }
 
 function calculateConsistencyScore(stats: TypingStats): number {
-  // Используем стандартное отклонение WPM если доступно
   if ('wpmStdDev' in stats && stats.wpmStdDev != null) {
-    // Меньше отклонение = выше консистентность
-    return Math.max(0, 1 - (stats.wpmStdDev as number) / 50)
+    return Math.max(0, 1 - (Number(stats.wpmStdDev)) / 50)
   }
   // Fallback: используем соотношение ошибок
   const errorRate = 1 - stats.accuracy / 100

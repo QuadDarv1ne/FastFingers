@@ -122,7 +122,7 @@ export async function add<T extends StoreName>(
     const request = store.add(data)
 
     request.onsuccess = () => {
-      const id = 'id' in data ? (data.id as string) : (request.result as IDBValidKey)
+      const id = 'id' in data ? String(data.id) : String(request.result)
       resolve(String(id))
     }
 
@@ -169,7 +169,7 @@ export async function put<T extends StoreName>(
     const request = store.put(data)
 
     request.onsuccess = () => {
-      const id = 'id' in data ? (data.id as string) : (request.result as IDBValidKey)
+      const id = 'id' in data ? String(data.id) : String(request.result)
       resolve(String(id))
     }
 
