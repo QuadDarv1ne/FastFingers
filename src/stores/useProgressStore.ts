@@ -25,9 +25,6 @@ interface ProgressState {
   addXp: (amount: number) => void
   updateStreak: (date: string) => void
   clearHistory: () => void
-  getBestWpm: () => number
-  getAvgAccuracy: () => number
-  getTotalPracticeTime: () => number
 }
 
 const MAX_SESSIONS = 1000
@@ -71,7 +68,7 @@ const calculateStreak = (lastDate: string | null, currentDate: string): StreakRe
 
 export const useProgressStore = create<ProgressState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       sessions: [],
       totalXp: 0,
       level: 1,
@@ -113,11 +110,6 @@ export const useProgressStore = create<ProgressState>()(
         lastPracticeDate: null
       }),
 
-      getBestWpm: () => getBestWpmFromSessions(get().sessions),
-
-      getAvgAccuracy: () => getAvgAccuracyFromSessions(get().sessions),
-
-      getTotalPracticeTime: () => getTotalPracticeTimeFromSessions(get().sessions),
     }),
     {
       name: 'fastfingers-progress',

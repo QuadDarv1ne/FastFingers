@@ -267,12 +267,12 @@ describe('useProgressStore Integration', () => {
         xp: 95,
       })
 
-      const bestWpm = useProgressStore.getState().getBestWpm()
+      const bestWpm = getBestWpmFromSessions(useProgressStore.getState().sessions)
       expect(bestWpm).toBe(50)
     })
 
     it('должен возвращать 0 если нет сессий', () => {
-      const bestWpm = useProgressStore.getState().getBestWpm()
+      const bestWpm = getBestWpmFromSessions(useProgressStore.getState().sessions)
       expect(bestWpm).toBe(0)
     })
   })
@@ -293,13 +293,13 @@ describe('useProgressStore Integration', () => {
         })
       }
 
-      const avgAccuracy = useProgressStore.getState().getAvgAccuracy()
+      const avgAccuracy = getAvgAccuracyFromSessions(useProgressStore.getState().sessions)
       // Среднее: (82 + 84 + 86 + 88 + 90) / 5 = 86
       expect(avgAccuracy).toBe(86)
     })
 
     it('должен возвращать 0 если нет сессий', () => {
-      const avgAccuracy = useProgressStore.getState().getAvgAccuracy()
+      const avgAccuracy = getAvgAccuracyFromSessions(useProgressStore.getState().sessions)
       expect(avgAccuracy).toBe(0)
     })
 
@@ -318,7 +318,7 @@ describe('useProgressStore Integration', () => {
         })
       }
 
-      const avgAccuracy = useProgressStore.getState().getAvgAccuracy()
+      const avgAccuracy = getAvgAccuracyFromSessions(useProgressStore.getState().sessions)
       // Должно учитывать только последние 10 (с точностью 90)
       expect(avgAccuracy).toBe(90)
     })
@@ -348,12 +348,12 @@ describe('useProgressStore Integration', () => {
         xp: 100,
       })
 
-      const totalTime = useProgressStore.getState().getTotalPracticeTime()
+      const totalTime = getTotalPracticeTimeFromSessions(useProgressStore.getState().sessions)
       expect(totalTime).toBe(300) // 5 минут в секундах
     })
 
     it('должен возвращать 0 если нет сессий', () => {
-      const totalTime = useProgressStore.getState().getTotalPracticeTime()
+      const totalTime = getTotalPracticeTimeFromSessions(useProgressStore.getState().sessions)
       expect(totalTime).toBe(0)
     })
   })
@@ -402,8 +402,8 @@ describe('useProgressStore Integration', () => {
       expect(useProgressStore.getState().sessions).toHaveLength(2)
       expect(useProgressStore.getState().totalXp).toBe(310)
       expect(useProgressStore.getState().streak).toBe(2)
-      expect(useProgressStore.getState().getBestWpm()).toBe(45)
-      expect(useProgressStore.getState().getAvgAccuracy()).toBe(91) // Среднее между 90 и 92
+      expect(getBestWpmFromSessions(useProgressStore.getState().sessions)).toBe(45)
+      expect(getAvgAccuracyFromSessions(useProgressStore.getState().sessions)).toBe(91)
     })
 
     it('должен повышать уровень после 1000 XP', () => {
