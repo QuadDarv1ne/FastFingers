@@ -71,32 +71,27 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     }, 500)
   }, [])
 
+  const initErrorRef = useRef<string | null>(null)
+
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryData>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) return JSON.parse(stored)
-    } catch {
-      // load errors handled in effect below
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown load error'
+      initErrorRef.current = `Failed to load history: ${msg}`
     }
     return { sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 }
   })
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) JSON.parse(stored)
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Unknown load error'
-      setError(`Failed to load history: ${msg}`)
-    }
-  }, [])
   const [isOnline, setIsOnline] = useState(isBackendAvailable())
 
   useEffect(() => {
+    if (initErrorRef.current) {
+      setError(initErrorRef.current)
+    }
     setIsLoading(false)
-    // Проверка доступности бэкенда при загрузке
     setIsOnline(isBackendAvailable())
   }, [])
 
