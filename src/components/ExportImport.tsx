@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useToast } from '@contexts/ToastContext'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 import { useAppTranslation } from '../i18n/config'
+import { logger } from '../utils/logger'
 
 const CURRENT_VERSION = '1.0'
 
@@ -69,7 +70,8 @@ export function ExportImport() {
       URL.revokeObjectURL(url)
 
       showToast(t('exportImport.exportSuccess'), 'success')
-    } catch {
+    } catch (err) {
+      logger.error('Export failed', err)
       showToast(t('exportImport.exportError'), 'error')
     }
   }

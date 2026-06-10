@@ -406,7 +406,7 @@ const savedLang = (() => {
   try {
     const v = localStorage.getItem(STORAGE_KEY)
     if (v && SUPPORTED_LANGUAGES.includes(v as SupportedLanguage)) return v as SupportedLanguage
-  } catch { /* localStorage unavailable */ }
+  } catch (err) { logger.warn('Failed to read language from localStorage', err) }
   return 'ru'
 })()
 
@@ -480,7 +480,7 @@ export async function changeLanguage(lang: SupportedLanguage): Promise<TFunction
       i18n.addResourceBundle(lang, 'translation', translations, true, true)
     }
   }
-  try { localStorage.setItem(STORAGE_KEY, lang) } catch { /* ignore */ }
+  try { localStorage.setItem(STORAGE_KEY, lang) } catch (err) { logger.warn('Failed to save language to localStorage', err) }
   return i18n.changeLanguage(lang)
 }
 

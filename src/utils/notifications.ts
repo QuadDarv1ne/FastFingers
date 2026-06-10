@@ -1,17 +1,7 @@
 import i18n from 'i18next'
 import { getFromStorageAsArray, setToStorage } from './storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
-
-interface Notification {
-  id: string
-  type: 'achievement' | 'challenge' | 'streak' | 'level' | 'info'
-  title: string
-  message: string
-  icon: string
-  timestamp: number
-  read: boolean
-  action?: () => void
-}
+import type { Notification } from '../contexts/NotificationContext'
 
 interface StoredNotification {
   id: string

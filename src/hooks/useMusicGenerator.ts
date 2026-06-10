@@ -17,7 +17,7 @@ interface UseMusicGeneratorReturn {
   setVolume: (volume: number) => void
   setKey: (key: string) => void
   availableGenres: GenreInfo[]
-  availableKeys: KeyInfo[]
+  availableKeys: MusicKeyInfo[]
 }
 
 const GENRES: { value: MusicGenre; label: string; icon: string; description: string }[] = [
@@ -45,7 +45,7 @@ export interface GenreInfo {
   description: string
 }
 
-export interface KeyInfo {
+export interface MusicKeyInfo {
   value: string
   label: string
 }
