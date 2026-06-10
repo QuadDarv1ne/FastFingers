@@ -44,7 +44,7 @@ export function SimpleBarChart({
   const innerHeight = chartHeight - padding.top - padding.bottom
 
   const maxValue = useMemo(() => {
-    const max = Math.max(...data.map(d => (d[dataKey] as number) || 0), 1)
+    const max = Math.max(...data.map(d => Number(d[dataKey]) || 0), 1)
     return Math.ceil(max / 5) * 5 || 5
   }, [data, dataKey])
 
@@ -66,7 +66,7 @@ export function SimpleBarChart({
       x: barX,
       y: barY,
       label: String(item[xAxisKey] ?? ''),
-      value: (item[dataKey] as number) || 0,
+      value: Number(item[dataKey]) || 0,
     })
   }, [data, xAxisKey, dataKey])
 
@@ -114,7 +114,7 @@ export function SimpleBarChart({
 
         {/* Bars */}
         {data.map((item, index) => {
-          const value = (item[dataKey] as number) || 0
+          const value = Number(item[dataKey]) || 0
           const barHeight = (value / maxValue) * innerHeight
           const x = padding.left + index * (barWidth + 8)
           const y = padding.top + innerHeight - barHeight

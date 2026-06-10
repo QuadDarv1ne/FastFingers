@@ -558,7 +558,7 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
 }) {
   if (data.length === 0) return <EmptyChart />
 
-  const values = data.map(d => (d as Record<string, unknown>)[dataKey] as number)
+  const values = data.map(d => Number((d as Record<string, unknown>)[dataKey]) || 0)
   const max = Math.max(...values, 1)
   const min = Math.min(...values, 0)
   const range = max - min || 1
@@ -569,8 +569,8 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
   const points = data.map((d, i) => {
     const item = d as Record<string, unknown>
     const x = padding + (i / Math.max(data.length - 1, 1)) * (w - padding * 2)
-    const y = padding + (1 - ((item[dataKey] as number) - min) / range) * (h - padding * 2)
-    return { x, y, label: item[xAxisKey] as string, value: item[dataKey] as number }
+    const y = padding + (1 - ((Number(item[dataKey]) || 0) - min) / range) * (h - padding * 2)
+    return { x, y, label: item[xAxisKey] as string, value: Number(item[dataKey]) || 0 }
   })
 
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
@@ -611,7 +611,7 @@ function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
 }) {
   if (data.length === 0) return <EmptyChart />
 
-  const values = data.map(d => (d as Record<string, unknown>)[dataKey] as number)
+  const values = data.map(d => Number((d as Record<string, unknown>)[dataKey]) || 0)
   const max = Math.max(...values, 1)
   const w = 500
   const h = 220
@@ -628,7 +628,7 @@ function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
       {data.map((d, i) => {
         const item = d as Record<string, unknown>
         const x = padding + i * (barWidth + gap)
-        const barH = ((item[dataKey] as number) / max) * (h - padding * 2)
+        const barH = ((Number(item[dataKey]) || 0) / max) * (h - padding * 2)
         const y = h - padding - barH
         return (
           <g key={i}>

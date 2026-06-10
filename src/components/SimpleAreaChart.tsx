@@ -42,7 +42,7 @@ export function SimpleAreaChart({
   const innerHeight = chartHeight - padding.top - padding.bottom
 
   const maxValue = useMemo(() => {
-    const max = Math.max(...data.map(d => (d[dataKey] as number) || 0), 1)
+    const max = Math.max(...data.map(d => Number(d[dataKey]) || 0), 1)
     return Math.ceil(max / 10) * 10 || 10
   }, [data, dataKey])
 
@@ -53,7 +53,7 @@ export function SimpleAreaChart({
 
   const points = useMemo(() => {
     return data.map((item, index) => {
-      const value = (item[dataKey] as number) || 0
+      const value = Number(item[dataKey]) || 0
       const x = padding.left + (data.length > 1 ? (index / (data.length - 1)) * innerWidth : innerWidth / 2)
       const y = padding.top + innerHeight - (value / maxValue) * innerHeight
       return { x, y, value, label: String(item[xAxisKey] ?? '') }
