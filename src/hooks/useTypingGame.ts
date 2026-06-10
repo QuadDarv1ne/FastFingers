@@ -3,6 +3,7 @@ import type { TypingStats, KeyInputResult } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from './useTypingSound'
+import { useTypingTimer } from './useTypingTimer'
 import { createScopedLogger } from '../utils/logger'
 
 interface UseTypingGameOptions {
@@ -13,7 +14,6 @@ interface UseTypingGameOptions {
   onKeyInput?: (key: string, isCorrect: boolean) => void
   mode?: 'practice' | 'timed'
   duration?: number
-  /** Provide custom text instead of auto-generated practice text */
   customText?: string
 }
 
@@ -48,6 +48,9 @@ const MAX_DIFFICULTY = 10
 const MIN_DURATION = 10
 const MAX_DURATION = 600
 
+const FALLBACK_TEXT = 'Text for typing'
+const FALLBACK_ERROR_TEXT = 'Error generating text'
+
 const logger = createScopedLogger('useTypingGame')
 
 export function useTypingGame({
@@ -60,7 +63,6 @@ export function useTypingGame({
   duration = DEFAULT_DURATION,
   customText,
 }: UseTypingGameOptions = {}): UseTypingGameReturn {
-  // Валидация входных параметров
   const safeWordCount = Math.max(
     MIN_WORD_COUNT,
     Math.min(MAX_WORD_COUNT, Math.floor(initialWordCount || DEFAULT_WORD_COUNT))
@@ -81,25 +83,28 @@ export function useTypingGame({
   const [isComplete, setIsComplete] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [isActive, setIsActive] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(safeDuration)
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [errors, setErrors] = useState(0)
 
+  const { timeLeft, timeLeftRef, timeExpiredRef, setTimeLeft } = useTypingTimer({
+    mode,
+    duration: safeDuration,
+    isActive,
+  })
+
   const inputRef = useRef<HTMLInputElement>(null)
   const isHandlingInput = useRef(false)
-  const timeLeftRef = useRef(safeDuration)
   const inputResultsRef = useRef<KeyInputResult[]>([])
   const pendingCompletionRef = useRef<{ results: KeyInputResult[]; shouldGenerateText: boolean } | null>(null)
   const startTimeRef = useRef<number | null>(null)
-  const timeExpiredRef = useRef(false)
 
   const generateNewText = useCallback(() => {
     try {
       if (customText) {
         if (customText.trim().length === 0) {
           logger.warn('Custom text is empty, using fallback')
-          setText('текст для печати')
+          setText(FALLBACK_TEXT)
         } else {
           setText(customText)
         }
@@ -108,12 +113,12 @@ export function useTypingGame({
 
         if (!newText || newText.trim().length === 0) {
           logger.warn('Generated empty text, using fallback')
-          setText('текст для печати')
+          setText(FALLBACK_TEXT)
         } else {
           setText(newText)
         }
       }
-      
+
       setCurrentIndex(0)
       setInputResults([])
       setStartTime(null)
@@ -126,7 +131,7 @@ export function useTypingGame({
       setErrors(0)
     } catch (error) {
       logger.error('Error generating text:', error)
-      setText('ошибка генерации текста')
+      setText(FALLBACK_ERROR_TEXT)
       setCurrentIndex(0)
       setInputResults([])
       setStartTime(null)
@@ -138,48 +143,16 @@ export function useTypingGame({
       setAccuracy(100)
       setErrors(0)
     }
-  }, [safeWordCount, safeDifficulty, safeDuration, customText])
+  }, [safeWordCount, safeDifficulty, safeDuration, customText, setTimeLeft])
 
   useEffect(() => {
     generateNewText()
   }, [generateNewText])
 
-  // Таймер для timed режима
-  useEffect(() => {
-    if (mode !== 'timed' || !isActive) return
-
-    const interval = window.setInterval(() => {
-      setTimeLeft(prev => prev - 1)
-    }, 1000)
-
-    return () => window.clearInterval(interval)
-  }, [mode, isActive])
-
-  // Extract side effect outside setState updater (React purity)
-  useEffect(() => {
-    if (timeLeft <= 0 && mode === 'timed' && isActive) {
-      timeExpiredRef.current = true
-    }
-  }, [timeLeft, mode, isActive])
-
-  // Синхронизация timeLeft при изменении duration
-  useEffect(() => {
-    if (mode === 'timed' && !isActive) {
-      setTimeLeft(safeDuration)
-    }
-  }, [safeDuration, mode, isActive])
-
-  // Sync timeLeftRef with timeLeft state for use in callbacks
-  useEffect(() => {
-    timeLeftRef.current = timeLeft
-  }, [timeLeft])
-
-  // Sync inputResultsRef for use in handleInput closure
   useEffect(() => {
     inputResultsRef.current = inputResults
   }, [inputResults])
 
-  // Sync startTimeRef for use in handleComplete closure
   useEffect(() => {
     startTimeRef.current = startTime
   }, [startTime])
@@ -205,7 +178,6 @@ export function useTypingGame({
         const correctChars = results.filter(r => r?.isCorrect).length
         const errorCount = results.filter(r => r && !r.isCorrect).length
 
-        // Защита от деления на ноль и некорректных значений
         const safeElapsed = Math.max(elapsed, 0.001)
         const safeTotal = Math.max(results.length, 1)
 
@@ -224,10 +196,9 @@ export function useTypingGame({
         setErrors(0)
       }
     },
-    [onComplete, mode, safeDuration]
+    [onComplete, mode, safeDuration, timeLeftRef]
   )
 
-  // Process timer expiry outside of setState updater to avoid side effects
   useEffect(() => {
     if (!timeExpiredRef.current) return
     timeExpiredRef.current = false
@@ -236,20 +207,18 @@ export function useTypingGame({
     if (mode === 'timed') {
       handleComplete(inputResultsRef.current)
     }
-  }, [timeLeft, mode, handleComplete])
+  }, [timeLeft, mode, handleComplete, timeExpiredRef])
 
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       try {
         const value = e.currentTarget.value
 
-        // Защита от повторного входа
         if (isHandlingInput.current) return
         isHandlingInput.current = true
 
         if (isPaused || isComplete) return
 
-        // Авто-старт в timed режиме
         if (mode === 'timed' && !isActive && timeLeftRef.current === safeDuration) {
           setIsActive(true)
         }
@@ -260,7 +229,6 @@ export function useTypingGame({
 
         const newChar = value[value.length - 1]
 
-        // Защита от пустых символов
         if (!newChar || !text || text.length === 0) {
           isHandlingInput.current = false
           return
@@ -314,17 +282,15 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, inputResults]
+    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, inputResults, timeLeftRef]
   )
 
-  // Process completion side effects outside of setState updaters
   useEffect(() => {
     const pending = pendingCompletionRef.current
     if (!pending) return
 
     pendingCompletionRef.current = null
 
-    // Only auto-generate text when not using customText
     if (pending.shouldGenerateText && !customText) {
       generateNewText()
     }

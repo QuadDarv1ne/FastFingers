@@ -351,7 +351,7 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
     // Защита от пустого массива после всех проверок
     if (!words || words.length === 0) {
       logger.warn('No words available, using fallback')
-      return 'текст для печати'
+      return 'text for typing'
     }
 
     if (unique) {
@@ -369,13 +369,13 @@ export function generatePracticeText(wordCount: number, difficulty: number, opti
     // Финальная проверка на пустой результат
     if (result.length === 0) {
       logger.warn('Generated empty result, using fallback')
-      return 'текст для печати'
+      return 'text for typing'
     }
 
     return result.join(separator)
   } catch (error) {
     logger.error('Error generating text:', error)
-    return 'ошибка генерации текста'
+    return 'error generating text'
   }
 }
 

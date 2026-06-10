@@ -16,7 +16,6 @@ import { CookieConsentBanner } from './components/CookieConsentBanner'
 import { Footer } from './components/Footer'
 import { GameModeRenderer } from './components/GameModeRenderer'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { AppErrorBoundary } from './components/AppErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -611,7 +610,7 @@ function AppContent() {
 
 function App() {
   return (
-    <AppErrorBoundary>
+    <ErrorBoundary>
       <AuthProvider>
         <NotificationProvider>
           <ToastProvider>
@@ -620,7 +619,7 @@ function App() {
           </ToastProvider>
         </NotificationProvider>
       </AuthProvider>
-    </AppErrorBoundary>
+    </ErrorBoundary>
   )
 }
 

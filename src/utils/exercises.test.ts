@@ -204,7 +204,7 @@ describe('exercises', () => {
 
     it('should return fallback on error', () => {
       const text = generatePracticeText(10, 5)
-      expect(text).not.toBe('ошибка генерации текста')
+      expect(text).not.toBe('error generating text')
     })
   })
 

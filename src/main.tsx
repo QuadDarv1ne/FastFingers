@@ -8,7 +8,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import { AppErrorBoundary } from './components/AppErrorBoundary.tsx'
+import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 import { Providers } from './contexts/Providers.tsx'
 import { ThemeProvider } from './contexts/ThemeContext.tsx'
 import { CloudSyncCleanup } from './components/CloudSyncCleanup.tsx'
@@ -26,13 +26,13 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <AppErrorBoundary>
+    <ErrorBoundary>
       <Providers>
         <ThemeProvider>
           <CloudSyncCleanup />
           <App />
         </ThemeProvider>
       </Providers>
-    </AppErrorBoundary>
+    </ErrorBoundary>
   </React.StrictMode>,
 )

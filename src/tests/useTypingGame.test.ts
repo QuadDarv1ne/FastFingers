@@ -125,7 +125,7 @@ describe('useTypingGame', () => {
 
     const { result } = renderHook(() => useTypingGame())
 
-    expect(result.current.text).toBe('текст для печати')
+    expect(result.current.text).toBe('Text for typing')
   })
 
   it('должен использовать fallback для null текста', () => {
@@ -133,7 +133,7 @@ describe('useTypingGame', () => {
 
     const { result } = renderHook(() => useTypingGame())
 
-    expect(result.current.text).toBe('текст для печати')
+    expect(result.current.text).toBe('Text for typing')
   })
 
   it('должен фокусировать input при focusInput', () => {
@@ -360,7 +360,7 @@ describe('useTypingGame', () => {
 
     const { result } = renderHook(() => useTypingGame())
 
-    expect(result.current.text).toBe('ошибка генерации текста')
+    expect(result.current.text).toBe('Error generating text')
   })
 
   it('должен защищаться от null/undefined в handleInput', () => {
@@ -491,7 +491,7 @@ describe('useTypingGame', () => {
 
     const { result } = renderHook(() => useTypingGame())
 
-    expect(result.current.text).toBe('ошибка генерации текста')
+    expect(result.current.text).toBe('Error generating text')
   })
 
   it('должен защищаться от повторного входа в handleInput', () => {
