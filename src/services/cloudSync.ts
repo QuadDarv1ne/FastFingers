@@ -233,7 +233,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
       sessions: sessions.slice(0, 100),
       heatmap,
       totalSessions: totalSessions + 1,
-      totalTime,
+      totalTime: totalTime + Math.floor(stats.timeElapsed / 60),
     }
     localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(historyData))
   } catch (error) {
