@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useCallback, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import type { ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingHistory } from '@hooks/useTypingHistory'

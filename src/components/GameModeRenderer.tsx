@@ -5,7 +5,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { type ReactNode, lazy, Suspense } from 'react'
+import { type ReactNode, lazy, Suspense, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { ErrorBoundary } from './ErrorBoundary'
 import { useTypingSound } from '../hooks/useTypingSound'
@@ -166,65 +166,68 @@ export function GameModeRenderer({
   const { t } = useAppTranslation()
 
   const retry = t('action.retry', 'Try again')
+  const goToMain = useCallback(() => onSetView('main'), [onSetView])
+  const goToAdmin = useCallback(() => onSetView('admin'), [onSetView])
+  const exitToPractice = useCallback(() => { onSetGameMode('practice'); onSetView('main') }, [onSetGameMode, onSetView])
+
   // Views
   if (view === 'history') {
     return (
-      <LazyModeRenderer modeKey="history" MotionWrapper={StatsMotion} errorLabel={t('error.historyFailed', 'Failed to load training history')} onRetry={() => onSetView('main')}>
-        <TrainingHistory onBack={() => onSetView('main')} />
+      <LazyModeRenderer modeKey="history" MotionWrapper={StatsMotion} errorLabel={t('error.historyFailed', 'Failed to load training history')} onRetry={goToMain}>
+        <TrainingHistory onBack={goToMain} />
       </LazyModeRenderer>
     )
   }
   if (view === 'custom-exercise') {
     return (
-      <LazyModeRenderer modeKey="custom-exercise" MotionWrapper={StatsMotion} errorLabel={t('error.exerciseEditorFailed', 'Failed to load exercise editor')} onRetry={() => onSetView('main')}>
-        <CustomExerciseEditor onSave={onSaveCustomExercise} onClose={() => onSetView('main')} />
+      <LazyModeRenderer modeKey="custom-exercise" MotionWrapper={StatsMotion} errorLabel={t('error.exerciseEditorFailed', 'Failed to load exercise editor')} onRetry={goToMain}>
+        <CustomExerciseEditor onSave={onSaveCustomExercise} onClose={goToMain} />
       </LazyModeRenderer>
     )
   }
   if (view === 'tips') {
     return (
-      <LazyModeRenderer modeKey="tips" MotionWrapper={StatsMotion} errorLabel={t('error.tipsFailed', 'Failed to load tips')} onRetry={() => onSetView('main')}>
+      <LazyModeRenderer modeKey="tips" MotionWrapper={StatsMotion} errorLabel={t('error.tipsFailed', 'Failed to load tips')} onRetry={goToMain}>
         <TypingTips />
       </LazyModeRenderer>
     )
   }
   if (view === 'weekly') {
     return (
-      <LazyModeRenderer modeKey="weekly" MotionWrapper={StatsMotion} errorLabel={t('error.weeklyStatsFailed', 'Failed to load weekly statistics')} onRetry={() => onSetView('main')}>
+      <LazyModeRenderer modeKey="weekly" MotionWrapper={StatsMotion} errorLabel={t('error.weeklyStatsFailed', 'Failed to load weekly statistics')} onRetry={goToMain}>
         <WeeklyProgress />
       </LazyModeRenderer>
     )
   }
   if (view === 'statistics') {
     return (
-      <LazyModeRenderer modeKey="statistics" MotionWrapper={StatsMotion} errorLabel={t('error.statisticsFailed', 'Failed to load statistics')} onRetry={() => onSetView('main')}>
-        <StatisticsPage onBack={() => onSetView('main')} />
+      <LazyModeRenderer modeKey="statistics" MotionWrapper={StatsMotion} errorLabel={t('error.statisticsFailed', 'Failed to load statistics')} onRetry={goToMain}>
+        <StatisticsPage onBack={goToMain} />
       </LazyModeRenderer>
     )
   }
   if (view === 'learning') {
     return (
-      <LazyModeRenderer modeKey="learning" MotionWrapper={StatsMotion} errorLabel={t('error.learningFailed', 'Failed to load learning mode')} onRetry={() => onSetView('main')}>
-        <LearningMode onBack={() => onSetView('main')} onClose={() => onSetView('main')} onStartLesson={() => {}} />
+      <LazyModeRenderer modeKey="learning" MotionWrapper={StatsMotion} errorLabel={t('error.learningFailed', 'Failed to load learning mode')} onRetry={goToMain}>
+        <LearningMode onBack={goToMain} onClose={goToMain} onStartLesson={goToMain} />
       </LazyModeRenderer>
     )
   }
 
   // Game modes
-  const exitToPractice = () => { onSetGameMode('practice'); onSetView('main') }
 
   if (view === 'admin') {
     return (
-      <LazyModeRenderer modeKey="admin" MotionWrapper={StatsMotion} errorLabel={t('error.adminFailed', 'Failed to load admin panel')} onRetry={() => onSetView('main')}>
-        <AdminDashboard onClose={() => onSetView('main')} onNavigate={(v: string) => onSetView(v as View)} />
+      <LazyModeRenderer modeKey="admin" MotionWrapper={StatsMotion} errorLabel={t('error.adminFailed', 'Failed to load admin panel')} onRetry={goToMain}>
+        <AdminDashboard onClose={goToMain} onNavigate={(v: string) => onSetView(v as View)} />
       </LazyModeRenderer>
     )
   }
 
   if (view === 'student-analytics') {
     return (
-      <LazyModeRenderer modeKey="student-analytics" MotionWrapper={StatsMotion} errorLabel={t('error.studentAnalyticsFailed', 'Failed to load student analytics')} onRetry={() => onSetView('admin')}>
-        <StudentAnalyticsPage onBack={() => onSetView('admin')} />
+      <LazyModeRenderer modeKey="student-analytics" MotionWrapper={StatsMotion} errorLabel={t('error.studentAnalyticsFailed', 'Failed to load student analytics')} onRetry={goToAdmin}>
+        <StudentAnalyticsPage onBack={goToAdmin} />
       </LazyModeRenderer>
     )
   }

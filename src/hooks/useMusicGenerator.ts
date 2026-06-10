@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { musicGenerator, type MusicGenre } from '../utils/musicGenerator'
+import { musicGenerator } from '../utils/musicGenerator'
+import type { MusicGenre } from '../utils/musicGenerator'
 import { logger } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 

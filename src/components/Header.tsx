@@ -1,4 +1,4 @@
-import { memo, useState, useRef } from 'react'
+import { memo, useState, useRef, useCallback } from 'react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { NotificationBell } from './NotificationBell'
 import { FontSizeSelector } from './FontSizeSelector'
@@ -18,8 +18,9 @@ export const Header = memo(function Header({ level, xp, xpToNextLevel, onProfile
   const progress = xpToNextLevel > 0 ? ((xp / xpToNextLevel) * 100).toFixed(0) : '0'
   const [showSettings, setShowSettings] = useState(false)
   const settingsRef = useRef<HTMLDivElement>(null)
+  const handleClickOutside = useCallback(() => setShowSettings(false), [])
 
-  useClickOutside(settingsRef, () => setShowSettings(false))
+  useClickOutside(settingsRef, handleClickOutside)
 
   return (
     <header className="glass border-b border-dark-700/50 sticky top-0 z-30 backdrop-blur-xl bg-dark-900/80" role="banner">

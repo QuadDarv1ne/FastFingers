@@ -1,7 +1,8 @@
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useFocusTrap } from '@hooks/useFocusTrap'
-import { useLeaderboard, useUserRank, type LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
+import { useLeaderboard, useUserRank } from '@hooks/useLeaderboard'
+import type { LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
 
 export interface LeaderboardEntry {
   id: string

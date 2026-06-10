@@ -7,7 +7,8 @@
 
 import { useState, useMemo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
-import { lessons, isLessonUnlocked, type Lesson, type LessonLayout } from '@utils/lessons'
+import { lessons, isLessonUnlocked } from '@utils/lessons'
+import type { Lesson, LessonLayout } from '@utils/lessons'
 
 const LAYOUT_META: Record<LessonLayout, { label: string; flag: string; desc: string }> = {
   jcuken: { label: 'JCUKEN', flag: '🇷🇺', desc: 'Русская раскладка' },

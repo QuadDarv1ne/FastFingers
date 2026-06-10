@@ -4,8 +4,9 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 import { memo, useState, useMemo, useRef, useEffect } from 'react'
-import { User } from '../types/auth'
-import { calculateRank, type CertificateData } from '../utils/certificateTypes'
+import type { User } from '../types/auth'
+import { calculateRank } from '../utils/certificateTypes'
+import type { CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { logger } from '../utils/logger'
 import { StatCard } from './ui/StatCard'
