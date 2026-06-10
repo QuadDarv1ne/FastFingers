@@ -93,7 +93,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         await handleDownload()
         downloaded = true
       }
-    } catch {
+    } catch (err) {
+      logger.warn('Share failed, falling back to download', err)
       if (!downloaded) {
         await handleDownload()
       }

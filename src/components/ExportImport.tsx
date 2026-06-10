@@ -145,7 +145,8 @@ export function ExportImport() {
           if (!mountedRef.current) return
           window.location.reload()
         }, 1000)
-      } catch {
+      } catch (err) {
+        logger.error('Import failed', err)
         showToast(t('exportImport.importError'), 'error')
         setImporting(false)
       }
@@ -185,7 +186,8 @@ export function ExportImport() {
       reloadTimerRef.current = setTimeout(() => {
         window.location.reload()
       }, 1000)
-    } catch {
+    } catch (err) {
+      logger.error('Clear data failed', err)
       showToast(t('exportImport.clearError'), 'error')
     }
   }

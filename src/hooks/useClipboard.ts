@@ -53,8 +53,8 @@ export function useClipboard({
           setCopied(true)
           onSuccess?.()
           scheduleReset()
-        } catch {
-          logger.warn('Operation failed in hooks/useClipboard.ts')
+        } catch (err) {
+          logger.warn('execCommand copy failed', err)
           throw new Error('Failed to copy using execCommand')
         } finally {
           document.body.removeChild(textarea)

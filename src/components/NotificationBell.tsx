@@ -5,6 +5,7 @@ import { useAppTranslation } from '../i18n/config'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { useClickOutside } from '@hooks/useClickOutside'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { logger } from '../utils/logger'
 
 export interface Notification {
   id: string
@@ -55,8 +56,8 @@ export function NotificationBell() {
       if (stored) {
         try {
           setNotifications(JSON.parse(stored))
-        } catch {
-          // Ignore parse errors
+        } catch (err) {
+          logger.warn('Failed to parse stored notifications', err)
         }
       }
     }

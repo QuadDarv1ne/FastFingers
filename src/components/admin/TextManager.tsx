@@ -4,6 +4,7 @@ import { useToast } from '@contexts/ToastContext'
 import { useTranslation } from 'react-i18next'
 import { useTextUsageStats } from '@hooks/useTextUsage'
 import { getFromStorageAsArray } from '../../utils/storage'
+import { logger } from '../../utils/logger'
 
 const STORAGE_KEY = 'fastfingers_admin_texts'
 
@@ -179,7 +180,8 @@ export function TextManager() {
         } else {
           showToast(t('admin.importSuccess', `Импортировано ${newTexts.length} текстов`), 'success')
         }
-      } catch {
+      } catch (err) {
+        logger.error('Failed to parse imported text file', err)
         showToast(t('admin.importError', 'Ошибка при чтении файла'), 'error')
       }
       setImporting(false)

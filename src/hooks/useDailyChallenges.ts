@@ -90,9 +90,8 @@ export function useDailyChallenges() {
       if (storedStreak) {
         setStreak(JSON.parse(storedStreak))
       }
-    } catch {
-      logger.warn('Operation failed in hooks/useDailyChallenges.ts')
-      // Ignore load errors
+    } catch (err) {
+      logger.warn('Failed to load daily challenges from localStorage', err)
     }
   }, [])
 
@@ -137,8 +136,8 @@ export function useDailyChallenges() {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(streak))
-    } catch {
-      logger.warn('Operation failed in hooks/useDailyChallenges.ts')
+    } catch (err) {
+      logger.warn('Failed to save streak to localStorage', err)
     }
   }, [streak])
 
@@ -185,9 +184,8 @@ export function useDailyChallenges() {
     if (challenges.length > 0) {
       try {
         localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges))
-      } catch {
-        logger.warn('Operation failed in hooks/useDailyChallenges.ts')
-        // Ignore save errors
+      } catch (err) {
+        logger.warn('Failed to save challenges to localStorage', err)
       }
     }
   }, [challenges])

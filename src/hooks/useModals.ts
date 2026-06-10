@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { logger } from '../utils/logger'
 
 export interface ModalState {
   showAchievements: boolean
@@ -37,7 +38,8 @@ export function useModals(): UseModalsReturn {
     try {
       const seen = localStorage.getItem(STORAGE_KEYS.ONBOARDING)
       return !seen
-    } catch {
+    } catch (err) {
+      logger.warn('Failed to read onboarding flag', err)
       return true
     }
   })
