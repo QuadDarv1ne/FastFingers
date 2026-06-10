@@ -131,7 +131,7 @@ function AppContent() {
   } = useUserProgress({
     onLevelUp: (newLevel) => {
       addNotification(createLevelUpNotification(newLevel))
-      triggerConfetti({ type: 'levelup', duration: 4000 })
+      void triggerConfetti({ type: 'levelup', duration: 4000 })
     },
   })
 

@@ -54,7 +54,6 @@ class MusicGenerator {
   private schedulerTimer: number | null = null
   private lookahead: number = 25 // ms
   private scheduleAheadTime: number = 0.1 // seconds
-  private activeNotes: Set<number> = new Set()
 
   constructor() {}
 
@@ -108,16 +107,15 @@ class MusicGenerator {
       window.clearTimeout(this.schedulerTimer)
       this.schedulerTimer = null
     }
-    this.activeNotes.clear()
+    // Suspend context to immediately silence all scheduled and playing oscillators
+    this.audioContext?.suspend()
   }
 
   destroy(): void {
     this.stop()
-    if (this.audioContext) {
-      this.audioContext.close()
-      this.audioContext = null
-      this.masterGain = null
-    }
+    this.audioContext?.close()
+    this.audioContext = null
+    this.masterGain = null
   }
 
   private scheduler(): void {

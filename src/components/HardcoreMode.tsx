@@ -84,7 +84,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       }))
 
       if (['S', 'S+', 'SS', 'SS+', '👑'].includes(newRank.rank)) {
-        triggerConfetti({ type: 'celebration', duration: 3000 })
+        void triggerConfetti({ type: 'celebration', duration: 3000 })
       }
 
       if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)

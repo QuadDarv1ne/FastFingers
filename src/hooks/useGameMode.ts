@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 
 export type GameMode = 'practice' | 'sprint' | 'challenge' | 'speedtest' | 'reaction' | 'hardcore' | 'marathon' | 'code' | 'duel' | 'tournament'
 export type View = 'main' | 'history' | 'custom-exercise' | 'tips' | 'weekly' | 'statistics' | 'learning' | 'admin' | 'student-analytics'
@@ -15,9 +15,7 @@ export function useGameMode(options?: UseGameModeOptions) {
   const [speedTestDuration, setSpeedTestDuration] = useState<SpeedTestDuration>(30)
 
   const optionsRef = useRef(options)
-  useEffect(() => {
-    optionsRef.current = options
-  }, [options])
+  optionsRef.current = options
 
   const handleGameModeChange = useCallback((mode: GameMode) => {
     setGameMode(mode)

@@ -15,6 +15,7 @@ export type AuthErrorCode =
   | 'token-expired'
   | 'unauthorized'
   | 'network-error'
+  | 'crypto-unavailable'
   | 'unknown'
 
 export interface AuthErrorData {

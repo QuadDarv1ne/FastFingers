@@ -62,38 +62,18 @@ const generateId = () => {
 };
 
 export const hashPassword = async (password: string, salt: string): Promise<string> => {
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    try {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(password + salt);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    } catch {
-      logger.warn('SHA-256 failed, using fallback hash');
-    }
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    throw new AuthError('crypto-unavailable', 'Web Crypto API is required but not available')
   }
-
-  let hash = 5381;
-  const str = password + salt;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i);
-    hash = hash >>> 0;
-  }
-  return hash.toString(16);
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password + salt)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 };
 
 const sanitizeEmail = (email: string): string => email.trim().toLowerCase();
-const sanitizeName = (name: string): string => {
-  const trimmed = name.trim().replace(/\s+/g, ' ');
-  // Escape HTML entities to prevent stored XSS attacks
-  return trimmed
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-};
+const sanitizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
 
 const getUsers = (): StoredUser[] => {
   try {

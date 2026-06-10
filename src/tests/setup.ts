@@ -108,7 +108,7 @@ Object.defineProperty(window, 'indexedDB', {
 
 // Мок для конфетти
 vi.mock('../utils/confetti', () => ({
-  triggerConfetti: vi.fn(),
+  triggerConfetti: vi.fn(() => Promise.resolve()),
 }))
 
 // Мок для Web Worker

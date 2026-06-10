@@ -1,8 +1,18 @@
-import confetti from 'canvas-confetti'
+import type confetti from 'canvas-confetti'
 
 interface ConfettiOptions {
   type?: 'default' | 'achievement' | 'levelup' | 'celebration'
   duration?: number
+}
+
+let _confetti: typeof confetti | null = null
+
+async function getConfetti(): Promise<typeof confetti> {
+  if (!_confetti) {
+    const mod = await import('canvas-confetti')
+    _confetti = mod.default
+  }
+  return _confetti
 }
 
 const COLORS = {
@@ -70,11 +80,12 @@ function untrackAnimation(id: number) {
   activeAnimationIds.delete(id)
 }
 
-export function triggerConfetti(options: ConfettiOptions = {}) {
+export async function triggerConfetti(options: ConfettiOptions = {}) {
   clearAllConfetti()
   const { type = 'default', duration = 3000 } = options
   const end = Date.now() + duration
   const colors = COLORS[type]
+  const confetti = await getConfetti()
 
   confetti({ ...CONFETTI_CONFIG.base, colors })
 

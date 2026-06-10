@@ -286,7 +286,9 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, inputResults, timeLeftRef]
+    // inputResults intentionally omitted — inputResultsRef is used instead
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, timeLeftRef]
   )
 
   useEffect(() => {

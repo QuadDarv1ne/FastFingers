@@ -114,12 +114,12 @@ export function useHardcoreMode({
       const isCorrect = newChar === expectedChar
 
       if (!isCorrect) {
-        if (sound) sound.playError()
+        try { if (sound) sound.playError() } catch { /* sound failure is non-critical */ }
         handleMistake()
         return
       }
 
-      if (sound) sound.playCorrect(expectedChar.toLowerCase())
+      try { if (sound) sound.playCorrect(expectedChar.toLowerCase()) } catch { /* sound failure is non-critical */ }
 
       setStreak(prev => prev + 1)
 
