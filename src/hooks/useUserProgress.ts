@@ -57,6 +57,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     showKeyboard: s.showKeyboard,
     showStats: s.showStats,
     fontSize: s.fontSize,
+    vibrationEnabled: s.vibrationEnabled,
   })));
 
   // Detect level-up and call callback as a side effect
@@ -102,6 +103,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
       case 'keyboardSkin': useAppStore.getState().setKeyboardSkin(value as KeyboardSkin); break;
       case 'showKeyboard': useAppStore.getState().setShowKeyboard(value as boolean); break;
       case 'showStats': useAppStore.getState().setShowStats(value as boolean); break;
+      case 'vibrationEnabled': useAppStore.getState().setVibrationEnabled(value as boolean); break;
     }
   }, []);
 

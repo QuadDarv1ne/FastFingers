@@ -92,6 +92,7 @@ export interface UserSettings {
   keyboardSkin: KeyboardSkin;
   showKeyboard: boolean;
   showStats: boolean;
+  vibrationEnabled: boolean;
 }
 
 /** Результат ввода символа */

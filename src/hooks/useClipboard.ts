@@ -20,10 +20,13 @@ export function useClipboard({
 }: UseClipboardOptions = {}): UseClipboardReturn {
   const [copied, setCopied] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const mountedRef = useRef(true)
 
   useEffect(() => {
+    mountedRef.current = true
     const timeouts = timeoutRef.current
     return () => {
+      mountedRef.current = false
       timeouts.forEach(clearTimeout)
     }
   }, [])
@@ -31,7 +34,11 @@ export function useClipboard({
   const scheduleReset = useCallback(() => {
     timeoutRef.current.forEach(clearTimeout)
     timeoutRef.current = []
-    const id = setTimeout(() => setCopied(false), timeout)
+    const id = setTimeout(() => {
+      if (mountedRef.current) {
+        setCopied(false)
+      }
+    }, timeout)
     timeoutRef.current.push(id)
   }, [timeout])
 

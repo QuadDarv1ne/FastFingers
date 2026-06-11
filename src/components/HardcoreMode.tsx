@@ -174,6 +174,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       const errors = results.length - correct
       const stats = calculateStats(correct, results.length, errors, timeElapsed)
 
+      if (!mountedRef.current) return
       setLastStats(stats)
       showToastRef.current(t('hardcore.sessionResult', { streak: currentStreak, wpm: stats.wpm }), currentStreak > 10 ? 'success' : 'info', 4000)
       onCompleteRef.current(stats)

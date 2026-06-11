@@ -68,7 +68,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
     if (countdown === null) {
       onExit()
     }
-  }, { enabled: true })
+  }, { enabled: true, ignoreInputFocus: true })
 
   useHotkey('r', () => {
     if (countdown === null && !isActive) {
@@ -105,6 +105,9 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-dark-900/90 z-50 flex items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('sprint.countdown', 'Countdown')}
           >
             <motion.div
               key={countdown}
@@ -234,7 +237,12 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
 
         {/* Оверлей завершения */}
         {!isActive && timeLeft === 0 && (
-          <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('status.completed')}
+          >
             <div className="text-center">
               <motion.div
                 initial={{ scale: 0 }}

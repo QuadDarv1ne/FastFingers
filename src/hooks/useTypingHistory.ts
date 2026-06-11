@@ -183,7 +183,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const getRecentSessions = useCallback((count: number) => {
     return history.sessions.slice(0, count)
-  }, [history])
+  }, [history.sessions])
 
   return {
     history,

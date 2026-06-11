@@ -41,6 +41,7 @@ export function useTypingTimer({
   useEffect(() => {
     if (mode === 'timed' && !isActive) {
       setTimeLeft(duration)
+      timeExpiredRef.current = false
     }
   }, [duration, mode, isActive])
 

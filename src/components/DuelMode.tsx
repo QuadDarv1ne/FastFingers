@@ -96,17 +96,23 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
 
   // Throttled Supabase progress updates (max once per 500ms)
   const lastUpdateRef = useRef(0)
-  const pendingUpdateRef = useRef<{ wpm: number; accuracy: number } | null>(null)
+  const pendingUpdateRef = useRef<{ wpm: number; accuracy: number; isChallenger: boolean } | null>(null)
   const duelStateRef = useRef(duelState)
   const wpmRef = useRef(wpm)
   const accuracyRef = useRef(accuracy)
   const currentDuelRef = useRef(currentDuel)
   const userRef = useRef(user)
+  const mountedRef = useRef(true)
   duelStateRef.current = duelState
   wpmRef.current = wpm
   accuracyRef.current = accuracy
   currentDuelRef.current = currentDuel
   userRef.current = user
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
@@ -183,6 +189,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           .single()
 
         if (createError) throw createError
+        if (!mountedRef.current) return
 
         setCurrentDuel(newDuel)
         setDuelState('waiting')
@@ -197,6 +204,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
           .eq('id', data.id)
 
         if (acceptError) throw acceptError
+        if (!mountedRef.current) return
 
         setCurrentDuel({
           id: data.id,
@@ -210,6 +218,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
         handleStart()
       }
     } catch (err) {
+      if (!mountedRef.current) return
       logger.error('Error finding opponent:', err)
       setMessage(t('duel.errorSearch'))
       setDuelState('lobby')
@@ -259,13 +268,11 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     const pending = pendingUpdateRef.current
     if (!pending) return
     pendingUpdateRef.current = null
-    const challengerId = duel.challenger_id ?? duel.challenger?.id
-    const isChallenger = challengerId === userRef.current?.id
     try {
       await supabase
         .from('duels')
         .update(
-          isChallenger
+          pending.isChallenger
             ? { challenger_wpm: pending.wpm, challenger_accuracy: pending.accuracy }
             : { opponent_wpm: pending.wpm, opponent_accuracy: pending.accuracy }
         )
@@ -289,11 +296,14 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
     handleInputBase({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
-    pendingUpdateRef.current = { wpm: wpmRef.current, accuracy: accuracyRef.current }
+    const duel = currentDuelRef.current
+    const challengerId = duel?.challenger_id ?? duel?.challenger?.id
+    const isChallenger = challengerId === userRef.current?.id
+    pendingUpdateRef.current = { wpm: wpmRef.current, accuracy: accuracyRef.current, isChallenger }
     const now = Date.now()
     if (now - lastUpdateRef.current >= 500) {
       lastUpdateRef.current = now
-      flushRef.current()
+      flushRef.current().catch((err) => logger.error('Failed to flush duel progress:', err))
     }
   }, [handleInputBase])
 
@@ -309,7 +319,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     if (countdown === null && duelState !== 'active') {
       onExit()
     }
-  }, { enabled: true })
+  }, { enabled: true, ignoreInputFocus: true })
 
   // Прогресс времени
   const timeProgress = duration > 0 ? ((duration - timeLeft) / duration) * 100 : 0

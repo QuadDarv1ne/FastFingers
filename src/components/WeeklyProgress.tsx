@@ -91,9 +91,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
           </span>
         </div>
         <div className="flex gap-1 h-16">
-          {weeklyData.map((day, index) => (
+          {weeklyData.map((day) => (
             <div
-              key={index}
+              key={day.date}
               className="flex-1 flex flex-col justify-end group relative"
             >
               <div
@@ -115,8 +115,8 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
           ))}
         </div>
         <div className="flex justify-between text-xs text-dark-500">
-          {weeklyData.map((day, index) => (
-            <span key={index} className="flex-1 text-center">{day.dayName}</span>
+          {weeklyData.map((day) => (
+            <span key={day.date} className="flex-1 text-center">{day.dayName}</span>
           ))}
         </div>
       </div>
@@ -143,9 +143,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       <div className="mb-6">
         <h3 className="text-sm font-medium text-dark-400 mb-3">{t('weekly.byDay')}</h3>
         <div className="flex gap-2 h-32">
-          {weeklyData.map((day, index) => (
+          {weeklyData.map((day) => (
             <div
-              key={index}
+              key={day.date}
               className="flex-1 flex flex-col justify-end group relative"
             >
               <div
@@ -169,9 +169,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
           ))}
         </div>
         <div className="flex gap-2 mt-2">
-          {weeklyData.map((day, index) => (
+          {weeklyData.map((day) => (
             <div
-              key={index}
+              key={day.date}
               className="flex-1 text-center text-xs text-dark-500"
             >
               <p>{day.dayName}</p>
@@ -185,9 +185,9 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       <div className="mb-6">
         <h3 className="text-sm font-medium text-dark-400 mb-3">{t('weekly.earnedXp')}</h3>
         <div className="flex gap-2 h-20">
-          {weeklyData.map((day, index) => (
+          {weeklyData.map((day) => (
             <div
-              key={index}
+              key={day.date}
               className="flex-1 flex flex-col justify-end group relative"
             >
               <div

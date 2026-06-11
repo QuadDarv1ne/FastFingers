@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { formatDuration } from '../utils/number'
 
@@ -121,7 +121,7 @@ interface LiveStatCardProps {
   pulse?: boolean
 }
 
-function LiveStatCard({
+const LiveStatCard = memo(function LiveStatCard({
   label,
   value,
   unit,
@@ -160,7 +160,7 @@ function LiveStatCard({
       </div>
     </div>
   )
-}
+})
 
 // Compact version for smaller screens
 export function LiveStatsCompact({
