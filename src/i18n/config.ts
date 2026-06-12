@@ -427,8 +427,19 @@ i18n
 loadLanguageFile('ru').then((translations) => {
   if (Object.keys(translations).length > 0) {
     i18n.addResourceBundle('ru', 'translation', translations, true, true)
+  } else {
+    logger.error('Default language (ru) bundle is empty — translations unavailable')
   }
-}).catch((err) => logger.warn('Failed to load default language (ru):', err))
+}).catch((err) => {
+  logger.error('Failed to load default language (ru):', err)
+})
+
+// Загружаем английский как резервный язык
+loadLanguageFile('en').then((translations) => {
+  if (Object.keys(translations).length > 0) {
+    i18n.addResourceBundle('en', 'translation', translations, true, true)
+  }
+}).catch((err) => logger.warn('Failed to preload English fallback:', err))
 
 // Автоматически подгружаем язык при переключении
 i18n.on('languageChanged', (lng) => {

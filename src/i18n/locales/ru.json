@@ -232,6 +232,10 @@
   "error.hardcoreFailed": "Не удалось загрузить хардкор",
   "error.speedtestFailed": "Не удалось загрузить тест скорости",
   "error.practiceFailed": "Не удалось загрузить практику",
+  "error.tournamentLoadFailed": "Не удалось загрузить турниры",
+  "error.tournamentParticipantsFailed": "Не удалось загрузить участников",
+  "error.tournamentRegisterFailed": "Не удалось зарегистрироваться",
+  "error.tournamentUnregisterFailed": "Не удалось отменить регистрацию",
   "exercise.bottomRow": "Нижний ряд",
   "exercise.code": "Код",
   "exercise.custom": "Пользовательское",
@@ -584,5 +588,12 @@
   "exportImport.infoJson": "Экспортированные данные сохраняются в формате JSON",
   "exportImport.infoBackup": "Рекомендуется регулярно создавать резервные копии",
   "exportImport.infoOverwrite": "Импорт данных перезапишет все текущие настройки",
-  "exportImport.infoLocal": "Данные хранятся локально в вашем браузере"
+  "exportImport.infoLocal": "Данные хранятся локально в вашем браузере",
+  "code.title": "💻 Код-режим",
+  "code.subtitle": "Печатай код на разных языках программирования",
+  "code.completed": "Код: {{wpm}} WPM, {{accuracy}}% точность",
+  "code.randomText": "Случайный текст",
+  "code.selectExercise": "Выберите упражнение выше",
+  "code.readyPrompt": "Готов к печати кода?",
+  "code.tip": "💡 Совет: обращай внимание на синтаксис и регистр символов!"
 }

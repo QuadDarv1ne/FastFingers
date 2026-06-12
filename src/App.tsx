@@ -97,16 +97,18 @@ function AppContent() {
     handleOnboardingComplete,
   } = useModals()
 
+  const userName = user?.name
+
   const handleAuthSuccess = useCallback(() => {
-    if (user?.name) {
+    if (userName) {
       addNotification({
         type: 'info',
         title: t('action.welcome'),
-        message: `${t('auth.welcomeBack', { name: user.name })}`,
+        message: `${t('auth.welcomeBack', { name: userName })}`,
         icon: '👋',
       })
     }
-  }, [user, addNotification, t])
+  }, [userName, addNotification, t])
 
   const {
     gameMode,

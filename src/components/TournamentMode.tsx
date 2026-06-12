@@ -16,6 +16,7 @@ import { TypingStats } from '../types'
 import { useSupabase } from '@hooks/useSupabase'
 import { TournamentBracket } from './TournamentBracket'
 import { logger } from '../utils/logger'
+import { useToast } from '../contexts/ToastContext'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 interface TournamentModeProps {
@@ -76,6 +77,7 @@ const TOURNAMENT_LABELS: Record<string, string> = {
 
 export const TournamentMode = memo(function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const { user } = useAuth()
   const { client: supabase, isReady: supabaseReady } = useSupabase()
   const mountedRef = useRef(true)
@@ -156,7 +158,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {
     if (!supabaseReady || !supabase) {
-      setIsLoading(false)
+      if (mountedRef.current) setIsLoading(false)
       return
     }
 
@@ -183,6 +185,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       }
     } catch (error) {
       logger.error('Error loading tournaments:', error)
+      showToast(t('error.tournamentLoadFailed'), 'error', 5000)
     } finally {
       if (mountedRef.current) {
         setIsLoading(false)
@@ -225,6 +228,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       }
     } catch (error) {
       logger.error('Error loading participants:', error)
+      showToast(t('error.tournamentParticipantsFailed'), 'error', 5000)
     }
   }, [user?.id, supabaseReady, supabase])
 
@@ -255,6 +259,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       ))
     } catch (error) {
       logger.error('Error registering:', error)
+      showToast(t('error.tournamentRegisterFailed'), 'error', 5000)
     }
   }, [selectedTournament, user, supabaseReady, supabase])
 
@@ -281,6 +286,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       ))
     } catch (error) {
       logger.error('Error unregistering:', error)
+      showToast(t('error.tournamentUnregisterFailed'), 'error', 5000)
     }
   }, [selectedTournament, user, supabaseReady, supabase])
 

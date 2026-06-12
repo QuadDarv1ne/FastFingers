@@ -21,7 +21,8 @@ function safeStringify(value: unknown): string {
       }
       return val
     })
-  } catch {
+  } catch (err) {
+    logger.debug('safeStringify failed for value:', typeof value, err)
     return '[unserializable]'
   }
 }

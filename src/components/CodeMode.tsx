@@ -82,7 +82,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
   const textToType = selectedText?.text || ''
 
   const handleComplete = useCallback((stats: TypingStats) => {
-    showToast(`Код: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 4000)
+    showToast(t('code.completed', { wpm: stats.wpm, accuracy: stats.accuracy }), 'success', 4000)
     onComplete(stats)
   }, [onComplete, showToast])
 
@@ -177,17 +177,17 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            💻 Код-режим
+            {t('code.title')}
           </h2>
-          <p className="text-sm text-dark-400">Печатай код на разных языках программирования</p>
+          <p className="text-sm text-dark-400">{t('code.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleSelectRandomText}
             className="px-3 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-all"
-            title="Случайный текст"
-            aria-label="Случайный текст"
+            title={t('code.randomText')}
+            aria-label={t('code.randomText')}
           >
             🎲
           </button>
@@ -322,13 +322,13 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
               <svg className="w-16 h-16 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
               </svg>
-              <p className="text-lg text-dark-300 mb-4">Выберите упражнение выше</p>
+              <p className="text-lg text-dark-300 mb-4">{t('code.selectExercise')}</p>
               <button
                 onClick={handleSelectRandomText}
                 className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
-                aria-label="Случайный текст"
+                aria-label={t('code.randomText')}
               >
-                🎲 Случайный текст
+                🎲 {t('code.randomText')}
               </button>
             </div>
           </div>
@@ -340,7 +340,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
               <svg className="w-16 h-16 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <p className="text-lg text-dark-300 mb-4">Готов к печати кода?</p>
+              <p className="text-lg text-dark-300 mb-4">{t('code.readyPrompt')}</p>
               <button
                 onClick={handleStart}
                 className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
@@ -366,7 +366,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
       )}
 
       <div className="mt-4 text-center text-xs text-dark-500">
-        <p>💡 Совет: обращай внимание на синтаксис и регистр символов!</p>
+        <p>{t('code.tip')}</p>
       </div>
     </div>
   )
