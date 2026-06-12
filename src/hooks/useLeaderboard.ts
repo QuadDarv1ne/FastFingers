@@ -273,9 +273,11 @@ export function useSaveLeaderboardEntry() {
       return data
     },
     onSuccess: () => {
-      // Invalidate leaderboard queries
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
       logger.info('Leaderboard entry saved')
+    },
+    onError: (error) => {
+      logger.error('Failed to save leaderboard entry:', error)
     },
   })
 }
@@ -410,6 +412,9 @@ export function useDuels() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['duels'] })
     },
+    onError: (error) => {
+      logger.error('Failed to create duel:', error)
+    },
   })
 
   // Accept/complete duel
@@ -455,6 +460,9 @@ export function useDuels() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['duels'] })
+    },
+    onError: (error) => {
+      logger.error('Failed to complete duel:', error)
     },
   })
 

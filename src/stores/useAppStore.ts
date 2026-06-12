@@ -26,18 +26,20 @@ interface AppState {
   resetSettings: () => void
 }
 
-const DEFAULT_SETTINGS: Pick<AppState, 'layout' | 'soundTheme' | 'theme' | 'keyboardSkin' | 'soundEnabled' | 'soundVolume' | 'showKeyboard' | 'showStats' | 'vibrationEnabled' | 'fontSize'> = {
-  layout: 'jcuken',
-  soundTheme: 'default',
-  theme: 'dark',
-  keyboardSkin: 'classic',
+const DEFAULT_SETTINGS = {
+  layout: 'jcuken' as KeyboardLayout,
+  soundTheme: 'default' as SoundTheme,
+  theme: 'dark' as Theme,
+  keyboardSkin: 'classic' as KeyboardSkin,
   soundEnabled: true,
   soundVolume: 0.5,
   showKeyboard: true,
   showStats: true,
   vibrationEnabled: true,
-  fontSize: 'medium',
+  fontSize: 'medium' as FontSize,
 }
+
+const SETTINGS_KEYS = Object.keys(DEFAULT_SETTINGS) as Array<keyof typeof DEFAULT_SETTINGS>
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -58,18 +60,8 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'fastfingers-settings',
-      partialize: (state) => ({
-        layout: state.layout,
-        soundTheme: state.soundTheme,
-        theme: state.theme,
-        keyboardSkin: state.keyboardSkin,
-        soundEnabled: state.soundEnabled,
-        soundVolume: state.soundVolume,
-        showKeyboard: state.showKeyboard,
-        showStats: state.showStats,
-        vibrationEnabled: state.vibrationEnabled,
-        fontSize: state.fontSize,
-      }),
+      partialize: (state) =>
+        Object.fromEntries(SETTINGS_KEYS.map((key) => [key, state[key]])),
     }
   )
 )

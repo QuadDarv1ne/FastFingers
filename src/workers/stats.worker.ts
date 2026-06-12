@@ -293,14 +293,16 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
       }
 
       default:
-        throw new Error(`Unknown message type: ${type}`)
+        self.postMessage({
+          type: 'ERROR',
+          payload: `Unknown message type: ${type}`,
+        } as WorkerResult)
     }
   } catch (error) {
     self.postMessage({
       type: 'ERROR',
       payload: error instanceof Error ? error.message : 'Unknown error',
     } as WorkerResult)
-    self.close()
   }
 }
 

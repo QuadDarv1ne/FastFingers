@@ -80,7 +80,7 @@ export const useProgressStore = create<ProgressState>()(
       })),
 
       addXp: (amount) => set((state) => {
-        const newTotalXp = state.totalXp + amount
+        const newTotalXp = Math.max(0, state.totalXp + amount)
         return {
           totalXp: newTotalXp,
           level: calculateLevel(newTotalXp),
