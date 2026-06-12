@@ -109,6 +109,8 @@ export function useLeaderboard(filters: LeaderboardFilters = {}) {
         case 'month':
           dateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
           break
+        default:
+          break
       }
 
       // Build query

@@ -81,6 +81,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
         case 'wpm': cmp = (a.stats.bestWpm ?? 0) - (b.stats.bestWpm ?? 0); break
         case 'lastLogin': cmp = (a.lastLogin || '').localeCompare(b.lastLogin || ''); break
         case 'createdAt': cmp = (a.createdAt || '').localeCompare(b.createdAt || ''); break
+        default: break
       }
       return sortAsc ? cmp : -cmp
     })

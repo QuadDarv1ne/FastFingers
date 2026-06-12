@@ -1,5 +1,7 @@
 import type confetti from 'canvas-confetti'
 
+import { logger } from './logger'
+
 interface ConfettiOptions {
   type?: 'default' | 'achievement' | 'levelup' | 'celebration'
   duration?: number
@@ -7,10 +9,15 @@ interface ConfettiOptions {
 
 let _confetti: typeof confetti | null = null
 
-async function getConfetti(): Promise<typeof confetti> {
+async function getConfetti(): Promise<typeof confetti | null> {
   if (!_confetti) {
-    const mod = await import('canvas-confetti')
-    _confetti = mod.default
+    try {
+      const mod = await import('canvas-confetti')
+      _confetti = mod.default
+    } catch (err) {
+      logger.warn('Failed to load confetti module:', err)
+      return null
+    }
   }
   return _confetti
 }
@@ -89,6 +96,7 @@ export async function triggerConfetti(options: ConfettiOptions = {}) {
   const end = Date.now() + duration
   const colors = COLORS[type]
   const confetti = await getConfetti()
+  if (!confetti) return
 
   confetti({ ...CONFETTI_CONFIG.base, colors })
 

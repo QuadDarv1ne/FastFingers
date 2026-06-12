@@ -173,6 +173,8 @@ export const PerformanceInsights = memo(function PerformanceInsights({
         return 'bg-yellow-500/10 border-yellow-500/20'
       case 'info':
         return 'bg-blue-500/10 border-blue-500/20'
+      default:
+        return ''
     }
   }
 

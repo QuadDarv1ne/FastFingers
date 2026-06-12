@@ -588,7 +588,7 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
       </defs>
       {/* Grid lines */}
       {[0, 0.25, 0.5, 0.75, 1].map(f => (
-        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="#374151" strokeWidth="0.5" />
+        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5" />
       ))}
       <path d={areaD} fill={`url(#grad-${dataKey})`} />
       <path d={pathD} fill="none" stroke={stroke} strokeWidth="2" />
@@ -597,7 +597,7 @@ function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
       ))}
       {/* X labels */}
       {points.filter((_, i) => data.length <= 7 || i % Math.ceil(data.length / 7) === 0).map((p, i) => (
-        <text key={i} x={p.x} y={h - 5} textAnchor="middle" fill="#6b7280" fontSize="10">{p.label}</text>
+        <text key={i} x={p.x} y={h - 5} textAnchor="middle" fill="currentColor" fillOpacity="0.5" fontSize="10">{p.label}</text>
       ))}
     </svg>
   )
@@ -623,7 +623,7 @@ function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="none">
       {/* Grid */}
       {[0, 0.25, 0.5, 0.75, 1].map(f => (
-        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="#374151" strokeWidth="0.5" />
+        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5" />
       ))}
       {data.map((d, i) => {
         const item = d as Record<string, unknown>

@@ -388,9 +388,12 @@ class CloudSyncService {
               score: data.score,
               season: data.season,
             })
-            break
+              break
+            }
+            default:
+              logger.warn('Unknown offline cache type, skipping:', (item as Record<string, unknown>).type)
+              break
           }
-        }
       } catch (error) {
         logger.error('Failed to flush cached operation, will retry:', error)
         this.offlineCache.push(item)

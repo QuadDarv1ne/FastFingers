@@ -272,7 +272,7 @@ export function useTypingGame({
         const isTextComplete = mode === 'practice' && currentIndex >= text.length - 1
         if (isTextComplete) {
           pendingCompletionRef.current = {
-            results: [...inputResults, result],
+            results: [...inputResultsRef.current, result],
             shouldGenerateText: true,
           }
         }
@@ -286,8 +286,6 @@ export function useTypingGame({
         isHandlingInput.current = false
       }
     },
-    // inputResults intentionally omitted — inputResultsRef is used instead
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [text, startTime, isPaused, isComplete, mode, isActive, safeDuration, sound, onKeyInput, currentIndex, timeLeftRef]
   )
 

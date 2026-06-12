@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Exercise } from '../types';
+import type { Exercise } from '../types';
 import type { PracticeText } from '../data/practiceTexts';
 import { getFromStorageAsArray } from '../utils/storage';
 
