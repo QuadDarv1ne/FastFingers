@@ -184,7 +184,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
                     setSessions(mapSupabaseSessions(result.data || []))
                     setIsLoading(false)
                   })
-                  .catch(err => { setError(err.message || 'Не удалось загрузить данные'); setIsLoading(false) })
+                  .catch(err => { logger.error('Failed to retry loading student sessions:', err); setError(err.message || 'Не удалось загрузить данные'); setIsLoading(false) })
               }}
               className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm"
             >

@@ -95,7 +95,7 @@ class MusicGenerator {
     this.nextNoteTime = this.audioContext.currentTime
 
     if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume()
+      this.audioContext.resume().catch(() => { /* resume rejection non-critical */ })
     }
 
     this.scheduler()

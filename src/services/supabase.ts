@@ -63,6 +63,7 @@ export async function fetchWithRetry(
       return response
     } catch (error) {
       lastError = error as Error
+      logger.warn(`Fetch retry ${attempt + 1}/${retries} failed:`, (error as Error).message)
 
       if (attempt < retries - 1) {
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * (attempt + 1)))

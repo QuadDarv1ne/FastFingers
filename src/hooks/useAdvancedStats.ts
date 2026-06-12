@@ -53,7 +53,9 @@ export function useAdvancedStats() {
   const sessionsByDate = useMemo(() => {
     const map = new Map<string, typeof sessions>()
     for (const s of sessions) {
-      const dateStr = new Date(s.date).toISOString().split('T')[0] || ''
+      const d = new Date(s.date)
+      if (isNaN(d.getTime())) continue
+      const dateStr = d.toISOString().split('T')[0]
       if (!dateStr) continue
       const bucket = map.get(dateStr)
       if (bucket) {

@@ -47,7 +47,7 @@ export function useModals(): UseModalsReturn {
   const [lastSessionXp, setLastSessionXp] = useState(0)
 
   const handleOnboardingComplete = useCallback(() => {
-    localStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true')
+    try { localStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true') } catch (err) { logger.warn('Failed to save onboarding state', err) }
     setShowOnboarding(false)
   }, [])
 

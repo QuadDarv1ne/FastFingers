@@ -41,7 +41,7 @@ export interface UseAdaptiveDifficultyReturn {
 export function useAdaptiveDifficulty(
   enabled: boolean = true
 ): UseAdaptiveDifficultyReturn {
-  const [isEnabled, setIsEnabled] = useLocalStorageState('fastfingers_adaptive_enabled', true)
+  const [isEnabled, setIsEnabled] = useLocalStorageState(STORAGE_KEYS.ADAPTIVE_DIFFICULTY + '_enabled', true)
   const [state, setState] = useLocalStorageState<AdaptiveDifficultyState>(
     STORAGE_KEYS.ADAPTIVE_DIFFICULTY,
     createAdaptiveState()

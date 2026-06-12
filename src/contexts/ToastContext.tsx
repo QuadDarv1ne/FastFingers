@@ -60,6 +60,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const dismissAll = useCallback(() => {
+    for (const timeoutId of timeoutsRef.current.values()) {
+      clearTimeout(timeoutId)
+    }
+    timeoutsRef.current.clear()
     setToasts([])
   }, [])
 

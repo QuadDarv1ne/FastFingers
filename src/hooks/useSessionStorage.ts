@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { logger } from '../utils/logger'
 
 type SetValue<T> = T | ((val: T) => T)
@@ -34,8 +34,15 @@ export function useSessionStorage<T>(
 
   const [storedValue, setStoredValue] = useState<T>(readValue)
 
+  const prevKeyRef = useRef(key)
+
   useEffect(() => {
-    setStoredValue(readValue())
+    if (prevKeyRef.current !== key) {
+      prevKeyRef.current = key
+      setStoredValue(readValue())
+      return
+    }
+    // Only re-read on key change, not on initialValue change
   }, [key, readValue])
 
   useEffect(() => {
