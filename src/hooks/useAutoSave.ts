@@ -8,6 +8,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
 import { logger } from '../utils/logger'
 import { setToStorageWithQuotaHandling } from '../utils/storage'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface AutoSaveData {
   progress: UserProgress
@@ -32,7 +33,6 @@ interface UseAutoSaveReturn {
   forceSave: () => void
 }
 
-const STORAGE_KEY = 'fastfingers-autosave'
 const SESSION_TIMEOUT = 5 * 60 * 1000 // 5 минут
 
 /**
@@ -45,7 +45,7 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
     currentSession,
     heatmap,
     settings,
-    storageKey = STORAGE_KEY,
+    storageKey = STORAGE_KEYS.AUTOSAVE,
     onRestore,
   } = options
 

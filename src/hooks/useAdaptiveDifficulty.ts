@@ -21,8 +21,7 @@ import {
 import type { PracticeText } from '../data/practiceTexts'
 import { practiceTexts } from '../data/practiceTexts'
 import { useLocalStorageState } from './useLocalStorageState'
-
-const STORAGE_KEY = 'fastfingers_adaptive_difficulty'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface UseAdaptiveDifficultyReturn {
   state: AdaptiveDifficultyState
@@ -44,7 +43,7 @@ export function useAdaptiveDifficulty(
 ): UseAdaptiveDifficultyReturn {
   const [isEnabled, setIsEnabled] = useLocalStorageState('fastfingers_adaptive_enabled', true)
   const [state, setState] = useLocalStorageState<AdaptiveDifficultyState>(
-    STORAGE_KEY,
+    STORAGE_KEYS.ADAPTIVE_DIFFICULTY,
     createAdaptiveState()
   )
 

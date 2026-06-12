@@ -45,4 +45,6 @@ export const STORAGE_KEYS = {
   PWA_DISMISSED: 'fastfingers_pwa_dismissed',
   LOCAL_BACKUP: 'fastfingers_local_backup',
   CUSTOM_EXERCISES: 'fastfingers_custom_exercises',
+  COOKIE_CONSENT: 'fastfingers_cookie_consent',
+  LANGUAGE: 'fastfingers_language',
 } as const

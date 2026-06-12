@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const COOKIE_CONSENT_KEY = 'fastfingers_cookie_consent'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export function CookieConsentBanner() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY)
+    const consent = localStorage.getItem(STORAGE_KEYS.COOKIE_CONSENT)
     if (!consent) {
       setIsVisible(true)
     }
   }, [])
 
   const handleAccept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted')
+    localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'accepted')
     setIsVisible(false)
   }
 
   const handleDecline = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'declined')
+    localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'declined')
     setIsVisible(false)
   }
 

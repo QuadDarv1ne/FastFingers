@@ -73,7 +73,7 @@ export function addNotification(
 
   const newNotification: StoredNotification = {
     ...notification,
-    id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
     timestamp: new Date().toISOString(),
     read: false,
   }

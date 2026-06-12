@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { APP_VERSION } from '../constants/version'
 
 /**
  * Инициализация Sentry для отслеживания ошибок
@@ -56,7 +57,7 @@ export function initSentry() {
     initialScope: {
       tags: {
         app: 'fastfingers',
-        version: '0.1.0',
+        version: APP_VERSION,
       },
     },
   })

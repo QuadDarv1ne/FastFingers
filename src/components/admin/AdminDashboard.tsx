@@ -8,10 +8,9 @@ import { UserAdmin } from './UserAdmin'
 import { DailyChallengeManager } from './DailyChallengeManager'
 import { practiceTexts } from '../../data/practiceTexts'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
+import { APP_VERSION } from '../../constants/version'
 import { getFromStorageAsArray } from '../../utils/storage'
 import { logger } from '../../utils/logger'
-
-const APP_VERSION = '0.1.0'
 
 type AdminTab = 'overview' | 'texts' | 'users' | 'challenges'
 

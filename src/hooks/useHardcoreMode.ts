@@ -49,7 +49,11 @@ export function useHardcoreMode({
   const textLengthRef = useRef(0)
   const streakRef = useRef(0)
   const pendingCompletionRef = useRef(false)
+  const inputResultsRef = useRef(inputResults)
+  const startTimeRef = useRef(startTime)
   streakRef.current = streak
+  inputResultsRef.current = inputResults
+  startTimeRef.current = startTime
 
   const calculateCorrectCount = useCallback((results: Array<{ isCorrect: boolean }>): number => {
     let count = 0
@@ -90,14 +94,16 @@ export function useHardcoreMode({
     setIsActive(false)
     setBestStreak?.(prev => Math.max(prev, streakRef.current))
 
-    const correct = calculateCorrectCount(inputResults)
-    const timeElapsed = startTime ? (Date.now() - startTime) / 1000 : 0
-    const total = inputResults.length + 1
+    const results = inputResultsRef.current
+    const startedAt = startTimeRef.current
+    const correct = calculateCorrectCount(results)
+    const timeElapsed = startedAt ? (Date.now() - startedAt) / 1000 : 0
+    const total = results.length + 1
     const errors = 1
 
     const stats = calculateStats(correct, total, errors, timeElapsed)
     onComplete(stats)
-  }, [inputResults, startTime, calculateCorrectCount, onComplete, setBestStreak])
+  }, [calculateCorrectCount, onComplete, setBestStreak])
 
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     if (!isActive && countdown === null) {

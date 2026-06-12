@@ -4,6 +4,7 @@ import { updateKeyHeatmap } from '../utils/stats'
 import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../services/cloudSync'
 import { useAuth } from './useAuth'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 interface SessionData {
   id: string
@@ -36,12 +37,11 @@ interface UseTypingHistoryReturn {
   getRecentSessions: (count: number) => SessionData[]
 }
 
-const STORAGE_KEY = 'fastfingers_history'
 const MAX_SESSIONS = 100
 
 function saveHistory(history: HistoryData, onError: (msg: string) => void): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
+    localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history))
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown save error'
     onError(`Failed to save history: ${msg}`)
@@ -77,7 +77,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryData>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem(STORAGE_KEYS.HISTORY)
       if (stored) return JSON.parse(stored)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unknown load error'
@@ -153,7 +153,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const clearHistory = useCallback(() => {
     setHistory({ sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 })
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(STORAGE_KEYS.HISTORY)
   }, [])
 
   const getStatsForPeriod = useCallback((days: number) => {

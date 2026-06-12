@@ -33,7 +33,7 @@ export function useTypingTimer({
   }, [mode, isActive])
 
   useEffect(() => {
-    if (timeLeft <= 0 && mode === 'timed' && isActive) {
+    if (timeLeft <= 0 && mode === 'timed' && isActive && !timeExpiredRef.current) {
       timeExpiredRef.current = true
     }
   }, [timeLeft, mode, isActive])

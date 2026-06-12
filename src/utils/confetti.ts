@@ -58,8 +58,10 @@ const SIDE_SHOT_DELAYS = [300, 600, 900] as const
 
 let activeAnimationIds = new Set<number>()
 let activeTimeouts: ReturnType<typeof setTimeout>[] = []
+let generation = 0
 
 function clearAllConfetti() {
+  generation++
   for (const id of activeAnimationIds) {
     cancelAnimationFrame(id)
   }
@@ -82,6 +84,7 @@ function untrackAnimation(id: number) {
 
 export async function triggerConfetti(options: ConfettiOptions = {}) {
   clearAllConfetti()
+  const currentGen = generation
   const { type = 'default', duration = 3000 } = options
   const end = Date.now() + duration
   const colors = COLORS[type]
@@ -115,6 +118,7 @@ export async function triggerConfetti(options: ConfettiOptions = {}) {
   continuousId = trackAnimation(requestAnimationFrame(frame))
 
   return () => {
+    if (generation !== currentGen) return
     for (const timeout of sideTimeouts) {
       clearTimeout(timeout)
       const idx = activeTimeouts.indexOf(timeout)

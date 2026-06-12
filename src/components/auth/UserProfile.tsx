@@ -13,6 +13,7 @@ import { authService, hashPassword } from '@services/authService'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
+import { generateId } from '../../utils/id'
 
 interface UserProfileProps {
   onClose: () => void
@@ -1230,7 +1231,7 @@ function generateSalt(): string {
     crypto.getRandomValues(array)
     return Array.from(array, b => b.toString(16).padStart(2, '0')).join('')
   }
-  return Math.random().toString(36).substring(2) + Date.now().toString(36)
+  return generateId()
 }
 
 function SecuritySettingsSubPage() {

@@ -7,8 +7,7 @@
 import i18n, { TFunction } from 'i18next'
 import { initReactI18next, useTranslation } from 'react-i18next'
 import { logger } from '../utils/logger'
-
-const STORAGE_KEY = 'fastfingers_language'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 // ============================================
 // Типы для ключей переводов
@@ -404,7 +403,7 @@ async function loadLanguageFile(lang: string): Promise<Record<string, string>> {
 
 const savedLang = (() => {
   try {
-    const v = localStorage.getItem(STORAGE_KEY)
+    const v = localStorage.getItem(STORAGE_KEYS.LANGUAGE)
     if (v && SUPPORTED_LANGUAGES.includes(v as SupportedLanguage)) return v as SupportedLanguage
   } catch (err) { logger.warn('Failed to read language from localStorage', err) }
   return 'ru'
@@ -480,7 +479,7 @@ export async function changeLanguage(lang: SupportedLanguage): Promise<TFunction
       i18n.addResourceBundle(lang, 'translation', translations, true, true)
     }
   }
-  try { localStorage.setItem(STORAGE_KEY, lang) } catch (err) { logger.warn('Failed to save language to localStorage', err) }
+  try { localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang) } catch (err) { logger.warn('Failed to save language to localStorage', err) }
   return i18n.changeLanguage(lang)
 }
 

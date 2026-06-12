@@ -9,6 +9,7 @@ interface UseCountdownOptions {
 export function useCountdown({ onComplete }: UseCountdownOptions) {
   const [countdown, setCountdown] = useState<number | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const completedRef = useRef(false)
   const onCompleteRef = useRef(onComplete)
 
   useEffect(() => {
@@ -22,7 +23,10 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
         intervalRef.current = null
       }
       setCountdown(null)
-      onCompleteRef.current()
+      if (!completedRef.current) {
+        completedRef.current = true
+        onCompleteRef.current()
+      }
     }
   }, [countdown])
 

@@ -2,9 +2,9 @@ import { User, UserStats } from '../types/auth'
 import { useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 import { createScopedLogger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 const logger = createScopedLogger('cloudSync')
-const CLOUD_SYNC_KEY = 'fastfingers_cloud_sync'
 const SYNC_INTERVAL = 5 * 60 * 1000 // 5 минут
 
 // Safe singleton pattern: reuse instance across HMR reloads to prevent listener accumulation
@@ -298,7 +298,7 @@ class CloudSyncService {
     try {
       const saves = this.getAllSaves()
       saves[save.userId] = save
-      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
+      localStorage.setItem(STORAGE_KEYS.CLOUD_SYNC, JSON.stringify(saves))
     } catch {
       logger.error('Failed to save to localStorage')
     }
@@ -315,7 +315,7 @@ class CloudSyncService {
 
   private getAllSaves(): Record<string, CloudSave> {
     try {
-      const stored = localStorage.getItem(CLOUD_SYNC_KEY)
+      const stored = localStorage.getItem(STORAGE_KEYS.CLOUD_SYNC)
       return stored ? JSON.parse(stored) : {}
     } catch {
       return {}
@@ -408,7 +408,7 @@ class CloudSyncService {
     try {
       const saves = this.getAllSaves()
       delete saves[userId]
-      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(saves))
+      localStorage.setItem(STORAGE_KEYS.CLOUD_SYNC, JSON.stringify(saves))
     } catch (error) {
       logger.error('Failed to clear user data:', error)
     }

@@ -3,10 +3,12 @@ import { AuthError, isValidEmail, isValidPassword, MIN_PASSWORD_LENGTH } from '.
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
 import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/storage';
+import { generateId } from '../utils/id';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
-const USERS_STORAGE_KEY = 'fastfingers_users';
-const CURRENT_USER_KEY = 'fastfingers_current_user';
-const RESET_TOKENS_KEY = 'fastfingers_reset_tokens';
+const USERS_STORAGE_KEY = STORAGE_KEYS.USERS;
+const CURRENT_USER_KEY = STORAGE_KEYS.CURRENT_USER;
+const RESET_TOKENS_KEY = STORAGE_KEYS.RESET_TOKENS;
 const REGISTRATION_DELAY_MS = 500;
 const LOGIN_DELAY_MS = 300;
 const PASSWORD_RESET_DELAY_MS = 400;
@@ -14,7 +16,7 @@ const PROFILE_UPDATE_DELAY_MS = 300;
 const RESET_TOKEN_EXPIRY_MS = 3600000;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_TIME_MS = 300000;
-const LOGIN_ATTEMPTS_KEY = 'fastfingers_login_attempts';
+const LOGIN_ATTEMPTS_KEY = STORAGE_KEYS.LOGIN_ATTEMPTS;
 
 const generateSalt = (): string => {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
@@ -22,7 +24,7 @@ const generateSalt = (): string => {
     crypto.getRandomValues(array);
     return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
   }
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return generateId();
 };
 
 const DEFAULT_USER_STATS = {
@@ -53,13 +55,6 @@ interface LoginAttempt {
 }
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-const generateId = () => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
-};
 
 export const hashPassword = async (password: string, salt: string): Promise<string> => {
   if (typeof crypto === 'undefined' || !crypto.subtle) {
