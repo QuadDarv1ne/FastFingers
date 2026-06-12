@@ -76,7 +76,7 @@ export const useProgressStore = create<ProgressState>()(
       lastPracticeDate: null,
 
       addSession: (session) => set((state) => ({
-        sessions: [{ ...session, id: crypto.randomUUID() }, ...state.sessions].slice(0, MAX_SESSIONS),
+        sessions: [{ ...session, id: (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)) }, ...state.sessions].slice(0, MAX_SESSIONS),
       })),
 
       addXp: (amount) => set((state) => {

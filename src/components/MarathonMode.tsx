@@ -4,12 +4,13 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 import { useCountdown } from '@hooks/useCountdown'
@@ -25,7 +26,7 @@ const MARATHON_DURATION = 300 // 5 минут
 const COUNTDOWN_SECONDS = 3
 const MILESTONE_INTERVALS = [60, 120, 180, 240, 300] // Секунды для отметок
 
-const MILESTONE_MESSAGES = {
+const MILESTONE_MESSAGES: Record<number, string> = {
   60: '🎯 Первая минута! Продолжай!',
   120: '🔥 2 минуты! Ты в форме!',
   180: '⚡ Половина пути! Держи темп!',
@@ -33,7 +34,7 @@ const MILESTONE_MESSAGES = {
   300: '🏆 ФИНИШ! Ты невероятен!',
 }
 
-export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
+export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const [currentMilestone, setCurrentMilestone] = useState(0)
@@ -98,7 +99,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
 
     if (currentInterval !== undefined) {
       shownMilestonesRef.current.add(currentInterval)
-      const message = MILESTONE_MESSAGES[currentInterval as keyof typeof MILESTONE_MESSAGES]
+      const message = MILESTONE_MESSAGES[currentInterval] ?? ''
       setShowMilestone(message)
       if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
       milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
@@ -152,7 +153,7 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   // Прогресс времени
@@ -420,4 +421,4 @@ export function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
       </div>
     </div>
   )
-}
+})

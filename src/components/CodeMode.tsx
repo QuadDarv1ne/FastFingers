@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useHotkey } from '../hooks/useHotkeys'
@@ -13,6 +13,7 @@ import { useAppTranslation } from '../i18n/config'
 import { practiceTexts } from '../data/practiceTexts'
 import { useCountdown } from '@hooks/useCountdown'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 
 interface CodeModeProps {
   onExit: () => void
@@ -57,7 +58,7 @@ const LANGUAGE_ICONS: Record<CodeLanguage, string> = {
   css: '🎨',
 }
 
-export function CodeMode({ onExit, onComplete }: CodeModeProps) {
+export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const [language, setLanguage] = useState<CodeLanguage>('all')
@@ -141,7 +142,7 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   const handleSelectRandomText = useCallback(() => {
@@ -369,4 +370,4 @@ export function CodeMode({ onExit, onComplete }: CodeModeProps) {
       </div>
     </div>
   )
-}
+})

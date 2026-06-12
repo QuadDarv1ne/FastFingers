@@ -4,12 +4,13 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { TypingStats } from '../types'
 import { useSupabase } from '@hooks/useSupabase'
@@ -73,7 +74,7 @@ const TOURNAMENT_LABELS: Record<string, string> = {
   cancelled: 'Отменен',
 }
 
-export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
+export const TournamentMode = memo(function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
   const { t } = useAppTranslation()
   const { user } = useAuth()
   const { client: supabase, isReady: supabaseReady } = useSupabase()
@@ -149,7 +150,7 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   // Загрузка турниров
@@ -681,4 +682,4 @@ export function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
       </AnimatePresence>
     </div>
   )
-}
+})

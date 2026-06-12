@@ -138,7 +138,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                   style={style}
                   title={title}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={-1}
                   aria-label={`${t('keyboard.key', 'Key')} ${key.toUpperCase()}`}
                   aria-pressed={highlightKey === key.toLowerCase()}
                   onKeyDown={(e) => {

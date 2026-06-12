@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { User } from '../types/auth'
@@ -6,6 +6,7 @@ import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 import { useToast } from '@contexts/ToastContext'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useAppTranslation } from '../i18n/config'
@@ -21,7 +22,7 @@ interface SprintModeProps {
 
 const COUNTDOWN_SECONDS = 3
 
-export function SprintMode({ duration, onExit, onComplete, sound }: SprintModeProps) {
+export const SprintMode = memo(function SprintMode({ duration, onExit, onComplete, sound }: SprintModeProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const { user } = useAuth()
@@ -89,7 +90,7 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   // Прогресс времени
@@ -293,4 +294,4 @@ export function SprintMode({ duration, onExit, onComplete, sound }: SprintModePr
       )}
     </div>
   )
-}
+})

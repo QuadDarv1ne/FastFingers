@@ -4,16 +4,18 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 import { useAuth } from '@hooks/useAuth'
 import { useDuels, DuelsData } from '@hooks/useLeaderboard'
 import { useSupabase } from '@hooks/useSupabase'
 import { logger } from '../utils/logger'
+import { useToast } from '@contexts/ToastContext'
 import { useCountdown } from '@hooks/useCountdown'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
@@ -46,8 +48,9 @@ interface DuelChallenge {
 
 const DURATION_OPTIONS: DuelDuration[] = [30, 60, 120]
 
-export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
+export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const { user } = useAuth()
   const { client: supabase, isReady: supabaseReady } = useSupabase()
   const { useUserDuels, completeDuel } = useDuels()
@@ -258,6 +261,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       setDuelState('completed')
     } catch (err) {
       logger.error('Error completing duel:', err)
+      showToast(t('error.duelFailed'), 'error', 5000)
     }
   }, [opponentWpm, opponentAccuracy, completeDuel, onComplete])
 
@@ -295,7 +299,7 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInputBase({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInputBase(simulateInput(input))
     const duel = currentDuelRef.current
     const challengerId = duel?.challenger_id ?? duel?.challenger?.id
     const isChallenger = challengerId === userRef.current?.id
@@ -593,4 +597,4 @@ export function DuelMode({ onExit, onComplete, sound }: DuelModeProps) {
       )}
     </div>
   )
-}
+})

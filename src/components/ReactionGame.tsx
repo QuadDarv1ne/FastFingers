@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 
@@ -21,7 +21,7 @@ const KEY_ROWS = [
   ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '.'],
 ]
 
-export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
+export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const { t } = useAppTranslation()
   const [targets, setTargets] = useState<KeyTarget[]>([])
   const [score, setScore] = useState(0)
@@ -422,4 +422,4 @@ export function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
       </div>
     </div>
   )
-}
+})

@@ -5,7 +5,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { lessons, isLessonUnlocked } from '@utils/lessons'
 import type { Lesson, LessonLayout } from '@utils/lessons'
@@ -22,7 +22,7 @@ interface LearningModeProps {
   onStartLesson: (lesson: Lesson, exercise: string) => void
 }
 
-export function LearningMode({ onClose, onBack: _onBack, onStartLesson }: LearningModeProps) {
+export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBack, onStartLesson }: LearningModeProps) {
   const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
     'fastfingers_learning_progress',
     {}
@@ -219,7 +219,7 @@ export function LearningMode({ onClose, onBack: _onBack, onStartLesson }: Learni
       </div>
     </div>
   )
-}
+})
 
 function getLessonIcon(lesson: Lesson): string {
   if (lesson.difficulty <= 2) return '🎯'

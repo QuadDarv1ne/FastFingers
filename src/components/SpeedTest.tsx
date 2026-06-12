@@ -11,6 +11,7 @@ import { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useToast } from '../contexts/ToastContext'
 import { useTypingGame } from '@hooks/useTypingGame'
+import { simulateInput } from '../utils/inputEvent'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 type TestDuration = 15 | 30 | 60
@@ -56,7 +57,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   // Skip text wrapper

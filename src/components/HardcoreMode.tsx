@@ -7,6 +7,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useSupabase } from '@hooks/useSupabase'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
+import { simulateInput } from '../utils/inputEvent'
 import { useHotkey } from '../hooks/useHotkeys'
 import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage } from '../utils/hardcoreRank'
 import type { HardcoreRank } from '../utils/hardcoreRank'
@@ -32,6 +33,8 @@ interface HardcoreRecord {
   accuracy: number
   created_at: string
 }
+
+const RETRY_ATTEMPTS = 3
 
 export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   onExit,
@@ -115,7 +118,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       }
 
       try {
-        let retries = 3
+        let retries = RETRY_ATTEMPTS
         while (retries > 0 && !cancelled) {
           const { data, error } = await supabase
             .from('hardcore_records')
@@ -132,10 +135,13 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
                 if (firstRecord) setBestStreak(firstRecord.streak)
               }
             }
-            break
+            return
           }
           retries--
           if (retries > 0 && !cancelled) await new Promise(resolve => setTimeout(resolve, 1000 * (3 - retries)))
+        }
+        if (!cancelled && retries === 0) {
+          showToastRef.current?.(t('error.recordLoadFailed'), 'error', 5000)
         }
       } finally {
         if (!cancelled) setIsLoadingRecords(false)
@@ -180,7 +186,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       onCompleteRef.current(stats)
 
       const saveRecord = async () => {
-        let retries = 3
+        let retries = RETRY_ATTEMPTS
         let saved = false
         while (retries > 0 && mountedRef.current) {
           const result = await supabase?.from('hardcore_records').insert({
@@ -242,7 +248,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     e.preventDefault()
     const input = e.currentTarget
     input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput({ currentTarget: input } as React.FormEvent<HTMLInputElement>)
+    handleInput(simulateInput(input))
   }, [handleInput])
 
   const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
@@ -328,8 +334,8 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         )}
       </div>
 
-      {/* Compute rank info once to avoid redundant calls */}
-      {(() => {
+      {/* Rank info memoized to avoid redundant calls */}
+      {useMemo(() => {
         const rankInfo = getRankByStreak(streak)
         const progressPct = getRankProgress(streak)
 
@@ -363,7 +369,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         </div>
       </div>
         )
-      })()}
+      }, [streak, currentRank, t])}
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard size="sm" label={t('hardcore.streak')} value={streak.toString()} icon="🔥" />
