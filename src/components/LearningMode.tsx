@@ -7,6 +7,7 @@
 
 import { useState, useMemo, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import { useAppTranslation } from '../i18n/config'
 import { lessons, isLessonUnlocked } from '@utils/lessons'
 import type { Lesson, LessonLayout } from '@utils/lessons'
 
@@ -23,6 +24,7 @@ interface LearningModeProps {
 }
 
 export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBack, onStartLesson }: LearningModeProps) {
+  const { t } = useAppTranslation()
   const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
     'fastfingers_learning_progress',
     {}
@@ -74,16 +76,16 @@ export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBac
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>📚</span>
-                Режим обучения
+                {t('learning.title')}
               </h2>
               <p className="text-dark-400 text-sm mt-1">
-                Пошаговое обучение слепой печати
+                {t('learning.subtitle')}
               </p>
             </div>
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-              aria-label="Закрыть"
+              aria-label={t('learning.close')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -158,7 +160,7 @@ export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBac
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Назад к урокам
+                {t('learning.backToLessons')}
               </button>
 
               <div className="card p-6 mb-6">
@@ -168,7 +170,7 @@ export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBac
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-xl font-bold">{selectedLesson.title}</h3>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-dark-800 text-dark-400">
-                        Сложность {selectedLesson.difficulty}/10
+                        {t('learning.difficulty', { difficulty: selectedLesson.difficulty })}
                       </span>
                     </div>
                     <p className="text-dark-400 mb-4">{selectedLesson.description}</p>
@@ -202,14 +204,14 @@ export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBac
               <div className="card p-4 border border-dark-700/30">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-sm text-dark-400 mb-1">Текст для печати</p>
+                    <p className="text-sm text-dark-400 mb-1">{t('learning.exerciseText')}</p>
                     <p className="font-mono text-lg">{selectedLesson.text}</p>
                   </div>
                   <button
                     onClick={() => handleStartExercise(selectedLesson, selectedLesson.text)}
                     className="ml-4 px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all flex-shrink-0"
                   >
-                    Начать
+                    {t('learning.startExercise')}
                   </button>
                 </div>
               </div>

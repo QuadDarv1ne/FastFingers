@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
+import { useAppStore } from '../stores/useAppStore'
+import { layouts } from '../utils/layouts'
 
 interface ReactionGameProps {
   onExit: () => void
@@ -15,14 +17,11 @@ interface KeyTarget {
 }
 
 const GAME_DURATION = 30
-const KEY_ROWS = [
-  ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ'],
-  ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э'],
-  ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '.'],
-]
 
 export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const { t } = useAppTranslation()
+  const settings = useAppStore()
+  const KEY_ROWS = layouts[settings.layout]?.rows ?? layouts.qwerty?.rows ?? [['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m']]
   const [targets, setTargets] = useState<KeyTarget[]>([])
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)

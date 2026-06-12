@@ -27,11 +27,11 @@ const COUNTDOWN_SECONDS = 3
 const MILESTONE_INTERVALS = [60, 120, 180, 240, 300] // Секунды для отметок
 
 const MILESTONE_MESSAGES: Record<number, string> = {
-  60: '🎯 Первая минута! Продолжай!',
-  120: '🔥 2 минуты! Ты в форме!',
-  180: '⚡ Половина пути! Держи темп!',
-  240: '💪 Ещё минута! Финиш близок!',
-  300: '🏆 ФИНИШ! Ты невероятен!',
+  60: 'marathon.milestone.60',
+  120: 'marathon.milestone.120',
+  180: 'marathon.milestone.180',
+  240: 'marathon.milestone.240',
+  300: 'marathon.milestone.300',
 }
 
 export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sound }: MarathonModeProps) {
@@ -61,7 +61,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
     mode: 'timed',
     duration: MARATHON_DURATION,
     onComplete: (stats) => {
-      showToast(`Марафон: ${stats.wpm} WPM, ${stats.accuracy}% точность`, 'success', 5000)
+      showToast(t('marathon.completed', { wpm: stats.wpm, accuracy: stats.accuracy }), 'success', 5000)
       onComplete(stats)
     },
     sound,
@@ -99,8 +99,8 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
 
     if (currentInterval !== undefined) {
       shownMilestonesRef.current.add(currentInterval)
-      const message = MILESTONE_MESSAGES[currentInterval] ?? ''
-      setShowMilestone(message)
+      const key = MILESTONE_MESSAGES[currentInterval] ?? ''
+      setShowMilestone(key ? t(key) : null)
       if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
       milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
       setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
@@ -220,10 +220,10 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            🏃 Марафон
-            <span className="text-sm font-normal text-dark-400">— тренировка выносливости</span>
+            {t('marathon.title')}
+            <span className="text-sm font-normal text-dark-400">— {t('marathon.subtitle')}</span>
           </h2>
-          <p className="text-sm text-dark-400">5 минут непрерывной печати</p>
+          <p className="text-sm text-dark-400">{t('marathon.duration')}</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
       {/* Таймер и прогресс */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-dark-800 rounded-xl p-4 text-center relative overflow-hidden">
-          <p className="text-sm text-dark-400 mb-2">Осталось времени</p>
+          <p className="text-sm text-dark-400 mb-2">{t('marathon.timeLeft')}</p>
           <motion.div
             key={timeLeft}
             initial={{ scale: 1.1 }}
@@ -267,7 +267,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
         </div>
         
         <div className="bg-dark-800 rounded-xl p-4 text-center">
-          <p className="text-sm text-dark-400 mb-2">Прогресс марафона</p>
+          <p className="text-sm text-dark-400 mb-2">{t('marathon.progress')}</p>
           <div className="relative h-3 bg-dark-700 rounded-full overflow-hidden mb-2">
             <div
               className="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-primary-500 transition-all duration-500"
@@ -354,8 +354,8 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
               >
                 <span className="text-4xl">🏃</span>
               </motion.div>
-              <h3 className="text-2xl font-bold mb-2 text-gradient">Готов к марафону?</h3>
-              <p className="text-dark-400 mb-4">5 минут непрерывной печати</p>
+              <h3 className="text-2xl font-bold mb-2 text-gradient">{t('marathon.readyPrompt')}</h3>
+              <p className="text-dark-400 mb-4">{t('marathon.duration')}</p>
               <button
                 onClick={handleStart}
                 className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors animate-glow-pulse"
@@ -378,7 +378,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
               >
                 <span className="text-5xl">🏆</span>
               </motion.div>
-              <h3 className="text-3xl font-bold mb-2 text-gradient">Марафон завершён!</h3>
+              <h3 className="text-3xl font-bold mb-2 text-gradient">{t('marathon.finished')}</h3>
               <p className="text-dark-400 mb-2">
                 {t('common.wpm')}: <span className="text-primary-400 font-bold">{wpm}</span>
               </p>
@@ -387,7 +387,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
               </p>
               {maxCombo > 5 && (
                 <p className="text-yellow-400 mb-4">
-                  🔥 Лучшее комбо: <span className="font-bold">{maxCombo}</span>
+                  {t('marathon.bestCombo', { combo: maxCombo })}
                 </p>
               )}
               <button
@@ -417,7 +417,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
 
       {/* Подсказки */}
       <div className="mt-4 text-center text-xs text-dark-500">
-        <p>💡 Совет: держи ровный темп, не спеши. Точность важнее скорости!</p>
+        <p>{t('marathon.tip')}</p>
       </div>
     </div>
   )

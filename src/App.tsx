@@ -483,7 +483,7 @@ function AppContent() {
                 dailyChallengesCompleted: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
                 gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
                   .split(',')
-                  .filter((m): m is string => m.length > 0)]).size,
+                  .filter(Boolean)]).size,
                 level: progress.level,
               }}
               onClose={() => setShowAchievements(false)}

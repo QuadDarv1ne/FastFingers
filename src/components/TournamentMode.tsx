@@ -449,9 +449,9 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
-            🏆 Турниры
+            {t('tournament.title')}
           </h2>
-          <p className="text-sm text-dark-400">Участвуй в турнирах и побеждай</p>
+          <p className="text-sm text-dark-400">{t('tournament.subtitle')}</p>
         </div>
         <button
           onClick={onExit}
