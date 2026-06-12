@@ -26,7 +26,6 @@ const LEVEL_COLORS = [
   'bg-primary-400',
 ]
 
-const MONTH_NAMES = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
 
 export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
   const { t } = useAppTranslation()
@@ -161,9 +160,9 @@ export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
         <div className="flex gap-2">
           {heatmapData.weeks.length > 0 && heatmapData.weeks[0]?.days[0] && (
             <>
-              <span>{MONTH_NAMES[new Date(heatmapData.weeks[0].days[0].date).getMonth()]}</span>
+              <span>{t(`month.short.${new Date(heatmapData.weeks[0].days[0].date).getMonth()}`)}</span>
               <span>→</span>
-              <span>{MONTH_NAMES[new Date().getMonth()]}</span>
+              <span>{t(`month.short.${new Date().getMonth()}`)}</span>
             </>
           )}
         </div>

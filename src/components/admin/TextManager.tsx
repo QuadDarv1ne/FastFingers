@@ -176,7 +176,7 @@ export function TextManager() {
         setTexts(merged)
 
         if (skipped > 0) {
-          showToast(t('admin.importSuccessSkip', `Импортировано ${newTexts.length} текстов (пропущено ${skipped} дубликатов)`), 'success')
+          showToast(t('admin.importSuccessSkip', { count: newTexts.length, skipped }), 'success')
         } else {
           showToast(t('admin.importSuccess', `Импортировано ${newTexts.length} текстов`), 'success')
         }
@@ -205,7 +205,7 @@ export function TextManager() {
             onClick={handleExport}
             disabled={texts.length === 0}
             className="px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title={t('action.export', 'Экспорт')}
+            title={t('action.export')}
             aria-label={t('action.export')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

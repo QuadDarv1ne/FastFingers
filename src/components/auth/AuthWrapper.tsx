@@ -5,6 +5,7 @@ import { Register } from './Register'
 import { PasswordReset } from './PasswordReset'
 import { ThemeToggle } from '../ThemeToggle'
 import { useThemeContext } from '@hooks/useThemeContext'
+import { useAppTranslation } from '../../i18n/config'
 
 type AuthView = 'login' | 'register' | 'reset'
 
@@ -13,6 +14,7 @@ interface AuthWrapperProps {
 }
 
 export function AuthWrapper({ onSuccess }: AuthWrapperProps) {
+  const { t } = useAppTranslation()
   const [view, setView] = useState<AuthView>('login')
   const { theme, themeOption, setTheme, setThemeOption } = useThemeContext()
 
@@ -88,7 +90,7 @@ export function AuthWrapper({ onSuccess }: AuthWrapperProps) {
             </div>
             <span className="text-xl font-bold text-gradient">FastFingers</span>
           </div>
-          <p className="text-dark-400 text-sm">Тренажёр слепой печати</p>
+          <p className="text-dark-400 text-sm">{t('misc.footer', 'Touch typing trainer')}</p>
         </div>
       </div>
     </div>

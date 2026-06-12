@@ -619,5 +619,18 @@
   "learning.backToLessons": "Назад к урокам",
   "learning.difficulty": "Сложность {{difficulty}}/10",
   "learning.startExercise": "Начать",
-  "learning.exerciseText": "Текст для печати"
+  "learning.exerciseText": "Текст для печати",
+  "admin.importSuccessSkip": "Импортировано {{count}} текстов (пропущено {{skipped}} дубликатов)",
+  "month.short.0": "Янв",
+  "month.short.1": "Фев",
+  "month.short.2": "Мар",
+  "month.short.3": "Апр",
+  "month.short.4": "Май",
+  "month.short.5": "Июн",
+  "month.short.6": "Июл",
+  "month.short.7": "Авг",
+  "month.short.8": "Сен",
+  "month.short.9": "Окт",
+  "month.short.10": "Ноя",
+  "month.short.11": "Дек"
 }

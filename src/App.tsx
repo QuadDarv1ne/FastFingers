@@ -361,7 +361,7 @@ function AppContent() {
                 onClick={() => setView('admin')}
                 icon="⚙️"
                 label={t('label.admin', 'Admin')}
-                title={t('tooltip.admin', 'Панель администратора')}
+                title={t('tooltip.admin')}
               />
             )}
           </nav>
