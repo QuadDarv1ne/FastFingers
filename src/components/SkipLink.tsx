@@ -1,16 +1,18 @@
+import { useAppTranslation } from '../i18n/config'
 import './SkipLink.css'
 
 export function SkipLink() {
+  const { t } = useAppTranslation()
   return (
-    <nav className="skip-link" aria-label="Пропустить навигацию">
+    <nav className="skip-link" aria-label={t('skip.nav')}>
       <a href="#main-content" className="skip-link__button">
-        Перейти к основному содержимому
+        {t('skip.content')}
       </a>
       <a href="#keyboard" className="skip-link__button">
-        Перейти к клавиатуре
+        {t('skip.keyboard')}
       </a>
       <a href="#settings" className="skip-link__button">
-        Перейти к настройкам
+        {t('skip.settings')}
       </a>
     </nav>
   )

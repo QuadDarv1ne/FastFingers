@@ -205,8 +205,8 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                 <span>Регистрация: {formatDate(u.createdAt)}</span>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-dark-500">
-                <span>Уровень {u.stats.level} · {u.stats.totalXp} XP</span>
-                <span>{u.stats.bestWpm} WPM · {u.stats.totalWordsTyped} слов</span>
+                <span>Уровень {u.stats?.level ?? 0} · {u.stats?.totalXp ?? 0} XP</span>
+                <span>{u.stats?.bestWpm ?? 0} WPM · {u.stats?.totalWordsTyped ?? 0} слов</span>
                 {sessions > 0 && <span>{sessions} тренировок · {totalWords} слов · {timeStr}</span>}
               </div>
             </div>

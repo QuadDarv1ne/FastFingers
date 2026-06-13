@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 import { StatCard } from './ui/StatCard'
@@ -72,7 +72,7 @@ const DEFAULT_GOALS: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>[] 
   },
 ]
 
-export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
+export const GoalsPanel = memo(function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   const [goals, setGoals] = useLocalStorageState<Goal[]>('fastfingers_goals', [])
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [showEditGoal, setShowEditGoal] = useState<Goal | null>(null)
@@ -316,7 +316,7 @@ export function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
       )}
     </div>
   )
-}
+})
 
 function GoalCard({ goal, onDelete, onEdit }: { goal: Goal; onDelete?: () => void; onEdit?: (updated: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt' | 'completedAt'>) => void }) {
   const progress = Math.min((goal.current / goal.target) * 100, 100)

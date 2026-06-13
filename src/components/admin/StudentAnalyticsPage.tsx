@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { cloudSyncService } from '../../services/cloudSyncService'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
+import { SimpleLineChart } from '../../components/SimpleLineChart'
+import { SimpleBarChart } from '../../components/SimpleBarChart'
 import { mapSupabaseSessions, computeStudentStats } from '../../utils/studentStats'
 import type { SessionData, FetchResult } from '../../utils/studentStats'
 import type { TypingSessionRow } from '../../services/cloudSyncService'
@@ -22,7 +24,7 @@ function formatDuration(seconds: number): string {
   return `${m}м`
 }
 
-export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
+export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
   const { t, i18n } = useTranslation()
   const { userId, userName } = useSelectedStudent()
   const [sessions, setSessions] = useState<SessionData[]>([])
@@ -307,9 +309,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
           <div className="h-64">
             {wpmTrend.length > 0 ? (
               <SimpleLineChart data={wpmTrend} dataKey="wpm" xAxisKey="date" stroke="#8b5cf6" />
-            ) : (
-              <EmptyChart />
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -319,9 +319,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
           <div className="h-64">
             {wpmTrend.length > 0 ? (
               <SimpleLineChart data={wpmTrend} dataKey="accuracy" xAxisKey="date" stroke="#22c55e" />
-            ) : (
-              <EmptyChart />
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -329,7 +327,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
         <div className="glass rounded-xl p-6">
           <h3 className="text-lg font-semibold text-white mb-4">📅 Активность по дням</h3>
           <div className="h-64">
-            <SimpleBarChart data={activityByDayOfWeek} dataKey="sessions" xAxisKey="day" fill="#8b5cf6" />
+            <SimpleBarChart data={activityByDayOfWeek as unknown[] as Record<string, string | number>[]} dataKey="sessions" xAxisKey="day" fill="#8b5cf6" />
           </div>
         </div>
 
@@ -511,7 +509,7 @@ export function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
       </div>
     </motion.div>
   )
-}
+})
 
 function StatBadge({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
@@ -541,103 +539,6 @@ function RecordItem({ label, value, color }: { label: string; value: string; col
       <div className="text-xs text-dark-400 mb-1">{label}</div>
       <div className={`text-2xl font-bold ${color}`}>{value}</div>
     </div>
-  )
-}
-
-function EmptyChart() {
-  return <div className="h-full flex items-center justify-center text-dark-500">Нет данных</div>
-}
-
-/* ---- Minimal inline chart components (no recharts dependency needed) ---- */
-
-function SimpleLineChart({ data, dataKey, xAxisKey, stroke }: {
-  data: unknown[]
-  dataKey: string
-  xAxisKey: string
-  stroke: string
-}) {
-  if (data.length === 0) return <EmptyChart />
-
-  const values = data.map(d => Number((d as Record<string, unknown>)[dataKey]) || 0)
-  const max = Math.max(...values, 1)
-  const min = Math.min(...values, 0)
-  const range = max - min || 1
-  const w = 500
-  const h = 220
-  const padding = 30
-
-  const points = data.map((d, i) => {
-    const item = d as Record<string, unknown>
-    const x = padding + (i / Math.max(data.length - 1, 1)) * (w - padding * 2)
-    const y = padding + (1 - ((Number(item[dataKey]) || 0) - min) / range) * (h - padding * 2)
-    return { x, y, label: item[xAxisKey] as string, value: Number(item[dataKey]) || 0 }
-  })
-
-  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
-  const lastPoint = points[points.length - 1]
-  const firstPoint = points[0]
-  const areaD = pathD + (lastPoint && firstPoint ? ` L${lastPoint.x},${h - padding} L${firstPoint.x},${h - padding} Z` : '')
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`grad-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stroke} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {/* Grid lines */}
-      {[0, 0.25, 0.5, 0.75, 1].map(f => (
-        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5" />
-      ))}
-      <path d={areaD} fill={`url(#grad-${dataKey})`} />
-      <path d={pathD} fill="none" stroke={stroke} strokeWidth="2" />
-      {points.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3" fill={stroke} />
-      ))}
-      {/* X labels */}
-      {points.filter((_, i) => data.length <= 7 || i % Math.ceil(data.length / 7) === 0).map((p, i) => (
-        <text key={i} x={p.x} y={h - 5} textAnchor="middle" fill="currentColor" fillOpacity="0.5" fontSize="10">{p.label}</text>
-      ))}
-    </svg>
-  )
-}
-
-function SimpleBarChart({ data, dataKey, xAxisKey, fill }: {
-  data: unknown[]
-  dataKey: string
-  xAxisKey: string
-  fill: string
-}) {
-  if (data.length === 0) return <EmptyChart />
-
-  const values = data.map(d => Number((d as Record<string, unknown>)[dataKey]) || 0)
-  const max = Math.max(...values, 1)
-  const w = 500
-  const h = 220
-  const padding = 30
-  const barWidth = (w - padding * 2) / data.length * 0.7
-  const gap = (w - padding * 2) / data.length * 0.3
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="none">
-      {/* Grid */}
-      {[0, 0.25, 0.5, 0.75, 1].map(f => (
-        <line key={f} x1={padding} y1={padding + f * (h - padding * 2)} x2={w - padding} y2={padding + f * (h - padding * 2)} stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5" />
-      ))}
-      {data.map((d, i) => {
-        const item = d as Record<string, unknown>
-        const x = padding + i * (barWidth + gap)
-        const barH = ((Number(item[dataKey]) || 0) / max) * (h - padding * 2)
-        const y = h - padding - barH
-        return (
-          <g key={i}>
-            <rect x={x} y={y} width={barWidth} height={barH} fill={fill} rx="4" />
-            <text x={x + barWidth / 2} y={h - 5} textAnchor="middle" fill="#6b7280" fontSize="10">{item[xAxisKey] as string}</text>
-          </g>
-        )
-      })}
-    </svg>
   )
 }
 

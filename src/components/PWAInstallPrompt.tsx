@@ -76,7 +76,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
                 {t('misc.installApp')}
               </h3>
               <p id="pwa-install-desc" className="text-xs text-dark-400 mb-3">
-                Установите FastFingers для быстрого доступа без браузера
+                {t('pwa.description')}
               </p>
 
               <div className="flex gap-2">
@@ -84,13 +84,13 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
                   onClick={handleInstall}
                   className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg text-sm font-semibold transition-all shadow-lg hover:shadow-primary-500/30"
                 >
-                  Установить
+                  {t('pwa.install')}
                 </button>
                 <button
                   onClick={handleDismiss}
                   className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-all text-dark-300"
                 >
-                  Позже
+                  {t('pwa.later')}
                 </button>
               </div>
             </div>
@@ -98,7 +98,7 @@ export const PWAInstallPrompt = memo<PWAInstallPromptProps>(function PWAInstallP
             <button
               onClick={handleDismiss}
               className="text-dark-500 hover:text-white transition-colors p-1"
-              aria-label="Закрыть"
+              aria-label={t('action.close')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

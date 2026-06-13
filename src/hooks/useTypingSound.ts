@@ -172,7 +172,7 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     lastPlayTimeRef.current = now
 
     if (audioContext.state === 'suspended') {
-      audioContext.resume().catch(() => setError('Audio context resume failed'))
+      audioContext.resume().catch((err) => { logger.warn('Audio context resume failed', err); setError('Audio context resume failed') })
     }
 
     const baseConfig = SOUND_CONFIGS[soundName]

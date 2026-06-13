@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, memo } from 'react'
 import type { ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
@@ -38,7 +38,7 @@ function getLevelTier(level: number): typeof LEVEL_TIERS[0] {
   return { min: 1, max: 5, label: 'Новичок', color: 'from-gray-500 to-gray-400', icon: '🌱' }
 }
 
-export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
+export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: UserProfileProps) {
   const { user, logout } = useAuth()
   const { t } = useAppTranslation()
   const { history } = useTypingHistory()
@@ -492,7 +492,7 @@ export function UserProfile({ onClose, onNavigate }: UserProfileProps) {
       </motion.div>
     </AnimatePresence>
   )
-}
+})
 
 /* ======================== TAB COMPONENTS ======================== */
 

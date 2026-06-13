@@ -400,6 +400,15 @@ export type TranslationKey =
   | 'history.lastSessions' | 'history.clearHistory' | 'history.empty'
   | 'history.emptyHint' | 'history.startTraining' | 'history.sessions'
   | 'history.avgWpm'
+  | 'timer.resume'
+  | 'sound.theme' | 'sound.themeDefault' | 'sound.themePiano'
+  | 'sound.themeMechanical' | 'sound.themeSoft' | 'sound.themeRetro'
+  | 'sound.themeAsmr' | 'sound.correct' | 'sound.error' | 'sound.complete'
+  | 'sound.tip'
+  | 'cookie.title' | 'cookie.description' | 'cookie.accept' | 'cookie.decline'
+  | 'cookie.policyLink' | 'cookie.privacyLink' | 'cookie.and' | 'cookie.ariaLabel'
+  | 'pwa.description' | 'pwa.install' | 'pwa.later'
+  | 'skip.nav' | 'skip.content' | 'skip.keyboard' | 'skip.settings'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 

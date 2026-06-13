@@ -1,4 +1,5 @@
 import { SoundTheme } from '../types'
+import { useAppTranslation } from '../i18n/config'
 
 interface SoundThemeSelectorProps {
   currentTheme: SoundTheme
@@ -14,23 +15,24 @@ const THEME_ICONS: Record<SoundTheme, string> = {
   asmr: '🎧',
 }
 
-const THEME_NAMES: Record<SoundTheme, string> = {
-  default: 'По умолчанию',
-  piano: 'Пианино',
-  mechanical: 'Механическая',
-  soft: 'Мягкий',
-  retro: 'Ретро',
-  asmr: 'ASMR',
+const THEME_I18N_KEYS: Record<SoundTheme, string> = {
+  default: 'sound.themeDefault',
+  piano: 'sound.themePiano',
+  mechanical: 'sound.themeMechanical',
+  soft: 'sound.themeSoft',
+  retro: 'sound.themeRetro',
+  asmr: 'sound.themeAsmr',
 }
 
 export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSelectorProps) {
+  const { t } = useAppTranslation()
   const themes: SoundTheme[] = ['default', 'piano', 'mechanical', 'soft', 'retro', 'asmr']
   const id = 'sound-theme-selector'
 
   return (
     <div className="space-y-3">
       <label htmlFor={id} className="block text-sm font-medium text-dark-300">
-        Звуковая тема
+        {t('sound.theme')}
       </label>
 
       <div role="radiogroup" aria-labelledby={id} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -55,15 +57,15 @@ export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSe
                 </span>
                 <div>
                   <p className={`font-medium ${isSelected ? 'text-white' : 'text-dark-300'}`}>
-                    {THEME_NAMES[themeId]}
+                    {t(THEME_I18N_KEYS[themeId])}
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-1 mt-2">
-                <span className="w-2 h-2 rounded-full bg-primary-400" title="Правильно" />
-                <span className="w-2 h-2 rounded-full bg-error" title="Ошибка" />
-                <span className="w-2 h-2 rounded-full bg-success" title="Завершение" />
+                <span className="w-2 h-2 rounded-full bg-primary-400" title={t('sound.correct')} />
+                <span className="w-2 h-2 rounded-full bg-error" title={t('sound.error')} />
+                <span className="w-2 h-2 rounded-full bg-success" title={t('sound.complete')} />
               </div>
             </button>
           )
@@ -71,7 +73,7 @@ export function SoundThemeSelector({ currentTheme, onThemeChange }: SoundThemeSe
       </div>
 
       <p className="text-xs text-dark-500">
-        💡 Нажмите на тему, чтобы выбрать её. Звуки воспроизводятся при вводе текста.
+        {t('sound.tip')}
       </p>
     </div>
   )
