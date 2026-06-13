@@ -112,7 +112,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
         milestoneTimerRef.current = null
       }
     }
-  }, [timeLeft, isActive])
+  }, [timeLeft, isActive, t])
 
   useEffect(() => {
     return () => {

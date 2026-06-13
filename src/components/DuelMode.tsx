@@ -263,7 +263,7 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
       logger.error('Error completing duel:', err)
       showToast(t('error.duelFailed'), 'error', 5000)
     }
-  }, [opponentWpm, opponentAccuracy, completeDuel, onComplete])
+  }, [opponentWpm, opponentAccuracy, completeDuel, onComplete, showToast, t])
 
   const flushDuelProgress = useCallback(async () => {
     const duel = currentDuelRef.current

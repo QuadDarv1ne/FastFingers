@@ -191,7 +191,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
         setIsLoading(false)
       }
     }
-  }, [supabaseReady, supabase])
+  }, [supabaseReady, supabase, showToast, t])
 
   // Загрузка участников
   const loadParticipants = useCallback(async (tournamentId: string) => {
@@ -230,7 +230,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       logger.error('Error loading participants:', error)
       showToast(t('error.tournamentParticipantsFailed'), 'error', 5000)
     }
-  }, [user?.id, supabaseReady, supabase])
+  }, [user?.id, supabaseReady, supabase, showToast, t])
 
   // Регистрация в турнире
   const handleRegister = useCallback(async () => {
@@ -261,7 +261,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       logger.error('Error registering:', error)
       showToast(t('error.tournamentRegisterFailed'), 'error', 5000)
     }
-  }, [selectedTournament, user, supabaseReady, supabase])
+  }, [selectedTournament, user, supabaseReady, supabase, showToast, t])
 
   // Отмена регистрации
   const handleUnregister = useCallback(async () => {
@@ -288,7 +288,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       logger.error('Error unregistering:', error)
       showToast(t('error.tournamentUnregisterFailed'), 'error', 5000)
     }
-  }, [selectedTournament, user, supabaseReady, supabase])
+  }, [selectedTournament, user, supabaseReady, supabase, showToast, t])
 
   useEffect(() => {
     loadTournaments()

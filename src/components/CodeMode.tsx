@@ -84,7 +84,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
   const handleComplete = useCallback((stats: TypingStats) => {
     showToast(t('code.completed', { wpm: stats.wpm, accuracy: stats.accuracy }), 'success', 4000)
     onComplete(stats)
-  }, [onComplete, showToast])
+  }, [onComplete, showToast, t])
 
   const {
     currentIndex,

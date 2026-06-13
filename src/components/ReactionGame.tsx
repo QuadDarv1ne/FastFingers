@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import { useAppStore } from '../stores/useAppStore'
@@ -21,7 +21,10 @@ const GAME_DURATION = 30
 export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: ReactionGameProps) {
   const { t } = useAppTranslation()
   const settings = useAppStore()
-  const KEY_ROWS = layouts[settings.layout]?.rows ?? layouts.qwerty?.rows ?? [['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m']]
+  const KEY_ROWS = useMemo(
+    () => layouts[settings.layout]?.rows ?? layouts.qwerty?.rows ?? [['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m']],
+    [settings.layout]
+  )
   const [targets, setTargets] = useState<KeyTarget[]>([])
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION)
@@ -68,7 +71,7 @@ export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: R
       y: (rowIndex / 3) * 100,
       id: targetIdRef.current++,
     }
-  }, [])
+  }, [KEY_ROWS])
 
   // Spawn a new target
   const spawnTarget = useCallback(() => {

@@ -150,7 +150,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
 
     loadRecords()
     return () => { cancelled = true }
-  }, [user, supabase, supabaseReady])
+  }, [user, supabase, supabaseReady, t])
 
   const hasSavedRef = useRef(false)
   const inputResultsRef = useRef(inputResults)

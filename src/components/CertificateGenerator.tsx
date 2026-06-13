@@ -8,6 +8,7 @@ import type { User } from '../types/auth'
 import { calculateRank } from '../utils/certificateTypes'
 import type { CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useAppTranslation } from '../i18n/config'
 import { logger } from '../utils/logger'
 import { StatCard } from './ui/StatCard'
 
@@ -35,6 +36,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   streak,
   onClose,
 }: CertificateGeneratorProps) {
+  const { t } = useAppTranslation()
   const [theme, setTheme] = useState<CertificateTheme>('classic')
   const [language, setLanguage] = useState<CertificateLanguage>('ru')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -71,7 +73,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
       await generateCertificate(certificateData, { language, download: true, theme })
     } catch (err) {
       logger.error('Certificate generation failed:', err)
-      alert('Не удалось создать сертификат. Попробуйте ещё раз.')
+      alert(t('certificate.generationFailed'))
     } finally {
       setIsGenerating(false)
     }
@@ -85,8 +87,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
       const file = new File([blob], 'certificate.png', { type: 'image/png' })
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Сертификат FastFingers',
-          text: `Мой результат: ${wpm} WPM с точностью ${accuracy}%!`,
+          title: t('certificate.shareTitle'),
+          text: t('certificate.shareText', { wpm, accuracy }),
           files: [file],
         })
       } else {
@@ -133,16 +135,16 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
             <h2 id="certificate-title" className="text-2xl font-bold flex items-center gap-2">
-              <span>📜</span> Сертификат достижения
+              <span>📜</span> {t('certificate.title')}
             </h2>
             <p id="certificate-description" className="text-dark-400 text-sm mt-1">
-              Ваш результат: <span className="text-primary-400 font-semibold">{wpm} WPM</span>
+              {t('certificate.yourResult')} <span className="text-primary-400 font-semibold">{wpm} WPM</span>
             </p>
           </div>
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-            aria-label="Закрыть"
+            aria-label={t('action.close')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -162,23 +164,23 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
 
               {/* Имя */}
               <div>
-                <p className="text-dark-400 text-sm">Сертификат выдан</p>
+                <p className="text-dark-400 text-sm">{t('certificate.issued')}</p>
                 <h3 className="text-3xl font-bold text-gradient">{user.name}</h3>
               </div>
 
               {/* Результат */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-                <StatCard size="sm" label="Скорость" value={`${wpm} WPM`} icon="⚡" />
-                <StatCard size="sm" label="Точность" value={`${accuracy}%`} icon="🎯" />
-                <StatCard size="sm" label="Символы" value={`${cpm} CPM`} icon="📝" />
-                <StatCard size="sm" label="Ранг" value={rank} icon={rankIcons[rank]} />
+                <StatCard size="sm" label={t('common.speed')} value={`${wpm} WPM`} icon="⚡" />
+                <StatCard size="sm" label={t('common.accuracy')} value={`${accuracy}%`} icon="🎯" />
+                <StatCard size="sm" label={t('common.characters')} value={`${cpm} CPM`} icon="📝" />
+                <StatCard size="sm" label={t('common.rank')} value={rank} icon={rankIcons[rank]} />
               </div>
 
               {/* Дополнительно */}
               {(level || streak) && (
                 <div className="flex items-center justify-center gap-4 text-sm text-dark-400">
-                  {level && <span>📊 Уровень {level}</span>}
-                  {streak && <span>🔥 Серия {streak} дн.</span>}
+                  {level && <span>📊 {t('common.level')} {level}</span>}
+                  {streak && <span>🔥 {t('common.streak')} {streak} {t('common.days')}</span>}
                 </div>
               )}
             </div>
@@ -188,48 +190,48 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="cert-theme" className="block text-sm text-dark-400 mb-2">
-                Тема сертификата
+                {t('certificate.theme')}
               </label>
               <select
                 id="cert-theme"
                 value={theme}
                 onChange={(e) => setTheme(e.target.value as CertificateTheme)}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                aria-label="Тема сертификата"
+                aria-label={t('certificate.theme')}
                 aria-describedby="cert-theme-description"
               >
-                <option value="classic">📜 Классическая</option>
-                <option value="modern">✨ Современная</option>
-                <option value="neon">🌟 Неон</option>
+                <option value="classic">📜 {t('certificate.themeClassic')}</option>
+                <option value="modern">✨ {t('certificate.themeModern')}</option>
+                <option value="neon">🌟 {t('certificate.themeNeon')}</option>
               </select>
               <span id="cert-theme-description" className="sr-only">
-                Выберите визуальную тему для сертификата
+                {t('certificate.themeDescription')}
               </span>
             </div>
 
             <div>
               <label htmlFor="cert-lang" className="block text-sm text-dark-400 mb-2">
-                Язык
+                {t('misc.language')}
               </label>
               <select
                 id="cert-lang"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as CertificateLanguage)}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                aria-label="Язык сертификата"
+                aria-label={t('misc.language')}
                 aria-describedby="cert-lang-description"
               >
-                <option value="ru">🇷🇺 Русский</option>
-                <option value="en">🇬🇧 English</option>
+                <option value="ru">🇷🇺 {t('certificate.langRu')}</option>
+                <option value="en">🇬🇧 {t('certificate.langEn')}</option>
               </select>
               <span id="cert-lang-description" className="sr-only">
-                Выберите язык для сертификата
+                {t('certificate.langDescription')}
               </span>
             </div>
           </div>
 
           {/* Кнопки действий */}
-          <div className="flex flex-wrap gap-4" role="group" aria-label="Действия с сертификатом">
+          <div className="flex flex-wrap gap-4" role="group" aria-label={t('certificate.actions')}>
             <button
               onClick={handleDownload}
               disabled={isGenerating}
@@ -244,7 +246,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              {isGenerating ? 'Генерация...' : 'Скачать PNG'}
+              {isGenerating ? t('certificate.generating') : t('certificate.downloadPng')}
             </button>
 
             <button
@@ -261,14 +263,14 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                 />
               </svg>
-              Поделиться
+              {t('certificate.share')}
             </button>
           </div>
 
           {/* Информация о рангах */}
           <div className="card p-4" role="region" aria-labelledby="ranks-heading">
             <h4 id="ranks-heading" className="font-semibold mb-3 flex items-center gap-2">
-              <span>🏆</span> Система рангов
+              <span>🏆</span> {t('certificate.rankSystem')}
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm" role="list">
               <RankInfo rank="Bronze" requirement="< 30 WPM" color="text-amber-700" />

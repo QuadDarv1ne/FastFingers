@@ -4,6 +4,7 @@ import { useTypingHistory } from '../hooks/useTypingHistory'
 import { downloadCSV } from '../utils/export'
 import { formatDurationLong } from '../utils/format'
 import { StatCard } from './ui/StatCard'
+import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
 import type { ExportData } from '../utils/export'
 
@@ -12,6 +13,7 @@ interface TrainingHistoryProps {
 }
 
 export function TrainingHistory({ onBack }: TrainingHistoryProps) {
+  const { t } = useAppTranslation()
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
   const [isExporting, setIsExporting] = useState(false)
 
@@ -58,8 +60,8 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* Заголовок */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gradient">История тренировок</h2>
-          <p className="text-sm text-dark-400">Ваш прогресс и достижения</p>
+          <h2 className="text-2xl font-bold text-gradient">{t('history.title')}</h2>
+          <p className="text-sm text-dark-400">{t('history.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -67,7 +69,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
             onClick={() => handleExport(exportData)}
             disabled={isExporting || history.sessions.length === 0}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            title="Экспорт в CSV"
+            title={t('history.exportCsv')}
           >
             {isExporting ? (
               <span className="animate-pulse">📥</span>
@@ -82,8 +84,8 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
           <button
             onClick={onBack}
             className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
-            title="Назад"
-            aria-label="Go back"
+            title={t('action.back')}
+            aria-label={t('action.back')}
           >
             <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -95,23 +97,23 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* Общая статистика */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard 
-          label="Всего сессий" 
+          label={t('history.totalSessions')} 
           value={history.totalSessions.toString()} 
           icon="📊"
         />
         <StatCard
-          label="Время тренировок"
+          label={t('history.trainingTime')}
           value={formatDurationLong(history.totalTime)}
           icon="⏱️"
         />
         <StatCard 
-          label="Лучший WPM" 
+          label={t('history.bestWpm')} 
           value={stats30d.bestWpm.toString()} 
           icon="🚀"
           highlight
         />
         <StatCard 
-          label="Средняя точность" 
+          label={t('history.avgAccuracy')} 
           value={`${stats30d.avgAccuracy}%`} 
           icon="🎯"
         />
@@ -120,15 +122,15 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* Статистика по периодам */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <PeriodCard 
-          period="24 часа" 
+          period={t('history.period24h')} 
           stats={stats24h}
         />
         <PeriodCard 
-          period="7 дней" 
+          period={t('history.period7d')} 
           stats={stats7d}
         />
         <PeriodCard 
-          period="30 дней" 
+          period={t('history.period30d')} 
           stats={stats30d}
         />
       </div>
@@ -136,7 +138,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* График WPM */}
       {wpmData.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4">Прогресс WPM</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('history.wpmProgress')}</h3>
           <div className="bg-dark-800 rounded-xl p-4 h-48 flex items-end gap-1">
             {wpmData.map((d) => (
               <div
@@ -166,7 +168,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* График точности */}
       {wpmData.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4">Точность</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('history.accuracyProgress')}</h3>
           <div className="bg-dark-800 rounded-xl p-4 h-48 flex items-end gap-1">
             {wpmData.map((d) => (
               <div
@@ -200,7 +202,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
       {/* Последние сессии */}
       {history.sessions.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4">Последние сессии</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('history.lastSessions')}</h3>
           <VirtualSessionList sessions={history.sessions.slice(0, 100)} />
         </div>
       )}
@@ -212,7 +214,7 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
             onClick={clearHistory}
             className="w-full py-3 bg-error/20 hover:bg-error/30 text-error rounded-lg font-medium transition-colors"
           >
-            Очистить историю
+            {t('history.clearHistory')}
           </button>
         </div>
       )}
@@ -225,13 +227,13 @@ export function TrainingHistory({ onBack }: TrainingHistoryProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold mb-2">История пуста</h3>
-          <p className="text-dark-400 mb-4">Завершите хотя бы одну тренировку</p>
+          <h3 className="text-xl font-semibold mb-2">{t('history.empty')}</h3>
+          <p className="text-dark-400 mb-4">{t('history.emptyHint')}</p>
           <button
             onClick={onBack}
             className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
           >
-            Начать тренировку
+            {t('history.startTraining')}
           </button>
         </div>
       )}
@@ -246,24 +248,25 @@ function PeriodCard({
   period: string
   stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number }
 }) {
+  const { t } = useAppTranslation()
   return (
     <div className="bg-dark-800/50 rounded-xl p-4">
       <h4 className="text-sm font-medium text-dark-400 mb-3">{period}</h4>
       <div className="space-y-2">
         <div className="flex justify-between">
-          <span className="text-xs text-dark-500">Сессий</span>
+          <span className="text-xs text-dark-500">{t('history.sessions')}</span>
           <span className="text-sm">{stats.sessions}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-xs text-dark-500">Средний WPM</span>
+          <span className="text-xs text-dark-500">{t('history.avgWpm')}</span>
           <span className="text-sm text-primary-400">{stats.avgWpm}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-xs text-dark-500">Средняя точность</span>
+          <span className="text-xs text-dark-500">{t('history.avgAccuracy')}</span>
           <span className="text-sm">{stats.avgAccuracy}%</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-xs text-dark-500">Лучший WPM</span>
+          <span className="text-xs text-dark-500">{t('history.bestWpm')}</span>
           <span className="text-sm text-success">{stats.bestWpm}</span>
         </div>
       </div>
@@ -272,6 +275,7 @@ function PeriodCard({
 }
 
 function VirtualSessionList({ sessions }: { sessions: Array<{ id: string; wpm: number; accuracy: number; errors: number; date: string }> }) {
+  const { t } = useAppTranslation()
   const parentRef = useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({
@@ -332,7 +336,7 @@ function VirtualSessionList({ sessions }: { sessions: Array<{ id: string; wpm: n
                   }`}>
                     {session.accuracy}%
                   </p>
-                  <p className="text-xs text-dark-500">{session.errors} ошибок</p>
+                  <p className="text-xs text-dark-500">{session.errors} {t('common.errors')}</p>
                 </div>
               </div>
             </div>
