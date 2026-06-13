@@ -11,6 +11,7 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const completedRef = useRef(false)
   const onCompleteRef = useRef(onComplete)
+  const generationRef = useRef(0)
 
   useEffect(() => {
     onCompleteRef.current = onComplete
@@ -43,9 +44,12 @@ export function useCountdown({ onComplete }: UseCountdownOptions) {
       clearInterval(intervalRef.current)
     }
 
+    const gen = ++generationRef.current
+    completedRef.current = false
     setCountdown(seconds)
 
     intervalRef.current = setInterval(() => {
+      if (generationRef.current !== gen) return
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
           return COMPLETED

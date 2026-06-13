@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
+import { useAppTranslation } from '../i18n/config'
 import { StatCard } from './ui/StatCard'
 
 export interface Goal {
@@ -73,6 +74,7 @@ const DEFAULT_GOALS: Omit<Goal, 'id' | 'current' | 'completed' | 'createdAt'>[] 
 ]
 
 export const GoalsPanel = memo(function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
+  const { t } = useAppTranslation()
   const [goals, setGoals] = useLocalStorageState<Goal[]>('fastfingers_goals', [])
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [showEditGoal, setShowEditGoal] = useState<Goal | null>(null)
@@ -179,7 +181,7 @@ export const GoalsPanel = memo(function GoalsPanel({ onClose, currentProgress }:
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-            aria-label="Закрыть"
+            aria-label={t('action.close')}
           >
             <svg
               className="w-5 h-5"

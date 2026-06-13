@@ -2,6 +2,7 @@ import { memo, useMemo, useRef, useEffect } from 'react'
 import { TypingStats, KeyHeatmapData } from '@/types'
 import { analyzeTypingProgress, TypingAnalytics } from '@utils/analytics'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useAppTranslation } from '../i18n/config'
 
 interface AdvancedAnalyticsProps {
   recentStats: TypingStats[]
@@ -17,6 +18,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
   heatmap,
   onClose,
 }: AdvancedAnalyticsProps) {
+  const { t } = useAppTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   useFocusTrap(containerRef, true)
 
@@ -82,7 +84,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-            aria-label="Закрыть"
+            aria-label={t('action.close')}
           >
             <svg
               className="w-5 h-5"

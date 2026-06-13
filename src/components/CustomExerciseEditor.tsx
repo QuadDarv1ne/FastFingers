@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useToast } from '@contexts/ToastContext'
+import { useAppTranslation } from '../i18n/config'
 
 export interface CustomExercise {
   id: string
@@ -19,6 +20,7 @@ interface CustomExerciseEditorProps {
 }
 
 export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomExerciseEditorProps) {
+  const { t } = useAppTranslation()
   const [exercises, setExercises] = useLocalStorageState<CustomExercise[]>(
     'fastfingers_custom_exercises',
     []
@@ -126,7 +128,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-              aria-label="Закрыть"
+              aria-label={t('action.close')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

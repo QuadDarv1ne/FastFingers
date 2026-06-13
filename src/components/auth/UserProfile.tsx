@@ -381,7 +381,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
                 <button
                   onClick={handleClose}
                   className="p-2 hover:bg-dark-800 rounded-xl transition-colors"
-                  aria-label="Закрыть"
+                  aria-label={t('action.close')}
                 >
                   <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

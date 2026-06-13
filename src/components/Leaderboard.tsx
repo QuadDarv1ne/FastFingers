@@ -2,6 +2,7 @@ import { memo, useState, useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { useLeaderboard, useUserRank } from '@hooks/useLeaderboard'
+import { useAppTranslation } from '../i18n/config'
 import type { LeaderboardEntry as SupabaseLeaderboardEntry } from '@hooks/useLeaderboard'
 
 export interface LeaderboardEntry {
@@ -45,6 +46,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
   onClose,
   gameMode = 'classic'
 }: LeaderboardProps) {
+  const { t } = useAppTranslation()
   const [sortBy, setSortBy] = useState<SortBy>('wpm')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -117,7 +119,7 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-colors flex items-center justify-center"
-            aria-label="Закрыть"
+            aria-label={t('action.close')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -92,6 +92,10 @@ export function useStatsWorker(): UseStatsWorkerReturn {
 
       workerRef.current.onerror = (event) => {
         setError(`Worker error: ${event.message}`)
+        pendingMap.forEach(({ reject }) => reject(new Error(`Worker error: ${event.message}`)))
+        pendingMap.clear()
+        timeoutsMap.forEach((id) => clearTimeout(id))
+        timeoutsMap.clear()
         isBusyRef.current = false
         setIsBusy(false)
       }

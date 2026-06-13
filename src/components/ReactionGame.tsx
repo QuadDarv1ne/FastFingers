@@ -164,7 +164,7 @@ export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: R
 
     setTargets(prev => prev.filter(t => t.id !== id))
     setHits(h => h + 1)
-    setScore(s => s + 10 + comboRef.current)
+    setScore(s => s + 10 + comboRef.current + 1)
     setCombo(c => {
       const newCombo = c + 1
       setMaxCombo(m => Math.max(m, newCombo))

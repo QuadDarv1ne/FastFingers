@@ -113,11 +113,7 @@ class CloudSyncService {
       } catch (error) {
         logger.error('Failed to save to Supabase:', error)
         this.saveToLocalStorage(save)
-        // Avoid re-queueing during flush — the item is already in itemsToFlush
-        // and will be pushed back to offlineCache by flushOfflineCache on failure
-        if (!this.isFlushing) {
-          this.offlineCache.push({ type: 'stats', data: save })
-        }
+        this.offlineCache.push({ type: 'stats', data: save })
       }
     } else {
       this.saveToLocalStorage(save)

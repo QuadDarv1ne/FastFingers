@@ -106,7 +106,7 @@ export function NotificationBell() {
       <button
         onClick={() => setIsOpen(true)}
         className="relative w-10 h-10 rounded-xl bg-dark-800 hover:bg-dark-700 transition-all flex items-center justify-center hover:scale-105 active:scale-95"
-        aria-label="Уведомления"
+        aria-label={t('misc.notifications')}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -127,7 +127,7 @@ export function NotificationBell() {
 
         {/* Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-red-500/50 px-1.5" aria-label={`${unreadCount} непрочитанных`}>
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse shadow-lg shadow-red-500/50 px-1.5" aria-label={t('notification.unreadCount', { count: unreadCount })}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -139,16 +139,16 @@ export function NotificationBell() {
           ref={dropdownRef}
           className="absolute right-0 mt-2 w-96 max-h-[600px] glass rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
           role="dialog"
-          aria-label="Уведомления"
+          aria-label={t('misc.notifications')}
           style={{ maxHeight: 'min(600px, 80vh)' }}
         >
             {/* Header */}
             <div className="p-4 border-b border-dark-700 flex items-center justify-between flex-shrink-0">
               <div>
-                <h3 className="font-semibold text-lg text-white">Уведомления</h3>
+                <h3 className="font-semibold text-lg text-white">{t('misc.notifications')}</h3>
                 {unreadCount > 0 && (
                   <p className="text-xs text-dark-300">
-                    {unreadCount} непрочитанных
+                    {t('notification.unreadCount', { count: unreadCount })}
                   </p>
                 )}
               </div>
@@ -176,8 +176,8 @@ export function NotificationBell() {
                 <button
                   onClick={handleClose}
                   className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-dark-800 text-dark-400 hover:text-white transition-colors"
-                  aria-label="Закрыть"
-                  title="Закрыть"
+                  aria-label={t('action.close')}
+                  title={t('action.close')}
                 >
                   ✕
                 </button>
@@ -185,11 +185,11 @@ export function NotificationBell() {
             </div>
 
             {/* Notifications list */}
-            <div className="overflow-y-auto flex-1" role="list" aria-label="Уведомления">
+            <div className="overflow-y-auto flex-1" role="list" aria-label={t('misc.notifications')}>
               {sortedNotifications.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="text-4xl mb-2 opacity-80" aria-hidden="true">🔔</div>
-                  <p className="text-dark-400">Нет уведомлений</p>
+                  <p className="text-dark-400">{t('notification.empty')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-dark-700/50">
@@ -215,7 +215,7 @@ export function NotificationBell() {
                               {notification.title}
                             </h4>
                             {!notification.read && (
-                              <span className="w-2.5 h-2.5 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 shadow-lg shadow-blue-500/50" aria-label="непрочитано" />
+                              <span className="w-2.5 h-2.5 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 shadow-lg shadow-blue-500/50" aria-label={t('notification.unread')} />
                             )}
                           </div>
                           <p className="text-sm text-dark-300 mt-1.5 line-clamp-2">
