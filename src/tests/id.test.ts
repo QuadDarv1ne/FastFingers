@@ -6,6 +6,8 @@ import {
   generateSlug,
   generateColorFromString,
   getInitials,
+  isValidUuid,
+  extractTimestampFromId,
 } from '../utils/id'
 
 describe('id utils', () => {
@@ -79,6 +81,31 @@ describe('id utils', () => {
 
     it('должен обрабатывать лишние пробелы', () => {
       expect(getInitials('  John   Doe  ')).toBe('JD')
+    })
+
+    it('должен возвращать пустую строку для пустого имени', () => {
+      expect(getInitials('')).toBe('')
+      expect(getInitials('   ')).toBe('')
+    })
+  })
+
+  describe('isValidUuid', () => {
+    it('должен возвращать true для валидного UUID v4', () => {
+      expect(isValidUuid('550e8400-e29b-41d4-a716-446655440000')).toBe(true)
+      expect(isValidUuid(generateId())).toBe(true)
+    })
+
+    it('должен возвращать false для невалидных строк', () => {
+      expect(isValidUuid('')).toBe(false)
+      expect(isValidUuid('not-a-uuid')).toBe(false)
+      expect(isValidUuid('550e8400-e29b-41d4-a716-44665544000Z')).toBe(false)
+    })
+  })
+
+  describe('extractTimestampFromId', () => {
+    it('должен возвращать null для невалидного UUID', () => {
+      expect(extractTimestampFromId('')).toBeNull()
+      expect(extractTimestampFromId('invalid')).toBeNull()
     })
   })
 })
