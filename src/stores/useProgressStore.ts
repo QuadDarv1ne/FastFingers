@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
 import { calculateLevel } from '../utils/stats'
+import { generateId } from '../utils/id'
 
 interface TypingSession {
   id: string
@@ -76,7 +77,7 @@ export const useProgressStore = create<ProgressState>()(
       lastPracticeDate: null,
 
       addSession: (session) => set((state) => ({
-        sessions: [{ ...session, id: (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)) }, ...state.sessions].slice(0, MAX_SESSIONS),
+        sessions: [{ ...session, id: generateId() }, ...state.sessions].slice(0, MAX_SESSIONS),
       })),
 
       addXp: (amount) => set((state) => {
