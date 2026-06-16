@@ -7,7 +7,7 @@
 import { useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useToast } from '../contexts/ToastContext'
 import { useTypingGame } from '@hooks/useTypingGame'
@@ -160,59 +160,78 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
 
         {/* Start overlay */}
         {!isActive && timeLeft === duration && (
-          <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
+          <div className="absolute inset-0 glass rounded-xl flex items-center justify-center">
             <div className="text-center">
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-primary-500/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
               >
-                <svg className="w-10 h-10 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 text-primary-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
+                <p className="text-sm text-dark-300 mb-4">{t('speedtest.startPrompt')}</p>
+                <motion.button
+                  onClick={startGame}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-5 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-all shadow-md text-sm"
+                >
+                  {t('speedtest.startButton')}
+                </motion.button>
               </motion.div>
-              <p className="text-lg text-dark-300 mb-4">{t('speedtest.startPrompt')}</p>
-              <button
-                onClick={startGame}
-                className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
-              >
-                {t('speedtest.startButton')}
-              </button>
             </div>
           </div>
         )}
 
         {/* Completion overlay */}
         {!isActive && timeLeft === 0 && (
-          <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
+          <div className="absolute inset-0 glass rounded-xl flex items-center justify-center">
             <div className="text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', delay: 0.2 }}
-                className="w-20 h-20 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                className="w-14 h-14 bg-gradient-to-br from-green-500/20 to-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3"
               >
-                <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              <h3 className="text-2xl font-bold mb-2">{t('speedtest.completed')}</h3>
-              <div className="grid grid-cols-2 gap-4 mb-6 max-w-xs mx-auto">
-                <div className="bg-dark-800 rounded-lg p-3">
-                  <p className="text-sm text-dark-400">{t('common.wpm')}</p>
-                  <p className="text-2xl font-bold text-primary-400">{wpm}</p>
+              <motion.h3
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-lg font-bold mb-3"
+              >
+                {t('speedtest.completed')}
+              </motion.h3>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex gap-3 mb-4 justify-center"
+              >
+                <div className="bg-dark-800/60 rounded-lg p-2.5 min-w-[80px]">
+                  <p className="text-[10px] text-dark-500 font-medium uppercase tracking-wider">{t('common.wpm')}</p>
+                  <p className="text-lg font-bold text-primary-400 font-mono">{wpm}</p>
                 </div>
-                <div className="bg-dark-800 rounded-lg p-3">
-                  <p className="text-sm text-dark-400">{t('common.accuracy')}</p>
-                  <p className="text-2xl font-bold text-success">{accuracy}%</p>
+                <div className="bg-dark-800/60 rounded-lg p-2.5 min-w-[80px]">
+                  <p className="text-[10px] text-dark-500 font-medium uppercase tracking-wider">{t('common.accuracy')}</p>
+                  <p className="text-lg font-bold text-green-400 font-mono">{accuracy}%</p>
                 </div>
-              </div>
-              <button
+              </motion.div>
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
                 onClick={onExit}
-                className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-5 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-all shadow-md text-sm"
               >
                 {t('speedtest.continue')}
-              </button>
+              </motion.button>
             </div>
           </div>
         )}

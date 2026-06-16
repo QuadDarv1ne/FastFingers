@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Shortcut } from './KeyboardShortcuts'
 import { useAppTranslation } from '../i18n/config'
 
@@ -5,7 +6,7 @@ interface KeyboardShortcutsHelpProps {
   onClose: () => void
 }
 
-export function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
+function KeyboardShortcutsHelp({ onClose }: KeyboardShortcutsHelpProps) {
   const { t } = useAppTranslation()
 
   const shortcuts: Omit<Shortcut, 'action'>[] = [
@@ -179,3 +180,5 @@ function Kbd({ children }: { children: React.ReactNode }) {
     </kbd>
   )
 }
+
+export default memo(KeyboardShortcutsHelp)

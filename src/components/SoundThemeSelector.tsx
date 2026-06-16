@@ -1,4 +1,4 @@
-import { SoundTheme } from '../types'
+import type { SoundTheme } from '../types'
 import { useAppTranslation } from '../i18n/config'
 
 interface SoundThemeSelectorProps {

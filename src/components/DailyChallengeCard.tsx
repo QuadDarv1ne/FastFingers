@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
+import { useAppTranslation } from '../i18n/config'
 
 export interface DailyChallenge {
   id: string
@@ -34,7 +36,14 @@ interface DailyChallengeCardProps {
   onComplete: (challengeId: string, wpm: number, accuracy: number) => void
 }
 
+const difficultyConfig = {
+  easy: { bar: 'from-green-600 to-emerald-500', label: 'challenge.easy', accent: 'border-green-500/20 bg-green-500/5' },
+  medium: { bar: 'from-yellow-600 to-orange-500', label: 'challenge.medium', accent: 'border-yellow-500/20 bg-yellow-500/5' },
+  hard: { bar: 'from-red-600 to-rose-500', label: 'challenge.hard', accent: 'border-red-500/20 bg-red-500/5' },
+}
+
 export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete }: DailyChallengeCardProps) {
+  const { t } = useAppTranslation()
   const [progress] = useLocalStorageState<ChallengeProgress>(
     'fastfingers_challenge_progress',
     {}
@@ -45,16 +54,8 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
     const today = new Date().toISOString().split('T')[0]
     if (!today) return
     const dailyChallenge = generateDailyChallenge(today)
-    const challengeProgress = progress[dailyChallenge?.id] || {
-      completed: false,
-      progress: 0,
-    }
-
-    setLocalChallenge({
-      ...dailyChallenge,
-      completed: challengeProgress.completed,
-      progress: challengeProgress.progress,
-    })
+    const challengeProgress = progress[dailyChallenge?.id] || { completed: false, progress: 0 }
+    setLocalChallenge({ ...dailyChallenge, completed: challengeProgress.completed, progress: challengeProgress.progress })
   }, [progress])
 
   useEffect(() => {
@@ -64,9 +65,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
     }
   }, [challengeProp, localChallenge, onComplete])
 
-  // Используем challengeProp если он передан (из App), иначе используем локальное состояние
   const activeChallenge = challengeProp ?? localChallenge
-
   const target = activeChallenge?.goal?.target ?? 100
   const progressPercent = useMemo(
     () => (activeChallenge ? Math.min((activeChallenge.progress / target) * 100, 100) : 0),
@@ -75,106 +74,84 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
 
   if (!activeChallenge) return null
 
-  const difficultyColors = {
-    easy: 'from-green-600 to-green-500',
-    medium: 'from-yellow-600 to-yellow-500',
-    hard: 'from-red-600 to-red-500',
-  }
-
-  const difficultyLabels = {
-    easy: 'Легко',
-    medium: 'Средне',
-    hard: 'Сложно',
-  }
+  const diff = difficultyConfig[activeChallenge.difficulty]
 
   return (
-    <div className="card p-6 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 text-8xl opacity-5 select-none">
-        🎯
-      </div>
+    <div className="glass rounded-xl p-4 relative overflow-hidden">
+      <div className="absolute top-0 right-0 text-6xl opacity-5 select-none" aria-hidden="true">🎯</div>
 
       <div className="relative">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-3">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-semibold">Челлендж дня</h3>
+            <div className="flex items-center gap-2 mb-0.5">
+              <h3 className="text-sm font-bold text-dark-200">{t('challenge.daily')}</h3>
               {activeChallenge.completed && (
-                <span className="text-green-400 text-xl">✓</span>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400 }}
+                  className="text-green-400 text-sm"
+                >
+                  ✓
+                </motion.span>
               )}
             </div>
-            <p className="text-xs text-dark-400">
-              Обновляется каждый день в полночь
-            </p>
+            <p className="text-[10px] text-dark-500 font-medium">{t('challenge.refreshesDaily')}</p>
           </div>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${difficultyColors[activeChallenge.difficulty]}`}
-          >
-            {difficultyLabels[activeChallenge.difficulty]}
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gradient-to-r ${diff.bar} text-white`}>
+            {t(diff.label)}
           </span>
         </div>
 
-        {/* Challenge info */}
-        <div className="mb-4">
-          <h4 className="font-semibold text-white mb-2">{activeChallenge.title}</h4>
-          <p className="text-sm text-dark-400">{activeChallenge.description}</p>
+        <div className="mb-3">
+          <h4 className="text-xs font-semibold text-dark-300 mb-1">{activeChallenge.title}</h4>
+          <p className="text-[11px] text-dark-500 leading-relaxed">{activeChallenge.description}</p>
         </div>
 
-        {/* Goal */}
-        <div className="p-4 bg-dark-800/50 rounded-xl mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-dark-400">Цель</span>
-            <span className="text-sm font-semibold">
-              {activeChallenge.progress} / {activeChallenge.goal.target} {activeChallenge.goal.unit}
-            </span>
+        <div className="bg-dark-800/40 rounded-xl p-3 mb-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] text-dark-500 font-medium uppercase tracking-wider">{t('challenge.goal')}</span>
+            <span className="text-xs font-semibold text-dark-200">{activeChallenge.progress} / {target} {activeChallenge.goal.unit}</span>
           </div>
-          <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 bg-gradient-to-r ${difficultyColors[activeChallenge.difficulty]}`}
-              style={{ width: `${progressPercent}%` }}
+          <div className="w-full h-1.5 bg-dark-800/60 rounded-full overflow-hidden">
+            <motion.div
+              className={`h-full rounded-full bg-gradient-to-r ${diff.bar}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
             />
           </div>
-          <div className="text-xs text-dark-500 text-right mt-1">
-            {progressPercent.toFixed(0)}%
-          </div>
+          <div className="text-[10px] text-dark-500 text-right mt-0.5 font-medium">{progressPercent.toFixed(0)}%</div>
         </div>
 
-        {/* Reward */}
-        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 rounded-xl border border-yellow-500/30">
+        <div className="flex items-center justify-between p-2.5 bg-gradient-to-r from-yellow-600/10 to-yellow-500/10 rounded-xl border border-yellow-500/20">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🏆</span>
+            <span className="text-lg" aria-hidden="true">🏆</span>
             <div>
-              <p className="text-sm font-semibold">Награда</p>
-              <p className="text-xs text-dark-400">
-                {activeChallenge.reward.points} очков опыта
-              </p>
+              <p className="text-xs font-semibold text-dark-200">{t('challenge.reward')}</p>
+              <p className="text-[10px] text-dark-500">{activeChallenge.reward.points} {t('common.xp')}</p>
             </div>
           </div>
           {activeChallenge.reward.badge && (
-            <span className="text-3xl">{activeChallenge.reward.badge}</span>
+            <span className="text-2xl">{activeChallenge.reward.badge}</span>
           )}
         </div>
 
-        {/* Completion message */}
         {activeChallenge.completed && (
-          <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-xl text-center">
-            <p className="text-sm text-green-400 font-semibold">
-              🎉 Челлендж выполнен!
-            </p>
-            <p className="text-xs text-dark-400 mt-1">
-              Возвращайтесь завтра за новым заданием
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-2.5 bg-green-500/10 border border-green-500/20 rounded-xl text-center"
+          >
+            <p className="text-xs text-green-400 font-semibold">🎉 {t('challenge.completed')}</p>
+            <p className="text-[10px] text-dark-500 mt-0.5">{t('challenge.comeBackTomorrow')}</p>
+          </motion.div>
         )}
 
-        {/* Streak info */}
         {streak > 0 && (
-          <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-dark-400">Текущая серия</span>
-            <span className="font-semibold text-orange-400">
-              🔥 {streak} дн.
-            </span>
+          <div className="mt-3 flex items-center justify-between text-[11px]">
+            <span className="text-dark-500 font-medium">{t('challenge.streak')}</span>
+            <span className="font-semibold text-orange-400">🔥 {streak} {t('common.days')}</span>
           </div>
         )}
       </div>

@@ -1,26 +1,39 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 import { useAppTranslation } from '../i18n/config'
+import { logger } from '../utils/logger'
 
-export function CookieConsentBanner() {
+function CookieConsentBanner() {
   const { t } = useAppTranslation()
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    const consent = localStorage.getItem(STORAGE_KEYS.COOKIE_CONSENT)
-    if (!consent) {
+    try {
+      const consent = localStorage.getItem(STORAGE_KEYS.COOKIE_CONSENT)
+      if (!consent) {
+        setIsVisible(true)
+      }
+    } catch {
       setIsVisible(true)
     }
   }, [])
 
   const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'accepted')
+    try {
+      localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'accepted')
+    } catch (err) {
+      logger.warn('Failed to save cookie consent', err)
+    }
     setIsVisible(false)
   }
 
   const handleDecline = () => {
-    localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'declined')
+    try {
+      localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, 'declined')
+    } catch (err) {
+      logger.warn('Failed to save cookie consent', err)
+    }
     setIsVisible(false)
   }
 
@@ -67,3 +80,5 @@ export function CookieConsentBanner() {
     </AnimatePresence>
   )
 }
+
+export default memo(CookieConsentBanner)

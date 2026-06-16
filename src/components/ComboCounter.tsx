@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, memo } from 'react'
 
 interface ComboCounterProps {
   combo: number
@@ -6,7 +6,7 @@ interface ComboCounterProps {
   onComboBreak?: () => void
 }
 
-export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProps) {
+function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [showBreak, setShowBreak] = useState(false)
   const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -151,6 +151,8 @@ export function ComboCounter({ combo, maxCombo, onComboBreak }: ComboCounterProp
     </div>
   )
 }
+
+export default memo(ComboCounter)
 
 function Milestone({ reached, label }: { reached: boolean; label: string }) {
   return (

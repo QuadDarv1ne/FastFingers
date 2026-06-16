@@ -1,4 +1,4 @@
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
 
 export interface ExportData {

@@ -1,17 +1,22 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { logger } from '../utils/logger'
 
-export function ContrastToggle() {
+function ContrastToggle() {
   const { t } = useAppTranslation()
   const [isHighContrast, setIsHighContrast] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CONTRAST)
-    const isHigh = saved === 'high'
-    setIsHighContrast(isHigh)
-    if (isHigh) {
-      document.documentElement.setAttribute('data-contrast', 'high')
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.CONTRAST)
+      const isHigh = saved === 'high'
+      setIsHighContrast(isHigh)
+      if (isHigh) {
+        document.documentElement.setAttribute('data-contrast', 'high')
+      }
+    } catch (err) {
+      logger.warn('Failed to read contrast setting', err)
     }
 
     return () => {
@@ -24,7 +29,11 @@ export function ContrastToggle() {
   const toggleContrast = useCallback(() => {
     const newValue = !isHighContrast
     setIsHighContrast(newValue)
-    localStorage.setItem(STORAGE_KEYS.CONTRAST, newValue ? 'high' : 'normal')
+    try {
+      localStorage.setItem(STORAGE_KEYS.CONTRAST, newValue ? 'high' : 'normal')
+    } catch (err) {
+      logger.warn('Failed to save contrast setting', err)
+    }
     if (newValue) {
       document.documentElement.setAttribute('data-contrast', 'high')
     } else {
@@ -49,3 +58,5 @@ export function ContrastToggle() {
     </button>
   )
 }
+
+export default memo(ContrastToggle)

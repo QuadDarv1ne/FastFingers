@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { calculateStats } from '../utils/stats'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useAuth } from '@hooks/useAuth'

@@ -17,7 +17,11 @@ function loadUsers(): StoredUser[] {
 }
 
 function saveUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+  try {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 function stripPasswords(users: StoredUser[]): DisplayUser[] {

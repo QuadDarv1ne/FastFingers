@@ -1,4 +1,4 @@
-import { Exercise } from '../types'
+import type { Exercise } from '../types'
 import { practiceTexts, PracticeText, TextCategory, getRandomText } from '../data/practiceTexts'
 import { createScopedLogger } from './logger'
 

@@ -25,7 +25,11 @@ function loadTexts(): PracticeText[] {
 }
 
 function saveTexts(texts: PracticeText[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(texts))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(texts))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 function generateId(): string {

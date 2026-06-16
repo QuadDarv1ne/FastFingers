@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 
 interface NotFound404Props {
@@ -5,7 +6,7 @@ interface NotFound404Props {
   onHome: () => void
 }
 
-export function NotFound404({ onBack, onHome }: NotFound404Props) {
+function NotFound404({ onBack, onHome }: NotFound404Props) {
 
   return (
     <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
@@ -91,3 +92,5 @@ export function NotFound404({ onBack, onHome }: NotFound404Props) {
     </div>
   )
 }
+
+export default memo(NotFound404)

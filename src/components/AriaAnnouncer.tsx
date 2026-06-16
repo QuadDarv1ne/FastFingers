@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import './AriaAnnouncer.css'
 
 interface AriaAnnouncerProps {
@@ -10,7 +10,7 @@ interface AriaAnnouncerProps {
  * Компонент для объявления изменений screen reader'ам
  * Используется для динамических обновлений
  */
-export function AriaAnnouncer({ message = '', priority = 'polite' }: AriaAnnouncerProps) {
+function AriaAnnouncer({ message = '', priority = 'polite' }: AriaAnnouncerProps) {
   const [text, setText] = useState(message)
 
   useEffect(() => {
@@ -33,3 +33,5 @@ export function AriaAnnouncer({ message = '', priority = 'polite' }: AriaAnnounc
     </div>
   )
 }
+
+export default memo(AriaAnnouncer)

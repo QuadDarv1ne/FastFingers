@@ -9,7 +9,7 @@ import { SimplePieChart } from './SimplePieChart'
 import { PersonalRecords } from './PersonalRecords'
 import { WeeklyComparison } from './WeeklyComparison'
 import { StatCard } from './ui/StatCard'
-import { LoadingFallback } from './LoadingFallback'
+import LoadingFallback from './LoadingFallback'
 import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
 

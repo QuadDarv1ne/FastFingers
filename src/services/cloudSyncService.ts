@@ -1,4 +1,4 @@
-import { User, UserStats } from '../types/auth'
+import type { User, UserStats } from '../types/auth'
 import { useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 import { createScopedLogger } from '../utils/logger'

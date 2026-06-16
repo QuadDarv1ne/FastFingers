@@ -1,4 +1,4 @@
-import { SoundTheme } from '../types'
+import type { SoundTheme } from '../types'
 
 export interface SoundThemeConfig {
   id: SoundTheme

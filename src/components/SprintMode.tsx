@@ -1,7 +1,7 @@
 import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TypingStats } from '../types'
-import { User } from '../types/auth'
+import type { TypingStats } from '../types'
+import type { User } from '../types/auth'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
@@ -217,29 +217,37 @@ export const SprintMode = memo(function SprintMode({ duration, onExit, onComplet
           enhanced
         />
 
-        {/* Оверлей старта */}
+        {/* Start overlay */}
         {!isActive && timeLeft === duration && (
-          <div className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center">
+          <div className="absolute inset-0 glass rounded-xl flex items-center justify-center">
             <div className="text-center">
-              <svg className="w-16 h-16 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <p className="text-lg text-dark-300 mb-4">{t('action.start')}</p>
-              <button
-                onClick={handleStart}
-                className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
-                aria-label={t('action.start')}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
               >
-                {t('action.start')}
-              </button>
+                <svg className="w-12 h-12 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <p className="text-sm text-dark-300 mb-4">{t('action.start')}</p>
+                <motion.button
+                  onClick={handleStart}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-5 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-all shadow-md text-sm"
+                  aria-label={t('action.start')}
+                >
+                  {t('action.start')}
+                </motion.button>
+              </motion.div>
             </div>
           </div>
         )}
 
-        {/* Оверлей завершения */}
+        {/* Completion overlay */}
         {!isActive && timeLeft === 0 && (
           <div
-            className="absolute inset-0 bg-dark-900/80 rounded-xl flex items-center justify-center"
+            className="absolute inset-0 glass rounded-xl flex items-center justify-center"
             role="dialog"
             aria-modal="true"
             aria-label={t('status.completed')}
@@ -248,21 +256,41 @@ export const SprintMode = memo(function SprintMode({ duration, onExit, onComplet
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-20 h-20 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto mb-4"
+                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                className="w-14 h-14 bg-gradient-to-br from-green-500/20 to-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3"
               >
-                <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
-              <h3 className="text-2xl font-bold mb-2">{t('status.completed')}</h3>
-              <p className="text-dark-400 mb-4">{t('common.wpm')}: <span className="text-primary-400 font-bold">{wpm}</span></p>
-              <button
+              <motion.h3
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-lg font-bold mb-1"
+              >
+                {t('status.completed')}
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-sm text-dark-400 mb-4"
+              >
+                {t('common.wpm')}: <span className="text-primary-400 font-bold text-lg">{wpm}</span>
+              </motion.p>
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
                 onClick={onExit}
-                className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-5 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-all shadow-md text-sm"
                 aria-label={t('action.continue')}
               >
                 {t('action.continue')}
-              </button>
+              </motion.button>
             </div>
           </div>
         )}

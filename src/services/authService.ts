@@ -1,4 +1,4 @@
-import { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
+import type { User, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
 import { AuthError, isValidEmail, isValidPassword, MIN_PASSWORD_LENGTH } from './authErrors';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
@@ -99,13 +99,21 @@ const getCurrentUserFromStorage = (): User | null => {
 };
 
 const saveCurrentUser = (user: User, remember: boolean) => {
-  const storage = remember ? localStorage : sessionStorage;
-  storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  try {
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  } catch {
+    // Ignore storage errors
+  }
 };
 
 const removeCurrentUser = () => {
-  localStorage.removeItem(CURRENT_USER_KEY);
-  sessionStorage.removeItem(CURRENT_USER_KEY);
+  try {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    sessionStorage.removeItem(CURRENT_USER_KEY);
+  } catch {
+    // Ignore storage errors
+  }
 };
 
 const withoutPassword = ({ password: _pwd, salt: _salt, ...user }: StoredUser): User => user;

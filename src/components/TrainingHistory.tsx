@@ -12,7 +12,7 @@ interface TrainingHistoryProps {
   onBack: () => void
 }
 
-export function TrainingHistory({ onBack }: TrainingHistoryProps) {
+function TrainingHistory({ onBack }: TrainingHistoryProps) {
   const { t } = useAppTranslation()
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
   const [isExporting, setIsExporting] = useState(false)
@@ -346,3 +346,5 @@ function VirtualSessionList({ sessions }: { sessions: Array<{ id: string; wpm: n
     </div>
   )
 }
+
+export default TrainingHistory

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useMemo, memo } from 'react'
 import { changeLanguage, getCurrentLanguage } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
 import type { SupportedLanguage } from '../i18n/config'
@@ -20,7 +20,7 @@ const LANGUAGES: { code: SupportedLanguage; label: string; flag: string }[] = [
   { code: 'ja', label: '日本語', flag: '🇯🇵' },
 ]
 
-export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
+function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
   const currentLang = getCurrentLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -89,3 +89,5 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
     </div>
   )
 }
+
+export default memo(LanguageSwitcher)

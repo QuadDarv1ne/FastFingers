@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react'
 import { useTheme } from '@hooks/useTheme'
 import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
@@ -10,7 +10,7 @@ const FONT_SIZES: { value: FontSize; label: string; icon: string; px: string }[]
   { value: 'large', label: 'Большой', icon: 'A', px: '18px' },
 ]
 
-export function FontSizeSelector() {
+function FontSizeSelector() {
   const { t } = useAppTranslation()
   const { fontSize, setFontSize } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
@@ -84,3 +84,5 @@ export function FontSizeSelector() {
     </div>
   )
 }
+
+export default memo(FontSizeSelector)

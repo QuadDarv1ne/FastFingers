@@ -1,4 +1,4 @@
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 
 /**
  * Утилиты для расширенной аналитики прогресса пользователя

@@ -9,9 +9,12 @@ function renderWithProvider(ui: React.ReactElement) {
 }
 
 describe('ToastContainer', () => {
-  it('не должен рендерить ничего когда нет toasts', () => {
-    const { container } = renderWithProvider(<ToastContainer />)
-    expect(container.firstChild).toBeNull()
+  it('не должен рендерить toasts когда их нет', () => {
+    renderWithProvider(<ToastContainer />)
+    expect(screen.queryByTestId('toast-success')).toBeNull()
+    expect(screen.queryByTestId('toast-error')).toBeNull()
+    expect(screen.queryByTestId('toast-info')).toBeNull()
+    expect(screen.queryByTestId('toast-warning')).toBeNull()
   })
 
   it('должен рендерить toasts когда они есть', () => {

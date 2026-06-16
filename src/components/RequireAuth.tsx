@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { LoadingFallback } from './LoadingFallback'
+import LoadingFallback from './LoadingFallback'
 
 interface RequireAuthProps {
   children: ReactNode

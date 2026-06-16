@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import './Spinner.css'
 
@@ -7,7 +8,7 @@ interface SpinnerProps {
   label?: string
 }
 
-export function Spinner({ size = 'medium', color = 'primary', label }: SpinnerProps) {
+function Spinner({ size = 'medium', color = 'primary', label }: SpinnerProps) {
   const { t } = useAppTranslation()
   const ariaLabel = label ?? t('action.loading')
   return (
@@ -17,3 +18,5 @@ export function Spinner({ size = 'medium', color = 'primary', label }: SpinnerPr
     </div>
   )
 }
+
+export default memo(Spinner)

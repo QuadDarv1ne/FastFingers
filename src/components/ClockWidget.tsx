@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
 
@@ -7,7 +8,7 @@ interface ClockWidgetProps {
   format24h?: boolean
 }
 
-export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidgetProps) {
+function ClockWidget({ showSeconds = true, format24h = true }: ClockWidgetProps) {
   const { t } = useAppTranslation()
   const [time, setTime] = useState(new Date())
 
@@ -15,7 +16,6 @@ export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidge
     const interval = setInterval(() => {
       setTime(new Date())
     }, 1000)
-
     return () => clearInterval(interval)
   }, [])
 
@@ -49,12 +49,35 @@ export function ClockWidget({ showSeconds = true, format24h = true }: ClockWidge
     return date.toLocaleDateString(i18n.language, options)
   }
 
+  const timeStr = formatTime(time)
+  const sec = time.getSeconds()
+
   return (
-    <div className="card p-4" role="timer" aria-label={t('common.time')}>
-      <div className="text-center">
-        <div className="text-3xl font-bold font-mono mb-1" aria-live="polite" aria-atomic="true">{formatTime(time)}</div>
-        <div className="text-sm text-dark-400">{formatDate(time)}</div>
+    <div className="glass rounded-xl p-3.5 text-center" role="timer" aria-label={t('common.time')}>
+      <div className="text-xl font-bold font-mono tracking-wider" aria-live="polite" aria-atomic="true">
+        <span>{timeStr.split(':')[0]}</span>
+        <span className="text-primary-400 mx-0.5" style={{ opacity: sec % 2 === 0 ? 1 : 0.3 }}>:</span>
+        <span>{timeStr.split(':')[1]}</span>
+        {showSeconds && (
+          <>
+            <span className="text-primary-400 mx-0.5" style={{ opacity: sec % 2 === 0 ? 1 : 0.3 }}>:</span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={sec}
+                initial={{ opacity: 0, y: -3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 3 }}
+                transition={{ duration: 0.08 }}
+              >
+                {timeStr.split(':')[2]}
+              </motion.span>
+            </AnimatePresence>
+          </>
+        )}
       </div>
+      <div className="text-[10px] text-dark-500 font-medium mt-0.5">{formatDate(time)}</div>
     </div>
   )
 }
+
+export default memo(ClockWidget)

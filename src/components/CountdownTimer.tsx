@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { formatDuration } from '../utils/number'
 import { useAppTranslation } from '../i18n/config'
 import './CountdownTimer.css'
@@ -11,7 +11,7 @@ interface CountdownTimerProps {
   label?: string
 }
 
-export function CountdownTimer({
+function CountdownTimer({
   duration,
   onComplete,
   onTick,
@@ -119,3 +119,5 @@ export function CountdownTimer({
     </div>
   )
 }
+
+export default memo(CountdownTimer)

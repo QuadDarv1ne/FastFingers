@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { motion } from 'framer-motion'
 
 export interface ModeButtonProps {
   isActive: boolean
@@ -16,18 +17,27 @@ export const ModeButton = memo<ModeButtonProps>(function ModeButton({
   title,
 }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-pressed={isActive}
-      className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+      whileHover={!isActive ? { scale: 1.03 } : undefined}
+      whileTap={{ scale: 0.95 }}
+      className={`relative px-3 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none ${
         isActive
-          ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-          : 'text-dark-400 hover:text-white hover:bg-dark-800/50'
+          ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25'
+          : 'text-dark-400 hover:text-white hover:bg-dark-700/40'
       }`}
       title={title}
     >
-      <span className="text-lg">{icon}</span>
-      <span className="hidden sm:inline">{label}</span>
-    </button>
+      {isActive && (
+        <motion.span
+          layoutId="activeNav"
+          className="absolute inset-0 bg-primary-600 rounded-[inherit] -z-10"
+          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+        />
+      )}
+      <span className="text-base leading-none" aria-hidden="true">{icon}</span>
+      <span className="hidden sm:inline text-xs">{label}</span>
+    </motion.button>
   )
 })

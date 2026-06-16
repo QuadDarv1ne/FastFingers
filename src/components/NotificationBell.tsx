@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { formatNotificationTimestamp } from '@utils/notifications'
 import { useAppTranslation } from '../i18n/config'
@@ -17,7 +17,7 @@ export interface Notification {
   icon: string
 }
 
-export function NotificationBell() {
+function NotificationBell() {
   const { t } = useAppTranslation()
   const [notifications, setNotifications] = useLocalStorageState<Notification[]>(
     STORAGE_KEYS.NOTIFICATIONS,
@@ -52,13 +52,13 @@ export function NotificationBell() {
   // Синхронизация с NotificationContext
   useEffect(() => {
     const handleNotificationAdded = () => {
-      const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)
-      if (stored) {
-        try {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)
+        if (stored) {
           setNotifications(JSON.parse(stored))
-        } catch (err) {
-          logger.warn('Failed to parse stored notifications', err)
         }
+      } catch (err) {
+        logger.warn('Failed to sync notifications from storage', err)
       }
     }
 
@@ -236,3 +236,5 @@ export function NotificationBell() {
     </div>
   )
 }
+
+export default memo(NotificationBell)

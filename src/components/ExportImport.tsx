@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import { useToast } from '@contexts/ToastContext'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 import { useAppTranslation } from '../i18n/config'
@@ -23,7 +23,7 @@ function validateBackupData(data: unknown): data is BackupData {
   )
 }
 
-export function ExportImport() {
+function ExportImport() {
   const { t } = useAppTranslation()
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
@@ -309,3 +309,5 @@ export function ExportImport() {
     </div>
   )
 }
+
+export default memo(ExportImport)

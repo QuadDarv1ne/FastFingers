@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { useOnlineStatus } from '@hooks/useOnlineStatus'
 import { useAppTranslation } from '../i18n/config'
 import './OnlineStatus.css'
 
-export function OnlineStatus() {
+function OnlineStatus() {
   const { t } = useAppTranslation()
   const { isOnline, lastOffline } = useOnlineStatus()
 
@@ -29,3 +30,5 @@ export function OnlineStatus() {
     </div>
   )
 }
+
+export default memo(OnlineStatus)

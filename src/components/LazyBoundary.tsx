@@ -1,6 +1,6 @@
 import { Suspense, ReactNode } from 'react'
 import { ErrorBoundary } from './ErrorBoundary'
-import { LoadingFallback } from './LoadingFallback'
+import LoadingFallback from './LoadingFallback'
 
 interface LazyBoundaryProps {
   children: ReactNode

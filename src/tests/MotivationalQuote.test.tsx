@@ -54,7 +54,7 @@ describe('MotivationalQuote', () => {
     render(<MotivationalQuote />)
 
     // Проверяем, что есть метка категории (любая из возможных)
-    const categoryElement = document.querySelector('span.text-xs')
+    const categoryElement = document.querySelector('span.text-\\[9px\\]')
     expect(categoryElement).toBeInTheDocument()
   })
 

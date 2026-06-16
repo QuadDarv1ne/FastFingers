@@ -1,5 +1,7 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
+import { useAppTranslation } from '../i18n/config'
 
 interface SessionSummaryProps {
   stats: TypingStats
@@ -9,165 +11,152 @@ interface SessionSummaryProps {
   onRetry?: () => void
 }
 
-export function SessionSummary({ 
-  stats, 
-  xpEarned, 
+const SessionSummary = memo(function SessionSummary({
+  stats,
+  xpEarned,
   levelUp = false,
-  onClose, 
-  onRetry 
+  onClose,
+  onRetry
 }: SessionSummaryProps) {
+  const { t } = useAppTranslation()
+
   return (
-    <div className="fixed inset-0 bg-dark-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-dark-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-lg"
+        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+        className="w-full max-w-md"
       >
-        <div className="glass rounded-2xl p-8 relative overflow-hidden">
-          {/* Эффект повышения уровня */}
+        <div className="glass rounded-2xl p-6 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary-500/5 rounded-full blur-2xl" aria-hidden="true" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/5 rounded-full blur-2xl" aria-hidden="true" />
+
           {levelUp && (
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', delay: 0.2 }}
-              className="absolute top-4 right-4"
+              transition={{ type: 'spring', delay: 0.15, stiffness: 200 }}
+              className="absolute top-3 right-3"
             >
-              <span className="text-4xl">🎉</span>
+              <span className="text-3xl">🎉</span>
             </motion.div>
           )}
 
-          {/* Заголовок */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-5">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.1 }}
-              className="w-20 h-20 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto mb-4"
+              transition={{ type: 'spring', delay: 0.1, stiffness: 200 }}
+              className="w-14 h-14 bg-gradient-to-br from-green-500/25 to-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-3"
             >
-              <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </motion.div>
-            
-            <h2 className="text-2xl font-bold mb-2">
-              {levelUp ? 'Уровень повышен' : 'Тренировка завершена'}
-            </h2>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="text-xl font-bold"
+            >
+              {levelUp ? (
+                <span className="text-gradient">{t('summary.levelUp')}</span>
+              ) : (
+                t('summary.trainingComplete')
+              )}
+            </motion.h2>
             {levelUp && (
-              <p className="text-primary-400">Продолжайте в том же духе</p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="text-xs text-primary-400/80 mt-0.5"
+              >
+                {t('summary.keepItUp')}
+              </motion.p>
             )}
           </div>
 
-          {/* Статистика */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-dark-800 rounded-xl p-4 text-center"
-            >
-              <p className="text-sm text-dark-400 mb-1">Скорость</p>
-              <p className="text-3xl font-bold text-primary-400">{stats.wpm}</p>
-              <p className="text-xs text-dark-500 mt-1">WPM</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-dark-800 rounded-xl p-4 text-center"
-            >
-              <p className="text-sm text-dark-400 mb-1">Точность</p>
-              <p className={`text-3xl font-bold ${
-                stats.accuracy >= 95 ? 'text-success' : 
-                stats.accuracy >= 85 ? 'text-yellow-400' : 'text-error'
-              }`}>
-                {stats.accuracy}%
-              </p>
-              <p className="text-xs text-dark-500 mt-1">{stats.errors} ошибок</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-dark-800 rounded-xl p-4 text-center"
-            >
-              <p className="text-sm text-dark-400 mb-1">Символы</p>
-              <p className="text-2xl font-bold text-dark-300">{stats.correctChars}/{stats.totalChars}</p>
-              <p className="text-xs text-dark-500 mt-1">CPM: {stats.cpm}</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-dark-800 rounded-xl p-4 text-center"
-            >
-              <p className="text-sm text-dark-400 mb-1">Время</p>
-              <p className="text-2xl font-bold text-dark-300">
-                {Math.floor(stats.timeElapsed / 60)}:{(stats.timeElapsed % 60).toString().padStart(2, '0')}
-              </p>
-              <p className="text-xs text-dark-500 mt-1">мин:сек</p>
-            </motion.div>
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            {[
+              { label: t('common.speed'), value: stats.wpm, unit: t('common.wpm'), color: 'text-primary-400', delay: 0.2, dir: 'x' as const, neg: -15 },
+              { label: t('common.accuracy'), value: `${stats.accuracy}%`, unit: t('summary.errorsCount', { count: stats.errors }), color: stats.accuracy >= 95 ? 'text-green-400' : stats.accuracy >= 85 ? 'text-yellow-400' : 'text-red-400', delay: 0.25, dir: 'x' as const, neg: 15 },
+              { label: t('common.characters'), value: `${stats.correctChars}/${stats.totalChars}`, unit: `CPM: ${stats.cpm}`, color: 'text-dark-200', delay: 0.3, dir: 'y' as const, neg: 15 },
+              { label: t('common.time'), value: `${Math.floor(stats.timeElapsed / 60)}:${(stats.timeElapsed % 60).toString().padStart(2, '0')}`, unit: t('summary.minSec'), color: 'text-dark-200', delay: 0.35, dir: 'y' as const, neg: 15 },
+            ].map((item) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, [item.dir === 'x' ? 'x' : 'y']: item.neg }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ delay: item.delay, duration: 0.35 }}
+                className="bg-dark-800/50 rounded-xl p-3 text-center"
+              >
+                <p className="text-[10px] text-dark-500 mb-0.5 font-medium uppercase tracking-wider">{item.label}</p>
+                <p className={`text-xl font-bold font-mono ${item.color}`}>{item.value}</p>
+                <p className="text-[10px] text-dark-500 mt-0.5">{item.unit}</p>
+              </motion.div>
+            ))}
           </div>
 
-          {/* XP */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-600/50 rounded-xl p-4 text-center mb-6"
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-r from-yellow-600/15 to-orange-600/15 border border-yellow-600/40 rounded-xl p-3.5 text-center mb-4"
           >
-            <p className="text-sm text-dark-400 mb-1">Заработано XP</p>
-            <p className="text-4xl font-bold text-yellow-400">+{xpEarned}</p>
+            <p className="text-[10px] text-dark-500 mb-0.5 font-medium uppercase tracking-wider">{t('summary.xpEarned')}</p>
+            <p className="text-3xl font-bold text-yellow-400">+{xpEarned}</p>
           </motion.div>
 
-          {/* Прогресс до следующего уровня */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="mb-6"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-5"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-dark-400">До следующего уровня</span>
-              <span className="text-sm text-dark-400">осталось XP</span>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] text-dark-500 font-medium">{t('summary.toNextLevel')}</span>
+              <span className="text-[10px] text-dark-500 font-medium">{t('summary.xpRemaining')}</span>
             </div>
-            <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-dark-800/60 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, xpEarned)}%` }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="h-full bg-gradient-to-r from-primary-600 to-purple-500"
+                animate={{ width: `${Math.min(100, xpEarned * 2)}%` }}
+                transition={{ duration: 1, delay: 0.6, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-primary-600 to-purple-500 rounded-full"
               />
             </div>
           </motion.div>
 
-          {/* Кнопки */}
-          <div className="flex gap-3">
+          <div className="flex gap-2.5">
             {onRetry && (
               <motion.button
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.55 }}
                 onClick={onRetry}
-                className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
+                className="flex-1 py-2.5 bg-dark-800/60 hover:bg-dark-700/60 rounded-xl font-medium transition-colors text-sm border border-dark-700/30"
               >
-                Повторить
+                {t('action.retry')}
               </motion.button>
             )}
             <motion.button
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
+              transition={{ delay: 0.6 }}
               onClick={onClose}
-              className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
+              className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-500 rounded-xl font-medium transition-colors text-sm shadow-md"
             >
-              Продолжить
+              {t('action.continue')}
             </motion.button>
           </div>
         </div>
       </motion.div>
     </div>
   )
-}
+})
+
+export { SessionSummary }

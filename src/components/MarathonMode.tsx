@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useEffect, useRef, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useTypingGame } from '@hooks/useTypingGame'

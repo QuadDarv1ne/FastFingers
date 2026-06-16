@@ -73,16 +73,16 @@ describe('Toast', () => {
     const { rerender } = render(
       <Toast toast={createToast('success', 'Test')} onDismiss={vi.fn()} />
     )
-    expect(screen.getByTestId('toast-success')).toHaveClass('bg-green-500')
+    expect(screen.getByTestId('toast-success')).toHaveClass('bg-green-500/10')
 
     rerender(<Toast toast={createToast('error', 'Test')} onDismiss={vi.fn()} />)
-    expect(screen.getByTestId('toast-error')).toHaveClass('bg-red-500')
+    expect(screen.getByTestId('toast-error')).toHaveClass('bg-red-500/10')
 
     rerender(<Toast toast={createToast('info', 'Test')} onDismiss={vi.fn()} />)
-    expect(screen.getByTestId('toast-info')).toHaveClass('bg-blue-500')
+    expect(screen.getByTestId('toast-info')).toHaveClass('bg-blue-500/10')
 
     rerender(<Toast toast={createToast('warning', 'Test')} onDismiss={vi.fn()} />)
-    expect(screen.getByTestId('toast-warning')).toHaveClass('bg-yellow-500')
+    expect(screen.getByTestId('toast-warning')).toHaveClass('bg-yellow-500/10')
   })
 
   it('должен иметь aria-атрибуты для доступности', () => {

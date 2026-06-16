@@ -153,7 +153,11 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const clearHistory = useCallback(() => {
     setHistory({ sessions: [], heatmap: {}, totalSessions: 0, totalTime: 0 })
-    localStorage.removeItem(STORAGE_KEYS.HISTORY)
+    try {
+      localStorage.removeItem(STORAGE_KEYS.HISTORY)
+    } catch {
+      // Ignore storage errors
+    }
   }, [])
 
   const getStatsForPeriod = useCallback((days: number) => {

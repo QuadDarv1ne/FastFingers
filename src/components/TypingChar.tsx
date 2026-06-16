@@ -1,31 +1,36 @@
 import { memo } from 'react'
+import { motion } from 'framer-motion'
+import { useAppTranslation } from '../i18n/config'
 
 interface TypingCharProps {
   char: string
   status: 'correct' | 'incorrect' | 'current' | 'pending'
 }
 
-const STATUS_LABELS: Record<TypingCharProps['status'], string> = {
-  correct: 'Правильно',
-  incorrect: 'Ошибка',
-  current: 'Текущий символ',
-  pending: 'Ожидает',
+const STATUS_KEY: Record<TypingCharProps['status'], string> = {
+  correct: 'char.correct',
+  incorrect: 'char.incorrect',
+  current: 'char.current',
+  pending: 'char.pending',
 }
 
 export const TypingChar = memo(({ char, status }: TypingCharProps) => {
+  const { t } = useAppTranslation()
+
   return (
-    <span
-      className={`inline-flex items-center justify-center min-w-[0.6em] h-[1.2em] rounded border-2 transition-colors duration-75 ${
-        status === 'correct' ? 'bg-success/20 text-success border-transparent' :
-        status === 'incorrect' ? 'bg-error/20 text-error border-transparent' :
-        status === 'current' ? 'bg-primary/30 text-primary border-primary typing-cursor' :
-        'text-dark-400 border-transparent'
-      }`}
-      aria-label={`${STATUS_LABELS[status]}: ${char === ' ' ? 'пробел' : char}`}
+    <motion.span
+      className={
+        `char ${status === 'correct' ? 'correct' :
+          status === 'incorrect' ? 'incorrect' :
+          status === 'current' ? 'current' : 'pending'}`
+      }
+      aria-label={`${t(STATUS_KEY[status])}: ${char === ' ' ? t('char.space') : char}`}
       aria-current={status === 'current' ? 'true' : undefined}
+      layout={status === 'current'}
+      transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
     >
-      {char}
-    </span>
+      {char === ' ' ? '\u00A0' : char}
+    </motion.span>
   )
 }, (prev, next) => prev.status === next.status && prev.char === next.char)
 

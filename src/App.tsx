@@ -7,12 +7,12 @@
 import { useEffect, useCallback, useMemo, Suspense, lazy } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Header } from './components/Header'
-import { LoadingFallback } from './components/LoadingFallback'
-import { SkipLink } from './components/SkipLink'
-import { AriaAnnouncer } from './components/AriaAnnouncer'
+import LoadingFallback from './components/LoadingFallback'
+import SkipLink from './components/SkipLink'
+import AriaAnnouncer from './components/AriaAnnouncer'
 import { ToastContainer } from './components/ToastContainer'
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
-import { CookieConsentBanner } from './components/CookieConsentBanner'
+import CookieConsentBanner from './components/CookieConsentBanner'
 import { Footer } from './components/Footer'
 import { GameModeRenderer } from './components/GameModeRenderer'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -44,7 +44,7 @@ import { SpeedTestDropdown } from './components/ui/SpeedTestDropdown'
 import { SettingsPanel } from './components/ui/SettingsPanel'
 import { SectionError } from './components/ui/SectionError'
 
-const ExportImport = lazy(() => import('./components/ExportImport').then((module) => ({ default: module.ExportImport })))
+const ExportImport = lazy(() => import('./components/ExportImport'))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
 
@@ -69,9 +69,9 @@ const Stats = lazy(() => import('./components/Stats').then((module) => ({ defaul
 const ThemeToggle = lazy(() => import('./components/ThemeToggle').then((module) => ({ default: module.ThemeToggle })))
 const KeyboardSkinSelector = lazy(() => import('./components/KeyboardSkinSelector').then((module) => ({ default: module.KeyboardSkinSelector })))
 const MusicControls = lazy(() => import('./components/MusicControls').then((module) => ({ default: module.MusicControls })))
-const ClockWidget = lazy(() => import('./components/ClockWidget').then((module) => ({ default: module.ClockWidget })))
+const ClockWidget = lazy(() => import('./components/ClockWidget'))
 const MotivationalQuote = lazy(() => import('./components/MotivationalQuote').then((module) => ({ default: module.MotivationalQuote })))
-const OnlineStatus = lazy(() => import('./components/OnlineStatus').then((module) => ({ default: module.OnlineStatus })))
+const OnlineStatus = lazy(() => import('./components/OnlineStatus'))
 
 function AppContent() {
   const { t } = useAppTranslation()
@@ -305,80 +305,93 @@ function AppContent() {
         onProfileClick={() => setShowProfile(true)}
       />
 
-      <main id="main-content" className="container mx-auto px-4 py-8 max-w-6xl" role="main">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <nav className="card p-2 inline-flex flex-wrap gap-1" aria-label={t('modes.select')}>
-            <ModeButton
-              isActive={gameMode === 'practice' && view === 'main'}
-              onClick={() => { setGameMode('practice'); setView('main') }}
-              icon="📝"
-              label={t('nav.practice')}
-              title={t('mode.practice')}
-            />
-            <ModeButton
-              isActive={gameMode === 'sprint'}
-              onClick={() => { setGameMode('sprint'); setView('main') }}
-              icon="⚡"
-              label={t('nav.sprint')}
-              title={t('tooltip.sprint')}
-            />
-            <ModeButton
-              isActive={gameMode === 'hardcore'}
-              onClick={() => { setGameMode('hardcore'); setView('main') }}
-              icon="💀"
-              label={t('mode.hardcore')}
-              title={t('tooltip.hardcore')}
-            />
-            <SpeedTestDropdown
-              isActive={gameMode === 'speedtest'}
-              duration={speedTestDuration}
-              onDurationChange={setSpeedTestDuration}
-              onGameModeChange={setGameMode}
-            />
-            {gameModeButtons.map(b => (
-              <ModeButton
-                key={b.mode}
-                isActive={gameMode === b.mode}
-                onClick={() => setGameMode(b.mode)}
-                icon={b.icon}
-                label={b.label}
-                title={b.title}
-              />
-            ))}
-            {viewButtons.map(b => (
-              <ModeButton
-                key={b.view}
-                isActive={view === b.view}
-                onClick={() => setView(b.view)}
-                icon={b.icon}
-                label={b.label}
-                title={b.title}
-              />
-            ))}
-            {user?.role === 'admin' && (
-              <ModeButton
-                isActive={view === 'admin'}
-                onClick={() => setView('admin')}
-                icon="⚙️"
-                label={t('label.admin', 'Admin')}
-                title={t('tooltip.admin')}
-              />
-            )}
-          </nav>
+      <main id="main-content" className="container mx-auto px-4 py-6 max-w-6xl" role="main">
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <nav className="glass rounded-xl overflow-x-auto scrollbar-none px-1.5 py-1 shadow-sm" aria-label={t('modes.select')}>
+              <div className="flex items-center gap-0.5 min-w-max">
+                <ModeButton
+                  isActive={gameMode === 'practice' && view === 'main'}
+                  onClick={() => { setGameMode('practice'); setView('main') }}
+                  icon="📝"
+                  label={t('nav.practice')}
+                  title={t('mode.practice')}
+                />
+                <span className="w-px h-4 bg-dark-700/40 mx-0.5" aria-hidden="true" />
+                <ModeButton
+                  isActive={gameMode === 'sprint'}
+                  onClick={() => { setGameMode('sprint'); setView('main') }}
+                  icon="⚡"
+                  label={t('nav.sprint')}
+                  title={t('tooltip.sprint')}
+                />
+                <ModeButton
+                  isActive={gameMode === 'hardcore'}
+                  onClick={() => { setGameMode('hardcore'); setView('main') }}
+                  icon="💀"
+                  label={t('mode.hardcore')}
+                  title={t('tooltip.hardcore')}
+                />
+                <SpeedTestDropdown
+                  isActive={gameMode === 'speedtest'}
+                  duration={speedTestDuration}
+                  onDurationChange={setSpeedTestDuration}
+                  onGameModeChange={setGameMode}
+                />
+              </div>
 
-          <div className="flex items-center gap-2">
-            <Suspense fallback={<LoadingFallback />}>
-              <KeyboardSkinSelector
-                skin={settings.keyboardSkin}
-                onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
-              />
-              <ThemeToggle theme={theme} themeOption={themeOption} onThemeChange={setTheme} onThemeOptionChange={setThemeOption} />
-            </Suspense>
+              <div className="flex items-center gap-0.5 min-w-max">
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">Extra</span>
+                {gameModeButtons.map(b => (
+                  <ModeButton
+                    key={b.mode}
+                    isActive={gameMode === b.mode}
+                    onClick={() => setGameMode(b.mode)}
+                    icon={b.icon}
+                    label={b.label}
+                    title={b.title}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center gap-0.5 min-w-max">
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">Views</span>
+                {viewButtons.map(b => (
+                  <ModeButton
+                    key={b.view}
+                    isActive={view === b.view}
+                    onClick={() => setView(b.view)}
+                    icon={b.icon}
+                    label={b.label}
+                    title={b.title}
+                  />
+                ))}
+                {user?.role === 'admin' && (
+                  <ModeButton
+                    isActive={view === 'admin'}
+                    onClick={() => setView('admin')}
+                    icon="⚙️"
+                    label={t('label.admin', 'Admin')}
+                    title={t('tooltip.admin')}
+                  />
+                )}
+              </div>
+            </nav>
+
+            <div className="flex items-center gap-1.5">
+              <Suspense fallback={<LoadingFallback />}>
+                <KeyboardSkinSelector
+                  skin={settings.keyboardSkin}
+                  onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
+                />
+                <ThemeToggle theme={theme} themeOption={themeOption} onThemeChange={setTheme} onThemeOptionChange={setThemeOption} />
+              </Suspense>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2 space-y-5">
             <Suspense fallback={<LoadingFallback />}>
               <AnimatePresence mode="wait">
                 <GameModeRenderer
@@ -410,7 +423,7 @@ function AppContent() {
             </Suspense>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <ErrorBoundary key="widgets" fallback={<SectionError message={t('error.widgetsFailed', 'Failed to load widgets')} />}>
               <Suspense fallback={<LoadingFallback />}>
                 <ClockWidget />

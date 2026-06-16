@@ -89,7 +89,13 @@ export function DailyChallengeManager() {
     const total = challenges.length
     const completed = challenges.filter(c => c.completed).length
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
-    const totalCompletions = parseInt(localStorage.getItem(COMPLETIONS_KEY) || '0')
+    const totalCompletions = (() => {
+      try {
+        return parseInt(localStorage.getItem(COMPLETIONS_KEY) || '0')
+      } catch {
+        return 0
+      }
+    })()
     return { total, completed, completionRate, totalCompletions }
   }, [challenges])
 
@@ -121,7 +127,11 @@ export function DailyChallengeManager() {
 
   const handleResetCompletions = useCallback(() => {
     if (!confirm('Сбросить счётчик выполненных ежедневных заданий?')) return
-    localStorage.setItem(COMPLETIONS_KEY, '0')
+    try {
+      localStorage.setItem(COMPLETIONS_KEY, '0')
+    } catch {
+      // Ignore storage errors
+    }
   }, [])
 
   return (

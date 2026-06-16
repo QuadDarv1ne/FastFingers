@@ -1,7 +1,8 @@
+import { memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import './SkipLink.css'
 
-export function SkipLink() {
+function SkipLink() {
   const { t } = useAppTranslation()
   return (
     <nav className="skip-link" aria-label={t('skip.nav')}>
@@ -17,3 +18,5 @@ export function SkipLink() {
     </nav>
   )
 }
+
+export default memo(SkipLink)

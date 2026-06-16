@@ -6,7 +6,8 @@
 
 import { memo, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { TypingStats, TimeOfDayPerformance } from '../types'
+import type { TypingStats, TimeOfDayPerformance } from '../types'
+import { useAppTranslation } from '../i18n/config'
 
 interface SessionData {
   date: string
@@ -32,138 +33,135 @@ export const PerformanceInsights = memo(function PerformanceInsights({
   sessions,
   bestStats,
 }: PerformanceInsightsProps) {
+  const { t } = useAppTranslation()
+
   const insights = useMemo<Insight[]>(() => {
     const result: Insight[] = []
-    
+
     if (sessions.length < 2) {
       result.push({
         type: 'info',
-        title: 'Нужно больше данных',
-        description: 'Продолжайте тренироваться для получения аналитики',
+        title: t('insights.needMoreData'),
+        description: t('insights.needMoreDataDesc'),
         icon: '📊',
       })
       return result
     }
 
-    // Анализ тренда WPM
     const recentSessions = sessions.slice(-5)
     const olderSessions = sessions.slice(-10, -5)
-    
+
     if (recentSessions.length >= 2) {
       const recentAvgWpm = recentSessions.reduce((sum, s) => sum + s.wpm, 0) / recentSessions.length
-      const olderAvgWpm = olderSessions.length > 0 
-        ? olderSessions.reduce((sum, s) => sum + s.wpm, 0) / olderSessions.length 
+      const olderAvgWpm = olderSessions.length > 0
+        ? olderSessions.reduce((sum, s) => sum + s.wpm, 0) / olderSessions.length
         : recentAvgWpm * 0.9
-      
+
       const wpmChange = ((recentAvgWpm - olderAvgWpm) / olderAvgWpm) * 100
-      
+
       if (wpmChange > 10) {
         result.push({
           type: 'positive',
-          title: 'Отличный прогресс!',
-          description: `Ваша скорость выросла на ${Math.round(wpmChange)}% за последние сессии`,
+          title: t('insights.greatProgress'),
+          description: t('insights.speedGrew', { pct: Math.round(wpmChange) }),
           icon: '📈',
         })
       } else if (wpmChange < -5) {
         result.push({
           type: 'warning',
-          title: 'Внимание',
-          description: 'Скорость немного снизилась. Возможно, вы устали?',
+          title: t('insights.attention'),
+          description: t('insights.speedDeclined'),
           icon: '⚠️',
         })
       }
     }
 
-    // Анализ точности
     if (recentSessions.length >= 3) {
       const avgAccuracy = recentSessions.reduce((sum, s) => sum + s.accuracy, 0) / recentSessions.length
-      
+
       if (avgAccuracy >= 95) {
         result.push({
           type: 'positive',
-          title: 'Мастер точности',
-          description: `Потрясающая точность: ${avgAccuracy.toFixed(1)}%`,
+          title: t('insights.accuracyMaster'),
+          description: t('insights.amazingAccuracy', { pct: avgAccuracy.toFixed(1) }),
           icon: '🎯',
         })
       } else if (avgAccuracy < 80) {
         result.push({
           type: 'warning',
-          title: 'Работа над ошибками',
-          description: 'Сосредоточьтесь на точности, а не на скорости',
+          title: t('insights.workOnErrors'),
+          description: t('insights.focusAccuracy'),
           icon: '💡',
         })
       }
     }
 
-    // Анализ продуктивности по времени
     const morningSessions = sessions.filter(s => {
       const hour = new Date(s.date).getHours()
       return hour >= 6 && hour < 12
     })
-    
+
     const eveningSessions = sessions.filter(s => {
       const hour = new Date(s.date).getHours()
       return hour >= 18 && hour < 24
     })
-    
+
     if (morningSessions.length >= 3 && eveningSessions.length >= 3) {
       const morningAvgWpm = morningSessions.reduce((sum, s) => sum + s.wpm, 0) / morningSessions.length
       const eveningAvgWpm = eveningSessions.reduce((sum, s) => sum + s.wpm, 0) / eveningSessions.length
-      
+
       if (Math.abs(morningAvgWpm - eveningAvgWpm) > 10) {
-        const better = morningAvgWpm > eveningAvgWpm ? 'утро' : 'вечер'
+        const better = morningAvgWpm > eveningAvgWpm ? t('stats.timeOfDay.morning') : t('stats.timeOfDay.evening')
         result.push({
           type: 'info',
-          title: 'Ваше продуктивное время',
-          description: `Вы печатаете быстрее ${better}ом`,
+          title: t('insights.productiveTime'),
+          description: t('insights.fasterIn', { time: better }),
           icon: '🕐',
         })
       }
     }
 
-    // Анализ серии
     const today = new Date().toDateString()
     const hasTodaySession = sessions.some(s => new Date(s.date).toDateString() === today)
-    
+
     if (hasTodaySession) {
       result.push({
         type: 'positive',
-        title: 'Так держать!',
-        description: 'Вы уже тренировались сегодня. Поддерживайте серию!',
+        title: t('insights.keepGoing'),
+        description: t('insights.trainedToday'),
         icon: '🔥',
       })
     } else {
       result.push({
         type: 'info',
-        title: 'Ещё не поздно',
-        description: 'Сделайте хотя бы одну сессию сегодня для поддержания серии',
+        title: t('insights.notTooLate'),
+        description: t('insights.doOneSession'),
         icon: '⏰',
       })
     }
 
-    // Рекорды
     if (bestStats) {
       if (bestStats.wpm >= 60) {
         result.push({
           type: 'positive',
-          title: 'Скоростной режим',
-          description: `Ваш рекорд: ${bestStats.wpm} WPM — это впечатляет!`,
+          title: t('insights.speedMode'),
+          description: t('insights.yourRecord', { wpm: bestStats.wpm }),
           icon: '⚡',
         })
       }
-      
+
       if (bestStats.accuracy === 100 && bestStats.wpm >= 40) {
         result.push({
           type: 'positive',
-          title: 'Идеальная сессия',
-          description: 'У вас была сессия со 100% точностью!',
+          title: t('insights.perfectSession'),
+          description: t('insights.had100Accuracy'),
           icon: '💎',
         })
       }
     }
 
     return result
-  }, [sessions, bestStats])
+  }, [sessions, bestStats, t])
 
   const getInsightStyles = (type: Insight['type']) => {
     switch (type) {
@@ -181,9 +179,9 @@ export const PerformanceInsights = memo(function PerformanceInsights({
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold text-gradient flex items-center gap-2">
-        <span>💡</span> Аналитика производительности
+        <span>💡</span> {t('insights.title')}
       </h3>
-      
+
       <div className="space-y-3">
         {insights.map((insight, index) => (
           <motion.div
@@ -212,12 +210,14 @@ interface TimeOfDayAnalysisProps {
 }
 
 export const TimeOfDayAnalysis = memo(function TimeOfDayAnalysis({ sessions }: TimeOfDayAnalysisProps) {
+  const { t } = useAppTranslation()
+
   const timeData = useMemo<TimeOfDayPerformance[]>(() => {
     const periods: Record<string, { wpm: number[]; accuracy: number[] }> = {
-      morning: { wpm: [], accuracy: [] },      // 6:00 - 12:00
-      afternoon: { wpm: [], accuracy: [] },    // 12:00 - 18:00
-      evening: { wpm: [], accuracy: [] },      // 18:00 - 24:00
-      night: { wpm: [], accuracy: [] },        // 0:00 - 6:00
+      morning: { wpm: [], accuracy: [] },
+      afternoon: { wpm: [], accuracy: [] },
+      evening: { wpm: [], accuracy: [] },
+      night: { wpm: [], accuracy: [] },
     }
 
     sessions.forEach(session => {
@@ -260,12 +260,32 @@ export const TimeOfDayAnalysis = memo(function TimeOfDayAnalysis({ sessions }: T
 
   const maxWpm = Math.max(...timeData.map(d => d.avgWpm))
 
+  const timeOfDayLabel = (tod: string) => {
+    switch (tod) {
+      case 'morning': return t('stats.timeOfDay.morning')
+      case 'afternoon': return t('stats.timeOfDay.afternoon')
+      case 'evening': return t('stats.timeOfDay.evening')
+      case 'night': return t('stats.timeOfDay.night')
+      default: return tod
+    }
+  }
+
+  const timeOfDayEmoji = (tod: string) => {
+    switch (tod) {
+      case 'morning': return '🌅'
+      case 'afternoon': return '☀️'
+      case 'evening': return '🌆'
+      case 'night': return '🌙'
+      default: return ''
+    }
+  }
+
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <span>🕐</span> Продуктивность по времени суток
+        <span>🕐</span> {t('insights.timeOfDayTitle')}
       </h3>
-      
+
       <div className="space-y-4">
         {timeData.map((data, index) => (
           <motion.div
@@ -277,27 +297,19 @@ export const TimeOfDayAnalysis = memo(function TimeOfDayAnalysis({ sessions }: T
           >
             <div className="flex items-center justify-between text-sm">
               <span className="text-dark-300">
-                {data.timeOfDay === 'morning' && '🌅'}
-                {data.timeOfDay === 'afternoon' && '☀️'}
-                {data.timeOfDay === 'evening' && '🌆'}
-                {data.timeOfDay === 'night' && '🌙'}
-                {' '}
-                {data.timeOfDay === 'morning' && 'Утро'}
-                {data.timeOfDay === 'afternoon' && 'День'}
-                {data.timeOfDay === 'evening' && 'Вечер'}
-                {data.timeOfDay === 'night' && 'Ночь'}
+                {timeOfDayEmoji(data.timeOfDay)} {timeOfDayLabel(data.timeOfDay)}
               </span>
-              <span className="text-dark-400">{data.sessions} сессий</span>
+              <span className="text-dark-400">{data.sessions} {t('stats.sessions')}</span>
             </div>
-            
+
             <div className="relative h-4 bg-dark-800 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(data.avgWpm / maxWpm) * 100}%` }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`h-full ${
-                  data.avgWpm === maxWpm 
-                    ? 'bg-gradient-to-r from-primary-600 to-primary-400' 
+                  data.avgWpm === maxWpm
+                    ? 'bg-gradient-to-r from-primary-600 to-primary-400'
                     : 'bg-gradient-to-r from-dark-600 to-dark-500'
                 }`}
               />
@@ -306,17 +318,17 @@ export const TimeOfDayAnalysis = memo(function TimeOfDayAnalysis({ sessions }: T
                   {data.avgWpm} WPM
                 </span>
                 <span className={data.avgWpm === maxWpm ? 'text-white' : 'text-dark-400'}>
-                  {data.avgAccuracy}% точности
+                  {data.avgAccuracy}% {t('common.accuracy').toLowerCase()}
                 </span>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
-      
-      {timeData.length > 0 && (
+
+      {timeData.length > 0 && timeData[0] && (
         <p className="text-xs text-dark-500 mt-4 text-center">
-          📊 Лучшее время: {timeData[0] && (timeData[0].timeOfDay === 'morning' ? 'утро' : timeData[0].timeOfDay === 'afternoon' ? 'день' : timeData[0].timeOfDay === 'evening' ? 'вечер' : 'ночь')}
+          📊 {t('insights.bestTime')}: {timeOfDayLabel(timeData[0].timeOfDay).toLowerCase()}
         </p>
       )}
     </div>
@@ -336,20 +348,20 @@ export const GoalsProgress = memo(function GoalsProgress({
   todayWpm,
   thisWeekAvgWpm,
 }: GoalsProgressProps) {
+  const { t } = useAppTranslation()
   const dailyProgress = Math.min((todayWpm / dailyGoal) * 100, 100)
   const weeklyProgress = Math.min((thisWeekAvgWpm / weeklyGoal) * 100, 100)
 
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <span>🎯</span> Прогресс целей
+        <span>🎯</span> {t('insights.goalsProgress')}
       </h3>
-      
+
       <div className="space-y-6">
-        {/* Дневная цель */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-dark-300">Дневная цель</span>
+            <span className="text-sm text-dark-300">{t('insights.dailyGoal')}</span>
             <span className="text-sm font-medium text-primary-400">{todayWpm} / {dailyGoal} WPM</span>
           </div>
           <div className="relative h-3 bg-dark-800 rounded-full overflow-hidden">
@@ -358,8 +370,8 @@ export const GoalsProgress = memo(function GoalsProgress({
               animate={{ width: `${dailyProgress}%` }}
               transition={{ duration: 0.5 }}
               className={`h-full ${
-                dailyProgress >= 100 
-                  ? 'bg-gradient-to-r from-success to-green-400' 
+                dailyProgress >= 100
+                  ? 'bg-gradient-to-r from-success to-green-400'
                   : 'bg-gradient-to-r from-primary-600 to-primary-400'
               }`}
             />
@@ -370,15 +382,14 @@ export const GoalsProgress = memo(function GoalsProgress({
               animate={{ opacity: 1 }}
               className="text-xs text-success mt-1 flex items-center gap-1"
             >
-              <span>✅</span> Цель достигнута!
+              <span>✅</span> {t('insights.goalReached')}
             </motion.p>
           )}
         </div>
 
-        {/* Недельная цель */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-dark-300">Недельная цель</span>
+            <span className="text-sm text-dark-300">{t('insights.weeklyGoal')}</span>
             <span className="text-sm font-medium text-purple-400">{thisWeekAvgWpm.toFixed(1)} / {weeklyGoal} WPM</span>
           </div>
           <div className="relative h-3 bg-dark-800 rounded-full overflow-hidden">
@@ -387,8 +398,8 @@ export const GoalsProgress = memo(function GoalsProgress({
               animate={{ width: `${weeklyProgress}%` }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className={`h-full ${
-                weeklyProgress >= 100 
-                  ? 'bg-gradient-to-r from-success to-green-400' 
+                weeklyProgress >= 100
+                  ? 'bg-gradient-to-r from-success to-green-400'
                   : 'bg-gradient-to-r from-purple-600 to-purple-400'
               }`}
             />
@@ -399,7 +410,7 @@ export const GoalsProgress = memo(function GoalsProgress({
               animate={{ opacity: 1 }}
               className="text-xs text-success mt-1 flex items-center gap-1"
             >
-              <span>🎉</span> Недельная цель выполнена!
+              <span>🎉</span> {t('insights.weeklyGoalReached')}
             </motion.p>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { KeyboardLayoutData } from '../types';
+import type { KeyboardLayoutData } from '../types';
 
 export const layouts: Record<string, KeyboardLayoutData> = {
   qwerty: {

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
-import { KeyboardSkin } from '../types'
+import type { KeyboardSkin } from '../types'
 import { keyboardSkinPresets, getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'

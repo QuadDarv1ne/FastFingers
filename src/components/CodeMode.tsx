@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useMemo, useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'

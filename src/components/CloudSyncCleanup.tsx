@@ -5,6 +5,10 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-export function CloudSyncCleanup() {
+import { memo } from 'react'
+
+function CloudSyncCleanup() {
   return null
 }
+
+export default memo(CloudSyncCleanup)

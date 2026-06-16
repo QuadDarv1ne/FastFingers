@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 
@@ -37,7 +37,7 @@ const TOAST_CONFIG = {
   },
 } as const
 
-export function FeedbackToast({
+function FeedbackToast({
   type,
   message,
   isVisible,
@@ -88,4 +88,6 @@ export function FeedbackToast({
     </AnimatePresence>
   )
 }
+
+export default memo(FeedbackToast)
 

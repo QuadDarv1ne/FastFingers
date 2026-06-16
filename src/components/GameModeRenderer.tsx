@@ -19,26 +19,23 @@ const TypingTrainer = lazy(() => import('./TypingTrainer').then(m => ({ default:
 const Keyboard = lazy(() => import('./Keyboard').then(m => ({ default: m.Keyboard })))
 
 const ANIMATIONS = {
-  // Stats/views — subtle slide up
   stats: {
-    initial: { opacity: 0, y: 16 },
+    initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -16 },
-    transition: { duration: 0.18 },
+    exit: { opacity: 0, y: -20 },
+    transition: { duration: 0.25, ease: 'easeOut' as const },
   },
-  // Game modes — slightly more dramatic
   game: {
-    initial: { opacity: 0, scale: 0.97 },
-    animate: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 1.02 },
-    transition: { duration: 0.2 },
+    initial: { opacity: 0, scale: 0.95, y: 10 },
+    animate: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 1.03, y: -10 },
+    transition: { duration: 0.25, ease: 'easeOut' as const },
   },
-  // Hardcore — quick snap in
   hardcore: {
-    initial: { opacity: 0, y: 8 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, scale: 0.98 },
-    transition: { duration: 0.15 },
+    initial: { opacity: 0, y: 12, scale: 0.98 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, scale: 0.96, y: -8 },
+    transition: { duration: 0.2, ease: 'easeOut' as const },
   },
 }
 
@@ -99,7 +96,7 @@ const SprintMode = lazy(() => import('./SprintMode').then(m => ({ default: m.Spr
 const SpeedTest = lazy(() => import('./SpeedTest').then(m => ({ default: m.SpeedTest })))
 const ReactionGame = lazy(() => import('./ReactionGame').then(m => ({ default: m.ReactionGame })))
 const HardcoreMode = lazy(() => import('./HardcoreMode').then(m => ({ default: m.HardcoreMode })))
-const TrainingHistory = lazy(() => import('./TrainingHistory').then(m => ({ default: m.TrainingHistory })))
+const TrainingHistory = lazy(() => import('./TrainingHistory'))
 const WeeklyProgress = lazy(() => import('./WeeklyProgress').then(m => ({ default: m.WeeklyProgress })))
 const DailyChallengeCardLazy = lazy(() => import('./DailyChallengeCard').then(m => ({ default: m.DailyChallengeCard })))
 const CustomExerciseEditor = lazy(() => import('./CustomExerciseEditor').then(m => ({ default: m.CustomExerciseEditor })))
@@ -317,7 +314,7 @@ export function GameModeRenderer({
           </Suspense>
         )}
 
-        <Suspense fallback={<div className="text-center text-dark-400 py-8">Загрузка тренажёра...</div>}>
+        <Suspense fallback={<div className="text-center text-dark-400 py-8">{t('action.loading')}</div>}>
           <TypingTrainer
             onSessionComplete={onSessionComplete}
             onKeyInput={onKeyInput}

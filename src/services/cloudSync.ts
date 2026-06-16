@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
-import { User, UserStats } from '../types/auth'
-import { TypingStats } from '../types'
+import type { User, UserStats } from '../types/auth'
+import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
 import { getFromStorageAsArray, getFromStorageAsObject } from '../utils/storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
@@ -245,7 +245,11 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
 function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
   const pending = getFromStorageAsArray<PendingSession>(PENDING_SESSIONS_KEY)
   pending.push({ userId, stats, xp, timestamp: Date.now() })
-  localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-50)))
+  try {
+    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-50)))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export async function flushPendingSessions(): Promise<void> {
@@ -273,7 +277,11 @@ export async function flushPendingSessions(): Promise<void> {
 
   // Keep only failed sessions
   const remaining = pending.filter((_, i) => results[i]?.status === 'rejected')
-  localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))
+  try {
+    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export async function loadUserSessions(
