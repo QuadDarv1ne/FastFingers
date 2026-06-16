@@ -23,9 +23,13 @@ const textColors: Record<ToastKind, string> = {
   warning: 'text-yellow-400',
 }
 
+const FALLBACK_ACCENT = { border: 'border-blue-500/40', bg: 'bg-blue-500/10', icon: 'ℹ', ring: 'ring-blue-500/20' }
+const FALLBACK_TEXT_COLOR = 'text-blue-400'
+
 export function Toast({ toast, onDismiss }: ToastProps) {
   const { t } = useAppTranslation()
-  const accent = toastAccents[toast.type]
+  const accent = toastAccents[toast.type as ToastKind] ?? FALLBACK_ACCENT
+  const textColor = textColors[toast.type as ToastKind] ?? FALLBACK_TEXT_COLOR
 
   return (
     <motion.div
@@ -36,7 +40,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       className={`glass flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border ${accent.border} ${accent.bg} ${accent.ring}`}
       data-testid={`toast-${toast.type}`}
     >
-      <span className={`w-7 h-7 rounded-lg ${accent.bg} flex items-center justify-center text-sm font-bold ${textColors[toast.type]}`}>
+      <span className={`w-7 h-7 rounded-lg ${accent.bg} flex items-center justify-center text-sm font-bold ${textColor}`}>
         {accent.icon}
       </span>
       <span className="flex-1 text-sm text-dark-200">{toast.message}</span>
