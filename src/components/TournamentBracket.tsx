@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 import { useAppTranslation } from '../i18n/config'
 import { shuffleArray } from '../utils/exercises'
-import type { Tournament, TournamentParticipant } from './TournamentMode'
+import type { Tournament, TournamentParticipant } from '../types/tournament'
 
 interface TournamentBracketProps {
   tournament: Tournament
