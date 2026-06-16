@@ -26,6 +26,17 @@ vi.mock('framer-motion', async () => {
       section: 'section',
       article: 'article',
       aside: 'aside',
+      svg: 'svg',
+      path: 'path',
+      line: 'line',
+      circle: 'circle',
+      rect: 'rect',
+      g: 'g',
+      text: 'text',
+      tspan: 'tspan',
+      defs: 'defs',
+      linearGradient: 'linearGradient',
+      stop: 'stop',
     },
   }
 })

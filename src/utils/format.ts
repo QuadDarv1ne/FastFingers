@@ -98,5 +98,5 @@ export function calculateAge(birthDate: Date | string | number): number {
 
 /** Return today's date as ISO YYYY-MM-DD string */
 export function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0] ?? ''
+  return new Date().toISOString().split('T')[0] as string
 }
