@@ -437,6 +437,7 @@ export type TranslationKey =
   | 'leaderboard.day' | 'leaderboard.week' | 'leaderboard.month' | 'leaderboard.all'
   | 'leaderboard.yourPosition' | 'leaderboard.toTop10' | 'leaderboard.inTop' | 'leaderboard.places'
   | 'leaderboard.fasterThan' | 'leaderboard.otherParticipants'
+  | 'errorBoundary.title' | 'errorBoundary.description' | 'errorBoundary.showDetails' | 'errorBoundary.tryAgain'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 

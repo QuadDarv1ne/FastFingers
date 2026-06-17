@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react'
 import * as Sentry from '@sentry/react'
+import i18n from 'i18next'
 
 interface Props {
   children: ReactNode
@@ -88,15 +89,15 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
 
-            <h1 className="text-xl font-semibold mb-2">Oops. Something went wrong</h1>
+            <h1 className="text-xl font-semibold mb-2">{i18n.t('errorBoundary.title')}</h1>
             <p className="text-dark-400 mb-6">
-              An unexpected error occurred. Try refreshing the page or retry.
+              {i18n.t('errorBoundary.description')}
             </p>
 
             {import.meta.env.DEV && error && (
               <details className="text-left mb-6">
                 <summary className="cursor-pointer text-sm text-dark-500 hover:text-dark-400 mb-2">
-                  Show error details
+                  {i18n.t('errorBoundary.showDetails')}
                 </summary>
                 <pre className="text-xs text-red-400 bg-dark-800 rounded-lg p-4 overflow-auto max-h-48">
                   {error.toString()}
@@ -109,14 +110,14 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRetry}
                 className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
               >
-                Try again
+                {i18n.t('errorBoundary.tryAgain')}
               </button>
 
               <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
               >
-                Refresh page
+                {i18n.t('action.reload')}
               </button>
             </div>
           </div>
