@@ -38,7 +38,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
   const handleCreate = () => {
     if (!formData.title.trim() || !formData.text.trim()) {
-      showToast('Заполните название и текст', 'error')
+      showToast(t('customExercise.fillTitleAndText'), 'error')
       return
     }
 
@@ -57,7 +57,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
 
     setExercises([...exercises, newExercise])
     onSave?.(newExercise)
-    showToast('Упражнение создано', 'success')
+    showToast(t('customExercise.created'), 'success')
     resetForm()
   }
 
@@ -80,14 +80,14 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
     )
 
     setExercises(updated)
-    showToast('Упражнение обновлено', 'success')
+    showToast(t('customExercise.updated'), 'success')
     resetForm()
   }
 
   const handleDelete = (id: string) => {
-    if (confirm('Удалить это упражнение?')) {
+    if (confirm(t('customExercise.deleteConfirm'))) {
       setExercises(exercises.filter(ex => ex.id !== id))
-      showToast('Упражнение удалено', 'success')
+      showToast(t('customExercise.deleted'), 'success')
     }
   }
 

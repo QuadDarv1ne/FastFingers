@@ -41,7 +41,7 @@ interface UserAdminProps {
 
 export function UserAdmin({ onViewStudent }: UserAdminProps) {
   const { user: currentUser } = useAuth()
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [users, setUsers] = useState<DisplayUser[]>([])
   const [rawUsers, setRawUsers] = useState<StoredUser[]>([])
   const [search, setSearch] = useState('')
@@ -105,7 +105,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
   }
 
   function deleteUser(userId: string) {
-    if (!confirm('Удалить пользователя? Это действие нельзя отменить.')) return
+    if (!confirm(t('admin.deleteConfirm'))) return
     const next = rawUsers.filter(u => u.id !== userId)
     saveUsers(next)
     setRawUsers(next)

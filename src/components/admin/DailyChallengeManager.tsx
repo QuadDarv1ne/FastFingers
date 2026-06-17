@@ -55,7 +55,7 @@ function generateChallenge(date: string, text?: string, wpm?: number, acc?: numb
 }
 
 export function DailyChallengeManager() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [challenges, setChallenges] = useState<DailyChallenge[]>([])
   const [streak, setStreak] = useState<StreakData>({ current: 0, longest: 0, lastPracticeDate: null, practiceDates: [] })
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -126,13 +126,13 @@ export function DailyChallengeManager() {
   }, [])
 
   const handleResetCompletions = useCallback(() => {
-    if (!confirm('Сбросить счётчик выполненных ежедневных заданий?')) return
+    if (!confirm(t('challenge.resetCompletionsConfirm'))) return
     try {
       localStorage.setItem(COMPLETIONS_KEY, '0')
     } catch {
       // Ignore storage errors
     }
-  }, [])
+  }, [t])
 
   return (
     <div className="space-y-6">
