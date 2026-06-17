@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { TypingStats } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
-import { useTypingSound } from './useTypingSound'
+import type { useTypingSound } from './useTypingSound'
 import { useCountdown } from './useCountdown'
 
 const COUNTDOWN_SECONDS = 3

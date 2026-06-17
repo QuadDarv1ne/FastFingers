@@ -219,7 +219,7 @@ export async function generateCertificate(
         return
       }
       if (download) {
-        const sanitizedName = data.user.name.replace(/[^a-z0-9а-яё]/gi, '_')
+        const sanitizedName = (data.user.name || 'user').replace(/[^a-z0-9а-яё]/gi, '_')
         const link = document.createElement('a')
         link.download = `certificate-${sanitizedName}-${data.testType}.png`
         link.href = URL.createObjectURL(blob)

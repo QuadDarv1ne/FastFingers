@@ -63,21 +63,23 @@ export function useSessionStorage<T>(
   const setValue = useCallback(
     (value: SetValue<T>) => {
       try {
-        const valueToStore = typeof value === 'function' ? (value as (val: T) => T)(storedValue) : value
-        setStoredValue(valueToStore)
-        sessionStorage.setItem(key, serialize(valueToStore))
+        setStoredValue(prev => {
+          const valueToStore = typeof value === 'function' ? (value as (val: T) => T)(prev) : value
+          sessionStorage.setItem(key, serialize(valueToStore))
 
-        window.dispatchEvent(
-          new StorageEvent('storage', {
-            key,
-            newValue: serialize(valueToStore),
-          })
-        )
+          window.dispatchEvent(
+            new StorageEvent('storage', {
+              key,
+              newValue: serialize(valueToStore),
+            })
+          )
+          return valueToStore
+        })
       } catch (err) {
         logger.warn('Failed to save to sessionStorage', { key }, err)
       }
     },
-    [key, storedValue, serialize]
+    [key, serialize]
   )
 
   const removeValue = useCallback(() => {

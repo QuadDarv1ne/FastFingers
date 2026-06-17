@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   get,
   put,
@@ -51,6 +51,7 @@ export function useIndexedDB<T>(
   const [error, setError] = useState<Error | null>(null)
 
   const isAvailable = isIndexedDBAvailable()
+  const loadIdRef = useRef(0)
 
   const loadData = useCallback(async () => {
     if (!isAvailable) {
@@ -59,15 +60,19 @@ export function useIndexedDB<T>(
       return
     }
 
+    const loadId = ++loadIdRef.current
+
     try {
       setLoading(true)
       const result = await get(storeName, key)
+      if (loadId !== loadIdRef.current) return
       setData(result as T)
       setError(null)
     } catch (err) {
+      if (loadId !== loadIdRef.current) return
       setError(err as Error)
     } finally {
-      setLoading(false)
+      if (loadId === loadIdRef.current) setLoading(false)
     }
   }, [storeName, key, isAvailable])
 
@@ -123,6 +128,7 @@ export function useIndexedDBAll<T extends { id: string }>(
   const [error, setError] = useState<Error | null>(null)
 
   const isAvailable = isIndexedDBAvailable()
+  const loadIdRef = useRef(0)
 
   const loadData = useCallback(async () => {
     if (!isAvailable) {
@@ -131,15 +137,19 @@ export function useIndexedDBAll<T extends { id: string }>(
       return
     }
 
+    const loadId = ++loadIdRef.current
+
     try {
       setLoading(true)
       const result = await getAll(storeName)
+      if (loadId !== loadIdRef.current) return
       setData(result as unknown as T[])
       setError(null)
     } catch (err) {
+      if (loadId !== loadIdRef.current) return
       setError(err as Error)
     } finally {
-      setLoading(false)
+      if (loadId === loadIdRef.current) setLoading(false)
     }
   }, [storeName, isAvailable])
 

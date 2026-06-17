@@ -120,6 +120,11 @@ function AppContent() {
     resetToPractice,
   } = useGameMode()
 
+  const handleLevelUp = useCallback((newLevel: number) => {
+    addNotification(createLevelUpNotification(newLevel))
+    void triggerConfetti({ type: 'levelup', duration: 4000 })
+  }, [addNotification])
+
   const {
     progress,
     currentStats,
@@ -131,10 +136,7 @@ function AppContent() {
     setShowHeatmap,
     updateSetting,
   } = useUserProgress({
-    onLevelUp: (newLevel) => {
-      addNotification(createLevelUpNotification(newLevel))
-      void triggerConfetti({ type: 'levelup', duration: 4000 })
-    },
+    onLevelUp: handleLevelUp,
   })
 
   // Автосохранение прогресса при закрытии вкладки
@@ -292,6 +294,23 @@ function AppContent() {
       </ErrorBoundary>
     )
   }
+
+  const achievementStats = useMemo(() => ({
+    maxWpm: progress.bestWpm,
+    maxAccuracy: progress.bestAccuracy,
+    totalWords: progress.totalWordsTyped,
+    totalSessions: history.totalSessions,
+    currentStreak: progress.streak,
+    perfectSessions: history.sessions.filter(s => s.accuracy >= 99.99).length,
+    duelsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DUELS_PLAYED)),
+    tournamentsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
+    customExercisesCreated: customExercises.length,
+    dailyChallengesCompleted: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
+    gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
+      .split(',')
+      .filter(Boolean)]).size,
+    level: progress.level,
+  }), [progress, history, customExercises.length, gameMode])
 
   return (
     <div className="min-h-screen bg-dark-900 transition-colors duration-300">
@@ -483,22 +502,7 @@ function AppContent() {
           <Suspense fallback={<LoadingFallback />}>
             <AchievementsPanel
               progress={progress}
-              stats={{
-                maxWpm: progress.bestWpm,
-                maxAccuracy: progress.bestAccuracy,
-                totalWords: progress.totalWordsTyped,
-                totalSessions: history.totalSessions,
-                currentStreak: progress.streak,
-                perfectSessions: history.sessions.filter(s => s.accuracy >= 99.99).length,
-                duelsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DUELS_PLAYED)),
-                tournamentsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
-                customExercisesCreated: customExercises.length,
-                dailyChallengesCompleted: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
-                gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
-                  .split(',')
-                  .filter(Boolean)]).size,
-                level: progress.level,
-              }}
+              stats={achievementStats}
               onClose={() => setShowAchievements(false)}
             />
           </Suspense>

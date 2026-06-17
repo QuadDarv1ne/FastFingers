@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { TypingStats, KeyInputResult } from '../types'
 import { generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
-import { useTypingSound } from './useTypingSound'
+import type { useTypingSound } from './useTypingSound'
 import { useTypingTimer } from './useTypingTimer'
 import { createScopedLogger } from '../utils/logger'
 

@@ -85,10 +85,11 @@ class CloudSyncService {
   }
 
   async saveProgress(user: User, stats: UserStats): Promise<void> {
+    const saveId = Date.now()
     const save: CloudSave = {
       userId: user.id,
       stats,
-      timestamp: Date.now(),
+      timestamp: saveId,
       version: '1.0',
     }
 
@@ -166,6 +167,9 @@ class CloudSyncService {
       await this.saveProgress(user, mergedStats)
 
       return mergedStats
+    } catch (error) {
+      logger.error('Sync failed:', error)
+      return localStats
     } finally {
       this.isSyncing = false
     }
