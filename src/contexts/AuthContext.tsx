@@ -4,7 +4,8 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { createContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo } from 'react'
+import type { ReactNode } from 'react';
 import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
 import { AuthError } from '../services/authErrors';
 import { authService } from '../services/authService';

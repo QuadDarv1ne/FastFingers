@@ -1,4 +1,5 @@
-import { ReactNode, memo } from 'react'
+import { memo } from 'react'
+import type { ReactNode } from 'react'
 import { useBackendAvailability } from '../hooks/useBackendAvailability'
 import { BackendFallbackBanner } from '../components/BackendFallbackBanner'
 

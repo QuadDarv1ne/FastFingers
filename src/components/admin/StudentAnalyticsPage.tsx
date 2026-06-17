@@ -49,7 +49,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       })
   }, [userId])
 
-  const stats = useMemo(() => computeStudentStats(sessions), [sessions])
+  const stats = useMemo(() => computeStudentStats(sessions, i18n.language), [sessions, i18n.language])
 
   // Load user aggregate stats from localStorage
   const userStats = useMemo(() => {

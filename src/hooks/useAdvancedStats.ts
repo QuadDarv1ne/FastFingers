@@ -235,7 +235,7 @@ export function useAdvancedStats() {
 
   // Активность по дням недели
   const activityByDayOfWeek = useMemo(() => {
-    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+    const days = Array.from({ length: 7 }, (_, i) => new Intl.DateTimeFormat(i18n.language, { weekday: 'short' }).format(new Date(2024, 0, 7 + i)))
     const activity = days.map((day, index) => ({
       day,
       index,

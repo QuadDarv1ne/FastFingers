@@ -129,8 +129,8 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
   }, [user])
 
   const handleDeleteAccount = useCallback(() => {
-    if (!confirm('Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!')) return
-    if (!confirm('Последнее предупреждение! Все достижения, статистика и настройки будут удалены.')) return
+    if (!confirm(t('profile.deleteAccountWarning', 'Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!'))) return
+    if (!confirm(t('profile.deleteAccountFinalWarning', 'Последнее предупреждение! Все достижения, статистика и настройки будут удалены.'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -143,7 +143,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
     } catch (err) {
       logger.error('[UserProfile] Failed to delete account', err)
     }
-  }, [logout, onClose])
+  }, [logout, onClose, t])
 
   // Keyboard heatmap data
   const heatmapData = useMemo(() => {
@@ -1045,6 +1045,7 @@ function ProfileSettingsSubPage({
   user: { name: string; email: string; createdAt: string }
   onUpdateName: (name: string) => void
 }) {
+  const { t } = useAppTranslation()
   const [name, setName] = useState(user.name)
   const [editing, setEditing] = useState(false)
 
@@ -1058,12 +1059,12 @@ function ProfileSettingsSubPage({
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>👤</span> Профиль
+        <span>👤</span> {t('profile.title', 'Профиль')}
       </h3>
 
       <div className="space-y-3">
         <div>
-          <label htmlFor="profile-name" className="text-xs text-dark-400 mb-1 block">Имя</label>
+          <label htmlFor="profile-name" className="text-xs text-dark-400 mb-1 block">{t('profile.name', 'Имя')}</label>
           {editing ? (
             <div className="flex gap-2">
               <input
@@ -1074,26 +1075,26 @@ function ProfileSettingsSubPage({
                 onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') { setName(user.name); setEditing(false) } }}
                 className="flex-1 bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
-              <button onClick={handleSave} className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm">Сохранить</button>
-              <button onClick={() => { setName(user.name); setEditing(false) }} className="px-3 py-2 bg-dark-700 text-white rounded-lg text-sm">Отмена</button>
+              <button onClick={handleSave} className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm">{t('action.save')}</button>
+              <button onClick={() => { setName(user.name); setEditing(false) }} className="px-3 py-2 bg-dark-700 text-white rounded-lg text-sm">{t('action.cancel')}</button>
             </div>
           ) : (
             <div className="flex items-center justify-between bg-dark-800/50 rounded-lg px-3 py-2">
               <span className="text-sm text-white">{user.name}</span>
-              <button onClick={() => setEditing(true)} className="text-xs text-primary-400 hover:text-primary-300">Изменить</button>
+              <button onClick={() => setEditing(true)} className="text-xs text-primary-400 hover:text-primary-300">{t('action.edit')}</button>
             </div>
           )}
         </div>
 
         <div>
-          <span className="text-xs text-dark-400 mb-1 block">Email</span>
+          <span className="text-xs text-dark-400 mb-1 block">{t('auth.email', 'Email')}</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">{user.email}</div>
         </div>
 
         <div>
-          <span className="text-xs text-dark-400 mb-1 block">Дата регистрации</span>
+          <span className="text-xs text-dark-400 mb-1 block">{t('profile.registrationDate', 'Дата регистрации')}</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">
-            {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+            {new Date(user.createdAt).toLocaleDateString(i18n.language)}
           </div>
         </div>
       </div>
@@ -1194,7 +1195,7 @@ function NotificationSettingsSubPage() {
                   <span className="font-medium text-white">{n.title}</span>
                 </div>
                 <p className="text-dark-400 mt-1">{n.message}</p>
-                <p className="text-dark-600 mt-1">{new Date(n.timestamp).toLocaleString('ru-RU')}</p>
+                <p className="text-dark-600 mt-1">{new Date(n.timestamp).toLocaleString(i18n.language)}</p>
               </div>
             ))}
           </div>
@@ -1401,6 +1402,7 @@ function SecuritySettingsSubPage() {
 function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void }) {
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
+  const { t } = useAppTranslation()
 
   const handleExport = () => {
     try {
@@ -1424,7 +1426,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       URL.revokeObjectURL(url)
     } catch (err) {
       logger.error('[UserProfile] Failed to export data', err)
-      showToast('Ошибка при экспорте данных', 'error')
+      showToast(t('profile.exportError', 'Ошибка при экспорте данных'), 'error')
     }
   }
 
@@ -1438,13 +1440,13 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         const content = e.target?.result as string
         const importData = JSON.parse(content)
         if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
-        if (!confirm('Это действие перезапишет все текущие данные. Продолжить?')) { setImporting(false); return }
+        if (!confirm(t('profile.importOverwriteConfirm', 'Это действие перезапишет все текущие данные. Продолжить?'))) { setImporting(false); return }
         Object.entries(importData.data).forEach(([key, value]) => {
           if (typeof value === 'string') localStorage.setItem(key, value)
         })
         window.location.reload()
       } catch {
-        showToast('Ошибка при импорте данных', 'error')
+        showToast(t('profile.importError', 'Ошибка при импорте данных'), 'error')
         setImporting(false)
       }
     }
@@ -1452,8 +1454,8 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
   }
 
   const handleClearData = () => {
-    if (!confirm('Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!')) return
-    if (!confirm('Последнее предупреждение! Все достижения, статистика и настройки будут удалены.')) return
+    if (!confirm(t('profile.clearDataConfirm', 'Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!'))) return
+    if (!confirm(t('profile.clearDataFinalWarning', 'Последнее предупреждение! Все достижения, статистика и настройки будут удалены.'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -1464,14 +1466,14 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       window.location.reload()
     } catch (err) {
       logger.error('[UserProfile] Failed to clear data', err)
-      showToast('Ошибка при очистке данных', 'error')
+      showToast(t('profile.clearDataError', 'Ошибка при очистке данных'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>💾</span> Данные
+        <span>💾</span> {t('profile.dataSettings', 'Данные')}
       </h3>
 
       {/* Export */}
@@ -1479,15 +1481,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">📤</span>
           <div>
-            <div className="text-sm font-medium text-white">Экспорт данных</div>
-            <div className="text-xs text-dark-400">Сохранить все данные в JSON файл</div>
+            <div className="text-sm font-medium text-white">{t('profile.exportData', 'Экспорт данных')}</div>
+            <div className="text-xs text-dark-400">{t('profile.exportDescription', 'Сохранить все данные в JSON файл')}</div>
           </div>
         </div>
         <button
           onClick={handleExport}
           className="w-full py-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded-lg text-sm font-medium transition-colors"
         >
-          Экспортировать
+          {t('profile.exportButton', 'Экспортировать')}
         </button>
       </div>
 
@@ -1496,12 +1498,12 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">📥</span>
           <div>
-            <div className="text-sm font-medium text-white">Импорт данных</div>
-            <div className="text-xs text-dark-400">Восстановить из JSON файла</div>
+            <div className="text-sm font-medium text-white">{t('profile.importData', 'Импорт данных')}</div>
+            <div className="text-xs text-dark-400">{t('profile.importDescription', 'Восстановить из JSON файла')}</div>
           </div>
         </div>
         <label className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center cursor-pointer">
-          {importing ? 'Импортирование...' : 'Импортировать'}
+          {importing ? t('profile.importing', 'Импортирование...') : t('profile.importButton', 'Импортировать')}
           <input type="file" accept=".json" onChange={handleImport} disabled={importing} className="hidden" />
         </label>
       </div>
@@ -1511,15 +1513,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">⚠️</span>
           <div>
-            <div className="text-sm font-medium text-error">Удалить все данные</div>
-            <div className="text-xs text-error/70">Сбросить прогресс и настройки</div>
+            <div className="text-sm font-medium text-error">{t('profile.clearAllData', 'Удалить все данные')}</div>
+            <div className="text-xs text-error/70">{t('profile.clearDataDescription', 'Сбросить прогресс и настройки')}</div>
           </div>
         </div>
         <button
           onClick={handleClearData}
           className="w-full py-2 bg-error/10 hover:bg-error/20 text-error rounded-lg text-sm font-medium transition-colors"
         >
-          Удалить все данные
+          {t('profile.clearAllData', 'Удалить все данные')}
         </button>
       </div>
 
@@ -1528,15 +1530,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">🗑</span>
           <div>
-            <div className="text-sm font-medium text-error">Удалить аккаунт</div>
-            <div className="text-xs text-error/70">Полное удаление аккаунта и данных</div>
+            <div className="text-sm font-medium text-error">{t('profile.deleteAccountTitle', 'Удалить аккаунт')}</div>
+            <div className="text-xs text-error/70">{t('profile.deleteAccountDescription', 'Полное удаление аккаунта и данных')}</div>
           </div>
         </div>
         <button
           onClick={onDeleteAccount}
           className="w-full py-2 bg-error hover:bg-error/80 text-white rounded-lg text-sm font-medium transition-colors"
         >
-          Удалить аккаунт
+          {t('profile.deleteAccountTitle', 'Удалить аккаунт')}
         </button>
       </div>
     </div>

@@ -546,7 +546,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
               <div>
                 <p className="text-sm text-dark-400">Начало</p>
                 <p className="font-medium">
-                  {new Date(selectedTournament.start_time).toLocaleString('ru-RU', {
+                  {new Date(selectedTournament.start_time).toLocaleString(i18n.language, {
                     day: 'numeric',
                     month: 'long',
                     hour: '2-digit',

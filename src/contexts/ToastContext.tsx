@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
-import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react'
+import type { ReactNode } from 'react'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 

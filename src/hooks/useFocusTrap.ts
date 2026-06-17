@@ -1,4 +1,5 @@
-import { useEffect, useRef, RefObject } from 'react'
+import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 
 let trapCount = 0
 let savedOverflow: string | null = null

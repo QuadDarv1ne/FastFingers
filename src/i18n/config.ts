@@ -4,7 +4,8 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import i18n, { TFunction } from 'i18next'
+import i18n from 'i18next'
+import type { TFunction } from 'i18next'
 import { initReactI18next, useTranslation } from 'react-i18next'
 import { logger } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'

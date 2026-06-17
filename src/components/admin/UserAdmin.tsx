@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import type { User, UserRole } from '../../types/auth'
 import { getFromStorageAsArray } from '../../utils/storage'
@@ -40,6 +41,7 @@ interface UserAdminProps {
 
 export function UserAdmin({ onViewStudent }: UserAdminProps) {
   const { user: currentUser } = useAuth()
+  const { i18n } = useTranslation()
   const [users, setUsers] = useState<DisplayUser[]>([])
   const [rawUsers, setRawUsers] = useState<StoredUser[]>([])
   const [search, setSearch] = useState('')
@@ -112,7 +114,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
 
   function formatDate(dateStr: string): string {
     try {
-      return new Date(dateStr).toLocaleDateString('ru-RU', {
+      return new Date(dateStr).toLocaleDateString(i18n.language, {
         day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
       })
     } catch {

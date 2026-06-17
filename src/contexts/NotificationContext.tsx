@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
-import { createContext, useState, useEffect, useRef, ReactNode, useCallback, useContext, useMemo } from 'react'
+import { createContext, useState, useEffect, useRef, useCallback, useContext, useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 import { logger } from '../utils/logger'
 

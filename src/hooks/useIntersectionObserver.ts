@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, RefObject, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import type { RefObject } from 'react'
 
 export interface UseIntersectionObserverOptions {
   /** Элемент-контейнер для наблюдения */

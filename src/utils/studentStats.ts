@@ -92,7 +92,7 @@ export function mapSupabaseSessions(sessions: SupabaseSession[]): SessionData[] 
 export interface FetchResult<T> { data: T[] | null; error: Error | null }
 
 /** Compute full analytics from a sessions array. */
-export function computeStudentStats(sessions: SessionData[]): StudentStatsResult {
+export function computeStudentStats(sessions: SessionData[], locale = 'en'): StudentStatsResult {
   const dayMs = 24 * 60 * 60 * 1000
   const now = Date.now()
 
@@ -182,7 +182,7 @@ export function computeStudentStats(sessions: SessionData[]): StudentStatsResult
     const daySessions = sessionsByDate.get(dateStr) || []
     if (daySessions.length > 0) {
       wpmTrend.push({
-        date: dayStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
+        date: dayStart.toLocaleDateString(locale, { day: 'numeric', month: 'short' }),
         wpm: Math.round(daySessions.reduce((sum, s) => sum + s.wpm, 0) / daySessions.length),
         accuracy: Math.round(daySessions.reduce((sum, s) => sum + s.accuracy, 0) / daySessions.length),
       })
@@ -190,7 +190,7 @@ export function computeStudentStats(sessions: SessionData[]): StudentStatsResult
   }
 
   // Activity by day of week
-  const dayLabels = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+  const dayLabels = Array.from({ length: 7 }, (_, i) => new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 7 + i)))
   const activityByDayOfWeek = dayLabels.map((day, index) => ({
     day, index, sessions: 0, totalWpm: 0, avgWpm: 0,
   }))

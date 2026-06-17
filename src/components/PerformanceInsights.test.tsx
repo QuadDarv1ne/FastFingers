@@ -9,6 +9,12 @@ import { render, screen } from '@testing-library/react'
 import { PerformanceInsights, TimeOfDayAnalysis, GoalsProgress } from './PerformanceInsights'
 import { TypingStats } from '../types'
 
+vi.mock('../i18n/config', () => ({
+  useAppTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}))
+
 const mockSessions = [
   { date: '2026-03-20T10:00:00Z', wpm: 50, accuracy: 95, cpm: 250, duration: 60 },
   { date: '2026-03-20T14:00:00Z', wpm: 55, accuracy: 92, cpm: 275, duration: 120 },
@@ -39,13 +45,13 @@ describe('PerformanceInsights', () => {
   it('должен показывать сообщение о недостатке данных', () => {
     render(<PerformanceInsights sessions={[]} />)
 
-    expect(screen.getByText(/Нужно больше данных/i)).toBeInTheDocument()
+    expect(screen.getByText('insights.needMoreData')).toBeInTheDocument()
   })
 
   it('должен показывать инсайты для достаточного количества сессий', () => {
     render(<PerformanceInsights sessions={mockSessions} bestStats={mockBestStats} />)
 
-    expect(screen.getByText(/Аналитика производительности/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.title/)).toBeInTheDocument()
   })
 
   it('должен определять прогресс WPM', () => {
@@ -58,7 +64,7 @@ describe('PerformanceInsights', () => {
     render(<PerformanceInsights sessions={improvingSessions} bestStats={mockBestStats} />)
 
     // Component shows analytics header and insight cards
-    expect(screen.getByText(/Аналитика производительности/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.title/)).toBeInTheDocument()
   })
 
   it('должен показывать достижение мастерства точности', () => {
@@ -70,7 +76,7 @@ describe('PerformanceInsights', () => {
 
     render(<PerformanceInsights sessions={highAccuracySessions} />)
 
-    expect(screen.getByText(/Мастер точности/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.accuracyMaster/)).toBeInTheDocument()
   })
 
   it('должен показывать предупреждение о низкой точности', () => {
@@ -82,7 +88,7 @@ describe('PerformanceInsights', () => {
 
     render(<PerformanceInsights sessions={lowAccuracySessions} />)
 
-    expect(screen.getByText(/Работа над ошибками/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.workOnErrors/)).toBeInTheDocument()
   })
 })
 
@@ -90,7 +96,7 @@ describe('TimeOfDayAnalysis', () => {
   it('должен показывать анализ по времени суток', () => {
     render(<TimeOfDayAnalysis sessions={mockSessions} />)
 
-    expect(screen.getByText(/Продуктивность по времени суток/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.timeOfDayTitle/)).toBeInTheDocument()
   })
 
   it('должен определять лучшее время суток', () => {
@@ -107,7 +113,7 @@ describe('TimeOfDayAnalysis', () => {
 
     render(<TimeOfDayAnalysis sessions={[...morningSessions, ...eveningSessions]} />)
 
-    expect(screen.getAllByText(/Утро/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/stats\.timeOfDay\.morning/).length).toBeGreaterThan(0)
   })
 
   it('должен показывать null при пустых сессиях', () => {
@@ -128,7 +134,7 @@ describe('GoalsProgress', () => {
       />
     )
 
-    expect(screen.getByText(/Дневная цель/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.dailyGoal/)).toBeInTheDocument()
     expect(screen.getByText(/50 \/ 60 WPM/i)).toBeInTheDocument()
   })
 
@@ -142,7 +148,7 @@ describe('GoalsProgress', () => {
       />
     )
 
-    expect(screen.getByText(/Недельная цель/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.weeklyGoal/)).toBeInTheDocument()
     expect(screen.getByText(/52\.?\d* \/ 55 WPM/i)).toBeInTheDocument()
   })
 
@@ -156,7 +162,7 @@ describe('GoalsProgress', () => {
       />
     )
 
-    expect(screen.getByText(/Цель достигнута/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.goalReached/)).toBeInTheDocument()
   })
 
   it('должен показывать достижение недельной цели', () => {
@@ -169,6 +175,6 @@ describe('GoalsProgress', () => {
       />
     )
 
-    expect(screen.getByText(/Недельная цель выполнена/i)).toBeInTheDocument()
+    expect(screen.getByText(/insights\.weeklyGoalReached/)).toBeInTheDocument()
   })
 })

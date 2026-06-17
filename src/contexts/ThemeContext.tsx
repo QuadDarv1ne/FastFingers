@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTheme } from '../hooks/useTheme'
 import { ThemeContext } from './ThemeContextValue'
 

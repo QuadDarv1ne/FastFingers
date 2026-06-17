@@ -63,7 +63,7 @@ export function useSessionStorage<T>(
   const setValue = useCallback(
     (value: SetValue<T>) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value
+        const valueToStore = typeof value === 'function' ? (value as (val: T) => T)(storedValue) : value
         setStoredValue(valueToStore)
         sessionStorage.setItem(key, serialize(valueToStore))
 
