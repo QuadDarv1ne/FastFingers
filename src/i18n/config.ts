@@ -438,6 +438,17 @@ export type TranslationKey =
   | 'leaderboard.yourPosition' | 'leaderboard.toTop10' | 'leaderboard.inTop' | 'leaderboard.places'
   | 'leaderboard.fasterThan' | 'leaderboard.otherParticipants'
   | 'errorBoundary.title' | 'errorBoundary.description' | 'errorBoundary.showDetails' | 'errorBoundary.tryAgain'
+  | 'goalsPanel.title' | 'goalsPanel.subtitle' | 'goalsPanel.active' | 'goalsPanel.completed' | 'goalsPanel.total'
+  | 'goalsPanel.progress' | 'goalsPanel.activeGoals' | 'goalsPanel.completedGoals' | 'goalsPanel.noGoals'
+  | 'goalsPanel.createFirstGoal' | 'goalsPanel.createGoal' | 'goalsPanel.addGoal' | 'goalsPanel.newGoal'
+  | 'goalsPanel.editGoal' | 'goalsPanel.icon' | 'goalsPanel.name' | 'goalsPanel.namePlaceholder'
+  | 'goalsPanel.descPlaceholder' | 'goalsPanel.target' | 'goalsPanel.unit' | 'goalsPanel.unitAccuracy'
+  | 'goalsPanel.unitWords' | 'goalsPanel.unitSessions' | 'goalsPanel.unitStreak' | 'goalsPanel.cancel'
+  | 'goalsPanel.create' | 'goalsPanel.save' | 'goalsPanel.deleteConfirm' | 'goalsPanel.completedOn'
+  | 'goalsPanel.unitWordsLabel' | 'goalsPanel.unitSessionsLabel' | 'goalsPanel.unitStreakLabel'
+  | 'goalsPanel.beginnerTitle' | 'goalsPanel.beginnerDesc' | 'goalsPanel.confidentStartTitle' | 'goalsPanel.confidentStartDesc'
+  | 'goalsPanel.proTitle' | 'goalsPanel.proDesc' | 'goalsPanel.accuracyMasterTitle' | 'goalsPanel.accuracyMasterDesc'
+  | 'goalsPanel.vocabularyTitle' | 'goalsPanel.vocabularyDesc' | 'goalsPanel.consistencyTitle' | 'goalsPanel.consistencyDesc'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 
