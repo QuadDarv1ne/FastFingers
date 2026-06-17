@@ -74,7 +74,7 @@ export function useClipboard({
       onSuccess?.()
       scheduleReset()
     } catch (error) {
-      logger.warn('Operation failed in hooks/useClipboard.ts')
+      logger.warn('Clipboard writeText failed', error)
       const err = error instanceof Error ? error : new Error('Unknown clipboard error')
       onError?.(err)
       throw err

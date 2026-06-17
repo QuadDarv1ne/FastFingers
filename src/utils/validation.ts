@@ -58,8 +58,8 @@ export function isValidUrl(url: string): boolean {
   try {
     new URL(url)
     return true
-  } catch {
-    logger.warn('Operation failed in utils/validation.ts')
+  } catch (err) {
+    logger.warn(`isValidUrl failed for url="${url}"`, err)
     return false
   }
 }
