@@ -140,19 +140,19 @@ export function DailyChallengeManager() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="glass rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-white">{stats.total}</div>
-          <div className="text-xs text-dark-400 mt-1">Всего челленджей</div>
+          <div className="text-xs text-dark-400 mt-1">{t('challenge.totalChallenges')}</div>
         </div>
         <div className="glass rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-success">{stats.completed}</div>
-          <div className="text-xs text-dark-400 mt-1">Выполнено</div>
+          <div className="text-xs text-dark-400 mt-1">{t('challenge.completedCount')}</div>
         </div>
         <div className="glass rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-primary-400">{stats.completionRate}%</div>
-          <div className="text-xs text-dark-400 mt-1">Процент выполнения</div>
+          <div className="text-xs text-dark-400 mt-1">{t('challenge.completionRate')}</div>
         </div>
         <div className="glass rounded-xl p-4 text-center">
           <div className="text-2xl font-bold text-orange-400">{streak.current}</div>
-          <div className="text-xs text-dark-400 mt-1">Текущая серия</div>
+          <div className="text-xs text-dark-400 mt-1">{t('challenge.currentStreak')}</div>
         </div>
       </div>
 
@@ -162,31 +162,31 @@ export function DailyChallengeManager() {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <span>{todayChallenge.completed ? '✅' : '🎯'}</span>
-              Челлендж на сегодня
+              {t('challenge.todayChallenge')}
             </h3>
             <span className="text-sm text-dark-400">{new Date(todayChallenge.date + 'T00:00:00').toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div className="bg-dark-800/50 rounded-lg p-3">
-              <div className="text-xs text-dark-400">Текст</div>
+              <div className="text-xs text-dark-400">{t('challenge.textLabel')}</div>
               <div className="text-white font-medium truncate" title={todayChallenge.text}>{todayChallenge.text.slice(0, 30)}...</div>
             </div>
             <div className="bg-dark-800/50 rounded-lg p-3">
-              <div className="text-xs text-dark-400">Цель WPM</div>
+              <div className="text-xs text-dark-400">{t('challenge.goalWpm')}</div>
               <div className="text-success font-bold text-lg">{todayChallenge.targetWpm}</div>
             </div>
             <div className="bg-dark-800/50 rounded-lg p-3">
-              <div className="text-xs text-dark-400">Цель точность</div>
+              <div className="text-xs text-dark-400">{t('challenge.goalAccuracy')}</div>
               <div className="text-blue-400 font-bold text-lg">{todayChallenge.targetAccuracy}%</div>
             </div>
             <div className="bg-dark-800/50 rounded-lg p-3">
-              <div className="text-xs text-dark-400">Награда XP</div>
+              <div className="text-xs text-dark-400">{t('challenge.xpReward')}</div>
               <div className="text-yellow-400 font-bold text-lg">{todayChallenge.xpReward}</div>
             </div>
           </div>
           {todayChallenge.completed && todayChallenge.userWpm && (
             <div className="mt-3 text-sm text-success">
-              Выполнено: {todayChallenge.userWpm} WPM, {todayChallenge.userAccuracy}% точность
+              {t('challenge.completedResult', { wpm: todayChallenge.userWpm, acc: todayChallenge.userAccuracy })}
             </div>
           )}
         </div>
@@ -198,13 +198,13 @@ export function DailyChallengeManager() {
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm transition-colors"
         >
-          + Создать челлендж
+          {t('challenge.createButton')}
         </button>
         <button
           onClick={handleResetCompletions}
           className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm transition-colors"
         >
-          Сбросить счётчик выполнений
+          {t('challenge.resetCounter')}
         </button>
       </div>
 
@@ -212,10 +212,10 @@ export function DailyChallengeManager() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="glass rounded-xl p-6 max-w-lg w-full">
-            <h3 className="text-xl font-bold text-white mb-4">Создать ежедневный челлендж</h3>
+            <h3 className="text-xl font-bold text-white mb-4">{t('challenge.createDaily')}</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="dc-date" className="block text-sm text-dark-400 mb-1">Дата</label>
+                <label htmlFor="dc-date" className="block text-sm text-dark-400 mb-1">{t('challenge.date')}</label>
                 <input
                   id="dc-date"
                   type="date"
@@ -225,19 +225,19 @@ export function DailyChallengeManager() {
                 />
               </div>
               <div>
-                <label htmlFor="dc-text" className="block text-sm text-dark-400 mb-1">Текст (необязательно)</label>
+                <label htmlFor="dc-text" className="block text-sm text-dark-400 mb-1">{t('challenge.textOptional')}</label>
                 <textarea
                   id="dc-text"
                   value={newText}
                   onChange={e => setNewText(e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 bg-dark-800 border border-dark-700 rounded-lg text-white text-sm resize-none"
-                  placeholder="Оставьте пустым для автоматической генерации"
+                  placeholder={t('challenge.textPlaceholder')}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="dc-wpm" className="block text-sm text-dark-400 mb-1">Цель WPM</label>
+                  <label htmlFor="dc-wpm" className="block text-sm text-dark-400 mb-1">{t('challenge.goalWpm')}</label>
                   <input
                     id="dc-wpm"
                     type="number"
@@ -249,7 +249,7 @@ export function DailyChallengeManager() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="dc-acc" className="block text-sm text-dark-400 mb-1">Цель точность (%)</label>
+                  <label htmlFor="dc-acc" className="block text-sm text-dark-400 mb-1">{t('challenge.goalAccuracyPercent')}</label>
                   <input
                     id="dc-acc"
                     type="number"
@@ -267,13 +267,13 @@ export function DailyChallengeManager() {
                 onClick={handleCreateChallenge}
                 className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm"
               >
-                Создать
+                {t('challenge.create')}
               </button>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm"
               >
-                Отмена
+                {t('action.cancel')}
               </button>
             </div>
           </div>
@@ -282,9 +282,9 @@ export function DailyChallengeManager() {
 
       {/* Challenge history */}
       <div className="glass rounded-xl p-5">
-        <h3 className="text-lg font-semibold text-white mb-4">История челленджей</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">{t('challenge.history')}</h3>
         {challenges.length === 0 ? (
-          <div className="text-center text-dark-500 py-8">Челленджи ещё не созданы</div>
+          <div className="text-center text-dark-500 py-8">{t('challenge.noChallenges')}</div>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {[...challenges].reverse().map(c => (
@@ -302,15 +302,15 @@ export function DailyChallengeManager() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-dark-300 text-xs">Цель: {c.targetWpm} WPM / {c.targetAccuracy}%</div>
+                    <div className="text-dark-300 text-xs">{t('challenge.goalPrefix')} {c.targetWpm} WPM / {c.targetAccuracy}%</div>
                     {c.completed && c.userWpm && (
-                      <div className="text-success text-xs">Результат: {c.userWpm} WPM / {c.userAccuracy}%</div>
+                      <div className="text-success text-xs">{t('challenge.resultPrefix')} {c.userWpm} WPM / {c.userAccuracy}%</div>
                     )}
                   </div>
                   <button
                     onClick={() => handleDeleteChallenge(c.date)}
                     className="text-dark-500 hover:text-error transition-colors"
-                    title="Удалить"
+                    title={t('action.delete')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
