@@ -109,7 +109,7 @@ export function TypingTips() {
       </div>
 
       {/* Категории */}
-      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Категории советов">
+      <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label={t('tip.categories')}>
         {categories.map(cat => (
           <button
             key={cat.id}
