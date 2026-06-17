@@ -41,28 +41,19 @@ function CountdownTimer({
     if (!isRunning) return
 
     const interval = setInterval(() => {
-      let nextRemaining: number | null = null
-
       setRemaining(prev => {
         if (prev <= 0) return 0
-        nextRemaining = prev - 1
-        return nextRemaining
+        return prev - 1
       })
-
-      if (nextRemaining !== null) {
-        onTickRef.current?.(nextRemaining)
-        if (nextRemaining <= 0) {
-          completedRef.current = true
-        }
-      }
     }, 1000)
 
     return () => clearInterval(interval)
   }, [isRunning])
 
   useEffect(() => {
-    if (completedRef.current && remaining <= 0) {
-      completedRef.current = false
+    onTickRef.current?.(remaining)
+    if (remaining <= 0 && !completedRef.current) {
+      completedRef.current = true
       setIsRunning(false)
       onCompleteRef.current?.()
     }

@@ -328,7 +328,6 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
           aria-hidden="true"
           onKeyDown={handleKeyDown}
           disabled={!isActive || countdown !== null}
-          aria-label={t('exercise.custom')}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"

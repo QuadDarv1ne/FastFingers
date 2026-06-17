@@ -202,7 +202,6 @@ export const SprintMode = memo(function SprintMode({ duration, onExit, onComplet
           aria-hidden="true"
           onKeyDown={handleKeyDown}
           disabled={!isActive || countdown !== null}
-          aria-label={t('exercise.custom')}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"

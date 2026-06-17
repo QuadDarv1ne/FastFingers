@@ -129,9 +129,9 @@ export function TypingTips() {
 
       {/* Советы */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4" role="list">
-        {filteredTips.map((tip, index) => (
+        {filteredTips.map((tip) => (
           <div
-            key={index}
+            key={tip.titleKey}
             className="bg-dark-800/50 rounded-lg p-4 hover:bg-dark-800 transition-colors"
             role="listitem"
           >

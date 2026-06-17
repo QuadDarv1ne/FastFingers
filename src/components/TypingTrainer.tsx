@@ -79,6 +79,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const completionRef = useRef<HTMLDivElement>(null)
   const correctCountRef = useRef(0)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inputDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const resultsRef = useRef<KeyInputResult[]>([])
   const isCompletingRef = useRef(false)
   const isHandlingInputRef = useRef(false)
@@ -177,6 +178,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   useEffect(() => {
     return () => {
       if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
+      if (inputDebounceRef.current) clearTimeout(inputDebounceRef.current)
     }
   }, [])
 
@@ -228,7 +230,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         handleComplete(resultsRef.current)
       }
     } finally {
-      setTimeout(() => { isHandlingInputRef.current = false }, 10)
+      if (inputDebounceRef.current) clearTimeout(inputDebounceRef.current)
+      inputDebounceRef.current = setTimeout(() => { isHandlingInputRef.current = false }, 10)
     }
   }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 
