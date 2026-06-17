@@ -449,6 +449,10 @@ export type TranslationKey =
   | 'goalsPanel.beginnerTitle' | 'goalsPanel.beginnerDesc' | 'goalsPanel.confidentStartTitle' | 'goalsPanel.confidentStartDesc'
   | 'goalsPanel.proTitle' | 'goalsPanel.proDesc' | 'goalsPanel.accuracyMasterTitle' | 'goalsPanel.accuracyMasterDesc'
   | 'goalsPanel.vocabularyTitle' | 'goalsPanel.vocabularyDesc' | 'goalsPanel.consistencyTitle' | 'goalsPanel.consistencyDesc'
+  | 'practiceRec.title' | 'practiceRec.priorityHigh' | 'practiceRec.priorityMedium' | 'practiceRec.priorityLow'
+  | 'practiceRec.priority' | 'practiceRec.goToMode' | 'practiceRec.startExercise' | 'practiceRec.changeSetting'
+  | 'practiceRec.execute' | 'practiceRec.modePractice' | 'practiceRec.modeSprint' | 'practiceRec.modeLearning'
+  | 'practiceRec.modeSpeedtest'
 
 export type SupportedLanguage = 'ru' | 'en' | 'zh' | 'he' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ja'
 

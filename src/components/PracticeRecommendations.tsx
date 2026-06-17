@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useAppTranslation } from '../i18n/config'
 import { TypingStats, KeyHeatmapData } from '@/types'
 import {
   generatePracticeRecommendations,
@@ -20,6 +21,8 @@ export function PracticeRecommendations({
   currentAccuracy,
   onActionClick,
 }: PracticeRecommendationsProps) {
+  const { t } = useAppTranslation()
+
   const recommendations = useMemo(
     () =>
       generatePracticeRecommendations(
@@ -39,7 +42,7 @@ export function PracticeRecommendations({
     <div className="card p-6">
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
         <span>💡</span>
-        Рекомендации для практики
+        {t('practiceRec.title')}
       </h3>
 
       <div className="space-y-3">
@@ -52,19 +55,18 @@ export function PracticeRecommendations({
         ))}
       </div>
 
-      {/* Легенда приоритетов */}
       <div className="mt-6 pt-4 border-t border-dark-700 flex items-center gap-4 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
-          <span className="text-dark-400">Высокий приоритет</span>
+          <span className="text-dark-400">{t('practiceRec.priorityHigh')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-yellow-500" />
-          <span className="text-dark-400">Средний приоритет</span>
+          <span className="text-dark-400">{t('practiceRec.priorityMedium')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-green-500" />
-          <span className="text-dark-400">Низкий приоритет</span>
+          <span className="text-dark-400">{t('practiceRec.priorityLow')}</span>
         </div>
       </div>
     </div>
@@ -78,6 +80,8 @@ function RecommendationCard({
   recommendation: PracticeRecommendation
   onActionClick?: (action: PracticeRecommendation['action']) => void
 }) {
+  const { t } = useAppTranslation()
+
   const priorityColors = {
     high: 'border-red-500/50 bg-red-500/10',
     medium: 'border-yellow-500/50 bg-yellow-500/10',
@@ -103,10 +107,8 @@ function RecommendationCard({
       className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${priorityColors[recommendation.priority]}`}
     >
       <div className="flex items-start gap-3">
-        {/* Иконка */}
         <div className="text-3xl">{recommendation.icon}</div>
 
-        {/* Контент */}
         <div className="flex-1">
           <div className="flex items-start justify-between mb-2">
             <div>
@@ -122,17 +124,16 @@ function RecommendationCard({
             </div>
             <div
               className={`w-2 h-2 rounded-full ${priorityDots[recommendation.priority]}`}
-              title={`Приоритет: ${recommendation.priority}`}
+              title={t('practiceRec.priority', { priority: recommendation.priority })}
             />
           </div>
 
-          {/* Действие */}
           {recommendation.action && onActionClick && (
             <button
               onClick={() => onActionClick(recommendation.action)}
               className="mt-3 px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             >
-              {getActionLabel(recommendation.action)}
+              {getActionLabel(recommendation.action, t)}
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -154,27 +155,27 @@ function RecommendationCard({
   )
 }
 
-function getActionLabel(action: PracticeRecommendation['action']): string {
+function getActionLabel(action: PracticeRecommendation['action'], t: (key: string, params?: Record<string, string>) => string): string {
   if (!action) return ''
 
   switch (action.type) {
     case 'mode':
-      return `Перейти в режим ${getModeLabel(action.value)}`
+      return t('practiceRec.goToMode', { mode: getModeLabel(action.value, t) })
     case 'exercise':
-      return 'Начать упражнение'
+      return t('practiceRec.startExercise')
     case 'setting':
-      return 'Изменить настройку'
+      return t('practiceRec.changeSetting')
     default:
-      return 'Выполнить'
+      return t('practiceRec.execute')
   }
 }
 
-function getModeLabel(mode: string): string {
+function getModeLabel(mode: string, t: (key: string) => string): string {
   const labels: Record<string, string> = {
-    practice: 'Практика',
-    sprint: 'Спринт',
-    learning: 'Обучение',
-    speedtest: 'Тест скорости',
+    practice: t('practiceRec.modePractice'),
+    sprint: t('practiceRec.modeSprint'),
+    learning: t('practiceRec.modeLearning'),
+    speedtest: t('practiceRec.modeSpeedtest'),
   }
   return labels[mode] || mode
 }
