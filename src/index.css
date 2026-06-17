@@ -428,7 +428,7 @@ textarea:focus-visible {
 .char {
   @apply relative inline-flex items-center justify-center min-w-[0.55em] h-[1.35em] rounded text-lg md:text-xl font-mono;
   margin: 0 0.5px;
-  transition: all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.12s ease-out;
 }
 
 .char.correct {

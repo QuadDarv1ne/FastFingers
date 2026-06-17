@@ -62,6 +62,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
 }: TypingTrainerProps) {
   const { t } = useAppTranslation()
   const adaptive = useAdaptiveDifficulty(true)
+  const adaptiveRef = useRef(adaptive)
+  adaptiveRef.current = adaptive
   const [text, setText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<KeyInputResult[]>([])
@@ -116,12 +118,13 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     const stats = calculateStats(correctChars, results.length, errors, timeElapsed)
 
     setIsComplete(true)
-    adaptive.onSessionComplete(stats)
+    adaptiveRef.current.onSessionComplete(stats)
     onSessionComplete(stats)
-  }, [startTime, onSessionComplete, adaptive])
+  }, [startTime, onSessionComplete])
 
   const initExercise = useCallback(() => {
     try {
+      const currentAdaptive = adaptiveRef.current
       let exerciseText: string
 
       if (isChallenge && challengeText) {
@@ -134,8 +137,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         const exercise = getRandomExercise(selectedCategory, selectedDifficulty)
         exerciseText = exercise ? exercise.text : ''
       } else {
-        if (adaptive.isEnabled) {
-          const adaptiveText = adaptive.getNextText()
+        if (currentAdaptive.isEnabled) {
+          const adaptiveText = currentAdaptive.getNextText()
           exerciseText = adaptiveText ? adaptiveText.text : ''
         } else {
           exerciseText = generatePracticeText(20, selectedDifficulty)
@@ -165,7 +168,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setIsComplete(false)
       textLengthRef.current = 0
     }
-  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText, adaptive, t])
+  }, [selectedCategory, selectedDifficulty, customExercises, isChallenge, challengeText, t])
 
   useEffect(() => {
     initExercise()
@@ -302,28 +305,18 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         >
           <div className="flex items-center gap-2">
             <span className="text-xs text-dark-500 font-medium uppercase tracking-wider">WPM</span>
-            <motion.span
-              key={wpm}
-              initial={{ scale: 1.3, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-xl font-bold font-mono text-primary-400"
-            >
+            <span className="text-xl font-bold font-mono text-primary-400 tabular-nums">
               {wpm}
-            </motion.span>
+            </span>
           </div>
           <div className="w-px h-6 bg-dark-700/50" />
           <div className="flex items-center gap-2">
             <span className="text-xs text-dark-500 font-medium uppercase tracking-wider">{t('common.accuracy')}</span>
-            <motion.span
-              key={accuracy}
-              initial={{ scale: 1.3, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className={`text-xl font-bold font-mono ${
-                accuracy >= 95 ? 'text-green-400' : accuracy >= 80 ? 'text-yellow-400' : 'text-red-400'
-              }`}
-            >
+            <span className={`text-xl font-bold font-mono tabular-nums ${
+              accuracy >= 95 ? 'text-green-400' : accuracy >= 80 ? 'text-yellow-400' : 'text-red-400'
+            }`}>
               {accuracy}%
-            </motion.span>
+            </span>
           </div>
         </motion.div>
       )}
@@ -480,21 +473,15 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         <div className="mt-5 space-y-2" role="progressbar" aria-valuenow={currentIndex} aria-valuemin={0} aria-valuemax={text.length} aria-valuetext={`${progressPercent}%`} aria-label={t('trainer.aria.progress')}>
           <div className="flex items-center justify-between text-xs">
             <span className="text-dark-400 font-medium">{t('trainer.progressLabel')}</span>
-            <motion.span
-              key={progressPercent}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-primary-400 font-bold font-mono"
-            >
+            <span className="text-primary-400 font-bold font-mono tabular-nums">
               {progressPercent}%
-            </motion.span>
+            </span>
           </div>
           <div className="w-full h-2 bg-dark-800/60 rounded-full overflow-hidden shadow-inner">
             <motion.div
               className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 rounded-full relative overflow-hidden"
               style={{ width: `${progressPercent}%` }}
-              layout
-              transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+              transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
             </motion.div>

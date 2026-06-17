@@ -33,7 +33,7 @@ export const ModeButton = memo<ModeButtonProps>(function ModeButton({
         <motion.span
           layoutId="activeNav"
           className="absolute inset-0 bg-primary-600 rounded-[inherit] -z-10"
-          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
         />
       )}
       <span className="text-base leading-none" aria-hidden="true">{icon}</span>

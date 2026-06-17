@@ -59,9 +59,9 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             relative flex items-center justify-center
             w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11
             rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold
-            touch-manipulation
+            touch-manipulation transition-transform duration-150 ease-out
             ${isHighlighted
-              ? 'text-white scale-110 shadow-xl'
+              ? 'text-white scale-105 shadow-xl'
               : heatmapColor
                 ? 'text-white shadow-lg'
                 : 'hover:bg-dark-800 border active:bg-dark-700 active:scale-95'}
