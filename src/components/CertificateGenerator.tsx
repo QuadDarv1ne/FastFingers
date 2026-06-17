@@ -8,6 +8,7 @@ import type { User } from '../types/auth'
 import { calculateRank } from '../utils/certificateTypes'
 import type { CertificateData } from '../utils/certificateTypes'
 import { useFocusTrap } from '@hooks/useFocusTrap'
+import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
 import { logger } from '../utils/logger'
 import { StatCard } from './ui/StatCard'
@@ -37,6 +38,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
   onClose,
 }: CertificateGeneratorProps) {
   const { t } = useAppTranslation()
+  const { showToast } = useToast()
   const [theme, setTheme] = useState<CertificateTheme>('classic')
   const [language, setLanguage] = useState<CertificateLanguage>('ru')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -73,7 +75,7 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
       await generateCertificate(certificateData, { language, download: true, theme })
     } catch (err) {
       logger.error('Certificate generation failed:', err)
-      alert(t('certificate.generationFailed'))
+      showToast(t('certificate.generationFailed'), 'error', 5000)
     } finally {
       setIsGenerating(false)
     }
