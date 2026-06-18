@@ -1,5 +1,6 @@
 import type { Exercise } from '../types'
-import { practiceTexts, PracticeText, TextCategory, getRandomText } from '../data/practiceTexts'
+import type { PracticeText, TextCategory } from '../data/practiceTexts'
+import { practiceTexts, getRandomText } from '../data/practiceTexts'
 import { createScopedLogger } from './logger'
 
 const logger = createScopedLogger('exercises')

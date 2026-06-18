@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout, FontSize } from '../types';
+import type { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout, FontSize } from '../types';
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
 import { useAppStore } from '../stores/useAppStore';
 import { useShallow } from 'zustand/react/shallow';

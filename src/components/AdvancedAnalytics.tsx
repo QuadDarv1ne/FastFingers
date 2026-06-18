@@ -1,5 +1,5 @@
 import { memo, useMemo, useRef, useEffect } from 'react'
-import { TypingStats, KeyHeatmapData } from '@/types'
+import type { TypingStats, KeyHeatmapData } from '@/types'
 import { analyzeTypingProgress, TypingAnalytics } from '@utils/analytics'
 import { useFocusTrap } from '@hooks/useFocusTrap'
 import { useAppTranslation } from '../i18n/config'

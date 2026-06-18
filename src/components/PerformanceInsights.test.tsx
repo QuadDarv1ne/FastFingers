@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { PerformanceInsights, TimeOfDayAnalysis, GoalsProgress } from './PerformanceInsights'
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 
 vi.mock('../i18n/config', () => ({
   useAppTranslation: () => ({

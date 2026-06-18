@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
+import type { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
 import { logger } from '../utils/logger'
 import { setToStorageWithQuotaHandling } from '../utils/storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'

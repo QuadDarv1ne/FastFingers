@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { TypingStats, ChallengeWithProgress } from '../types'
+import type { TypingStats, ChallengeWithProgress } from '../types'
 import { calculateSessionXp } from '../utils/stats'
 import { calculateStreakXpBonus } from '../utils/streakBonus'
 

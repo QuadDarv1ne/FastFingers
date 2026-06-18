@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { TypingStats } from '../types'
+import type { TypingStats } from '../types'
 import { PracticeText } from '../data/practiceTexts'
 import { logger } from './logger'
 

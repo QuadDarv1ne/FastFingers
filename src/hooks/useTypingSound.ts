@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect, useState } from 'react'
-import { SoundTheme } from '../types'
+import type { SoundTheme } from '../types'
 import { logger } from '../utils/logger'
 
 interface SoundOptions {

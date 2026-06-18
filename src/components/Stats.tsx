@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { motion } from 'framer-motion'
-import { UserProgress, TypingStats as TypingStatsType } from '../types'
+import type { UserProgress, TypingStats as TypingStatsType } from '../types'
 import { formatDuration } from '../utils/number'
 import { useAppTranslation } from '../i18n/config'
 import { StatCard } from './ui/StatCard'

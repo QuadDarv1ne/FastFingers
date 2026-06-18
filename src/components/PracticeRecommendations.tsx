@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useAppTranslation } from '../i18n/config'
-import { TypingStats, KeyHeatmapData } from '@/types'
+import type { TypingStats, KeyHeatmapData } from '@/types'
 import {
   generatePracticeRecommendations,
   PracticeRecommendation,

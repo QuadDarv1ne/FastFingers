@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAutoSave } from '../hooks/useAutoSave'
-import { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
+import type { UserProgress, TypingStats, KeyHeatmapData, UserSettings } from '../types'
 
 const mockProgress: UserProgress = {
   level: 5,

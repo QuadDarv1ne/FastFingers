@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { KeyboardLayout, SoundTheme, Theme, KeyboardSkin, FontSize } from '../types'
+import type { KeyboardLayout, SoundTheme, Theme, KeyboardSkin, FontSize } from '../types'
 
 interface AppState {
   layout: KeyboardLayout
