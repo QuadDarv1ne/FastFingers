@@ -53,8 +53,7 @@ export function useIntersectionObserver(
   }, [])
 
   useEffect(() => {
-    // Создаём наблюдателя
-    observerRef.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         const [firstEntry] = entries
         if (firstEntry) {
@@ -64,25 +63,16 @@ export function useIntersectionObserver(
       },
       { root, rootMargin, threshold }
     )
+    observerRef.current = observer
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [root, rootMargin, threshold])
-
-  useEffect(() => {
-    if (element && observerRef.current) {
-      observerRef.current.observe(element)
+    if (element) {
+      observer.observe(element)
     }
 
     return () => {
-      if (element && observerRef.current) {
-        observerRef.current.unobserve(element)
-      }
+      observer.disconnect()
     }
-  }, [element])
+  }, [root, rootMargin, threshold, element])
 
   const disconnect = useCallback(() => {
     if (observerRef.current) {

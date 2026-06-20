@@ -101,18 +101,16 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
       shownMilestonesRef.current.add(currentInterval)
       const key = MILESTONE_MESSAGES[currentInterval] ?? ''
       setShowMilestone(key ? t(key) : null)
-      if (milestoneTimerRef.current) clearTimeout(milestoneTimerRef.current)
-      milestoneTimerRef.current = setTimeout(() => setShowMilestone(null), 3000)
       setCurrentMilestone(MILESTONE_INTERVALS.indexOf(currentInterval) + 1)
     }
-
-    return () => {
-      if (milestoneTimerRef.current) {
-        clearTimeout(milestoneTimerRef.current)
-        milestoneTimerRef.current = null
-      }
-    }
   }, [timeLeft, isActive, t])
+
+  // Отдельный эффект для авто-скрытия уведомления — не зависит от timeLeft
+  useEffect(() => {
+    if (!showMilestone) return
+    const timer = setTimeout(() => setShowMilestone(null), 3000)
+    return () => clearTimeout(timer)
+  }, [showMilestone])
 
   useEffect(() => {
     return () => {
