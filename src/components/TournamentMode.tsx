@@ -102,8 +102,12 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
     initialWordCount: 50,
     initialDifficulty: 5,
     mode: 'practice',
-    onComplete: (stats: TypingStats) => {
-      saveMatchResult(stats)
+    onComplete: async (stats: TypingStats) => {
+      try {
+        await saveMatchResult(stats)
+      } catch {
+        // Error already logged inside saveMatchResult
+      }
       onComplete?.(stats)
       setMatchResult(stats)
       setActiveMatch(null)

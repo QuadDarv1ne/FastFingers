@@ -282,8 +282,10 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
         )
         .eq('id', duel.id)
     } catch (err) {
-      // Re-queue pending update if it failed so it can be retried
-      pendingUpdateRef.current = pending
+      // Only re-queue if no newer data was written in the meantime
+      if (pendingUpdateRef.current === null) {
+        pendingUpdateRef.current = pending
+      }
       logger.error('Failed to flush duel progress:', err)
     }
   }, [supabase, supabaseReady])
