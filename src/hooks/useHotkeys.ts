@@ -67,19 +67,14 @@ export function useHotkeys(
       return
     }
 
-    const parts = []
-    if (event.ctrlKey || event.metaKey) parts.push('ctrl')
-    if (event.shiftKey) parts.push('shift')
-    if (event.altKey) parts.push('alt')
-    parts.push(normalizeKey(event.key))
-
-    const combination = parts.join('+')
-    const handler = shortcutsRef.current[combination]
-    
-    if (handler) {
-      if (preventDefault) event.preventDefault()
-      if (stopPropagation) event.stopPropagation()
-      handler(event)
+    const shortcuts = shortcutsRef.current
+    for (const [hotkey, handler] of Object.entries(shortcuts)) {
+      if (matchesHotkey(event, hotkey)) {
+        if (preventDefault) event.preventDefault()
+        if (stopPropagation) event.stopPropagation()
+        handler(event)
+        return
+      }
     }
   }, [enabled, ignoreInputFocus, preventDefault, stopPropagation])
 

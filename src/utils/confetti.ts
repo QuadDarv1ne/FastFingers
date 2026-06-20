@@ -97,6 +97,7 @@ export async function triggerConfetti(options: ConfettiOptions = {}) {
   const colors = COLORS[type]
   const confetti = await getConfetti()
   if (!confetti) return
+  if (generation !== currentGen) return
 
   confetti({ ...CONFETTI_CONFIG.base, colors })
 
