@@ -930,5 +930,11 @@
   "leaderboard.inTop": "В топе!",
   "leaderboard.places": "мест",
   "leaderboard.fasterThan": "Вы быстрее {{pct}}% пользователей",
-  "leaderboard.otherParticipants": "Остальные участники"
+  "leaderboard.otherParticipants": "Остальные участники",
+  "action.use": "Использовать",
+  "stats.challenges": "Челленджи",
+  "chart.area": "График области",
+  "chart.bar": "Столбчатый график",
+  "chart.pie": "Круговая диаграмма",
+  "misc.selectLanguage": "Выбрать язык"
 }

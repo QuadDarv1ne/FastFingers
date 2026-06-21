@@ -179,14 +179,14 @@ export const Stats = memo(function Stats({ progress, currentStats, onViewHistory
 
       {/* Challenge stats */}
       {challengeStats && challengeStats.total > 0 && (
-        <div className="card" role="region" aria-label="Challenges">
+        <div className="card" role="region" aria-label={t('stats.challenges')}>
           <SectionHeader
             icon={
               <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
             }
-            label="Challenges"
+            label={t('stats.challenges')}
           />
           <div className="space-y-2.5">
             <div className="flex justify-between items-center">

@@ -17,6 +17,7 @@ interface SimplePieChartProps {
   data: PieChartData[]
   height?: number
   outerRadius?: number
+  ariaLabel?: string
 }
 
 interface TooltipData {
@@ -51,6 +52,7 @@ export function SimplePieChart({
   data,
   height = 256,
   outerRadius = 80,
+  ariaLabel,
 }: SimplePieChartProps) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null)
 
@@ -96,7 +98,7 @@ export function SimplePieChart({
         viewBox={`0 0 ${chartWidth} ${chartHeight}`}
         className="w-full h-full"
         role="img"
-        aria-label="Pie chart"
+        aria-label={ariaLabel || 'Pie chart'}
       >
         {slices.map((slice, index) => (
           <path

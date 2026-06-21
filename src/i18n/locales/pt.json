@@ -253,5 +253,11 @@
   "tooltip.marathon": "5 minutos de digitação contínua para resistência",
   "tooltip.speedtest": "Teste de velocidade de digitação",
   "tooltip.sprint": "60 segundos para velocidade máxima",
-  "tooltip.tournament": "Participe de torneios e vença"
+  "tooltip.tournament": "Participe de torneios e vença",
+  "action.use": "Usar",
+  "stats.challenges": "Desafios",
+  "chart.area": "Gráfico de área",
+  "chart.bar": "Gráfico de barras",
+  "chart.pie": "Gráfico de pizza",
+  "misc.selectLanguage": "Selecionar idioma"
 }

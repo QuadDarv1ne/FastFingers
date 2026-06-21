@@ -253,5 +253,11 @@
   "tooltip.marathon": "5分間の持続タイピング耐力チャレンジ",
   "tooltip.speedtest": "タイピング速度テスト",
   "tooltip.sprint": "60秒で最大スピード",
-  "tooltip.tournament": "トーナメントに参加して勝利"
+  "tooltip.tournament": "トーナメントに参加して勝利",
+  "action.use": "使用",
+  "stats.challenges": "チャレンジ",
+  "chart.area": "エリアチャート",
+  "chart.bar": "棒グラフ",
+  "chart.pie": "円グラフ",
+  "misc.selectLanguage": "言語を選択"
 }

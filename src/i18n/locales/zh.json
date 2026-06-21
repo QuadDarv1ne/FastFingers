@@ -487,5 +487,11 @@
   "hardcore.yourRecords": "你的记录",
   "hardcore.rankUp": "段位提升！",
   "hardcore.saveError": "保存记录失败，请稍后重试。",
-  "hardcore.sessionResult": "硬核模式：连击 {{streak}}，{{wpm}} WPM"
+  "hardcore.sessionResult": "硬核模式：连击 {{streak}}，{{wpm}} WPM",
+  "action.use": "使用",
+  "stats.challenges": "挑战",
+  "chart.area": "面积图",
+  "chart.bar": "柱状图",
+  "chart.pie": "饼图",
+  "misc.selectLanguage": "选择语言"
 }

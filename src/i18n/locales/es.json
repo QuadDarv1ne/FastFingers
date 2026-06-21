@@ -252,5 +252,11 @@
   "tooltip.marathon": "5 minutos de escritura continua para resistencia",
   "tooltip.speedtest": "Prueba de velocidad de escritura",
   "tooltip.sprint": "60 segundos para máxima velocidad",
-  "tooltip.tournament": "Participa en torneos y gana"
+  "tooltip.tournament": "Participa en torneos y gana",
+  "action.use": "Usar",
+  "stats.challenges": "Desafíos",
+  "chart.area": "Gráfico de área",
+  "chart.bar": "Gráfico de barras",
+  "chart.pie": "Gráfico circular",
+  "misc.selectLanguage": "Seleccionar idioma"
 }

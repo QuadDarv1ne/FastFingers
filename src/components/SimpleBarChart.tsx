@@ -18,6 +18,7 @@ interface SimpleBarChartProps {
   fill: string
   height?: number
   radius?: [number, number, number, number]
+  ariaLabel?: string
 }
 
 interface TooltipData {
@@ -34,6 +35,7 @@ export function SimpleBarChart({
   fill,
   height = 256,
   radius = [0, 0, 0, 0],
+  ariaLabel,
 }: SimpleBarChartProps) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null)
 
@@ -84,7 +86,7 @@ export function SimpleBarChart({
         viewBox={`0 0 ${chartWidth} ${chartHeight}`}
         className="w-full h-full"
         role="img"
-        aria-label="Bar chart"
+        aria-label={ariaLabel || 'Bar chart'}
       >
         {/* Grid lines */}
         {yTicks.map((tick, i) => {

@@ -291,5 +291,11 @@
   "tooltip.marathon": "5 Minuten ununterbrochenes Tippen für Ausdauer",
   "tooltip.speedtest": "Tippgeschwindigkeitstest",
   "tooltip.sprint": "60 Sekunden für maximale Geschwindigkeit",
-  "tooltip.tournament": "Nimm an Turnieren teil und gewinne"
+  "tooltip.tournament": "Nimm an Turnieren teil und gewinne",
+  "action.use": "Verwenden",
+  "stats.challenges": "Challenges",
+  "chart.area": "Bereichsdiagramm",
+  "chart.bar": "Balkendiagramm",
+  "chart.pie": "Kreisdiagramm",
+  "misc.selectLanguage": "Sprache auswählen"
 }

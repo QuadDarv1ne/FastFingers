@@ -288,5 +288,11 @@
   "tooltip.marathon": "5 minutes de frappe continue pour l'endurance",
   "tooltip.speedtest": "Test de vitesse de frappe",
   "tooltip.sprint": "60 secondes pour une vitesse maximale",
-  "tooltip.tournament": "Participez aux tournois et gagnez"
+  "tooltip.tournament": "Participez aux tournois et gagnez",
+  "action.use": "Utiliser",
+  "stats.challenges": "Défis",
+  "chart.area": "Graphique en aires",
+  "chart.bar": "Histogramme",
+  "chart.pie": "Graphique circulaire",
+  "misc.selectLanguage": "Choisir la langue"
 }

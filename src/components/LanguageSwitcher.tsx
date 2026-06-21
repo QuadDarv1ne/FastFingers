@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useMemo, memo } from 'react'
-import { changeLanguage, getCurrentLanguage } from '../i18n/config'
+import { changeLanguage, getCurrentLanguage, useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
 import type { SupportedLanguage } from '../i18n/config'
 
@@ -21,6 +21,7 @@ const LANGUAGES: { code: SupportedLanguage; label: string; flag: string }[] = [
 ]
 
 function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
+  const { t } = useAppTranslation()
   const currentLang = getCurrentLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -71,7 +72,7 @@ function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="px-3 py-2 sm:py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-dark-300 hover:text-white transition-all flex items-center gap-2 text-sm font-medium touch-manipulation active:scale-95"
-        aria-label="Select language"
+        aria-label={t('misc.selectLanguage')}
         aria-expanded={isOpen}
       >
         <span className="text-lg">{currentFlag}</span>

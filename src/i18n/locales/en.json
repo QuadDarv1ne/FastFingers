@@ -930,5 +930,11 @@
   "leaderboard.inTop": "In top!",
   "leaderboard.places": "places",
   "leaderboard.fasterThan": "Faster than {{pct}}% of users",
-  "leaderboard.otherParticipants": "Other participants"
+  "leaderboard.otherParticipants": "Other participants",
+  "action.use": "Use",
+  "stats.challenges": "Challenges",
+  "chart.area": "Area chart",
+  "chart.bar": "Bar chart",
+  "chart.pie": "Pie chart",
+  "misc.selectLanguage": "Select language"
 }

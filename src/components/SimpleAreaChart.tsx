@@ -18,6 +18,7 @@ interface SimpleAreaChartProps {
   stroke: string
   fillGradientId: string
   height?: number
+  ariaLabel?: string
 }
 
 interface TooltipData {
@@ -32,6 +33,7 @@ export function SimpleAreaChart({
   stroke,
   fillGradientId,
   height = 256,
+  ariaLabel,
 }: SimpleAreaChartProps) {
   const [tooltip, setTooltip] = useState<TooltipData | null>(null)
 
@@ -115,7 +117,7 @@ export function SimpleAreaChart({
         viewBox={`0 0 ${chartWidth} ${chartHeight}`}
         className="w-full h-full"
         role="img"
-        aria-label="Area chart"
+        aria-label={ariaLabel || 'Area chart'}
       >
         {/* Gradient definition */}
         <defs>

@@ -228,5 +228,11 @@
   "tooltip.marathon": "5 דקות הקלדה רציפה לעמידות",
   "tooltip.speedtest": "מבחן מהירות הקלדה",
   "tooltip.sprint": "60 שניות למהירות מקסימלית",
-  "tooltip.tournament": "השתתף בטורנירים ונצח"
+  "tooltip.tournament": "השתתף בטורנירים ונצח",
+  "action.use": "שימוש",
+  "stats.challenges": "אתגרים",
+  "chart.area": "תרשים אזור",
+  "chart.bar": "תרשים עמודות",
+  "chart.pie": "תרשים עוגה",
+  "misc.selectLanguage": "בחר שפה"
 }
