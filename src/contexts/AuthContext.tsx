@@ -6,7 +6,7 @@
 
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react'
 import type { ReactNode } from 'react';
-import { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
+import type { User, AuthState, LoginCredentials, RegisterCredentials, PasswordResetRequest, PasswordResetConfirm } from '../types/auth';
 import { AuthError } from '../services/authErrors';
 import { authService } from '../services/authService';
 import { supabase } from '../services/supabase';

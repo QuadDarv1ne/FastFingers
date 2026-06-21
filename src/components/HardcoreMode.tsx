@@ -51,7 +51,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
   const [records, setRecords] = useState<HardcoreRecord[]>([])
   const [isLoadingRecords, setIsLoadingRecords] = useState(true)
   const [bestStreak, setBestStreak] = useState(0)
-  const [previousStreak, setPreviousStreak] = useState(0)
+  const previousStreakRef = useRef(0)
   const [showRankUp, setShowRankUp] = useState(false)
   const [currentRank, setCurrentRank] = useState<HardcoreRank>('C')
   const rankUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -77,7 +77,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     setCurrentRank(rank.rank)
 
     // Проверка на повышение ранга
-    if (checkRankUp(previousStreak, streak) && streak > 0) {
+    if (checkRankUp(previousStreakRef.current, streak) && streak > 0) {
       const newRank = getRankByStreak(streak)
       setShowRankUp(true)
       addNotification(createAchievementNotification({
@@ -94,14 +94,8 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       rankUpTimerRef.current = setTimeout(() => setShowRankUp(false), 4000)
     }
 
-    if (streak !== previousStreak) {
-      setPreviousStreak(streak)
-    }
-
-    return () => {
-      if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)
-    }
-  }, [streak, previousStreak, addNotification, t])
+    previousStreakRef.current = streak
+  }, [streak, addNotification, t])
 
   // Track mount status to prevent setState after unmount
   useEffect(() => {

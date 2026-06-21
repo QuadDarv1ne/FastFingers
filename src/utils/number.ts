@@ -7,7 +7,7 @@ import { logger } from './logger'
 /**
  * Форматировать число с разделителями тысяч
  */
-export function formatNumber(num: number, locale = 'ru-RU'): string {
+export function formatNumber(num: number, locale = 'en'): string {
   try {
     const safeNum = Number(num) || 0
     return safeNum.toLocaleString(locale)
@@ -20,7 +20,7 @@ export function formatNumber(num: number, locale = 'ru-RU'): string {
 /**
  * Форматировать число с указанием сокращений (K, M, B)
  */
-export function formatCompactNumber(num: number, locale = 'ru-RU'): string {
+export function formatCompactNumber(num: number, locale = 'en'): string {
   try {
     const safeNum = Number(num) || 0
     return new Intl.NumberFormat(locale, {
@@ -36,7 +36,7 @@ export function formatCompactNumber(num: number, locale = 'ru-RU'): string {
 /**
  * Форматировать число как проценты
  */
-export function formatPercent(value: number, decimals = 0, locale = 'ru-RU'): string {
+export function formatPercent(value: number, decimals = 0, locale = 'en'): string {
   try {
     const safeValue = Number(value) || 0
     return new Intl.NumberFormat(locale, {

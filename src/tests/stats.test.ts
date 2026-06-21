@@ -21,7 +21,7 @@ import {
   calculateStreakBonus,
 } from '../utils/stats'
 import { formatDuration as formatTime } from '../utils/number'
-import { KeystrokeData, TypingStats } from '../types'
+import type { KeystrokeData, TypingStats } from '../types'
 
 describe('stats utils', () => {
   describe('calculateStats', () => {

@@ -11,16 +11,26 @@ import {
 
 describe('number utils', () => {
   describe('formatNumber', () => {
-    it('должен форматировать число с разделителями', () => {
+    it('должен форматировать число с разделителями (en)', () => {
       const result = formatNumber(1000000)
+      expect(result).toBe('1,000,000')
+    })
+
+    it('должен форматировать число с разделителями (ru)', () => {
+      const result = formatNumber(1000000, 'ru-RU')
       expect(result).toMatch(/\d[\s]\d{3}[\s]\d{3}/)
     })
   })
 
   describe('formatCompactNumber', () => {
-    it('должен сокращать большие числа', () => {
-      expect(formatCompactNumber(1000)).toMatch(/1\s?тыс/)
-      expect(formatCompactNumber(1000000)).toMatch(/1\s?млн/)
+    it('должен сокращать большие числа (en)', () => {
+      expect(formatCompactNumber(1000)).toBe('1K')
+      expect(formatCompactNumber(1000000)).toBe('1M')
+    })
+
+    it('должен сокращать большие числа (ru)', () => {
+      expect(formatCompactNumber(1000, 'ru-RU')).toMatch(/1\s?тыс/)
+      expect(formatCompactNumber(1000000, 'ru-RU')).toMatch(/1\s?млн/)
     })
   })
 
