@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useToast } from '@contexts/ToastContext'
 import { Toast } from './Toast'
 
-export function ToastContainer() {
+export const ToastContainer = memo(function ToastContainer() {
   const { toasts, dismissToast } = useToast()
 
   return (
@@ -20,4 +21,4 @@ export function ToastContainer() {
       </AnimatePresence>
     </div>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react'
+import { ButtonHTMLAttributes, forwardRef, memo } from 'react'
 import { Tooltip } from './Tooltip'
 import './Button.css'
 
@@ -16,7 +16,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   shortcut?: string
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,
@@ -85,6 +85,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     return <button ref={ref} className={classes} disabled={disabled || isLoading} aria-busy={isLoading || undefined} {...props}>{buttonContent}</button>
   }
-)
+))
 
 Button.displayName = 'Button'

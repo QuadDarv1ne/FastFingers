@@ -79,10 +79,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const completionRef = useRef<HTMLDivElement>(null)
   const correctCountRef = useRef(0)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const inputDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const resultsRef = useRef<KeyInputResult[]>([])
   const isCompletingRef = useRef(false)
-  const isHandlingInputRef = useRef(false)
 
   useFocusTrap(completionRef, isComplete)
 
@@ -178,60 +176,52 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   useEffect(() => {
     return () => {
       if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
-      if (inputDebounceRef.current) clearTimeout(inputDebounceRef.current)
     }
   }, [])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (isHandlingInputRef.current || isComplete) return
+    if (isComplete) return
 
     if (e.ctrlKey || e.metaKey || e.altKey) return
     if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Tab' || e.key === 'Escape') return
     if (e.repeat) return
 
-    isHandlingInputRef.current = true
+    if (!startTime) {
+      setStartTime(Date.now())
+    }
 
-    try {
-      if (!startTime) {
-        setStartTime(Date.now())
-      }
+    const expectedChar = text[currentIndex]
+    if (!expectedChar) return
 
-      const expectedChar = text[currentIndex]
-      if (!expectedChar) return
+    const inputChar = e.key === 'Enter' ? ' ' : e.key
 
-      const inputChar = e.key === 'Enter' ? ' ' : e.key
+    const isCorrect = inputChar === expectedChar
 
-      const isCorrect = inputChar === expectedChar
+    if (isCorrect) correctCountRef.current++
 
-      if (isCorrect) correctCountRef.current++
+    if (sound) {
+      isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
+    }
 
-      if (sound) {
-        isCorrect ? sound.playCorrect(expectedChar.toLowerCase()) : sound.playError()
-      }
+    onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
 
-      onKeyInput?.(expectedChar.toLowerCase(), isCorrect)
+    const result: KeyInputResult = {
+      isCorrect,
+      char: inputChar,
+      expectedChar,
+      timestamp: Date.now(),
+    }
 
-      const result: KeyInputResult = {
-        isCorrect,
-        char: inputChar,
-        expectedChar,
-        timestamp: Date.now(),
-      }
+    const nextIndex = currentIndex + 1
+    setCurrentIndex(nextIndex)
+    const newResults = [...resultsRef.current, result]
+    resultsRef.current = newResults
+    setInputResults(newResults)
 
-      const nextIndex = currentIndex + 1
-      setCurrentIndex(nextIndex)
-      const newResults = [...resultsRef.current, result]
-      resultsRef.current = newResults
-      setInputResults(newResults)
+    e.preventDefault()
 
-      e.preventDefault()
-
-      if (nextIndex >= textLengthRef.current) {
-        handleComplete(resultsRef.current)
-      }
-    } finally {
-      if (inputDebounceRef.current) clearTimeout(inputDebounceRef.current)
-      inputDebounceRef.current = setTimeout(() => { isHandlingInputRef.current = false }, 10)
+    if (nextIndex >= textLengthRef.current) {
+      handleComplete(resultsRef.current)
     }
   }, [text, currentIndex, startTime, isComplete, sound, onKeyInput, handleComplete])
 

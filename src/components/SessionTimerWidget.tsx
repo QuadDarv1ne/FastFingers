@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { useSessionTimer } from '@hooks/useSessionTimer'
 import { useNotifications } from '@hooks/useNotifications'
@@ -8,7 +8,7 @@ interface SessionTimerWidgetProps {
   onBreakStart?: () => void
 }
 
-export function SessionTimerWidget({
+export const SessionTimerWidget = memo(function SessionTimerWidget({
   isTyping,
   onBreakStart,
 }: SessionTimerWidgetProps) {
@@ -206,4 +206,4 @@ export function SessionTimerWidget({
       </div>
     </div>
   )
-}
+})

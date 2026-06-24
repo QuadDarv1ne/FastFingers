@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 
@@ -22,7 +23,7 @@ interface StreakRewardsProps {
   onClose: () => void
 }
 
-export function StreakRewardsPanel({ currentStreak, onClose }: StreakRewardsProps) {
+export const StreakRewardsPanel = memo(function StreakRewardsPanel({ currentStreak, onClose }: StreakRewardsProps) {
   const { t } = useAppTranslation()
   const currentReward = streakRewards.filter(r => r.days <= currentStreak).pop()
   const nextReward = streakRewards.find(r => r.days > currentStreak)
@@ -165,4 +166,4 @@ export function StreakRewardsPanel({ currentStreak, onClose }: StreakRewardsProp
       </motion.div>
     </div>
   )
-}
+})

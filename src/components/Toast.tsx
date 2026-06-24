@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import type { Toast as ToastType } from '@contexts/ToastContext'
 import { useAppTranslation } from '@i18n/config'
@@ -26,7 +27,7 @@ const textColors: Record<ToastKind, string> = {
 const FALLBACK_ACCENT = { border: 'border-blue-500/40', bg: 'bg-blue-500/10', icon: 'ℹ', ring: 'ring-blue-500/20' }
 const FALLBACK_TEXT_COLOR = 'text-blue-400'
 
-export function Toast({ toast, onDismiss }: ToastProps) {
+export const Toast = memo(function Toast({ toast, onDismiss }: ToastProps) {
   const { t } = useAppTranslation()
   const accent = toastAccents[toast.type as ToastKind] ?? FALLBACK_ACCENT
   const textColor = textColors[toast.type as ToastKind] ?? FALLBACK_TEXT_COLOR
@@ -56,4 +57,4 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       </button>
     </motion.div>
   )
-}
+})

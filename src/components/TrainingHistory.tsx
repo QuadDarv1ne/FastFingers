@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useCallback } from 'react'
+import { memo, useMemo, useRef, useState, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { downloadCSV } from '../utils/export'
@@ -12,7 +12,7 @@ interface TrainingHistoryProps {
   onBack: () => void
 }
 
-function TrainingHistory({ onBack }: TrainingHistoryProps) {
+const TrainingHistory = memo(function TrainingHistory({ onBack }: TrainingHistoryProps) {
   const { t } = useAppTranslation()
   const { history, clearHistory, getStatsForPeriod } = useTypingHistory()
   const [isExporting, setIsExporting] = useState(false)
@@ -239,7 +239,7 @@ function TrainingHistory({ onBack }: TrainingHistoryProps) {
       )}
     </div>
   )
-}
+})
 
 function PeriodCard({
   period,

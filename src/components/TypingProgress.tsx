@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 
@@ -8,7 +9,7 @@ interface TypingProgressProps {
   accuracy: number
 }
 
-export function TypingProgress({ current, total, wpm, accuracy }: TypingProgressProps) {
+export const TypingProgress = memo(function TypingProgress({ current, total, wpm, accuracy }: TypingProgressProps) {
   const { t } = useAppTranslation()
   const progress = total > 0 ? (current / total) * 100 : 0
 
@@ -88,4 +89,4 @@ export function TypingProgress({ current, total, wpm, accuracy }: TypingProgress
       </div>
     </div>
   )
-}
+})
