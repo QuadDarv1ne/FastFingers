@@ -211,10 +211,10 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
                 </div>
                 <p className="text-dark-400 text-sm">
                   {analytics.improvementRate > 0
-                    ? 'Вы улучшаетесь с каждой тренировкой!'
+                    ? t('analytics.improving')
                     : analytics.improvementRate < 0
-                      ? 'Возможно, стоит отдохнуть'
-                      : 'Стабильные результаты'}
+                      ? t('analytics.restNeeded')
+                      : t('analytics.stableResults')}
                 </p>
               </div>
             </div>

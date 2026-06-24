@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { logger } from '../utils/logger'
 import { getTodayDate } from '../utils/format'
+import i18n from 'i18next'
 
 interface DailyChallenge {
   id: string
@@ -33,11 +34,11 @@ function generateDailyChallenge(date: string): DailyChallenge {
   const seed = date.split('-').reduce((a, b) => a + parseInt(b), 0)
 
   const texts = [
-    'Съешь ещё этих мягких французских булок да выпей чаю',
-    'В чащах юга жил бы цитрус да но фальшивый экземпляр',
-    'Широкая электрификация южных губерний даст мощный толчок подъёму сельского хозяйства',
-    'Быстрая коричневая лиса перепрыгивает через ленивую собаку',
-    'Съешь же ещё этих мягких французских булок да выпей чаю',
+    i18n.t('challenge.text.0'),
+    i18n.t('challenge.text.1'),
+    i18n.t('challenge.text.2'),
+    i18n.t('challenge.text.3'),
+    i18n.t('challenge.text.4'),
   ]
 
   const difficulties = [
@@ -57,7 +58,7 @@ function generateDailyChallenge(date: string): DailyChallenge {
   return {
     id: `challenge-${date}`,
     date,
-    text: text ?? texts[0] ?? 'Стандартное испытание',
+    text: text ?? texts[0] ?? i18n.t('challenge.fallbackText'),
     targetWpm: difficulty?.wpm ?? 60,
     targetAccuracy: difficulty?.acc ?? 97,
     completed: false,

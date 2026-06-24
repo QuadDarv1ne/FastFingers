@@ -1,8 +1,3 @@
-/**
- * Система рангов для режима "Без ошибок" (Hardcore Mode)
- * Ранг определяется по длине серии (streak)
- */
-
 export type HardcoreRank = 'C' | 'B' | 'A' | 'S' | 'S+' | 'SS' | 'SS+' | '👑'
 
 export interface RankInfo {
@@ -17,67 +12,67 @@ export interface RankInfo {
 const RANKS: RankInfo[] = [
   {
     rank: 'C',
-    name: 'Новичок',
+    name: 'hardcore.rank.C.name',
     color: '#6b7280',
     minStreak: 0,
     maxStreak: 14,
-    description: 'Первые шаги в режиме без ошибок',
+    description: 'hardcore.rank.C.desc',
   },
   {
     rank: 'B',
-    name: 'Ученик',
+    name: 'hardcore.rank.B.name',
     color: '#3b82f6',
     minStreak: 15,
     maxStreak: 29,
-    description: 'Уже лучше! Продолжай практиковаться',
+    description: 'hardcore.rank.B.desc',
   },
   {
     rank: 'A',
-    name: 'Продвинутый',
+    name: 'hardcore.rank.A.name',
     color: '#22c55e',
     minStreak: 30,
     maxStreak: 49,
-    description: 'Отличный результат! Ты на правильном пути',
+    description: 'hardcore.rank.A.desc',
   },
   {
     rank: 'S',
-    name: 'Эксперт',
+    name: 'hardcore.rank.S.name',
     color: '#f59e0b',
     minStreak: 50,
     maxStreak: 74,
-    description: 'Впечатляет! Ты мастер точности',
+    description: 'hardcore.rank.S.desc',
   },
   {
     rank: 'S+',
-    name: 'Мастер',
+    name: 'hardcore.rank.S+.name',
     color: '#ef4444',
     minStreak: 75,
     maxStreak: 99,
-    description: 'Почти идеально! Ещё немного до легенды',
+    description: 'hardcore.rank.S+.desc',
   },
   {
     rank: 'SS',
-    name: 'Легенда',
+    name: 'hardcore.rank.SS.name',
     color: '#a855f7',
     minStreak: 100,
     maxStreak: 149,
-    description: 'Невероятно! Ты среди лучших',
+    description: 'hardcore.rank.SS.desc',
   },
   {
     rank: 'SS+',
-    name: 'Мифический',
+    name: 'hardcore.rank.SS+.name',
     color: '#ec4899',
     minStreak: 150,
     maxStreak: 199,
-    description: 'Легендарная точность! Тебя запомнят',
+    description: 'hardcore.rank.SS+.desc',
   },
   {
     rank: '👑',
-    name: 'Божественный',
+    name: 'hardcore.rank.crown.name',
     color: '#fbbf24',
     minStreak: 200,
     maxStreak: Infinity,
-    description: 'Абсолютное совершенство! Ты непобедим',
+    description: 'hardcore.rank.crown.desc',
   },
 ]
 
@@ -136,14 +131,14 @@ export function checkRankUp(oldStreak: number, newStreak: number): boolean {
  */
 export function getRankUpMessage(rank: RankInfo): string {
   const messages: Record<HardcoreRank, string> = {
-    'C': '🎯 Первый ранг получен! Продолжай в том же духе!',
-    'B': '🔥 Отлично! Ты уже не новичок!',
-    'A': '⭐ Впечатляющий прогресс! Так держать!',
-    'S': '🚀 Ты настоящий эксперт! Гордимся тобой!',
-    'S+': '💎 Мастер слова! Твои пальцы — оружие!',
-    'SS': '🏆 ЛЕГЕНДА! Твоё имя войдёт в историю!',
-    'SS+': '💫 МИФИЧЕСКИЙ РАНГ! Ты превосходишь всех!',
-    '👑': '👑 БОЖЕСТВЕННЫЙ! Ты непобедим!',
+    'C': 'hardcore.rankUp.C',
+    'B': 'hardcore.rankUp.B',
+    'A': 'hardcore.rankUp.A',
+    'S': 'hardcore.rankUp.S',
+    'S+': 'hardcore.rankUp.S+',
+    'SS': 'hardcore.rankUp.SS',
+    'SS+': 'hardcore.rankUp.SS+',
+    '👑': 'hardcore.rankUp.crown',
   }
   return messages[rank.rank]
 }

@@ -82,7 +82,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
       setShowRankUp(true)
       addNotification(createAchievementNotification({
         title: t('hardcore.rankUp'),
-        description: getRankUpMessage(newRank),
+        description: t(getRankUpMessage(newRank)),
         icon: newRank.rank,
       }))
 
@@ -283,9 +283,9 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           >
             <div className="text-center">
               <div className="text-3xl font-black text-white mb-1">
-                🎉 {rankInfo.rank} <span className="text-lg font-medium">| {rankInfo.name}</span>
+                🎉 {rankInfo.rank} <span className="text-lg font-medium">| {t(rankInfo.name)}</span>
               </div>
-              <div className="text-sm text-white/90">{getRankUpMessage(rankInfo)}</div>
+              <div className="text-sm text-white/90">{t(getRankUpMessage(rankInfo))}</div>
             </div>
           </motion.div>
           )

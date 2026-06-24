@@ -255,20 +255,20 @@ describe('adaptiveDifficulty', () => {
 
       expect(result).not.toBeNull()
       // При низкой точности (70%) сложность снижается, но текст может быть сложнее целевого
-      expect(result?.reason).toContain('сложность')
+      expect(result?.reason).toContain('difficulty')
     })
   })
 
   describe('getLevelDescription', () => {
-    it('should return correct description for each level', () => {
-      expect(getLevelDescription(1)).toBe('Новичок')
-      expect(getLevelDescription(5)).toBe('Средний')
-      expect(getLevelDescription(10)).toBe('Легенда')
+    it('should return correct i18n key for each level', () => {
+      expect(getLevelDescription(1)).toBe('adaptive.level.1')
+      expect(getLevelDescription(5)).toBe('adaptive.level.5')
+      expect(getLevelDescription(10)).toBe('adaptive.level.10')
     })
 
-    it('should return default description for invalid levels', () => {
-      expect(getLevelDescription(0)).toBe('Средний')
-      expect(getLevelDescription(11)).toBe('Средний')
+    it('should return default i18n key for invalid levels', () => {
+      expect(getLevelDescription(0)).toBe('adaptive.level.5')
+      expect(getLevelDescription(11)).toBe('adaptive.level.5')
     })
   })
 

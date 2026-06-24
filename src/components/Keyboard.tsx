@@ -73,8 +73,8 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
             color: isHighlighted ? skinColors.keyActiveText : (heatmapColor ? '#ffffff' : skinColors.keyText),
             boxShadow: isHighlighted ? `0 0 20px ${skinColors.highlightGlow}` : undefined,
           },
-          title: finger
-            ? `${fingerZones[finger]}${keyData ? `\n${t('common.accuracy')}: ${keyData.accuracy}%\n${t('common.errors')}: ${keyData.errors}/${keyData.total}` : ''}`
+          title: finger && fingerZones[finger]
+            ? `${t(fingerZones[finger])}${keyData ? `\n${t('common.accuracy')}: ${keyData.accuracy}%\n${t('common.errors')}: ${keyData.errors}/${keyData.total}` : ''}`
             : ''
         }
       })
@@ -176,7 +176,7 @@ export const Keyboard = memo<KeyboardProps>(function Keyboard({
                 style={{ backgroundColor: skinColors.zoneColors[finger] }}
                 aria-hidden="true"
               />
-              <span className="text-dark-500 font-medium">{label}</span>
+              <span className="text-dark-500 font-medium">{t(label)}</span>
             </div>
           ))}
         </div>

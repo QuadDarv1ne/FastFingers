@@ -68,14 +68,14 @@ export const layouts: Record<string, KeyboardLayoutData> = {
 
 // Зоны пальцев для визуализации
 export const fingerZones: Record<string, string> = {
-  'left-pinky': 'Мизинец (левый)',
-  'left-ring': 'Безымянный (левый)',
-  'left-middle': 'Средний (левый)',
-  'left-index': 'Указательный (левый)',
-  'right-index': 'Указательный (правый)',
-  'right-middle': 'Средний (правый)',
-  'right-ring': 'Безымянный (правый)',
-  'right-pinky': 'Мизинец (правый)',
+  'left-pinky': 'finger.leftPinky',
+  'left-ring': 'finger.leftRing',
+  'left-middle': 'finger.leftMiddle',
+  'left-index': 'finger.leftIndex',
+  'right-index': 'finger.rightIndex',
+  'right-middle': 'finger.rightMiddle',
+  'right-ring': 'finger.rightRing',
+  'right-pinky': 'finger.rightPinky',
 };
 
 // Цвета для зон пальцев

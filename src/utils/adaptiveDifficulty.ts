@@ -197,11 +197,11 @@ export function selectAdaptiveText(
 
   const difficultyDelta = selectedText.difficulty - adjustedDifficulty
 
-  let reason = `Уровень ${state.currentLevel}, целевая сложность ${adjustedDifficulty}`
+  let reason = `Level ${state.currentLevel}, target difficulty ${adjustedDifficulty}`
   if (difficultyDelta > 0) {
-    reason += ' (текст сложнее целевого)'
+    reason += ' (text harder than target)'
   } else if (difficultyDelta < 0) {
-    reason += ' (текст проще целевого)'
+    reason += ' (text easier than target)'
   }
 
   return {
@@ -232,18 +232,18 @@ export function getDifficultyMultiplier(level: number): number {
  */
 export function getLevelDescription(level: number): string {
   const descriptions: Record<number, string> = {
-    1: 'Новичок',
-    2: 'Начинающий',
-    3: 'Ученик',
-    4: 'Практик',
-    5: 'Средний',
-    6: 'Продвинутый',
-    7: 'Опытный',
-    8: 'Эксперт',
-    9: 'Мастер',
-    10: 'Легенда',
+    1: 'adaptive.level.1',
+    2: 'adaptive.level.2',
+    3: 'adaptive.level.3',
+    4: 'adaptive.level.4',
+    5: 'adaptive.level.5',
+    6: 'adaptive.level.6',
+    7: 'adaptive.level.7',
+    8: 'adaptive.level.8',
+    9: 'adaptive.level.9',
+    10: 'adaptive.level.10',
   }
-  return descriptions[level] ?? 'Средний'
+  return descriptions[level] ?? 'adaptive.level.5'
 }
 
 /**

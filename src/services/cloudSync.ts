@@ -377,7 +377,7 @@ export async function getDailyChallenge(date: string): Promise<{
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
     return {
       id: 'local-' + date,
-      text: 'Локальный челлендж',
+      text: 'Local challenge',
       targetWpm: 30 + (Math.abs(hash) % 40),
       targetAccuracy: 85 + (Math.abs(hash) % 10),
       xpReward: 100,
@@ -401,7 +401,7 @@ export async function getDailyChallenge(date: string): Promise<{
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
     return {
       id: 'local-' + date,
-      text: 'Локальный челлендж',
+      text: 'Local challenge',
       targetWpm: 30 + (Math.abs(hash) % 40),
       targetAccuracy: 85 + (Math.abs(hash) % 10),
       xpReward: 100,

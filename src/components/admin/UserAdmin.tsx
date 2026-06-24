@@ -142,7 +142,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
       <div className="flex gap-2 flex-wrap">
         <input
           type="text"
-          placeholder="🔍 Поиск по имени, email или ID..."
+          placeholder={t('admin.searchPlaceholder', '🔍 Search by name, email or ID...')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="flex-1 min-w-[200px] bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-white placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -158,7 +158,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                   : 'bg-dark-700 text-dark-400 hover:text-white'
               }`}
             >
-              {field === 'xp' ? 'XP' : field === 'wpm' ? 'WPM' : field === 'level' ? 'Уровень' : 'Вход'}
+              {field === 'xp' ? 'XP' : field === 'wpm' ? 'WPM' : field === 'level' ? t('admin.sortLevel') : t('admin.sortLastLogin')}
               <SortIcon field={field} />
             </button>
           ))}
@@ -166,13 +166,13 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
       </div>
 
       <p className="text-sm text-dark-400">
-        {filteredAndSorted.length} из {users.length} пользователей
+        {t('admin.userCount', { count: filteredAndSorted.length, total: users.length })}
         {search && ` · поиск: "${search}"`}
       </p>
 
       {filteredAndSorted.length === 0 && (
         <p className="text-center text-dark-500 py-8 text-sm">
-          {users.length === 0 ? 'Нет зарегистрированных пользователей' : 'Ничего не найдено'}
+          {users.length === 0 ? t('admin.noUsers', 'No registered users') : t('admin.noResults', 'Nothing found')}
         </p>
       )}
 
@@ -190,7 +190,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
               className="cursor-pointer hover:opacity-80 transition-opacity mb-3"
               onClick={() => onViewStudent?.(u.id, u.name || u.email)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onViewStudent?.(u.id, u.name || u.email) }}
-              title="Посмотреть аналитику"
+              title={t('admin.viewAnalytics', 'View analytics')}
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-white">{u.name || u.email}</span>
@@ -199,7 +199,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                     ? 'bg-accent-500/20 text-accent-400'
                     : 'bg-dark-700 text-dark-300'
                 }`}>
-                  {u.role === 'admin' ? 'Админ' : 'Пользователь'}
+                  {u.role === 'admin' ? t('admin.roleAdmin', 'Admin') : t('admin.roleUser', 'User')}
                 </span>
                 {u.id === currentUser?.id && (
                   <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Вы</span>
@@ -235,7 +235,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                         : 'bg-accent-500/20 text-accent-400 hover:bg-accent-500/30'
                     }`}
                   >
-                    {u.role === 'admin' ? 'Снять админа' : 'Назначить админом'}
+                    {u.role === 'admin' ? t('admin.removeAdmin', 'Remove admin') : t('admin.assignAdmin', 'Assign admin')}
                   </button>
                   <button
                     onClick={() => deleteUser(u.id)}

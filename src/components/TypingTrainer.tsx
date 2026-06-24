@@ -368,10 +368,10 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
               {t('trainer.adaptation')}
             </label>
             <div className="flex items-center gap-2.5 bg-dark-800/60 border border-dark-700/50 rounded-xl px-3.5 py-2.5">
-              <span className="text-lg" title={adaptive.levelDescription}>{adaptive.levelBadge}</span>
+              <span className="text-lg" title={t(adaptive.levelDescription)}>{adaptive.levelBadge}</span>
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-dark-400 truncate">{t('common.level')} {adaptive.level}</div>
-                <div className="text-xs font-medium text-dark-300 truncate">{adaptive.levelDescription}</div>
+                <div className="text-xs font-medium text-dark-300 truncate">{t(adaptive.levelDescription)}</div>
               </div>
               <button
                 role="switch"

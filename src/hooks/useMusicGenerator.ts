@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { musicGenerator } from '../utils/musicGenerator'
 import type { MusicGenre } from '../utils/musicGenerator'
 import { logger } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { useAppTranslation } from '../i18n/config'
 
 interface UseMusicGeneratorReturn {
   isPlaying: boolean
@@ -21,13 +22,13 @@ interface UseMusicGeneratorReturn {
   availableKeys: MusicKeyInfo[]
 }
 
-const GENRES: { value: MusicGenre; label: string; icon: string; description: string }[] = [
-  { value: 'ambient', label: 'Ambient', icon: '🌊', description: 'Атмосферная, спокойная музыка' },
-  { value: 'electronic', label: 'Electronic', icon: '🎹', description: 'Электронные биты' },
-  { value: 'classical', label: 'Classical', icon: '🎻', description: 'Классическая музыка' },
-  { value: 'jazz', label: 'Jazz', icon: '🎷', description: 'Джазовые импровизации' },
-  { value: 'lofi', label: 'Lo-Fi', icon: '📻', description: 'Расслабляющий лоу-фай' },
-  { value: 'cinematic', label: 'Cinematic', icon: '🎬', description: 'Кинематографичная музыка' },
+const GENRES: { value: MusicGenre; label: string; icon: string }[] = [
+  { value: 'ambient', label: 'Ambient', icon: '🌊' },
+  { value: 'electronic', label: 'Electronic', icon: '🎹' },
+  { value: 'classical', label: 'Classical', icon: '🎻' },
+  { value: 'jazz', label: 'Jazz', icon: '🎷' },
+  { value: 'lofi', label: 'Lo-Fi', icon: '📻' },
+  { value: 'cinematic', label: 'Cinematic', icon: '🎬' },
 ]
 
 const KEYS = [
@@ -52,6 +53,7 @@ export interface MusicKeyInfo {
 }
 
 export function useMusicGenerator(): UseMusicGeneratorReturn {
+  const { t } = useAppTranslation()
   const [isPlaying, setIsPlaying] = useState(false)
   const [genre, setGenreState] = useState<MusicGenre>('ambient')
   const [tempo, setTempoState] = useState(90)
@@ -132,6 +134,11 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
     setKeyState(newKey)
   }, [])
 
+  const availableGenres = useMemo(() => GENRES.map(g => ({
+    ...g,
+    description: t(`music.genre.${g.value}`, g.label),
+  })), [t])
+
   return {
     isPlaying,
     genre,
@@ -145,7 +152,7 @@ export function useMusicGenerator(): UseMusicGeneratorReturn {
     setTempo,
     setVolume,
     setKey,
-    availableGenres: GENRES,
+    availableGenres,
     availableKeys: KEYS,
   }
 }

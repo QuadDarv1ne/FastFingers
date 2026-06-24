@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getFromStorageAsObject } from '../utils/storage'
 import { logger } from '../utils/logger'
+import i18n from 'i18next'
 
 export interface TextUsageStats {
   textId: string
@@ -64,7 +65,7 @@ export function useTextUsageStats() {
   }, [])
 
   const clearStats = useCallback(() => {
-    if (!confirm('Сбросить статистику использования текстов?')) return
+    if (!confirm(i18n.t('admin.clearStatsConfirm', 'Reset text usage statistics?'))) return
     localStorage.removeItem(USAGE_KEY)
     setUsage({})
   }, [])

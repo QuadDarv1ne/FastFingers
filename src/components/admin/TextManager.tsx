@@ -14,10 +14,12 @@ const CATEGORIES: TextCategory[] = [
 ]
 
 const CATEGORY_LABELS: Record<TextCategory, string> = {
-  literature: 'Литература', code: 'Код', quotes: 'Цитаты', proverbs: 'Пословицы',
-  science: 'Наука', technology: 'Технологии', movies: 'Фильмы', news: 'Новости',
-  philosophy: 'Философия', business: 'Бизнес', scipop: 'Научпоп', history: 'История',
-  art: 'Искусство', sports: 'Спорт', travel: 'Путешествия',
+  literature: 'textCategory.literature', code: 'textCategory.code', quotes: 'textCategory.quotes',
+  proverbs: 'textCategory.proverbs', science: 'textCategory.science',
+  technology: 'textCategory.technology', movies: 'textCategory.movies', news: 'textCategory.news',
+  philosophy: 'textCategory.philosophy', business: 'textCategory.business',
+  scipop: 'textCategory.scipop', history: 'textCategory.history',
+  art: 'textCategory.art', sports: 'textCategory.sports', travel: 'textCategory.travel',
 }
 
 function loadTexts(): PracticeText[] {
@@ -203,7 +205,7 @@ export function TextManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-dark-400">{texts.length} пользовательских текстов</p>
+        <p className="text-sm text-dark-400">{t('textManager.textCount', { count: texts.length })}</p>
         <div className="flex gap-2 items-center">
           <button
             onClick={handleExport}
@@ -236,7 +238,7 @@ export function TextManager() {
             />
           </label>
           <button onClick={handleNew} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
-            + Добавить текст
+            {t('textManager.addText', '+ Add text')}
           </button>
         </div>
       </div>
@@ -244,48 +246,48 @@ export function TextManager() {
       {showForm && (
         <div className="glass rounded-xl p-4 space-y-3">
           <h3 className="text-lg font-semibold text-white">
-            {editing ? 'Редактировать текст' : 'Новый текст'}
+            {editing ? t('textManager.editText', 'Edit text') : t('textManager.newText', 'New text')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                Название
+                {t('textManager.title', 'Title')}
                 <input
                   value={formData.title || ''}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
-                  placeholder="Название текста"
+                  placeholder={t('textManager.titlePlaceholder', 'Text title')}
                 />
               </label>
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                Источник
+                {t('textManager.source', 'Source')}
                 <input
                   value={formData.source || ''}
                   onChange={e => setFormData({ ...formData, source: e.target.value })}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
-                  placeholder="Необязательно"
+                  placeholder={t('textManager.sourcePlaceholder', 'Optional')}
                 />
               </label>
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                Категория
+                {t('textManager.category', 'Category')}
                 <select
                   value={formData.category || 'literature'}
                   onChange={e => setFormData({ ...formData, category: e.target.value as TextCategory })}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
                 >
                   {CATEGORIES.map(c => (
-                    <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+                    <option key={c} value={c}>{t(CATEGORY_LABELS[c])}</option>
                   ))}
                 </select>
               </label>
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                Сложность (1-9)
+                {t('textManager.difficulty', 'Difficulty (1-9)')}
                 <input
                   type="number"
                   min={1}
@@ -298,23 +300,23 @@ export function TextManager() {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-dark-400 mb-1">
-              Текст
-              <textarea
-                value={formData.text || ''}
-                onChange={e => setFormData({ ...formData, text: e.target.value })}
-                rows={4}
-                className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none resize-vertical mt-1"
-                placeholder="Текст для печати"
-              />
-            </label>
+              <label className="block text-xs text-dark-400 mb-1">
+                {t('textManager.content', 'Content')}
+                <textarea
+                  value={formData.text || ''}
+                  onChange={e => setFormData({ ...formData, text: e.target.value })}
+                  rows={4}
+                  className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none resize-vertical mt-1"
+                  placeholder={t('textManager.contentPlaceholder', 'Text to type')}
+                />
+              </label>
           </div>
           <div className="flex gap-2">
             <button onClick={handleSave} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
-              {editing ? 'Сохранить' : 'Создать'}
+              {editing ? t('common.save') : t('common.create')}
             </button>
             <button onClick={() => { setShowForm(false); setEditing(null) }} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm transition-colors">
-              Отмена
+              {t('common.cancel')}
             </button>
           </div>
         </div>
@@ -323,7 +325,7 @@ export function TextManager() {
       <div className="space-y-2">
         {texts.length === 0 && !showForm && (
           <p className="text-center text-dark-500 py-8 text-sm">
-            Нет пользовательских текстов. Нажмите «+ Добавить текст», чтобы создать первый.
+            {t('textManager.emptyState', 'No custom texts. Click "+ Add text" to create one.')}
           </p>
         )}
         {texts.map(text => {
@@ -334,34 +336,34 @@ export function TextManager() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-white truncate">{text.title}</span>
                 <span className="text-xs bg-dark-700 text-dark-300 px-2 py-0.5 rounded shrink-0">
-                  {CATEGORY_LABELS[text.category] || text.category}
+                  {t(CATEGORY_LABELS[text.category]) || text.category}
                 </span>
                 <span className="text-xs bg-dark-700 text-dark-300 px-2 py-0.5 rounded shrink-0">
-                  Сложность {text.difficulty}
+                  {t('textManager.difficultyLabel', { difficulty: text.difficulty })}
                 </span>
                 {usage && usage.count > 0 && (
                   <span className="text-xs bg-primary-600/20 text-primary-300 px-2 py-0.5 rounded shrink-0">
-                    {usage.count} исп.
+                    {t('textManager.usageCount', { count: usage.count })}
                   </span>
                 )}
               </div>
               <p className="text-sm text-dark-400 line-clamp-2">{text.text}</p>
               {text.source && (
-                <p className="text-xs text-dark-500 mt-1">Источник: {text.source}</p>
+                <p className="text-xs text-dark-500 mt-1">{t('textManager.sourceLabel', 'Source:')} {text.source}</p>
               )}
               {usage && usage.count > 0 && (
                 <div className="flex gap-4 mt-2 text-xs text-dark-500">
-                  <span>WPM: <span className="text-primary-400 font-medium">{usage.avgWpm}</span></span>
-                  <span>Точность: <span className="text-green-400 font-medium">{usage.avgAccuracy}%</span></span>
-                  <span>Последнее: <span className="text-dark-400">{new Date(usage.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</span></span>
+                  <span>{t('textManager.wpmLabel', 'WPM:')} <span className="text-primary-400 font-medium">{usage.avgWpm}</span></span>
+                  <span>{t('textManager.accuracyLabel', 'Accuracy:')} <span className="text-green-400 font-medium">{usage.avgAccuracy}%</span></span>
+                  <span>{t('textManager.lastUsedLabel', 'Last:')} <span className="text-dark-400">{new Date(usage.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</span></span>
                 </div>
               )}
             </div>
             <div className="flex gap-1 shrink-0">
-              <button onClick={() => handleEdit(text)} className="p-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg transition-colors" title="Редактировать" aria-label={t('action.edit')}>
+              <button onClick={() => handleEdit(text)} className="p-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg transition-colors" title={t('action.edit')} aria-label={t('action.edit')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               </button>
-              <button onClick={() => handleDelete(text.id)} className="p-2 bg-dark-700 hover:bg-red-500/20 text-dark-300 hover:text-red-400 rounded-lg transition-colors" title="Удалить" aria-label={t('action.delete')}>
+              <button onClick={() => handleDelete(text.id)} className="p-2 bg-dark-700 hover:bg-red-500/20 text-dark-300 hover:text-red-400 rounded-lg transition-colors" title={t('action.delete')} aria-label={t('action.delete')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
             </div>
@@ -374,26 +376,26 @@ export function TextManager() {
       {usageStats.length > 0 && (
         <div className="glass rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <span>📊</span>
-              Статистика использования
+              {t('textManager.usageStats', 'Usage statistics')}
             </h3>
             <button
               onClick={clearUsageStats}
               className="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-xs transition-colors"
             >
-              Сбросить статистику
+              {t('textManager.resetStats', 'Reset statistics')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-dark-700">
-                  <th className="text-left py-2 px-3 text-dark-400 font-medium">Текст</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Использований</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Средний WPM</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">Средняя точность</th>
-                  <th className="text-right py-2 px-3 text-dark-400 font-medium">Последнее</th>
+                  <th className="text-left py-2 px-3 text-dark-400 font-medium">{t('textManager.tableText', 'Text')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableUsageCount', 'Usage count')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgWpm', 'Avg WPM')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgAccuracy', 'Avg accuracy')}</th>
+                  <th className="text-right py-2 px-3 text-dark-400 font-medium">{t('textManager.tableLastUsed', 'Last used')}</th>
                 </tr>
               </thead>
               <tbody>
