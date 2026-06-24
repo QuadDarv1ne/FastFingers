@@ -34,16 +34,19 @@ const LANGUAGE_FILTERS: Record<CodeLanguage, string[]> = {
   css: ['code-17', 'code-18'],
 }
 
-const LANGUAGE_LABELS: Record<CodeLanguage, string> = {
-  all: 'Все языки',
-  javascript: 'JavaScript',
-  typescript: 'TypeScript',
-  python: 'Python',
-  java: 'Java',
-  rust: 'Rust',
-  go: 'Go',
-  sql: 'SQL',
-  css: 'CSS',
+function getLanguageLabel(t: (key: string) => string, lang: CodeLanguage): string {
+  const labels: Record<CodeLanguage, string> = {
+    all: t('code.language.all'),
+    javascript: t('code.language.javascript'),
+    typescript: t('code.language.typescript'),
+    python: t('code.language.python'),
+    java: t('code.language.java'),
+    rust: t('code.language.rust'),
+    go: t('code.language.go'),
+    sql: t('code.language.sql'),
+    css: t('code.language.css'),
+  }
+  return labels[lang]
 }
 
 const LANGUAGE_ICONS: Record<CodeLanguage, string> = {
@@ -215,10 +218,10 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
 
       <div className="mb-6">
         <label htmlFor="language-select" className="block text-sm text-dark-400 mb-2">
-          Язык программирования
+          {t('code.language')}
         </label>
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(LANGUAGE_LABELS) as CodeLanguage[]).map((lang) => (
+          {(Object.keys(LANGUAGE_FILTERS) as CodeLanguage[]).map((lang) => (
             <button
               key={lang}
               onClick={() => setLanguage(lang)}
@@ -229,7 +232,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
               }`}
             >
               <span>{LANGUAGE_ICONS[lang]}</span>
-              <span className="hidden sm:inline">{LANGUAGE_LABELS[lang]}</span>
+              <span className="hidden sm:inline">{getLanguageLabel(t, lang)}</span>
             </button>
           ))}
         </div>
@@ -237,7 +240,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
 
       <div className="mb-6 max-h-40 overflow-y-auto">
         <p className="text-sm text-dark-400 mb-2">
-          Доступно упражнений: <span className="text-white font-medium">{codeTexts.length}</span>
+          {t('code.exercisesAvailable')} <span className="text-white font-medium">{codeTexts.length}</span>
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {codeTexts.map((code) => (
@@ -251,7 +254,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
               }`}
             >
               <p className="font-medium text-dark-300 truncate">{code.title}</p>
-              <p className="text-dark-500">Сложность: {code.difficulty}/10</p>
+              <p className="text-dark-500">{t('code.difficulty', { d: code.difficulty })}</p>
             </button>
           ))}
         </div>

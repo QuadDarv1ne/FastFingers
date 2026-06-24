@@ -33,12 +33,15 @@ const TOURNAMENT_ICONS: Record<string, string> = {
   cancelled: '❌',
 }
 
-const TOURNAMENT_LABELS: Record<string, string> = {
-  upcoming: 'Предстоящий',
-  registration: 'Регистрация',
-  active: 'Идет',
-  completed: 'Завершен',
-  cancelled: 'Отменен',
+function getTournamentLabel(t: (key: string) => string, status: string): string {
+  const labels: Record<string, string> = {
+    upcoming: t('tournament.status.upcoming'),
+    registration: t('tournament.status.registration'),
+    active: t('tournament.status.active'),
+    completed: t('tournament.status.completed'),
+    cancelled: t('tournament.status.cancelled'),
+  }
+  return labels[status] || status
 }
 
 export const TournamentMode = memo(function TournamentMode({ onExit, onComplete }: TournamentModeProps) {
@@ -313,7 +316,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       <div className="glass rounded-xl p-8 relative overflow-hidden">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gradient mb-6">
-            🏆 Матч завершён!
+            {t('tournament.matchCompleted')}
           </h2>
           <div className="grid grid-cols-3 gap-4 mb-8 max-w-md mx-auto">
             <div className="bg-dark-800 rounded-lg p-4">
@@ -321,11 +324,11 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
               <p className="text-3xl font-bold text-primary-400">{matchResult.wpm}</p>
             </div>
             <div className="bg-dark-800 rounded-lg p-4">
-              <p className="text-sm text-dark-400">Точность</p>
+              <p className="text-sm text-dark-400">{t('stats.metric.accuracy')}</p>
               <p className="text-3xl font-bold text-success">{matchResult.accuracy}%</p>
             </div>
             <div className="bg-dark-800 rounded-lg p-4">
-              <p className="text-sm text-dark-400">Ошибки</p>
+              <p className="text-sm text-dark-400">{t('stats.errors')}</p>
               <p className="text-3xl font-bold text-error">{matchResult.errors}</p>
             </div>
           </div>
@@ -333,7 +336,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
             onClick={() => setMatchResult(null)}
             className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
           >
-            Продолжить
+            {t('action.continue')}
           </button>
         </div>
       </div>
@@ -345,7 +348,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       <div className="glass rounded-xl p-8 relative overflow-hidden">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gradient">
-            ⚔️ Матч против {activeMatch.opponent.user_name || 'Игрока'}
+            {t('tournament.matchAgainst', { opponent: activeMatch.opponent.user_name || t('tournament.anonymous') })}
           </h2>
           <button
             onClick={() => setActiveMatch(null)}
@@ -365,11 +368,11 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
             <p className="text-2xl font-bold text-primary-400">{wpm}</p>
           </div>
           <div className="bg-dark-800 rounded-lg p-4 text-center">
-            <p className="text-sm text-dark-400">Точность</p>
+            <p className="text-sm text-dark-400">{t('stats.metric.accuracy')}</p>
             <p className="text-2xl font-bold text-success">{accuracy}%</p>
           </div>
           <div className="bg-dark-800 rounded-lg p-4 text-center">
-            <p className="text-sm text-dark-400">Символы</p>
+            <p className="text-sm text-dark-400">{t('duel.symbols')}</p>
             <p className="text-2xl font-bold text-dark-300">{currentIndex}</p>
           </div>
         </div>
@@ -396,7 +399,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
         </div>
 
         <p className="text-center text-dark-400 mt-4 text-sm">
-          {isTypingActive ? 'Печатайте текст выше...' : 'Нажмите на область текста чтобы начать'}
+          {isTypingActive ? t('tournament.typeAbove') : t('tournament.clickToStart')}
         </p>
       </div>
     )
@@ -439,15 +442,15 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       {isLoading ? (
         <div className="text-center py-12">
           <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-dark-400">Загрузка турниров...</p>
+          <p className="text-dark-400">{t('tournament.loading')}</p>
         </div>
       ) : tournaments.length === 0 ? (
         <div className="text-center py-12">
           <svg className="w-16 h-16 text-dark-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
-          <p className="text-dark-400">Турниры пока не созданы</p>
-          <p className="text-sm text-dark-500 mt-2">Заходи позже или создай свой турнир</p>
+          <p className="text-dark-400">{t('tournament.noTournaments')}</p>
+          <p className="text-sm text-dark-500 mt-2">{t('tournament.noTournamentsHint')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -473,13 +476,13 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                   <span className="text-2xl">{TOURNAMENT_ICONS[tournament.status]}</span>
                   <div>
                     <h3 className="font-semibold text-white">{tournament.name}</h3>
-                    <p className="text-sm text-dark-400">{tournament.description || 'Без описания'}</p>
+                    <p className="text-sm text-dark-400">{tournament.description || t('tournament.noDescription')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-dark-500">
                       <span>🎮 {tournament.game_mode}</span>
                       <span>👥 {tournament.current_participants}/{tournament.max_participants}</span>
                       <span>🏆 {tournament.prize_pool} XP</span>
-                      {tournament.min_wpm > 0 && <span>⚡ Мин. WPM: {tournament.min_wpm}</span>}
-                      {tournament.min_level > 1 && <span>📊 Мин. уровень: {tournament.min_level}</span>}
+                      {tournament.min_wpm > 0 && <span>⚡ {t('tournament.minWpm')} {tournament.min_wpm}</span>}
+                      {tournament.min_level > 1 && <span>📊 {t('tournament.minLevel')} {tournament.min_level}</span>}
                     </div>
                   </div>
                 </div>
@@ -491,7 +494,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                     tournament.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
                     'bg-dark-600 text-dark-400'
                   }`}>
-                    {TOURNAMENT_LABELS[tournament.status]}
+                    {getTournamentLabel(t, tournament.status)}
                   </span>
                   <p className="text-xs text-dark-500 mt-2">
                     {new Date(tournament.start_time).toLocaleDateString(i18n.language, {
@@ -532,23 +535,23 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <p className="text-sm text-dark-400">Статус</p>
-                <p className="font-medium">{TOURNAMENT_LABELS[selectedTournament.status]}</p>
+                <p className="text-sm text-dark-400">{t('tournament.statusLabel')}</p>
+                <p className="font-medium">{getTournamentLabel(t, selectedTournament.status)}</p>
               </div>
               <div>
-                <p className="text-sm text-dark-400">Участники</p>
+                <p className="text-sm text-dark-400">{t('tournament.participants')}</p>
                 <p className="font-medium">{selectedTournament.current_participants}/{selectedTournament.max_participants}</p>
               </div>
               <div>
-                <p className="text-sm text-dark-400">Призовой фонд</p>
+                <p className="text-sm text-dark-400">{t('tournament.prizePool')}</p>
                 <p className="font-medium text-yellow-400">{selectedTournament.prize_pool} XP</p>
               </div>
               <div>
-                <p className="text-sm text-dark-400">Взнос</p>
+                <p className="text-sm text-dark-400">{t('tournament.entryFee')}</p>
                 <p className="font-medium">{selectedTournament.entry_fee} XP</p>
               </div>
               <div>
-                <p className="text-sm text-dark-400">Начало</p>
+                <p className="text-sm text-dark-400">{t('tournament.startTime')}</p>
                 <p className="font-medium">
                   {new Date(selectedTournament.start_time).toLocaleString(i18n.language, {
                     day: 'numeric',
@@ -559,14 +562,14 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                 </p>
               </div>
               <div>
-                <p className="text-sm text-dark-400">Режим</p>
+                <p className="text-sm text-dark-400">{t('tournament.gameMode')}</p>
                 <p className="font-medium">{selectedTournament.game_mode}</p>
               </div>
             </div>
 
             {selectedTournament.description && (
               <div className="mb-6">
-                <p className="text-sm text-dark-400 mb-2">Описание</p>
+                <p className="text-sm text-dark-400 mb-2">{t('tournament.descriptionLabel')}</p>
                 <p className="text-dark-300">{selectedTournament.description}</p>
               </div>
             )}
@@ -575,7 +578,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
             {participants.length > 0 && (
               <div className="mb-6">
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  👥 Участники ({participants.length})
+                  {t('tournament.participantsTitle', { count: participants.length })}
                 </h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {participants.slice(0, 10).map((participant, index) => (
@@ -590,19 +593,19 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                         {participant.user_avatar || participant.user_name?.[0]?.toUpperCase() || '?'}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{participant.user_name || 'Аноним'}</p>
+                        <p className="text-sm font-medium">{participant.user_name || t('tournament.anonymous')}</p>
                         <p className="text-xs text-dark-500">
-                          Уровень {participant.user_level || 1} • {participant.user_wpm || 0} WPM
+                          {t('tournament.levelAndWpm', { level: participant.user_level || 1, wpm: participant.user_wpm || 0 })}
                         </p>
                       </div>
                       {participant.rank && (
-                        <span className="text-xs text-dark-400">Место: {participant.rank}</span>
+                        <span className="text-xs text-dark-400">{t('tournament.rank', { rank: participant.rank })}</span>
                       )}
                     </div>
                   ))}
                   {participants.length > 10 && (
                     <p className="text-xs text-dark-500 text-center">
-                      + ещё {participants.length - 10} участников
+                      {t('tournament.moreParticipants', { count: participants.length - 10 })}
                     </p>
                   )}
                 </div>
@@ -618,7 +621,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                       onClick={handleUnregister}
                       className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg font-medium transition-colors"
                     >
-                      Отменить регистрацию
+                      {t('tournament.cancelRegistration')}
                     </button>
                   ) : (
                     <button
@@ -631,8 +634,8 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                       }`}
                     >
                       {selectedTournament.current_participants >= selectedTournament.max_participants
-                        ? 'Турнир заполнен'
-                        : 'Зарегистрироваться'}
+                        ? t('tournament.full')
+                        : t('tournament.register')}
                     </button>
                   )}
                 </>
@@ -643,13 +646,13 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
                   onClick={() => setShowBracket(true)}
                   className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
                 >
-                  🎮 Смотреть сетку
+                  {t('tournament.viewBracket')}
                 </button>
               )}
 
               {selectedTournament.status === 'active' && !isRegistered && (
                 <p className="text-dark-400 text-sm">
-                  Регистрация закрыта. Турнир уже начался.
+                  {t('tournament.registrationClosed')}
                 </p>
               )}
             </div>

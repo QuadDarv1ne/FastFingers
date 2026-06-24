@@ -1,19 +1,17 @@
 import { memo, useCallback } from 'react'
 import { useBackendAvailability } from '../hooks/useBackendAvailability'
+import { useAppTranslation } from '../i18n/config'
 
 interface BackendFallbackBannerProps {
   onRetry?: () => void
   className?: string
 }
 
-/**
- * Баннер-уведомление о недоступности бэкенда
- * Показывается когда Supabase не настроен или недоступен
- */
 export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function BackendFallbackBanner({
   onRetry,
   className = '',
 }: BackendFallbackBannerProps) {
+  const { t } = useAppTranslation()
   const { isAvailable, isChecking, canRetry, checkBackend, retryCount } = useBackendAvailability({
     autoCheck: false,
   })
@@ -23,7 +21,6 @@ export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function B
     onRetry?.()
   }, [checkBackend, onRetry])
 
-  // Если бэкенд доступен — не показываем баннер
   if (isAvailable) {
     return null
   }
@@ -53,12 +50,12 @@ export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function B
 
       <div className="flex-1">
         <h3 className="font-semibold text-warning-400 mb-1">
-          {isChecking ? 'Проверка соединения...' : 'Режим ограниченной функциональности'}
+          {isChecking ? t('backend.checking') : t('backend.limitedMode')}
         </h3>
         <p className="text-sm text-dark-400">
           {isChecking
-            ? 'Проверяем доступность сервера...'
-            : 'Сервер временно недоступен. Некоторые функции (синхронизация, лидерборды, достижения) работают в ограниченном режиме. Ваши данные сохраняются локально.'}
+            ? t('backend.checkingServer')
+            : t('backend.unavailable')}
         </p>
 
         {!isChecking && canRetry && (
@@ -66,10 +63,10 @@ export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function B
             onClick={handleRetry}
             className="mt-3 px-4 py-2 bg-warning-500/20 hover:bg-warning-500/30 text-warning-400 rounded-lg transition-colors text-sm font-medium"
           >
-            Проверить снова
+            {t('backend.checkAgain')}
             {retryCount > 0 && (
               <span className="ml-2 text-xs opacity-70">
-                (Попытка {retryCount + 1})
+                {t('backend.attempt', { count: retryCount + 1 })}
               </span>
             )}
           </button>
@@ -77,7 +74,7 @@ export const BackendFallbackBanner = memo<BackendFallbackBannerProps>(function B
 
         {!isChecking && !canRetry && (
           <p className="mt-2 text-xs text-dark-500">
-            Превышено максимальное количество попыток подключения. Перезагрузите страницу для повторной попытки.
+            {t('backend.maxAttempts')}
           </p>
         )}
       </div>

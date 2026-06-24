@@ -119,10 +119,10 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <span>✏️</span>
-                Кастомные упражнения
+                {t('customExercise.title')}
               </h2>
               <p className="text-dark-400 text-sm mt-1">
-                Создавайте собственные тексты для практики
+                {t('customExercise.subtitle')}
               </p>
             </div>
             <button
@@ -143,8 +143,8 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
             <>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold">Мои упражнения</h3>
-                  <p className="text-sm text-dark-400">{exercises.length} упражнений</p>
+                  <h3 className="text-lg font-semibold">{t('customExercise.myExercises')}</h3>
+                  <p className="text-sm text-dark-400">{t('customExercise.exerciseCount', { count: exercises.length })}</p>
                 </div>
                 <button
                   onClick={() => setIsCreating(true)}
@@ -153,16 +153,16 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Создать
+                  {t('action.create')}
                 </button>
               </div>
 
               {exercises.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">📝</div>
-                  <h3 className="text-xl font-semibold mb-2">Нет упражнений</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('customExercise.noExercises')}</h3>
                   <p className="text-dark-400 mb-6">
-                    Создайте своё первое упражнение
+                    {t('customExercise.createFirst')}
                   </p>
                 </div>
               ) : (
@@ -189,25 +189,25 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Назад
+                {t('action.back')}
               </button>
 
               <h3 className="text-lg font-semibold mb-6">
-                {editingId ? 'Редактировать упражнение' : 'Новое упражнение'}
+                {editingId ? t('customExercise.editingTitle') : t('customExercise.newTitle')}
               </h3>
 
               <div className="space-y-4">
                 {/* Title */}
                 <div>
                   <label htmlFor="exercise-title" className="block text-sm font-medium mb-2">
-                    Название
+                    {t('customExercise.name')}
                   </label>
                   <input
                     id="exercise-title"
                     type="text"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Например: Программирование на Python"
+                    placeholder={t('customExercise.namePlaceholder')}
                     className="w-full px-4 py-3 bg-dark-800 rounded-xl border border-dark-700 focus:border-primary-500 focus:outline-none transition-colors"
                   />
                 </div>
@@ -215,25 +215,25 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                 {/* Text */}
                 <div>
                   <label htmlFor="exercise-text" className="block text-sm font-medium mb-2">
-                    Текст упражнения
+                    {t('customExercise.textLabel')}
                   </label>
                   <textarea
                     id="exercise-text"
                     value={formData.text}
                     onChange={e => setFormData({ ...formData, text: e.target.value })}
-                    placeholder="Введите текст для практики..."
+                    placeholder={t('customExercise.textPlaceholder')}
                     rows={8}
                     className="w-full px-4 py-3 bg-dark-800 rounded-xl border border-dark-700 focus:border-primary-500 focus:outline-none transition-colors resize-none"
                   />
                   <p className="text-xs text-dark-400 mt-2">
-                    Слов: {wordCount}
+                    {t('customExercise.wordCountInline', { count: wordCount })}
                   </p>
                 </div>
 
                 {/* Difficulty */}
                 <div>
                   <label htmlFor="exercise-difficulty" id="exercise-difficulty-label" className="block text-sm font-medium mb-2">
-                    Сложность
+                    {t('customExercise.difficulty')}
                   </label>
                   <div role="radiogroup" aria-labelledby="exercise-difficulty-label" className="flex gap-2">
                     {[1, 2, 3, 4, 5].map(level => (
@@ -259,14 +259,14 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                 {/* Tags */}
                 <div>
                   <label htmlFor="exercise-tags" className="block text-sm font-medium mb-2">
-                    Теги (через запятую)
+                    {t('customExercise.tags')}
                   </label>
                   <input
                     id="exercise-tags"
                     type="text"
                     value={formData.tags}
                     onChange={e => setFormData({ ...formData, tags: e.target.value })}
-                    placeholder="python, программирование, код"
+                    placeholder={t('customExercise.tagsPlaceholder')}
                     className="w-full px-4 py-3 bg-dark-800 rounded-xl border border-dark-700 focus:border-primary-500 focus:outline-none transition-colors"
                   />
                 </div>
@@ -277,13 +277,13 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
                     onClick={editingId ? handleUpdate : handleCreate}
                     className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold transition-all"
                   >
-                    {editingId ? 'Сохранить' : 'Создать'}
+                    {editingId ? t('action.save') : t('action.create')}
                   </button>
                   <button
                     onClick={resetForm}
                     className="px-6 py-3 bg-dark-800 hover:bg-dark-700 rounded-xl font-semibold transition-all"
                   >
-                    Отмена
+                    {t('action.cancel')}
                   </button>
                 </div>
               </div>
@@ -306,6 +306,7 @@ function ExerciseCard({
   onDelete: () => void
   onUse: () => void
 }) {
+  const { t } = useAppTranslation()
   const wordCount = exercise.text.split(/\s+/).filter(w => w.length > 0).length
 
   return (
@@ -317,9 +318,9 @@ function ExerciseCard({
             {exercise.text}
           </p>
           <div className="flex items-center gap-3 text-xs text-dark-500">
-            <span>{wordCount} слов</span>
+            <span>{t('customExercise.wordCount', { count: wordCount })}</span>
             <span>•</span>
-            <span>Сложность: {exercise.difficulty}/5</span>
+            <span>{t('customExercise.difficulty')}: {exercise.difficulty}/5</span>
             {exercise.tags.length > 0 && (
               <>
                 <span>•</span>
