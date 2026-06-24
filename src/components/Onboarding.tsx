@@ -1,45 +1,27 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import { useAppTranslation } from '../i18n/config'
 
 interface OnboardingProps {
   onComplete: () => void
 }
 
-const steps = [
-  {
-    title: 'Добро пожаловать в FastFingers! 🎉',
-    description: 'Научитесь печатать быстрее и точнее с помощью нашего современного тренажёра слепой печати.',
-    icon: '⌨️',
-  },
-  {
-    title: 'Выберите раскладку',
-    description: 'Поддерживаем ЙЦУКЕН, QWERTY и Dvorak. Выберите удобную раскладку в настройках.',
-    icon: '🔤',
-  },
-  {
-    title: 'Следите за подсказками',
-    description: 'Виртуальная клавиатура покажет, каким пальцем нажимать каждую клавишу. Зелёный — правильно, красный — ошибка.',
-    icon: '👆',
-  },
-  {
-    title: 'Выполняйте челленджи',
-    description: 'Ежедневные задания помогут развить навык. Поддерживайте серию дней для бонусов!',
-    icon: '🏆',
-  },
-  {
-    title: 'Отслеживайте прогресс',
-    description: 'Графики и статистика покажут ваш рост. Соревнуйтесь с собой и ставьте рекорды!',
-    icon: '📊',
-  },
-  {
-    title: 'Готовы начать?',
-    description: 'Нажмите «Начать тренировку» и сделайте первый шаг к скоростной печати!',
-    icon: '🚀',
-  },
+const STEP_KEYS = [
+  { title: 'onboarding.welcome', desc: 'onboarding.welcomeDesc', icon: '⌨️' },
+  { title: 'onboarding.layout', desc: 'onboarding.layoutDesc', icon: '🔤' },
+  { title: 'onboarding.hints', desc: 'onboarding.hintsDesc', icon: '👆' },
+  { title: 'onboarding.challenges', desc: 'onboarding.challengesDesc', icon: '🏆' },
+  { title: 'onboarding.progress', desc: 'onboarding.progressDesc', icon: '📊' },
+  { title: 'onboarding.ready', desc: 'onboarding.readyDesc', icon: '🚀' },
 ]
 
 export function Onboarding({ onComplete }: OnboardingProps) {
+  const { t } = useAppTranslation()
   const [currentStep, setCurrentStep] = useState(0)
+
+  const steps = useMemo(() => STEP_KEYS.map(s => ({
+    title: t(s.title), description: t(s.desc), icon: s.icon,
+  })), [t])
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -114,7 +96,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     ? 'bg-primary-500/50'
                     : 'bg-dark-700'
                 }`}
-                aria-label={`Перейти к шагу ${index + 1}`}
+                aria-label={t('onboarding.goToStep', 'Go to step {{step}}', { step: index + 1 })}
               />
             ))}
           </div>
@@ -126,14 +108,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 onClick={prevStep}
                 className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
               >
-                Назад
+                {t('action.back')}
               </button>
             ) : (
               <button
                 onClick={onComplete}
                 className="flex-1 py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors"
               >
-                Пропустить
+                {t('onboarding.skip', 'Skip')}
               </button>
             )}
             
@@ -141,14 +123,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               onClick={nextStep}
               className="flex-1 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-medium transition-colors"
             >
-              {currentStep === steps.length - 1 ? 'Начать тренировку' : 'Далее'}
+              {currentStep === steps.length - 1 ? t('onboarding.startTraining', 'Start training') : t('onboarding.next', 'Next')}
             </button>
           </div>
         </div>
 
         {/* Подсказка */}
         <p className="text-center text-dark-500 text-sm mt-4">
-          Шаг {currentStep + 1} из {steps.length}
+          {t('onboarding.stepCounter', 'Step {{current}} of {{total}}', { current: currentStep + 1, total: steps.length })}
         </p>
       </motion.div>
     </div>

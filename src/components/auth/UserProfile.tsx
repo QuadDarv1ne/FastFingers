@@ -23,19 +23,19 @@ interface UserProfileProps {
 type TabId = 'overview' | 'heatmap' | 'goals' | 'settings'
 
 const LEVEL_TIERS = [
-  { min: 1, max: 5, label: 'Новичок', color: 'from-gray-500 to-gray-400', icon: '🌱' },
-  { min: 6, max: 10, label: 'Ученик', color: 'from-green-500 to-emerald-400', icon: '📗' },
-  { min: 11, max: 20, label: 'Печатник', color: 'from-blue-500 to-cyan-400', icon: '⌨️' },
-  { min: 21, max: 35, label: 'Профессионал', color: 'from-purple-500 to-violet-400', icon: '💼' },
-  { min: 36, max: 50, label: 'Эксперт', color: 'from-yellow-500 to-amber-400', icon: '⭐' },
-  { min: 51, max: Infinity, label: 'Мастер', color: 'from-orange-500 to-red-400', icon: '👑' },
+  { min: 1, max: 5, label: 'profile.levelTier.beginner', color: 'from-gray-500 to-gray-400', icon: '🌱' },
+  { min: 6, max: 10, label: 'profile.levelTier.student', color: 'from-green-500 to-emerald-400', icon: '📗' },
+  { min: 11, max: 20, label: 'profile.levelTier.typist', color: 'from-blue-500 to-cyan-400', icon: '⌨️' },
+  { min: 21, max: 35, label: 'profile.levelTier.professional', color: 'from-purple-500 to-violet-400', icon: '💼' },
+  { min: 36, max: 50, label: 'profile.levelTier.expert', color: 'from-yellow-500 to-amber-400', icon: '⭐' },
+  { min: 51, max: Infinity, label: 'profile.levelTier.master', color: 'from-orange-500 to-red-400', icon: '👑' },
 ]
 
 function getLevelTier(level: number): typeof LEVEL_TIERS[0] {
   for (const tier of LEVEL_TIERS) {
     if (level >= tier.min && level <= tier.max) return tier
   }
-  return { min: 1, max: 5, label: 'Новичок', color: 'from-gray-500 to-gray-400', icon: '🌱' }
+  return { min: 1, max: 5, label: 'profile.levelTier.beginner', color: 'from-gray-500 to-gray-400', icon: '🌱' }
 }
 
 export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: UserProfileProps) {
@@ -335,7 +335,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
                       </div>
                     </div>
                     <div className={`absolute -bottom-1 -right-1 px-2 py-0.5 bg-gradient-to-r ${tier.color} rounded-lg text-xs font-bold text-white shadow-lg`}>
-                      {tier.icon} Ур. {stats.level}
+                      {tier.icon} {t('profile.levelShort', 'Lv')}. {stats.level}
                     </div>
                   </div>
                   <div className="pb-2">
@@ -530,7 +530,7 @@ function OverviewTab({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className={`text-lg ${tier.color.includes('yellow') ? 'text-yellow-400' : 'text-primary-400'}`}>{tier.icon}</span>
-            <span className="text-sm font-medium">{t('common.level')} {stats.level} — {tier.label}</span>
+            <span className="text-sm font-medium">{t('common.level')} {stats.level} — {t(tier.label)}</span>
           </div>
           <span className="text-sm text-dark-400">{stats.totalXp.toLocaleString()} XP</span>
         </div>
@@ -722,7 +722,7 @@ function OverviewTab({
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-success font-medium">{session.wpm} WPM</span>
                   <span className="text-purple-400">{session.accuracy}%</span>
-                  <span className="text-dark-500">{Math.round(session.duration / 60)}мин</span>
+                  <span className="text-dark-500">{Math.round(session.duration / 60)}{t('profile.timeMinutes', 'min')}</span>
                 </div>
               </div>
             ))}
@@ -820,17 +820,17 @@ function GoalsTab({
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-primary-400">{activeGoals.length}</div>
-          <div className="text-xs text-dark-400 mt-1">Активных</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalActive', 'Active')}</div>
         </div>
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-green-400">{completedGoals.length}</div>
-          <div className="text-xs text-dark-400 mt-1">Выполнено</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalCompleted', 'Completed')}</div>
         </div>
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-yellow-400">
             {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
           </div>
-          <div className="text-xs text-dark-400 mt-1">Прогресс</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalProgress', 'Progress')}</div>
         </div>
       </div>
 
@@ -845,7 +845,7 @@ function GoalsTab({
           {completedGoals.length > 0 && (
             <>
               <div className="pt-2 border-t border-dark-700/30">
-                <p className="text-xs text-dark-500 mb-2">Выполненные цели</p>
+                <p className="text-xs text-dark-500 mb-2">{t('profile.goalCompletedTitle', 'Completed goals')}</p>
               </div>
               {completedGoals.map(goal => {
                 const progress = 100
@@ -939,7 +939,7 @@ function SettingsTab({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Назад
+          {t('profile.back', 'Back')}
         </button>
         {subPage === 'profile' && <ProfileSettingsSubPage user={user} onUpdateName={onUpdateName} />}
         {subPage === 'notifications' && <NotificationSettingsSubPage />}
@@ -957,8 +957,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
-      label: 'Профиль',
-      description: 'Имя, email, аватар',
+      label: t('profile.settingsProfile', 'Profile'),
+      description: t('profile.settingsProfileDesc', 'Name, email, avatar'),
     },
     {
       id: 'notifications' as SettingsSubPage,
@@ -967,8 +967,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
       ),
-      label: 'Уведомления',
-      description: 'Настройки оповещений',
+      label: t('profile.settingsNotifications', 'Notifications'),
+      description: t('profile.settingsNotifDesc', 'Alert settings'),
     },
     {
       id: 'security' as SettingsSubPage,
@@ -977,8 +977,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
-      label: 'Безопасность',
-      description: 'Пароль, двухфакторная аутентификация',
+      label: t('profile.settingsSecurity', 'Security'),
+      description: t('profile.settingsSecurityDesc', 'Password, two-factor authentication'),
     },
     {
       id: 'data' as SettingsSubPage,
@@ -987,8 +987,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
       ),
-      label: 'Данные',
-      description: 'Экспорт, импорт, удаление данных',
+      label: t('profile.settingsData', 'Data'),
+      description: t('profile.settingsDataDesc', 'Export, import, delete data'),
     },
   ]
 
@@ -1020,7 +1020,7 @@ function SettingsTab({
 
       {/* Danger zone */}
       <div className="mt-6 pt-6 border-t border-error/20">
-        <h4 className="text-sm font-medium text-error mb-3">Опасная зона</h4>
+        <h4 className="text-sm font-medium text-error mb-3">{t('profile.dangerZone', 'Danger zone')}</h4>
         <button
           onClick={onDeleteAccount}
           className="w-full flex items-center gap-4 p-4 bg-error/5 hover:bg-error/10 rounded-xl border border-error/20 transition-all text-left text-error"
@@ -1029,8 +1029,8 @@ function SettingsTab({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
           <div>
-            <div className="font-medium text-sm">Удалить аккаунт</div>
-            <div className="text-xs text-error/70">Это действие нельзя отменить</div>
+            <div className="font-medium text-sm">{t('profile.deleteAccountTitle', 'Delete account')}</div>
+            <div className="text-xs text-error/70">{t('profile.irreversible', 'This action cannot be undone')}</div>
           </div>
         </button>
       </div>
@@ -1103,6 +1103,7 @@ function ProfileSettingsSubPage({
 }
 
 function NotificationSettingsSubPage() {
+  const { t } = useAppTranslation()
   const { notifications, clearAll, unreadCount } = useNotifications()
 
   const [browserEnabled, setBrowserEnabled] = useState(() => {
@@ -1137,15 +1138,15 @@ function NotificationSettingsSubPage() {
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>🔔</span> Уведомления
+        <span>🔔</span> {t('profile.notifications', 'Notifications')}
       </h3>
 
       {/* Browser notifications */}
       <div className="bg-dark-800/50 rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-white">Браузерные уведомления</div>
-            <div className="text-xs text-dark-400">Показывать системные уведомления</div>
+            <div className="text-sm font-medium text-white">{t('profile.browserNotifs', 'Browser notifications')}</div>
+            <div className="text-xs text-dark-400">{t('profile.browserNotifsDesc', 'Show system notifications')}</div>
           </div>
           <button
             onClick={browserEnabled ? undefined : enableBrowserNotifs}
@@ -1153,7 +1154,7 @@ function NotificationSettingsSubPage() {
               browserEnabled ? 'bg-success/20 text-success' : 'bg-dark-700 text-dark-300 hover:text-white'
             }`}
           >
-            {browserEnabled ? 'Включены' : 'Включить'}
+            {browserEnabled ? t('profile.notifEnabled', 'Enabled') : t('profile.notifEnable', 'Enable')}
           </button>
         </div>
       </div>
@@ -1161,20 +1162,20 @@ function NotificationSettingsSubPage() {
       {/* Notification types */}
       <div className="space-y-2">
         <ToggleRow
-          label="Звуковые уведомления"
-          description="Звук при новых уведомлениях"
+          label={t('profile.soundNotifs', 'Sound notifications')}
+          description={t('profile.soundNotifsDesc', 'Sound on new notifications')}
           checked={soundEnabled}
           onChange={v => toggle('fastfingers_notif_sound', v, setSoundEnabled)}
         />
         <ToggleRow
-          label="Повышение уровня"
-          description="Уведомление при получении нового уровня"
+          label={t('profile.levelUpNotif', 'Level up')}
+          description={t('profile.levelUpNotifDesc', 'Notify on level up')}
           checked={levelUpEnabled}
           onChange={v => toggle('fastfingers_notif_levelup', v, setLevelUpEnabled)}
         />
         <ToggleRow
-          label="Достижения"
-          description="Уведомление при разблокировке достижения"
+          label={t('profile.achievementNotif', 'Achievements')}
+          description={t('profile.achievementNotifDesc', 'Notify on achievement unlock')}
           checked={achievementEnabled}
           onChange={v => toggle('fastfingers_notif_achievement', v, setAchievementEnabled)}
         />
@@ -1184,8 +1185,8 @@ function NotificationSettingsSubPage() {
       {notifications.length > 0 && (
         <div className="bg-dark-800/50 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-white">Последние ({unreadCount} непрочитанных)</h4>
-            <button onClick={() => clearAll()} className="text-xs text-dark-400 hover:text-white">Очистить все</button>
+            <h4 className="text-sm font-medium text-white">{t('profile.recentNotifs', 'Recent')} ({unreadCount} {t('profile.unread', 'unread')})</h4>
+            <button onClick={() => clearAll()} className="text-xs text-dark-400 hover:text-white">{t('profile.clearAll', 'Clear all')}</button>
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {notifications.slice(0, 10).map(n => (
@@ -1236,6 +1237,7 @@ function generateSalt(): string {
 }
 
 function SecuritySettingsSubPage() {
+  const { t } = useAppTranslation()
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -1244,15 +1246,15 @@ function SecuritySettingsSubPage() {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setMessage({ type: 'error', text: 'Заполните все поля' })
+      setMessage({ type: 'error', text: t('profile.validation.fillAllFields', 'Fill in all fields') })
       return
     }
     if (newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'Пароль должен содержать минимум 8 символов' })
+      setMessage({ type: 'error', text: t('profile.validation.passwordMinLength', 'Password must be at least 8 characters') })
       return
     }
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Пароли не совпадают' })
+      setMessage({ type: 'error', text: t('profile.validation.passwordsMismatch', 'Passwords do not match') })
       return
     }
 
@@ -1260,12 +1262,12 @@ function SecuritySettingsSubPage() {
     try {
       const userRaw = localStorage.getItem(STORAGE_KEYS.USER)
       if (!userRaw) {
-        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
         return
       }
       const currentUser = JSON.parse(userRaw)
       if (!currentUser || !currentUser.id || !currentUser.email) {
-        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
         return
       }
 
@@ -1282,13 +1284,13 @@ function SecuritySettingsSubPage() {
         JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
       const userIdx = users.findIndex(u => u.id === currentUser.id)
       if (userIdx === -1) {
-        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
         return
       }
 
       const currentUserEntry = users[userIdx]
       if (!currentUserEntry) {
-        setMessage({ type: 'error', text: 'Пользователь не найден' })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
         return
       }
 
@@ -1300,21 +1302,21 @@ function SecuritySettingsSubPage() {
       currentUserEntry.salt = salt
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
 
-      setMessage({ type: 'success', text: 'Пароль успешно изменён' })
+      setMessage({ type: 'success', text: t('profile.validation.passwordChanged', 'Password changed successfully') })
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setShowChangePassword(false)
     } catch (err) {
       logger.error('[UserProfile] Password change failed', err)
-      setMessage({ type: 'error', text: 'Неверный текущий пароль или ошибка при изменении' })
+      setMessage({ type: 'error', text: t('profile.validation.invalidCurrentPassword', 'Invalid current password or error') })
     }
   }
 
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>🔒</span> Безопасность
+        <span>🔒</span> {t('profile.security', 'Security')}
       </h3>
 
       {message && (
@@ -1327,21 +1329,21 @@ function SecuritySettingsSubPage() {
       <div className="bg-dark-800/50 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <div className="text-sm font-medium text-white">Сменить пароль</div>
-            <div className="text-xs text-dark-400">Измените пароль для входа</div>
+            <div className="text-sm font-medium text-white">{t('profile.changePassword', 'Change password')}</div>
+            <div className="text-xs text-dark-400">{t('profile.changePasswordDesc', 'Change your login password')}</div>
           </div>
           <button
             onClick={() => { setShowChangePassword(!showChangePassword); setMessage(null) }}
             className="text-xs text-primary-400 hover:text-primary-300"
           >
-            {showChangePassword ? 'Отмена' : 'Изменить'}
+            {showChangePassword ? t('profile.cancel', 'Cancel') : t('profile.change', 'Change')}
           </button>
         </div>
 
         {showChangePassword && (
           <div className="space-y-3 mt-3">
             <div>
-              <label htmlFor="pw-current" className="text-xs text-dark-400 mb-1 block">Текущий пароль</label>
+              <label htmlFor="pw-current" className="text-xs text-dark-400 mb-1 block">{t('profile.currentPassword', 'Current password')}</label>
               <input
                 id="pw-current"
                 type="password"
@@ -1351,7 +1353,7 @@ function SecuritySettingsSubPage() {
               />
             </div>
             <div>
-              <label htmlFor="pw-new" className="text-xs text-dark-400 mb-1 block">Новый пароль</label>
+              <label htmlFor="pw-new" className="text-xs text-dark-400 mb-1 block">{t('profile.newPassword', 'New password')}</label>
               <input
                 id="pw-new"
                 type="password"
@@ -1361,7 +1363,7 @@ function SecuritySettingsSubPage() {
               />
             </div>
             <div>
-              <label htmlFor="pw-confirm" className="text-xs text-dark-400 mb-1 block">Подтвердите пароль</label>
+              <label htmlFor="pw-confirm" className="text-xs text-dark-400 mb-1 block">{t('profile.confirmPassword', 'Confirm password')}</label>
               <input
                 id="pw-confirm"
                 type="password"
@@ -1374,7 +1376,7 @@ function SecuritySettingsSubPage() {
               onClick={handleChangePassword}
               className="w-full py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              Сохранить пароль
+              {t('profile.savePassword', 'Save password')}
             </button>
           </div>
         )}
@@ -1382,17 +1384,17 @@ function SecuritySettingsSubPage() {
 
       {/* 2FA placeholder */}
       <div className="bg-dark-800/50 rounded-xl p-4 opacity-60">
-        <div className="text-sm font-medium text-white">Двухфакторная аутентификация</div>
-        <div className="text-xs text-dark-400 mt-1">Двухфакторная аутентификация будет доступна в будущем обновлении</div>
+        <div className="text-sm font-medium text-white">{t('profile.twoFactor', 'Two-factor authentication')}</div>
+        <div className="text-xs text-dark-400 mt-1">{t('profile.twoFactorDesc', 'Two-factor authentication will be available in a future update')}</div>
       </div>
 
       {/* Session info */}
       <div className="bg-dark-800/50 rounded-xl p-4">
-        <div className="text-sm font-medium text-white mb-2">Активная сессия</div>
+        <div className="text-sm font-medium text-white mb-2">{t('profile.activeSession', 'Active session')}</div>
         <div className="text-xs text-dark-400 space-y-1">
-          <div>Платформа: {navigator.platform}</div>
-          <div>Браузер: {navigator.userAgent.split(' ').pop()}</div>
-          <div>Язык: {navigator.language}</div>
+          <div>{t('profile.platform', 'Platform')}: {navigator.platform}</div>
+          <div>{t('profile.browser', 'Browser')}: {navigator.userAgent.split(' ').pop()}</div>
+          <div>{t('profile.language', 'Language')}: {navigator.language}</div>
         </div>
       </div>
     </div>
@@ -1643,6 +1645,6 @@ function xpForLevel(level: number): number {
 function formatPracticeTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  if (hours > 0) return `${hours}ч ${minutes}мин`
-  return `${minutes}мин`
+  if (hours > 0) return `${hours}${i18n.t('profile.hoursShort', 'h')} ${minutes}${i18n.t('profile.minutesShort', 'min')}`
+  return `${minutes}${i18n.t('profile.minutesShort', 'min')}`
 }

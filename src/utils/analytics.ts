@@ -1,7 +1,7 @@
 import type { TypingStats } from '../types'
 
 /**
- * Утилиты для расширенной аналитики прогресса пользователя
+ * Advanced analytics utilities for tracking user progress
  */
 
 export interface ProgressTrend {
@@ -31,7 +31,7 @@ export function calculateTrend(
     return {
       direction: 'stable',
       percentage: 0,
-      description: 'Недостаточно данных',
+      description: 'Insufficient data',
     }
   }
 
@@ -42,14 +42,14 @@ export function calculateTrend(
     return {
       direction: 'stable',
       percentage: absChange,
-      description: 'Стабильно',
+      description: 'Stable',
     }
   }
 
   return {
     direction: change > 0 ? 'up' : 'down',
     percentage: absChange,
-    description: change > 0 ? 'Улучшение' : 'Снижение',
+    description: change > 0 ? 'Improving' : 'Declining',
   }
 }
 
@@ -94,7 +94,7 @@ export function analyzeKeyPerformance(
   heatmap: Record<string, { errors: number; total: number; accuracy: number }>
 ): { weakest: string[]; strongest: string[] } {
   const keys = Object.entries(heatmap)
-    .filter(([_, data]) => data.total >= 5) // Минимум 5 нажатий
+    .filter(([_, data]) => data.total >= 5) // Minimum 5 presses
     .sort((a, b) => a[1].accuracy - b[1].accuracy)
 
   return {
@@ -112,48 +112,48 @@ export function generateRecommendations(
 ): string[] {
   const recommendations: string[] = []
 
-  // Рекомендации по WPM
+  // WPM recommendations
   if (analytics.wpmTrend?.direction === 'down') {
     recommendations.push(
-      '📉 Скорость печати снизилась. Попробуйте режим обучения для отработки базовых навыков.'
+      '📉 Typing speed dropped. Try the learning mode to practice basic skills.'
     )
   } else if (analytics.wpmTrend?.direction === 'up') {
     recommendations.push(
-      '🚀 Отличный прогресс! Продолжайте в том же духе.'
+      '🚀 Great progress! Keep it up.'
     )
   }
 
-  // Рекомендации по точности
+  // Accuracy recommendations
   const avgAccuracy = stats.length > 0
     ? stats.reduce((sum, s) => sum + s.accuracy, 0) / stats.length
     : 100
   if (avgAccuracy < 90) {
     recommendations.push(
-      '🎯 Сосредоточьтесь на точности. Замедлитесь и печатайте аккуратнее.'
+      '🎯 Focus on accuracy. Slow down and type more carefully.'
     )
   }
 
-  // Рекомендации по консистентности
+  // Consistency recommendations
   if (
     analytics.consistencyScore !== undefined &&
     analytics.consistencyScore < 70
   ) {
     recommendations.push(
-      '📊 Результаты нестабильны. Старайтесь тренироваться регулярно в одно и то же время.'
+      '📊 Results are unstable. Try to practice regularly at the same time.'
     )
   }
 
-  // Рекомендации по проблемным клавишам
+  // Problem keys recommendations
   if (analytics.weakestKeys && analytics.weakestKeys.length > 0) {
     recommendations.push(
-      `⌨️ Проблемные клавиши: ${analytics.weakestKeys.join(', ')}. Создайте упражнение для их отработки.`
+      `⌨️ Problem keys: ${analytics.weakestKeys.join(', ')}. Create an exercise to practice them.`
     )
   }
 
-  // Общие рекомендации
+  // General recommendations
   if (stats.length < 10) {
     recommendations.push(
-      '💡 Продолжайте тренироваться! Для точной аналитики нужно больше данных.'
+      '💡 Keep practicing! More data is needed for accurate analytics.'
     )
   }
 
@@ -172,18 +172,18 @@ export function analyzeTypingProgress(
       wpmTrend: {
         direction: 'stable',
         percentage: 0,
-        description: 'Нет данных',
+        description: 'No data',
       },
       accuracyTrend: {
         direction: 'stable',
         percentage: 0,
-        description: 'Нет данных',
+        description: 'No data',
       },
       consistencyScore: 0,
       improvementRate: 0,
       weakestKeys: [],
       strongestKeys: [],
-      recommendations: ['Начните тренироваться для получения аналитики!'],
+      recommendations: ['Start training to get analytics!'],
     }
   }
 

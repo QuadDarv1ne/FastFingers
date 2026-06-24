@@ -165,14 +165,14 @@ describe('Analytics Utils', () => {
         wpmTrend: {
           direction: 'down' as const,
           percentage: 10,
-          description: 'Снижение',
+          description: 'Declining',
         },
       }
       const stats: TypingStats[] = []
 
       const recommendations = generateRecommendations(analytics, stats)
       expect(recommendations.length).toBeGreaterThan(0)
-      expect(recommendations.some(r => r.includes('снизилась'))).toBe(true)
+      expect(recommendations.some(r => r.includes('dropped'))).toBe(true)
     })
 
     it('should generate recommendations for low accuracy', () => {
@@ -187,7 +187,7 @@ describe('Analytics Utils', () => {
       }))
 
       const recommendations = generateRecommendations({}, stats)
-      expect(recommendations.some(r => r.includes('точности'))).toBe(true)
+      expect(recommendations.some(r => r.includes('accuracy'))).toBe(true)
     })
 
     it('should generate recommendations for weak keys', () => {
@@ -196,7 +196,7 @@ describe('Analytics Utils', () => {
       }
 
       const recommendations = generateRecommendations(analytics, [])
-      expect(recommendations.some(r => r.includes('Проблемные клавиши'))).toBe(
+      expect(recommendations.some(r => r.includes('Problem keys'))).toBe(
         true
       )
     })

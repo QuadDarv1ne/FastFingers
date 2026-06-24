@@ -1,5 +1,5 @@
 /**
- * Типы ошибок аутентификации
+ * Authentication error types
  */
 export type AuthErrorCode =
   | 'invalid-email'
@@ -40,7 +40,7 @@ export class AuthError extends Error {
   }
 
   /**
-   * Создание ошибки из ответа API
+   * Create error from API response
    */
   static fromApiError(code: string, message: string, field?: string): AuthError {
     const errorCode = code as AuthErrorCode
@@ -49,26 +49,26 @@ export class AuthError extends Error {
 }
 
 /**
- * Утилита для валидации email
+ * Email validation utility
  */
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
 /**
- * Минимальная допустимая длина пароля
+ * Minimum allowed password length
  */
 export const MIN_PASSWORD_LENGTH = 8
 
 /**
- * Утилита для валидации пароля
+ * Password validation utility
  */
 export function isValidPassword(password: string): boolean {
   return password.length >= MIN_PASSWORD_LENGTH
 }
 
 /**
- * Проверка сложности пароля
+ * Password strength check
  */
 export function checkPasswordStrength(password: string): {
   score: number
@@ -79,37 +79,37 @@ export function checkPasswordStrength(password: string): {
   let score = 0
 
   if (password.length >= MIN_PASSWORD_LENGTH) score++
-  else feedback.push(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+  else feedback.push(`Minimum ${MIN_PASSWORD_LENGTH} characters`)
 
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
     score++
   } else {
-    feedback.push('Заглавные и строчные буквы')
+    feedback.push('Uppercase and lowercase letters')
   }
 
   if (/\d/.test(password)) {
     score++
   } else {
-    feedback.push('Хотя бы одна цифра')
+    feedback.push('At least one digit')
   }
 
   if (/[^a-zA-Z0-9]/.test(password)) {
     score++
   } else {
-    feedback.push('Специальный символ')
+    feedback.push('Special character')
   }
 
-  // Оценка времени взлома
+  // Crack time estimation
   const entropy = password.length * Math.log2(94)
   const guessesPerSecond = 1e10
   const secondsToCrack = Math.pow(2, entropy) / guessesPerSecond
   
   let estimatedCrackTime: string | undefined
-  if (secondsToCrack < 60) estimatedCrackTime = 'мгновенно'
-  else if (secondsToCrack < 3600) estimatedCrackTime = `${Math.round(secondsToCrack / 60)} мин`
-  else if (secondsToCrack < 86400) estimatedCrackTime = `${Math.round(secondsToCrack / 3600)} ч`
-  else if (secondsToCrack < 31536000) estimatedCrackTime = `${Math.round(secondsToCrack / 86400)} дн`
-  else estimatedCrackTime = '> 1 года'
+  if (secondsToCrack < 60) estimatedCrackTime = 'instantly'
+  else if (secondsToCrack < 3600) estimatedCrackTime = `${Math.round(secondsToCrack / 60)} min`
+  else if (secondsToCrack < 86400) estimatedCrackTime = `${Math.round(secondsToCrack / 3600)} hr`
+  else if (secondsToCrack < 31536000) estimatedCrackTime = `${Math.round(secondsToCrack / 86400)} days`
+  else estimatedCrackTime = '> 1 year'
 
   return { score, feedback, estimatedCrackTime }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
+import { useAppTranslation } from '../../i18n/config'
 import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 
 interface RegisterProps {
@@ -12,6 +13,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) {
   const { register, isLoading, error, clearError } = useAuth()
+  const { t } = useAppTranslation()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -30,35 +32,35 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
   useEffect(() => {
     if (email && !EMAIL_REGEX.test(email)) {
-      setEmailError('Неверный формат email')
+      setEmailError(t('auth.error.invalidEmail', 'Invalid email format'))
     } else {
       setEmailError('')
     }
-  }, [email])
+  }, [email, t])
 
   useEffect(() => {
     if (password && password.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+      setPasswordError(t('auth.error.passwordLength', `Minimum {{min}} characters`, { min: MIN_PASSWORD_LENGTH }))
     } else {
       setPasswordError('')
     }
-  }, [password])
+  }, [password, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!EMAIL_REGEX.test(email)) {
-      setEmailError('Неверный формат email')
+      setEmailError(t('auth.error.invalidEmail', 'Invalid email format'))
       return
     }
     
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(`Минимум ${MIN_PASSWORD_LENGTH} символов`)
+      setPasswordError(t('auth.error.passwordLength', 'Minimum {{min}} characters', { min: MIN_PASSWORD_LENGTH }))
       return
     }
     
     if (password !== confirmPassword) {
-      setPasswordError('Пароли не совпадают')
+      setPasswordError(t('auth.error.passwordsMismatch', 'Passwords do not match'))
       return
     }
     
@@ -117,8 +119,8 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold mb-2">Создать аккаунт</h1>
-          <p className="text-dark-400">Присоединяйтесь к FastFingers</p>
+          <h1 className="text-2xl font-bold mb-2">{t('auth.createAccount', 'Create account')}</h1>
+          <p className="text-dark-400">{t('auth.joinSubtitle', 'Join FastFingers')}</p>
         </div>
 
         {/* Ошибка */}
@@ -128,7 +130,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-error font-medium">Ошибка регистрации</p>
+              <p className="text-error font-medium">{t('auth.error.registerError', 'Registration error')}</p>
               <p className="text-error/80 text-sm">{error}</p>
             </div>
           </div>
@@ -138,7 +140,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="register-name" className="block text-sm font-medium text-dark-300 mb-2">
-              Имя
+              {t('auth.name')}
             </label>
             <input
               id="register-name"
@@ -147,7 +149,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Иван Иванов"
+              placeholder={t('auth.namePlaceholder', 'Ivan Ivanov')}
               required
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
             />
@@ -155,7 +157,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
           <div>
             <label htmlFor="register-email" className="block text-sm font-medium text-dark-300 mb-2">
-              Email
+              {t('auth.email')}
             </label>
             <input
               id="register-email"
@@ -181,7 +183,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
           <div>
             <label htmlFor="register-password" className="block text-sm font-medium text-dark-300 mb-2">
-              Пароль
+              {t('auth.password')}
             </label>
             <div className="relative">
               <input
@@ -198,7 +200,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-white transition-colors"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,9 +235,9 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                   ))}
                 </div>
                 <p className="text-xs text-dark-500">
-                  {passwordStrength <= 2 ? 'Слабый пароль' :
-                   passwordStrength <= 4 ? 'Хороший пароль' :
-                   'Отличный пароль'}
+                  {passwordStrength <= 2 ? t('auth.passwordStrength.weak', 'Weak password') :
+                   passwordStrength <= 4 ? t('auth.passwordStrength.good', 'Good password') :
+                   t('auth.passwordStrength.excellent', 'Excellent password')}
                 </p>
                 {passwordError && (
                   <p className="text-xs text-error mt-1 flex items-center gap-1">
@@ -251,7 +253,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
           <div>
             <label htmlFor="register-confirm-password" className="block text-sm font-medium text-dark-300 mb-2">
-              Подтверждение пароля
+              {t('auth.confirmPassword')}
             </label>
             <input
               id="register-confirm-password"
@@ -264,7 +266,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
             />
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-error mt-1">Пароли не совпадают</p>
+              <p className="text-xs text-error mt-1">{t('auth.error.passwordsMismatch')}</p>
             )}
           </div>
 
@@ -277,13 +279,13 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                 className="w-4 h-4 rounded bg-dark-800 border-dark-700 text-primary-600 focus:ring-primary-500 mt-0.5"
               />
               <span className="text-sm text-dark-400">
-                Я принимаю{' '}
+                {t('auth.agreeToTerms', 'I agree to the')}{' '}
                 <a href="/terms-of-service.md" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">
-                  условия использования
+                  {t('auth.termsOfUse', 'terms of use')}
                 </a>{' '}
-                и{' '}
+                {t('auth.and', 'and')}{' '}
                 <a href="/privacy-policy.md" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">
-                  политику конфиденциальности
+                  {t('auth.privacyPolicy', 'privacy policy')}
                 </a>
               </span>
             </label>
@@ -300,10 +302,10 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Регистрация...
+                {t('auth.registering', 'Registering...')}
               </>
             ) : (
-              'Создать аккаунт'
+              t('auth.createAccount', 'Create account')
             )}
           </button>
         </form>
@@ -311,12 +313,12 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
         {/* Переключатель */}
         <div className="mt-6 text-center">
           <p className="text-dark-400">
-            Уже есть аккаунт?{' '}
+            {t('auth.haveAccount')}{' '}
             <button
               onClick={onSwitchToLogin}
               className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
             >
-              Войти
+              {t('auth.login')}
             </button>
           </p>
         </div>

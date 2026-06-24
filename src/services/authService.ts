@@ -44,7 +44,7 @@ type StoredUser = User & { password: string; salt: string };
 const findUserOrThrow = (users: StoredUser[], predicate: (u: StoredUser) => boolean): StoredUser => {
   const user = users.find(predicate);
   if (!user) {
-    throw new AuthError('user-not-found', 'Пользователь не найден');
+    throw new AuthError('user-not-found', 'User not found');
   }
   return user;
 };
@@ -204,19 +204,19 @@ export const authService = {
     const sanitizedName = sanitizeName(credentials.name);
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw new AuthError('invalid-email', 'Неверный формат email');
+      throw new AuthError('invalid-email', 'Invalid email format');
     }
 
     if (!isValidPassword(credentials.password)) {
-      throw new AuthError('weak-password', `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`);
+      throw new AuthError('weak-password', `Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     if (credentials.password !== credentials.confirmPassword) {
-      throw new AuthError('password-mismatch', 'Пароли не совпадают');
+      throw new AuthError('password-mismatch', 'Passwords do not match');
     }
 
     if (!credentials.agreeToTerms) {
-      throw new AuthError('terms-not-accepted', 'Необходимо принять условия использования');
+      throw new AuthError('terms-not-accepted', 'You must accept the terms of use');
     }
 
     if (supabase) {
@@ -247,7 +247,7 @@ export const authService = {
     const users = getUsers();
 
     if (users.find(u => u.email === sanitizedEmail)) {
-      throw new AuthError('email-in-use', 'Этот email уже зарегистрирован');
+      throw new AuthError('email-in-use', 'This email is already registered');
     }
 
     const salt = generateSalt();
@@ -290,13 +290,13 @@ export const authService = {
     const sanitizedEmail = sanitizeEmail(credentials.email);
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw new AuthError('invalid-email', 'Неверный формат email');
+      throw new AuthError('invalid-email', 'Invalid email format');
     }
 
     const lockoutTime = checkLockout(sanitizedEmail);
     if (lockoutTime) {
       const minutes = Math.ceil(lockoutTime / 60000);
-      throw new AuthError('locked-out', `Слишком много попыток входа. Попробуйте через ${minutes} мин.`);
+      throw new AuthError('locked-out', `Too many login attempts. Try again in ${minutes} min.`);
     }
 
     if (supabase) {
@@ -309,10 +309,10 @@ export const authService = {
         saveLoginAttempt(sanitizedEmail);
         const msg = error.message.toLowerCase();
         if (msg.includes('invalid login credentials') || msg.includes('invalid password')) {
-          throw new AuthError('wrong-password', 'Неверный пароль');
+          throw new AuthError('wrong-password', 'Invalid password');
         }
         if (msg.includes('email not confirmed')) {
-          throw new AuthError('email-not-confirmed', 'Email не подтверждён. Проверьте почту.');
+          throw new AuthError('email-not-confirmed', 'Email not confirmed. Check your inbox.');
         }
         throw new AuthError('unknown', error.message);
       }
@@ -338,13 +338,13 @@ export const authService = {
 
     if (!user) {
       saveLoginAttempt(sanitizedEmail);
-      throw new AuthError('user-not-found', 'Пользователь с таким email не найден');
+      throw new AuthError('user-not-found', 'User with this email not found');
     }
 
     const hashedPassword = await hashPassword(credentials.password, user.salt);
     if (user.password !== hashedPassword) {
       saveLoginAttempt(sanitizedEmail);
-      throw new AuthError('wrong-password', 'Неверный пароль');
+      throw new AuthError('wrong-password', 'Invalid password');
     }
 
     clearLoginAttempts(sanitizedEmail);
@@ -372,14 +372,14 @@ export const authService = {
     await delay(PASSWORD_RESET_DELAY_MS);
 
     if (!isValidEmail(request.email)) {
-      throw new AuthError('invalid-email', 'Неверный формат email');
+      throw new AuthError('invalid-email', 'Invalid email format');
     }
 
     const users = getUsers();
     const user = users.find(u => u.email === request.email);
 
     if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь с таким email не найден');
+      throw new AuthError('user-not-found', 'User with this email not found');
     }
 
     const token = generateId();
@@ -389,7 +389,7 @@ export const authService = {
     tokens.push({ email: request.email, token, expiresAt });
     const result = setToStorageWithQuotaHandling(RESET_TOKENS_KEY, tokens);
     if (!result.success) {
-      throw new AuthError('unknown', result.quotaExceeded ? 'Хранилище заполнено' : 'Ошибка сохранения');
+      throw new AuthError('unknown', result.quotaExceeded ? 'Storage is full' : 'Save error');
     }
 
     return { token, expiresAt };
@@ -399,11 +399,11 @@ export const authService = {
     await delay(PASSWORD_RESET_DELAY_MS);
 
     if (!isValidPassword(confirm.newPassword)) {
-      throw new AuthError('weak-password', `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`);
+      throw new AuthError('weak-password', `Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     if (confirm.newPassword !== confirm.confirmPassword) {
-      throw new AuthError('password-mismatch', 'Пароли не совпадают');
+      throw new AuthError('password-mismatch', 'Passwords do not match');
     }
 
     const tokens = getFromStorageAsArray<{ token: string; expiresAt: string; email: string }>(RESET_TOKENS_KEY);
@@ -412,18 +412,18 @@ export const authService = {
     );
 
     if (tokenIndex === -1) {
-      throw new AuthError('invalid-token', 'Неверный или истёкший токен');
+      throw new AuthError('invalid-token', 'Invalid or expired token');
     }
 
     const tokenData = tokens[tokenIndex];
     if (!tokenData) {
-      throw new AuthError('invalid-token', 'Неверный или истёкший токен');
+      throw new AuthError('invalid-token', 'Invalid or expired token');
     }
 
     const users = getUsers();
     const user = users.find(u => u.email === tokenData.email);
     if (!user) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
+      throw new AuthError('user-not-found', 'User not found');
     }
     const salt = user.salt || generateSalt();
     user.password = await hashPassword(confirm.newPassword, salt);
@@ -449,7 +449,7 @@ export const authService = {
 
     const updatedUser = users[userIndex];
     if (!updatedUser) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
+      throw new AuthError('user-not-found', 'User not found');
     }
     const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);
@@ -467,7 +467,7 @@ export const authService = {
 
     const updatedUser = users[userIndex];
     if (!updatedUser) {
-      throw new AuthError('user-not-found', 'Пользователь не найден');
+      throw new AuthError('user-not-found', 'User not found');
     }
     const userWithoutPassword = withoutPassword(updatedUser);
     saveCurrentUser(userWithoutPassword, true);

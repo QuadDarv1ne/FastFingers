@@ -235,7 +235,8 @@ export function generateSprintCertificate(
   user: User,
   wpm: number,
   accuracy: number,
-  correctChars: number
+  correctChars: number,
+  language: 'en' | 'ru' = 'en'
 ): Promise<Blob> {
   const data: CertificateData = {
     user,
@@ -246,5 +247,5 @@ export function generateSprintCertificate(
     date: new Date().toISOString(),
     rank: calculateRank(wpm, accuracy),
   }
-  return generateCertificate(data, { language: 'ru', download: true, theme: 'classic' })
+  return generateCertificate(data, { language, download: true, theme: 'classic' })
 }

@@ -15,7 +15,7 @@ export interface PracticeRecommendation {
 }
 
 /**
- * Генерирует персонализированные рекомендации для практики
+ * Generates personalized practice recommendations
  */
 export function generatePracticeRecommendations(
   recentStats: TypingStats[],
@@ -31,13 +31,13 @@ export function generatePracticeRecommendations(
 
   const analytics = analyzeTypingProgress(recentStats, heatmap)
 
-  // Рекомендации по скорости
+  // Speed recommendations
   if (currentWpm < 20) {
     recommendations.push({
       id: 'speed-beginner',
-      title: 'Начните с основ',
+      title: 'Start with basics',
       description:
-        'Сосредоточьтесь на правильной постановке пальцев. Скорость придёт с практикой.',
+        'Focus on proper finger placement. Speed will come with practice.',
       priority: 'high',
       category: 'speed',
       icon: '🌱',
@@ -46,9 +46,9 @@ export function generatePracticeRecommendations(
   } else if (currentWpm < 40 && analytics.wpmTrend.direction === 'down') {
     recommendations.push({
       id: 'speed-declining',
-      title: 'Восстановите темп',
+      title: 'Restore your pace',
       description:
-        'Ваша скорость снизилась. Попробуйте короткие спринты для разминки.',
+        'Your speed dropped. Try short sprints to warm up.',
       priority: 'high',
       category: 'speed',
       icon: '📉',
@@ -57,9 +57,9 @@ export function generatePracticeRecommendations(
   } else if (currentWpm >= 40 && currentWpm < 60) {
     recommendations.push({
       id: 'speed-intermediate',
-      title: 'Увеличьте скорость',
+      title: 'Increase speed',
       description:
-        'Вы на хорошем уровне! Практикуйте спринты для достижения 60 WPM.',
+        'You are at a good level! Practice sprints to reach 60 WPM.',
       priority: 'medium',
       category: 'speed',
       icon: '🚀',
@@ -67,13 +67,13 @@ export function generatePracticeRecommendations(
     })
   }
 
-  // Рекомендации по точности
+  // Accuracy recommendations
   if (currentAccuracy < 85) {
     recommendations.push({
       id: 'accuracy-low',
-      title: 'Замедлитесь для точности',
+      title: 'Slow down for accuracy',
       description:
-        'Точность важнее скорости. Печатайте медленнее, но без ошибок.',
+        'Accuracy matters more than speed. Type slower but error-free.',
       priority: 'high',
       category: 'accuracy',
       icon: '🎯',
@@ -82,35 +82,35 @@ export function generatePracticeRecommendations(
   } else if (currentAccuracy < 95 && analytics.accuracyTrend.direction === 'down') {
     recommendations.push({
       id: 'accuracy-declining',
-      title: 'Улучшите точность',
+      title: 'Improve accuracy',
       description:
-        'Ваша точность снижается. Сосредоточьтесь на правильности, а не на скорости.',
+        'Your accuracy is declining. Focus on correctness, not speed.',
       priority: 'medium',
       category: 'accuracy',
       icon: '⚠️',
     })
   }
 
-  // Рекомендации по консистентности
+  // Consistency recommendations
   if (analytics.consistencyScore < 70) {
     recommendations.push({
       id: 'consistency-low',
-      title: 'Тренируйтесь регулярно',
+      title: 'Practice regularly',
       description:
-        'Ваши результаты нестабильны. Старайтесь практиковаться каждый день в одно время.',
+        'Your results are unstable. Try to practice every day at the same time.',
       priority: 'medium',
       category: 'consistency',
       icon: '📊',
     })
   }
 
-  // Рекомендации по проблемным клавишам
+  // Problem keys recommendations
   if (analytics.weakestKeys.length > 0) {
     const keys = analytics.weakestKeys.slice(0, 3).join(', ')
     recommendations.push({
       id: 'keys-weak',
-      title: 'Отработайте проблемные клавиши',
-      description: `Клавиши ${keys} требуют дополнительной практики. Создайте упражнение для них.`,
+      title: 'Practice problem keys',
+      description: `Keys ${keys} need more practice. Create an exercise for them.`,
       priority: 'high',
       category: 'keys',
       icon: '⌨️',
@@ -118,13 +118,13 @@ export function generatePracticeRecommendations(
     })
   }
 
-  // Рекомендации по улучшению
+  // Improvement recommendations
   if (analytics.improvementRate > 0 && analytics.improvementRate < 0.5) {
     recommendations.push({
       id: 'improvement-slow',
-      title: 'Разнообразьте практику',
+      title: 'Vary your practice',
       description:
-        'Прогресс замедлился. Попробуйте разные типы упражнений и режимы.',
+        'Progress has slowed. Try different exercise types and modes.',
       priority: 'medium',
       category: 'general',
       icon: '🔄',
@@ -132,61 +132,61 @@ export function generatePracticeRecommendations(
   } else if (analytics.improvementRate > 1) {
     recommendations.push({
       id: 'improvement-fast',
-      title: 'Отличный прогресс!',
+      title: 'Great progress!',
       description:
-        'Вы быстро улучшаетесь! Продолжайте в том же духе и повышайте сложность.',
+        'You are improving fast! Keep it up and increase the difficulty.',
       priority: 'low',
       category: 'general',
       icon: '🌟',
     })
   }
 
-  // Общие рекомендации
+  // General recommendations
   if (recentStats.length < 10) {
     recommendations.push({
       id: 'general-more-practice',
-      title: 'Больше практики',
+      title: 'More practice',
       description:
-        'Для точной аналитики нужно больше данных. Продолжайте тренироваться!',
+        'More data is needed for accurate analytics. Keep training!',
       priority: 'low',
       category: 'general',
       icon: '💪',
     })
   }
 
-  // Рекомендации по перерывам
+  // Break recommendations
   const avgSessionTime =
     recentStats.reduce((sum, s) => sum + s.timeElapsed, 0) / recentStats.length
   if (avgSessionTime > 600) {
-    // более 10 минут
+    // more than 10 minutes
     recommendations.push({
       id: 'general-breaks',
-      title: 'Делайте перерывы',
+      title: 'Take breaks',
       description:
-        'Длинные сессии могут привести к усталости. Делайте перерыв каждые 10 минут.',
+        'Long sessions can lead to fatigue. Take a break every 10 minutes.',
       priority: 'medium',
       category: 'general',
       icon: '☕',
     })
   }
 
-  // Сортировка по приоритету
+  // Sort by priority
   const priorityOrder = { high: 0, medium: 1, low: 2 }
   recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
 
-  return recommendations.slice(0, 5) // Максимум 5 рекомендаций
+  return recommendations.slice(0, 5) // Maximum 5 recommendations
 }
 
 /**
- * Рекомендации для начинающих
+ * Beginner recommendations
  */
 function getBeginnerRecommendations(): PracticeRecommendation[] {
   return [
     {
       id: 'beginner-1',
-      title: 'Начните с режима обучения',
+      title: 'Start with learning mode',
       description:
-        'Изучите правильную постановку пальцев и основные клавиши.',
+        'Learn proper finger placement and basic keys.',
       priority: 'high',
       category: 'general',
       icon: '📚',
@@ -194,9 +194,9 @@ function getBeginnerRecommendations(): PracticeRecommendation[] {
     },
     {
       id: 'beginner-2',
-      title: 'Практикуйте основной ряд',
+      title: 'Practice the home row',
       description:
-        'Начните с клавиш ФЫВА ОЛДЖ (или ASDF JKL;) - это основа слепой печати.',
+        'Start with ASDF JKL; keys — the foundation of touch typing.',
       priority: 'high',
       category: 'keys',
       icon: '⌨️',
@@ -204,27 +204,27 @@ function getBeginnerRecommendations(): PracticeRecommendation[] {
     },
     {
       id: 'beginner-3',
-      title: 'Не смотрите на клавиатуру',
+      title: 'Don\'t look at the keyboard',
       description:
-        'Старайтесь печатать, не глядя на клавиши. Это главный навык слепой печати.',
+        'Try to type without looking at the keys. This is the key skill of touch typing.',
       priority: 'high',
       category: 'general',
       icon: '👀',
     },
     {
       id: 'beginner-4',
-      title: 'Точность важнее скорости',
+      title: 'Accuracy over speed',
       description:
-        'Сначала научитесь печатать правильно, скорость придёт позже.',
+        'First learn to type correctly, speed will come later.',
       priority: 'medium',
       category: 'accuracy',
       icon: '🎯',
     },
     {
       id: 'beginner-5',
-      title: 'Тренируйтесь регулярно',
+      title: 'Practice regularly',
       description:
-        'Даже 10-15 минут ежедневной практики дадут отличные результаты.',
+        'Even 10-15 minutes of daily practice will bring great results.',
       priority: 'medium',
       category: 'general',
       icon: '📅',
@@ -233,7 +233,7 @@ function getBeginnerRecommendations(): PracticeRecommendation[] {
 }
 
 /**
- * Получить рекомендацию по категории
+ * Get recommendations by category
  */
 export function getRecommendationsByCategory(
   recommendations: PracticeRecommendation[],
@@ -243,7 +243,7 @@ export function getRecommendationsByCategory(
 }
 
 /**
- * Получить приоритетные рекомендации
+ * Get high priority recommendations
  */
 export function getHighPriorityRecommendations(
   recommendations: PracticeRecommendation[]
@@ -252,7 +252,7 @@ export function getHighPriorityRecommendations(
 }
 
 /**
- * Форматировать рекомендацию для отображения
+ * Format recommendation for display
  */
 export function formatRecommendation(rec: PracticeRecommendation): string {
   return `${rec.icon} ${rec.title}: ${rec.description}`

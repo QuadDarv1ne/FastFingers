@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
+import { useAppTranslation } from '../../i18n/config'
 import { logger } from '@utils/logger'
 import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 
@@ -13,6 +14,7 @@ interface LoginProps {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: LoginProps) {
+  const { t } = useAppTranslation()
   const { login, isLoading, error, clearError } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -30,30 +32,30 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
 
   useEffect(() => {
     if (email && !EMAIL_REGEX.test(email)) {
-      setEmailError('Неверный формат email')
+      setEmailError(t('auth.error.invalidEmail', 'Invalid email format'))
     } else {
       setEmailError('')
     }
-  }, [email])
+  }, [email, t])
 
   useEffect(() => {
     if (password && password.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(`Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`)
+      setPasswordError(t('auth.error.passwordLength', `Password must be at least {{min}} characters`, { min: MIN_PASSWORD_LENGTH }))
     } else {
       setPasswordError('')
     }
-  }, [password])
+  }, [password, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!EMAIL_REGEX.test(email)) {
-      setEmailError('Неверный формат email')
+      setEmailError(t('auth.error.invalidEmail', 'Invalid email format'))
       return
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(`Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`)
+      setPasswordError(t('auth.error.passwordLength', `Password must be at least {{min}} characters`, { min: MIN_PASSWORD_LENGTH }))
       return
     }
     
@@ -90,8 +92,8 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold mb-2">С возвращением</h1>
-          <p className="text-dark-400">Войдите для продолжения тренировки</p>
+          <h1 className="text-2xl font-bold mb-2">{t('auth.welcomeBackFull', 'Welcome back')}</h1>
+          <p className="text-dark-400">{t('auth.loginSubtitle', 'Log in to continue training')}</p>
         </div>
 
         {/* Ошибка */}
@@ -101,7 +103,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-error font-medium">Ошибка входа</p>
+              <p className="text-error font-medium">{t('auth.error.loginError', 'Login error')}</p>
               <p className="text-error/80 text-sm">{error}</p>
             </div>
           </div>
@@ -111,7 +113,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="login-email" className="block text-sm font-medium text-dark-300 mb-2">
-              Email
+              {t('auth.email')}
             </label>
             <input
               id="login-email"
@@ -138,7 +140,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
 
           <div>
             <label htmlFor="login-password" className="block text-sm font-medium text-dark-300 mb-2">
-              Пароль
+              {t('auth.password')}
             </label>
             <div className="relative">
               <input
@@ -155,7 +157,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-white transition-colors"
-                aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                aria-label={showPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,14 +189,14 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 rounded bg-dark-800 border-dark-700 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-dark-400">Запомнить меня</span>
+              <span className="text-sm text-dark-400">{t('auth.rememberMe')}</span>
             </label>
             <button
               type="button"
               onClick={onSwitchToReset}
               className="text-sm text-primary-400 hover:text-primary-300 transition-colors"
             >
-              Забыли пароль?
+              {t('auth.forgotPassword')}
             </button>
           </div>
 
@@ -209,10 +211,10 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Вход...
+                {t('auth.loggingIn', 'Logging in...')}
               </>
             ) : (
-              'Войти'
+              t('auth.login')
             )}
           </button>
         </form>
@@ -220,12 +222,12 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
         {/* Переключатель */}
         <div className="mt-6 text-center">
           <p className="text-dark-400">
-            Нет аккаунта?{' '}
+            {t('auth.noAccount')}{' '}
             <button
               onClick={onSwitchToRegister}
               className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
             >
-              Зарегистрироваться
+              {t('auth.register')}
             </button>
           </p>
         </div>

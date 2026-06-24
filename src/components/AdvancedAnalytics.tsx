@@ -76,9 +76,9 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
         {/* Заголовок */}
         <div className="sticky top-0 bg-dark-900/95 backdrop-blur-sm border-b border-dark-700 p-6 flex items-center justify-between">
           <div>
-            <h2 id="analytics-title" className="text-2xl font-bold">📊 Расширенная аналитика</h2>
+            <h2 id="analytics-title" className="text-2xl font-bold">{t('analytics.extendedTitle', '📊 Extended Analytics')}</h2>
             <p id="analytics-description" className="text-dark-400 text-sm mt-1">
-              Детальный анализ вашего прогресса
+              {t('analytics.extendedDesc', 'Detailed analysis of your progress')}
             </p>
           </div>
           <button
@@ -106,11 +106,11 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
         <div className="p-6 space-y-6">
           {/* Тренды */}
           <div role="region" aria-labelledby="trends-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <h3 id="trends-heading" className="sr-only">Тренды производительности</h3>
+            <h3 id="trends-heading" className="sr-only">{t('analytics.performanceTrends', 'Performance trends')}</h3>
             {/* WPM Тренд */}
             <div className="card p-6" role="region" aria-labelledby="wpm-trend-title">
               <div className="flex items-center justify-between mb-4">
-                <h4 id="wpm-trend-title" className="text-lg font-semibold">Скорость печати</h4>
+                <h4 id="wpm-trend-title" className="text-lg font-semibold">{t('analytics.typingSpeed', 'Typing speed')}</h4>
                 <span className="text-2xl" aria-hidden="true">
                   {getTrendIcon(analytics.wpmTrend.direction)}
                 </span>
@@ -132,7 +132,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             {/* Accuracy Тренд */}
             <div className="card p-6" role="region" aria-labelledby="accuracy-trend-title">
               <div className="flex items-center justify-between mb-4">
-                <h4 id="accuracy-trend-title" className="text-lg font-semibold">Точность</h4>
+                <h4 id="accuracy-trend-title" className="text-lg font-semibold">{t('common.accuracy')}</h4>
                 <span className="text-2xl" aria-hidden="true">
                   {getTrendIcon(analytics.accuracyTrend.direction)}
                 </span>
@@ -154,15 +154,15 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
 
           {/* Консистентность и улучшение */}
           <div role="region" aria-labelledby="consistency-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <h3 id="consistency-heading" className="sr-only">Стабильность и прогресс</h3>
+            <h3 id="consistency-heading" className="sr-only">{t('analytics.stabilityAndProgress', 'Stability and progress')}</h3>
             {/* Консистентность */}
             <div className="card p-6" role="region" aria-labelledby="consistency-title">
               <h4 id="consistency-title" className="text-lg font-semibold mb-4">
-                Стабильность результатов
+                {t('analytics.resultStability', 'Result stability')}
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-dark-400">Оценка:</span>
+                  <span className="text-dark-400">{t('analytics.assessmentLabel', 'Assessment:')}</span>
                   <span
                     className={`text-2xl font-bold ${getConsistencyColor(analytics.consistencyScore)}`}
                     aria-valuenow={Math.round(analytics.consistencyScore)}
@@ -191,11 +191,11 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             {/* Скорость улучшения */}
             <div className="card p-6" role="region" aria-labelledby="improvement-title">
               <h4 id="improvement-title" className="text-lg font-semibold mb-4">
-                Скорость прогресса
+                {t('analytics.progressSpeed', 'Progress speed')}
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-dark-400">WPM за сессию:</span>
+                  <span className="text-dark-400">{t('analytics.wpmPerSession', 'WPM per session:')}</span>
                   <span
                     className={`text-2xl font-bold ${
                       analytics.improvementRate > 0
@@ -222,12 +222,12 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
 
           {/* Проблемные и сильные клавиши */}
           <div role="region" aria-labelledby="keys-heading" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <h3 id="keys-heading" className="sr-only">Анализ клавиш</h3>
+            <h3 id="keys-heading" className="sr-only">{t('analytics.keyAnalysis', 'Key analysis')}</h3>
             {/* Проблемные клавиши */}
             <div className="card p-6" role="region" aria-labelledby="weak-keys-title">
               <h4 id="weak-keys-title" className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span aria-hidden="true">⚠️</span>
-                Проблемные клавиши
+                {t('analytics.weakKeys', 'Problem keys')}
               </h4>
               {analytics.weakestKeys.length > 0 ? (
                 <div className="flex flex-wrap gap-2" role="list">
@@ -243,7 +243,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
                 </div>
               ) : (
                 <p className="text-dark-400 text-sm">
-                  Недостаточно данных для анализа
+                  {t('analytics.insufficientData', 'Not enough data for analysis')}
                 </p>
               )}
             </div>
@@ -252,7 +252,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
             <div className="card p-6" role="region" aria-labelledby="strong-keys-title">
               <h4 id="strong-keys-title" className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <span aria-hidden="true">✨</span>
-                Сильные клавиши
+                {t('analytics.strongKeys', 'Strong keys')}
               </h4>
               {analytics.strongestKeys.length > 0 ? (
                 <div className="flex flex-wrap gap-2" role="list">
@@ -268,7 +268,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
                 </div>
               ) : (
                 <p className="text-dark-400 text-sm">
-                  Недостаточно данных для анализа
+                  {t('analytics.insufficientData', 'Not enough data for analysis')}
                 </p>
               )}
             </div>
@@ -278,7 +278,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
           <div className="card p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <span>💡</span>
-              Персональные рекомендации
+              {t('analytics.personalRecommendations', 'Personal recommendations')}
             </h3>
             <div className="space-y-3">
               {analytics.recommendations.map((rec, index) => (

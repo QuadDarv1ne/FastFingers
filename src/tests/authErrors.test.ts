@@ -3,57 +3,57 @@ import { AuthError, isValidEmail, isValidPassword, checkPasswordStrength } from 
 
 describe('AuthError', () => {
   describe('constructor', () => {
-    it('должен создавать ошибку с кодом и сообщением', () => {
-      const error = new AuthError('invalid-email', 'Неверный email')
-      
+    it('creates error with code and message', () => {
+      const error = new AuthError('invalid-email', 'Invalid email')
+
       expect(error.name).toBe('AuthError')
       expect(error.code).toBe('invalid-email')
-      expect(error.message).toBe('Неверный email')
+      expect(error.message).toBe('Invalid email')
     })
 
-    it('должен создавать ошибку с полем', () => {
-      const error = new AuthError('weak-password', 'Слабый пароль', 'password')
-      
+    it('creates error with field', () => {
+      const error = new AuthError('weak-password', 'Weak password', 'password')
+
       expect(error.field).toBe('password')
     })
   })
 
   describe('isAuthError', () => {
-    it('должен возвращать true для AuthError', () => {
-      const error = new AuthError('unknown', 'Ошибка')
+    it('returns true for AuthError', () => {
+      const error = new AuthError('unknown', 'Error')
       expect(AuthError.isAuthError(error)).toBe(true)
     })
 
-    it('должен возвращать false для других ошибок', () => {
-      const error = new Error('Обычная ошибка')
+    it('returns false for other errors', () => {
+      const error = new Error('Regular error')
       expect(AuthError.isAuthError(error)).toBe(false)
     })
 
-    it('должен возвращать false для null/undefined', () => {
+    it('returns false for null/undefined', () => {
       expect(AuthError.isAuthError(null)).toBe(false)
       expect(AuthError.isAuthError(undefined)).toBe(false)
     })
   })
 
   describe('fromApiError', () => {
-    it('должен создавать ошибку из API ответа', () => {
-      const error = AuthError.fromApiError('email-in-use', 'Email занят', 'email')
-      
+    it('creates error from API response', () => {
+      const error = AuthError.fromApiError('email-in-use', 'Email taken', 'email')
+
       expect(error.code).toBe('email-in-use')
-      expect(error.message).toBe('Email занят')
+      expect(error.message).toBe('Email taken')
       expect(error.field).toBe('email')
     })
   })
 })
 
 describe('isValidEmail', () => {
-  it('должен возвращать true для валидных email', () => {
+  it('returns true for valid emails', () => {
     expect(isValidEmail('test@example.com')).toBe(true)
     expect(isValidEmail('user.name@domain.org')).toBe(true)
     expect(isValidEmail('test+tag@example.co.uk')).toBe(true)
   })
 
-  it('должен возвращать false для невалидных email', () => {
+  it('returns false for invalid emails', () => {
     expect(isValidEmail('')).toBe(false)
     expect(isValidEmail('invalid')).toBe(false)
     expect(isValidEmail('invalid@')).toBe(false)
@@ -63,13 +63,13 @@ describe('isValidEmail', () => {
 })
 
 describe('isValidPassword', () => {
-  it('должен возвращать true для паролей от 8 символов', () => {
+  it('returns true for passwords 8+ characters', () => {
     expect(isValidPassword('12345678')).toBe(true)
     expect(isValidPassword('password123')).toBe(true)
     expect(isValidPassword('verylongpassword')).toBe(true)
   })
 
-  it('должен возвращать false для паролей короче 8 символов', () => {
+  it('returns false for passwords shorter than 8', () => {
     expect(isValidPassword('')).toBe(false)
     expect(isValidPassword('1234567')).toBe(false)
     expect(isValidPassword('short')).toBe(false)
@@ -77,29 +77,29 @@ describe('isValidPassword', () => {
 })
 
 describe('checkPasswordStrength', () => {
-  it('должен оценивать слабые пароли', () => {
+  it('evaluates weak passwords', () => {
     const result = checkPasswordStrength('12345678')
-    
+
     expect(result.score).toBeGreaterThanOrEqual(1)
-    expect(result.feedback).toContain('Заглавные и строчные буквы')
+    expect(result.feedback).toContain('Uppercase and lowercase letters')
   })
 
-  it('должен оценивать средние пароли', () => {
+  it('evaluates medium passwords', () => {
     const result = checkPasswordStrength('Password1')
-    
+
     expect(result.score).toBeGreaterThanOrEqual(2)
   })
 
-  it('должен оценивать сильные пароли', () => {
+  it('evaluates strong passwords', () => {
     const result = checkPasswordStrength('P@ssw0rd!')
-    
+
     expect(result.score).toBe(4)
     expect(result.feedback).toHaveLength(0)
   })
 
-  it('должен возвращать feedback для короткого пароля', () => {
+  it('returns feedback for short password', () => {
     const result = checkPasswordStrength('Ab1!')
-    
-    expect(result.feedback).toContain('Минимум 8 символов')
+
+    expect(result.feedback).toContain('Minimum 8 characters')
   })
 })
