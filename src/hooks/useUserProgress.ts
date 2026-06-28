@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { UserProgress, TypingStats, KeyHeatmapData, UserSettings, SoundTheme, Theme, KeyboardSkin, KeyboardLayout, FontSize } from '../types';
 import { calculateLevel, xpForLevel, updateKeyHeatmap } from '../utils/stats';
+import { getTodayDate } from '../utils/format';
 import { useAppStore } from '../stores/useAppStore';
+import { useProgressStore, calculateStreak } from '../stores/useProgressStore';
 import { useShallow } from 'zustand/react/shallow';
 
 interface UseUserProgressOptions {
@@ -36,6 +38,20 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     streak: 0,
     lastPracticeDate: null,
   });
+
+  // Initialize from persisted state on mount
+  useEffect(() => {
+    const stored = useProgressStore.getState();
+    if (stored.totalXp > 0 || stored.streak > 0 || stored.sessions.length > 0) {
+      setProgress(prev => ({
+        ...prev,
+        xp: stored.totalXp,
+        level: stored.level,
+        streak: stored.streak,
+        lastPracticeDate: stored.lastPracticeDate,
+      }));
+    }
+  }, []);
 
   const [currentStats, setCurrentStats] = useState<TypingStats | null>(null);
   const [heatmap, setHeatmap] = useState<KeyHeatmapData>({});
@@ -74,6 +90,21 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
     setProgress(prev => {
       const newXp = prev.xp + totalXp;
       const newLevel = calculateLevel(newXp);
+      const today = getTodayDate();
+      const action = calculateStreak(prev.lastPracticeDate, today);
+      let newStreak: number;
+      switch (action) {
+        case 'first':
+        case 'reset':
+          newStreak = 1;
+          break;
+        case 'increment':
+          newStreak = prev.streak + 1;
+          break;
+        case 'unchanged':
+          newStreak = prev.streak;
+          break;
+      }
 
       return {
         ...prev,
@@ -84,6 +115,8 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         bestWpm: Math.max(prev.bestWpm, stats.wpm),
         bestAccuracy: Math.max(prev.bestAccuracy, stats.accuracy),
         totalPracticeTime: prev.totalPracticeTime + Math.round(stats.timeElapsed),
+        streak: newStreak,
+        lastPracticeDate: today,
       };
     });
   }, []);

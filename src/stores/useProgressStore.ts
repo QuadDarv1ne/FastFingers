@@ -51,7 +51,7 @@ export function getTotalPracticeTimeFromSessions(sessions: TypingSession[]): num
 
 export type StreakResult = 'first' | 'increment' | 'unchanged' | 'reset'
 
-const calculateStreak = (lastDate: string | null, currentDate: string): StreakResult => {
+export const calculateStreak = (lastDate: string | null, currentDate: string): StreakResult => {
   if (!lastDate) return 'first'
 
   const last = new Date(lastDate)
