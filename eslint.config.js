@@ -89,4 +89,10 @@ export default [
       'no-console': 'off',
     },
   },
+  {
+    files: ['src/utils/lazy.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ]

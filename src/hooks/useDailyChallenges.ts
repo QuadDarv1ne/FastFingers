@@ -97,8 +97,8 @@ export function useDailyChallenges() {
   const checkStreak = useCallback((today: string) => {
     setStreak(prev => {
       const lastDate = prev.lastPracticeDate
-      const todayDate = new Date(today + 'T00:00:00')
-      todayDate.setDate(todayDate.getDate() - 1)
+      const todayDate = new Date(today + 'T00:00:00Z')
+      todayDate.setUTCDate(todayDate.getUTCDate() - 1)
       const yesterdayStr = todayDate.toISOString().split('T')[0]
 
       let newCurrent = prev.current
