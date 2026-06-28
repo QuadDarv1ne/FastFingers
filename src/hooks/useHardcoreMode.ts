@@ -43,7 +43,10 @@ export function useHardcoreMode({
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreakLocal] = useState(0)
 
-  const setBestStreak = setBestStreakProp || setBestStreakLocal
+  const setBestStreak = useCallback((value: React.SetStateAction<number>) => {
+    setBestStreakLocal(value)
+    setBestStreakProp?.(value)
+  }, [setBestStreakProp])
 
   const inputRef = useRef<HTMLInputElement>(null)
   const textLengthRef = useRef(0)
