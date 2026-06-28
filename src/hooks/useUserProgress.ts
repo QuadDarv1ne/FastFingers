@@ -47,6 +47,7 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         ...prev,
         xp: stored.totalXp,
         level: stored.level,
+        xpToNextLevel: xpForLevel(stored.level + 1),
         streak: stored.streak,
         lastPracticeDate: stored.lastPracticeDate,
       }));
