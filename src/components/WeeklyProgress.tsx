@@ -59,27 +59,30 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
   const maxSessions = Math.max(...weeklyData.map(d => d.sessions), 1)
   const maxXp = Math.max(...weeklyData.map(d => d.xp), 1)
 
-  const totalSessions = useMemo(
-    () => weeklyData.reduce((sum, d) => sum + d.sessions, 0),
-    [weeklyData]
-  )
+  const { totalSessions, totalXp, avgWpmWeek, totalTimeWeek } = useMemo(() => {
+    let sessions = 0
+    let xp = 0
+    let wpmSum = 0
+    let wpmCount = 0
+    let timeSum = 0
 
-  const totalXp = useMemo(
-    () => weeklyData.reduce((sum, d) => sum + d.xp, 0),
-    [weeklyData]
-  )
+    for (const d of weeklyData) {
+      sessions += d.sessions
+      xp += d.xp
+      if (d.avgWpm > 0) {
+        wpmSum += d.avgWpm
+        wpmCount++
+      }
+      timeSum += d.totalTime
+    }
 
-  const avgWpmWeek = useMemo(() => {
-    const withWpm = weeklyData.filter(d => d.avgWpm > 0)
-    return withWpm.length > 0
-      ? Math.round(withWpm.reduce((sum, d) => sum + d.avgWpm, 0) / withWpm.length)
-      : 0
+    return {
+      totalSessions: sessions,
+      totalXp: xp,
+      avgWpmWeek: wpmCount > 0 ? Math.round(wpmSum / wpmCount) : 0,
+      totalTimeWeek: Math.round(timeSum / 60),
+    }
   }, [weeklyData])
-
-  const totalTimeWeek = useMemo(
-    () => Math.round(weeklyData.reduce((sum, d) => sum + d.totalTime, 0) / 60),
-    [weeklyData]
-  )
 
   if (compact) {
     return (

@@ -13,10 +13,11 @@ import { useAppTranslation } from '../i18n/config'
 import type { GameMode, View, SpeedTestDuration } from '../hooks/useGameMode'
 import type { UserSettings, TypingStats, KeyHeatmapData, Exercise } from '../types'
 import type { CustomExercise } from './CustomExerciseEditor'
+import { lazyDefault } from '../utils/lazy'
 
 // Lazy-load heavy components only used in practice/default mode
-const TypingTrainer = lazy(() => import('./TypingTrainer').then(m => ({ default: m.TypingTrainer })))
-const Keyboard = lazy(() => import('./Keyboard').then(m => ({ default: m.Keyboard })))
+const TypingTrainer = lazyDefault(() => import('./TypingTrainer'), 'TypingTrainer')
+const Keyboard = lazyDefault(() => import('./Keyboard'), 'Keyboard')
 
 const ANIMATIONS = {
   stats: {
@@ -92,23 +93,23 @@ function LazyModeRenderer({ modeKey, MotionWrapper, errorLabel, onRetry, childre
   )
 }
 
-const SprintMode = lazy(() => import('./SprintMode').then(m => ({ default: m.SprintMode })))
-const SpeedTest = lazy(() => import('./SpeedTest').then(m => ({ default: m.SpeedTest })))
-const ReactionGame = lazy(() => import('./ReactionGame').then(m => ({ default: m.ReactionGame })))
-const HardcoreMode = lazy(() => import('./HardcoreMode').then(m => ({ default: m.HardcoreMode })))
+const SprintMode = lazyDefault(() => import('./SprintMode'), 'SprintMode')
+const SpeedTest = lazyDefault(() => import('./SpeedTest'), 'SpeedTest')
+const ReactionGame = lazyDefault(() => import('./ReactionGame'), 'ReactionGame')
+const HardcoreMode = lazyDefault(() => import('./HardcoreMode'), 'HardcoreMode')
 const TrainingHistory = lazy(() => import('./TrainingHistory'))
-const WeeklyProgress = lazy(() => import('./WeeklyProgress').then(m => ({ default: m.WeeklyProgress })))
-const DailyChallengeCardLazy = lazy(() => import('./DailyChallengeCard').then(m => ({ default: m.DailyChallengeCard })))
-const CustomExerciseEditor = lazy(() => import('./CustomExerciseEditor').then(m => ({ default: m.CustomExerciseEditor })))
-const TypingTips = lazy(() => import('./TypingTips').then(m => ({ default: m.TypingTips })))
-const LearningMode = lazy(() => import('./LearningMode').then(m => ({ default: m.LearningMode })))
-const StatisticsPage = lazy(() => import('./StatisticsPage').then(m => ({ default: m.StatisticsPage })))
-const MarathonMode = lazy(() => import('./MarathonMode').then(m => ({ default: m.MarathonMode })))
-const CodeMode = lazy(() => import('./CodeMode').then(m => ({ default: m.CodeMode })))
-const DuelMode = lazy(() => import('./DuelMode').then(m => ({ default: m.DuelMode })))
-const TournamentMode = lazy(() => import('./TournamentMode').then(m => ({ default: m.TournamentMode })))
-const AdminDashboard = lazy(() => import('./admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
-const StudentAnalyticsPage = lazy(() => import('./admin/StudentAnalyticsPage').then(m => ({ default: m.StudentAnalyticsPage })))
+const WeeklyProgress = lazyDefault(() => import('./WeeklyProgress'), 'WeeklyProgress')
+const DailyChallengeCardLazy = lazyDefault(() => import('./DailyChallengeCard'), 'DailyChallengeCard')
+const CustomExerciseEditor = lazyDefault(() => import('./CustomExerciseEditor'), 'CustomExerciseEditor')
+const TypingTips = lazyDefault(() => import('./TypingTips'), 'TypingTips')
+const LearningMode = lazyDefault(() => import('./LearningMode'), 'LearningMode')
+const StatisticsPage = lazyDefault(() => import('./StatisticsPage'), 'StatisticsPage')
+const MarathonMode = lazyDefault(() => import('./MarathonMode'), 'MarathonMode')
+const CodeMode = lazyDefault(() => import('./CodeMode'), 'CodeMode')
+const DuelMode = lazyDefault(() => import('./DuelMode'), 'DuelMode')
+const TournamentMode = lazyDefault(() => import('./TournamentMode'), 'TournamentMode')
+const AdminDashboard = lazyDefault(() => import('./admin/AdminDashboard'), 'AdminDashboard')
+const StudentAnalyticsPage = lazyDefault(() => import('./admin/StudentAnalyticsPage'), 'StudentAnalyticsPage')
 
 interface DailyChallengeData {
   id: string
@@ -206,7 +207,7 @@ export function GameModeRenderer({
   if (view === 'learning') {
     return (
       <LazyModeRenderer modeKey="learning" MotionWrapper={StatsMotion} errorLabel={t('error.learningFailed', 'Failed to load learning mode')} onRetry={goToMain}>
-        <LearningMode onBack={goToMain} onClose={goToMain} onStartLesson={goToMain} />
+        <LearningMode onClose={goToMain} onStartLesson={goToMain} />
       </LazyModeRenderer>
     )
   }
@@ -232,7 +233,7 @@ export function GameModeRenderer({
   if (gameMode === 'reaction') {
     return (
       <LazyModeRenderer modeKey="reaction" MotionWrapper={GameMotion} errorLabel={t('error.reactionFailed', 'Failed to load reaction game')} onRetry={exitToPractice}>
-        <ReactionGame onExit={exitToPractice} onComplete={(wpm, accuracy) => onCompleteChallenge('', wpm, accuracy)} />
+        <ReactionGame onExit={exitToPractice} onComplete={(score: number, accuracy: number) => onCompleteChallenge('', score, accuracy)} />
       </LazyModeRenderer>
     )
   }

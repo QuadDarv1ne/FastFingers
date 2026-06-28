@@ -20,14 +20,6 @@ export interface Achievement {
 
 interface AchievementsPanelProps {
   onClose: () => void
-  progress: {
-    level: number
-    xp: number
-    streak: number
-    bestWpm: number
-    bestAccuracy: number
-    totalWordsTyped: number
-  }
   stats: {
     maxWpm: number
     maxAccuracy: number
@@ -44,7 +36,7 @@ interface AchievementsPanelProps {
   }
 }
 
-export function AchievementsPanel({ onClose, progress: _progress, stats }: AchievementsPanelProps) {
+export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
   const { t } = useAppTranslation()
 
   const ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = useMemo(() => [

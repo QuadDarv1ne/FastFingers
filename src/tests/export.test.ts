@@ -75,8 +75,8 @@ describe('export utils', () => {
       const mockLink = {
         href: '',
         style: {},
+        download: '',
         click: vi.fn(),
-        setAttribute: vi.fn(),
       }
       createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any)
       appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any)
@@ -123,7 +123,7 @@ describe('export utils', () => {
       downloadCSV(data)
 
       const mockLink = createElementSpy.mock.results[0]?.value
-      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'fastfingers_stats.csv')
+      expect(mockLink.download).toBe('fastfingers_stats.csv')
     })
 
     it('должен использовать кастомное имя файла', () => {
@@ -141,25 +141,7 @@ describe('export utils', () => {
       downloadCSV(data, 'custom_stats.csv')
 
       const mockLink = createElementSpy.mock.results[0]?.value
-      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'custom_stats.csv')
-    })
-
-    it('должен скрывать ссылку во время скачивания', () => {
-      const data: ExportData[] = [{
-        date: '2026-03-07',
-        wpm: 60,
-        cpm: 300,
-        accuracy: 95,
-        errors: 5,
-        timeElapsed: 60,
-        correctChars: 300,
-        totalChars: 315,
-      }]
-
-      downloadCSV(data)
-
-      const mockLink = createElementSpy.mock.results[0]?.value
-      expect(mockLink.style.visibility).toBe('hidden')
+      expect(mockLink.download).toBe('custom_stats.csv')
     })
 
     it('должен удалять ссылку после скачивания', () => {

@@ -42,21 +42,23 @@ export function downloadCSV(data: ExportData[], filename = 'fastfingers_stats.cs
     const csv = convertToCSV(data)
     if (!csv) return
 
-    // Add UTF-8 BOM for proper Cyrillic display in Excel
     const BOM = '\uFEFF'
     const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', filename)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, filename)
   } catch (error) {
     logger.error('Error downloading CSV:', error)
   }
+}
+
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 
 export function statsToExportData(stats: TypingStats[], dates?: string[]): ExportData[] {

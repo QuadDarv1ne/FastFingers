@@ -61,6 +61,8 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
   const [currentDuel, setCurrentDuel] = useState<DuelChallenge | null>(null)
   const [opponentWpm, setOpponentWpm] = useState(0)
   const [opponentAccuracy, setOpponentAccuracy] = useState(100)
+  const opponentWpmRef = useRef(0)
+  const opponentAccuracyRef = useRef(100)
   const [message, setMessage] = useState('')
 
   const {
@@ -111,6 +113,8 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
   accuracyRef.current = accuracy
   currentDuelRef.current = currentDuel
   userRef.current = user
+  opponentWpmRef.current = opponentWpm
+  opponentAccuracyRef.current = opponentAccuracy
 
   useEffect(() => {
     mountedRef.current = true
@@ -120,7 +124,6 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
   // Подписка на обновления дуэли (real-time)
   useEffect(() => {
     const duel = currentDuelRef.current
-    const curUser = userRef.current
     if (!duel?.id || !supabase || !supabaseReady) return
 
     const channel = supabase
@@ -137,8 +140,8 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
           const updatedDuel = payload.new as DuelChallenge
           setCurrentDuel(updatedDuel)
 
-          // Extract opponent WPM and accuracy based on user role
           const currentDuel = currentDuelRef.current
+          const curUser = userRef.current
           const isChallenger = currentDuel?.challenger?.id === curUser?.id
           const oppWpm = isChallenger
             ? Number(updatedDuel.opponent_wpm) || 0

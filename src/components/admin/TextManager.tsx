@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useTextUsageStats } from '@hooks/useTextUsage'
 import { getFromStorageAsArray } from '../../utils/storage'
 import { logger } from '../../utils/logger'
+import { downloadBlob } from '../../utils/export'
 
 const STORAGE_KEY = 'fastfingers_admin_texts'
 
@@ -53,14 +54,7 @@ function validatePracticeText(obj: unknown): obj is PracticeText {
 function exportTexts(texts: PracticeText[]): void {
   const json = JSON.stringify(texts, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `fastfingers-texts-${new Date().toISOString().split('T')[0]}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  downloadBlob(blob, `fastfingers-texts-${new Date().toISOString().split('T')[0]}.json`)
 }
 
 function getExistingIds(texts: PracticeText[]): Set<string> {

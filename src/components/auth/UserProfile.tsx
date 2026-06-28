@@ -14,6 +14,7 @@ import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
 import { generateId } from '../../utils/id'
+import { downloadBlob } from '@utils/export'
 
 interface UserProfileProps {
   onClose: () => void
@@ -1418,14 +1419,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       }
       const exportData = { version: '1.0', exportedAt: new Date().toISOString(), data }
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `fastfingers-backup-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      downloadBlob(blob, `fastfingers-backup-${new Date().toISOString().split('T')[0]}.json`)
     } catch (err) {
       logger.error('[UserProfile] Failed to export data', err)
       showToast(t('profile.exportError', 'Ошибка при экспорте данных'), 'error')

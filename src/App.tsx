@@ -501,7 +501,6 @@ function AppContent() {
         <ErrorBoundary key="achievements" fallback={null}>
           <Suspense fallback={<LoadingFallback />}>
             <AchievementsPanel
-              progress={progress}
               stats={achievementStats}
               onClose={() => setShowAchievements(false)}
             />

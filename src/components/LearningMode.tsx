@@ -19,11 +19,10 @@ const LAYOUT_META: Record<LessonLayout, { label: string; flag: string; desc: str
 
 interface LearningModeProps {
   onClose: () => void
-  onBack: () => void
   onStartLesson: (lesson: Lesson, exercise: string) => void
 }
 
-export const LearningMode = memo(function LearningMode({ onClose, onBack: _onBack, onStartLesson }: LearningModeProps) {
+export const LearningMode = memo(function LearningMode({ onClose, onStartLesson }: LearningModeProps) {
   const { t } = useAppTranslation()
   const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
     'fastfingers_learning_progress',

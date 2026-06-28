@@ -9,6 +9,7 @@ import { mapSupabaseSessions, computeStudentStats } from '../../utils/studentSta
 import type { SessionData, FetchResult } from '../../utils/studentStats'
 import type { TypingSessionRow } from '../../services/cloudSyncService'
 import { logger } from '../../utils/logger'
+import { downloadBlob } from '../../utils/export'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
 import { getFromStorageAsArray } from '../../utils/storage'
 
@@ -248,14 +249,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
               const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
               const bom = '\uFEFF'
               const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' })
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `student-${(userName ?? 'unknown').replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`
-              document.body.appendChild(a)
-              a.click()
-              document.body.removeChild(a)
-              URL.revokeObjectURL(url)
+              downloadBlob(blob, `student-${(userName ?? 'unknown').replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`)
             }}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
           >
