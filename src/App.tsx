@@ -135,6 +135,7 @@ function AppContent() {
     updateHeatmap,
     setShowHeatmap,
     updateSetting,
+    importProgress,
   } = useUserProgress({
     onLevelUp: handleLevelUp,
   })
@@ -146,9 +147,10 @@ function AppContent() {
     heatmap,
     settings,
     onRestore: (data) => {
-      // Восстанавливаем сессию если она есть
+      if (data.progress) {
+        importProgress(data.progress)
+      }
       if (data.currentSession) {
-        // Можно показать уведомление о восстановлении
         logger.log('[App] Session restored:', data.currentSession)
       }
     },

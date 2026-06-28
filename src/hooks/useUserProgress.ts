@@ -120,6 +120,10 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         lastPracticeDate: today,
       };
     });
+
+    const store = useProgressStore.getState();
+    store.addXp(totalXp);
+    store.updateStreak(getTodayDate());
   }, []);
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
