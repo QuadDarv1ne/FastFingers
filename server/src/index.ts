@@ -107,6 +107,13 @@ async function start() {
   app.use('/api/sessions', sessionsRouter(dbAdapter!))
   app.use('/api/progress', progressRouter(dbAdapter!))
 
+  // Serve frontend static files (after API routes to avoid conflict)
+  const distDir = path.join(__dirname, '..', '..', 'dist')
+  app.use(express.static(distDir))
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'))
+  })
+
   // Start server
   const actualPort = await findAvailablePort(PORT)
   app.listen(actualPort, () => {
