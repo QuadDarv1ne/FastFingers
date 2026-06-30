@@ -69,6 +69,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [inputResults, setInputResults] = useState<KeyInputResult[]>([])
   const [startTime, setStartTime] = useState<number | null>(null)
+  const startTimeRef = useRef<number | null>(null)
   const [isComplete, setIsComplete] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<number>(5)
@@ -99,7 +100,8 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
   }, [inputResults])
 
   const handleComplete = useCallback((results: KeyInputResult[]) => {
-    if (!startTime || isCompletingRef.current) return
+    const sessionStart = startTimeRef.current
+    if (!sessionStart || isCompletingRef.current) return
     isCompletingRef.current = true
 
     let correctChars = 0
@@ -113,14 +115,14 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         errors++
       }
     }
-    const timeElapsed = (Date.now() - startTime) / 1000
+    const timeElapsed = (Date.now() - sessionStart) / 1000
 
     const stats = calculateStats(correctChars, results.length, errors, timeElapsed)
 
     setIsComplete(true)
     adaptiveRef.current.onSessionComplete(stats)
     onSessionComplete(stats)
-  }, [startTime, onSessionComplete])
+  }, [onSessionComplete])
 
   const initExercise = useCallback(() => {
     try {
@@ -155,6 +157,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setInputResults([])
       resultsRef.current = []
       setStartTime(null)
+      startTimeRef.current = null
       setIsComplete(false)
       correctCountRef.current = 0
       textLengthRef.current = exerciseText.length
@@ -165,6 +168,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
       setInputResults([])
       resultsRef.current = []
       setStartTime(null)
+      startTimeRef.current = null
       setIsComplete(false)
       textLengthRef.current = 0
     }
@@ -188,7 +192,9 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     if (e.repeat) return
 
     if (!startTime) {
-      setStartTime(Date.now())
+      const now = Date.now()
+      setStartTime(now)
+      startTimeRef.current = now
     }
 
     const expectedChar = text[currentIndex]
