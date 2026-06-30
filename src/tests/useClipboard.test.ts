@@ -8,7 +8,7 @@ describe('useClipboard', () => {
 
   beforeEach(() => {
     vi.useFakeTimers()
-    // @ts-ignore - Mock clipboard
+    // @ts-expect-error - Mock clipboard
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: mockWriteText },
       writable: true,
@@ -105,7 +105,7 @@ describe('useClipboard', () => {
   })
 
   it('должен обрабатывать ошибку при отсутствии clipboard API', async () => {
-    // @ts-ignore - Отключаем clipboard
+    // @ts-expect-error - Disable clipboard
     Object.defineProperty(navigator, 'clipboard', {
       value: undefined,
       writable: true,

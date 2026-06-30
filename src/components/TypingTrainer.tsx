@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { TypingStats, KeyInputResult, Exercise } from '../types'
 import { getRandomExercise, generatePracticeText } from '../utils/exercises'
 import { calculateStats } from '../utils/stats'
-import { useTypingSound } from '../hooks/useTypingSound'
+import type { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { TypingChar } from './TypingChar'
@@ -13,6 +13,7 @@ import {
   useAdaptiveDifficulty,
 } from '../hooks/useAdaptiveDifficulty'
 
+const FONT_SIZE_STYLE = { fontSize: 'var(--font-size-practice)' } as const
 const logger = createScopedLogger('TypingTrainer')
 const EMPTY_EXERCISES: Exercise[] = []
 
@@ -239,7 +240,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     inputRef.current?.focus({ preventScroll: true })
   }, { enabled: true })
 
-  const fontSizeStyle = useMemo(() => ({ fontSize: 'var(--font-size-practice)' }), [])
+  const fontSizeStyle = FONT_SIZE_STYLE
 
   const currentKey = text[currentIndex]?.toLowerCase() || ''
 
