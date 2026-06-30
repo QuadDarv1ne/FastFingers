@@ -22,7 +22,7 @@ export const Footer = memo(function Footer() {
             </button>
             <span className="text-dark-600/50" aria-hidden="true">·</span>
             <button className="text-dark-500 hover:text-dark-300 transition-colors cursor-pointer font-medium">
-              Cookie
+              {t('cookie.title')}
             </button>
           </div>
         </div>

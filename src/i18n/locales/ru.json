@@ -1,5 +1,8 @@
 {
   "action.back": "Назад",
+  "notFound.title": "Упс. Страница не найдена",
+  "notFound.description": "Похоже, вы заблудились в лабиринте клавиатуры. Не волнуйтесь, мы поможем вам вернуться",
+  "notFound.home": "На главную",
   "action.cancel": "Отмена",
   "action.close": "Закрыть",
   "action.create": "Создать",
@@ -302,6 +305,9 @@
   "misc.about": "О приложении",
   "misc.copyright": "© 2026 FastFingers",
   "misc.fontSize": "Размер шрифта",
+  "fontSize.small": "Маленький",
+  "fontSize.medium": "Средний",
+  "fontSize.large": "Большой",
   "misc.footer": "FastFingers — Тренажёр слепой печати",
   "misc.allRightsReserved": "Все права защищены.",
   "misc.privacy": "Политика конфиденциальности",

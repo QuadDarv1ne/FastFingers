@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { motion } from 'framer-motion'
+import { useAppTranslation } from '../i18n/config'
 
 interface NotFound404Props {
   onBack: () => void
@@ -7,6 +8,7 @@ interface NotFound404Props {
 }
 
 function NotFound404({ onBack, onHome }: NotFound404Props) {
+  const { t } = useAppTranslation()
 
   return (
     <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
@@ -37,9 +39,9 @@ function NotFound404({ onBack, onHome }: NotFound404Props) {
         </div>
 
         {/* Текст */}
-        <h1 className="text-3xl font-bold mb-4">Упс. Страница не найдена</h1>
+        <h1 className="text-3xl font-bold mb-4">{t('notFound.title')}</h1>
         <p className="text-dark-400 mb-8">
-          Похоже, вы заблудились в лабиринте клавиатуры. Не волнуйтесь, мы поможем вам вернуться
+          {t('notFound.description')}
         </p>
 
         {/* Кнопки */}
@@ -51,7 +53,7 @@ function NotFound404({ onBack, onHome }: NotFound404Props) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Назад
+            {t('action.back')}
           </button>
           <button
             onClick={onHome}
@@ -60,7 +62,7 @@ function NotFound404({ onBack, onHome }: NotFound404Props) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            На главную
+            {t('notFound.home')}
           </button>
         </div>
 

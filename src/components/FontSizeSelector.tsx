@@ -4,10 +4,10 @@ import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
 import type { FontSize } from '../types'
 
-const FONT_SIZES: { value: FontSize; label: string; icon: string; px: string }[] = [
-  { value: 'small', label: 'Маленький', icon: 'A', px: '14px' },
-  { value: 'medium', label: 'Средний', icon: 'A', px: '16px' },
-  { value: 'large', label: 'Большой', icon: 'A', px: '18px' },
+const FONT_SIZES: { value: FontSize; labelKey: string; icon: string; px: string }[] = [
+  { value: 'small', labelKey: 'fontSize.small', icon: 'A', px: '14px' },
+  { value: 'medium', labelKey: 'fontSize.medium', icon: 'A', px: '16px' },
+  { value: 'large', labelKey: 'fontSize.large', icon: 'A', px: '18px' },
 ]
 
 function FontSizeSelector() {
@@ -45,7 +45,7 @@ function FontSizeSelector() {
         }`}
       >
         <span className="font-bold" style={{ fontSize: size.px }}>{size.icon}</span>
-        <span>{size.label}</span>
+        <span>{t(size.labelKey)}</span>
         {fontSize === size.value && (
           <svg className="w-4 h-4 ml-auto text-primary-400" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -57,7 +57,7 @@ function FontSizeSelector() {
         )}
       </button>
     )),
-    [fontSize, handleFontSizeChange]
+    [fontSize, handleFontSizeChange, t]
   )
 
   return (

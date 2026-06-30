@@ -1,5 +1,8 @@
 {
   "action.back": "Back",
+  "notFound.title": "Oops. Page not found",
+  "notFound.description": "Looks like you got lost in the keyboard labyrinth. Don't worry, we'll help you get back",
+  "notFound.home": "Go Home",
   "action.cancel": "Cancel",
   "action.close": "Close",
   "action.create": "Create",
@@ -297,6 +300,9 @@
   "misc.about": "About",
   "misc.copyright": "© 2026 FastFingers",
   "misc.fontSize": "Font Size",
+  "fontSize.small": "Small",
+  "fontSize.medium": "Medium",
+  "fontSize.large": "Large",
   "misc.footer": "FastFingers — Touch Typing Trainer",
   "misc.allRightsReserved": "All rights reserved.",
   "misc.privacy": "Privacy Policy",
