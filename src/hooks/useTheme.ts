@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
 import { safeExecute } from '../utils/logger'
@@ -121,7 +121,7 @@ export function useTheme(): UseThemeReturn {
     }, undefined)
   }, [])
 
-  return { 
+  return useMemo(() => ({ 
     theme, 
     themeOption,
     setTheme, 
@@ -131,5 +131,5 @@ export function useTheme(): UseThemeReturn {
     fontSize, 
     setFontSize,
     isSystemDark
-  }
+  }), [theme, themeOption, customColors, fontSize, isSystemDark, setTheme, setThemeOption, setCustomColors, setFontSize])
 }

@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useAppTranslation } from '../../i18n/config'
 import type { UserSettings, KeyboardLayout, SoundTheme } from '../../types'
@@ -18,6 +18,8 @@ export const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
   streak,
 }) {
   const { t } = useAppTranslation()
+  const handleSoundEnabledChange = useCallback((checked: boolean) => onSettingChange('soundEnabled', checked), [onSettingChange])
+  const handleShowKeyboardChange = useCallback((checked: boolean) => onSettingChange('showKeyboard', checked), [onSettingChange])
   return (
     <div id="settings" className="glass rounded-xl p-4 space-y-3.5">
       <h3 className="text-sm font-bold flex items-center gap-2">
@@ -69,12 +71,12 @@ export const SettingsPanel = memo<SettingsPanelProps>(function SettingsPanel({
           <Toggle
             label={t('misc.sound')}
             checked={settings.soundEnabled}
-            onChange={(checked) => onSettingChange('soundEnabled', checked)}
+            onChange={handleSoundEnabledChange}
           />
           <Toggle
             label={t('misc.keyboard')}
             checked={settings.showKeyboard}
-            onChange={(checked) => onSettingChange('showKeyboard', checked)}
+            onChange={handleShowKeyboardChange}
           />
         </div>
 

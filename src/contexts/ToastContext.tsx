@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components -- Context exports both provider and custom hook */
-import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import type { ReactNode } from 'react'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
@@ -68,8 +68,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts([])
   }, [])
 
+  const contextValue = useMemo(
+    () => ({ toasts, showToast, dismissToast, dismissAll }),
+    [toasts, showToast, dismissToast, dismissAll],
+  )
+
   return (
-    <ToastContext.Provider value={{ toasts, showToast, dismissToast, dismissAll }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
     </ToastContext.Provider>
   )
