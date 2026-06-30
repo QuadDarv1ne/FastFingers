@@ -33,7 +33,6 @@ function adaptLeaderboardEntry(entry: SupabaseLeaderboardEntry): LeaderboardEntr
 interface LeaderboardProps {
   currentUser?: LeaderboardEntry
   onClose: () => void
-  userId?: string
   gameMode?: 'classic' | 'hardcore' | 'duel'
 }
 
@@ -299,7 +298,8 @@ export const Leaderboard = memo<LeaderboardProps>(function Leaderboard({
   )
 }, (prevProps, nextProps) => {
   return prevProps.onClose === nextProps.onClose &&
-    prevProps.currentUser?.id === nextProps.currentUser?.id
+    prevProps.currentUser?.id === nextProps.currentUser?.id &&
+    prevProps.gameMode === nextProps.gameMode
 })
 
 function TopCard({

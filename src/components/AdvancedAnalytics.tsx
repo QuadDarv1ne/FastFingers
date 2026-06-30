@@ -301,6 +301,7 @@ export const AdvancedAnalytics = memo<AdvancedAnalyticsProps>(function AdvancedA
 }, (prevProps, nextProps) => {
   return (
     prevProps.recentStats.length === nextProps.recentStats.length &&
-    prevProps.onClose === nextProps.onClose
+    prevProps.onClose === nextProps.onClose &&
+    prevProps.heatmap === nextProps.heatmap
   )
 })
