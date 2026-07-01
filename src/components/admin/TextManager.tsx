@@ -307,10 +307,10 @@ export function TextManager() {
           </div>
           <div className="flex gap-2">
             <button onClick={handleSave} className="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg text-sm transition-colors">
-              {editing ? t('common.save') : t('common.create')}
+              {editing ? t('action.save') : t('action.create')}
             </button>
             <button onClick={() => { setShowForm(false); setEditing(null) }} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm transition-colors">
-              {t('common.cancel')}
+              {t('action.cancel')}
             </button>
           </div>
         </div>

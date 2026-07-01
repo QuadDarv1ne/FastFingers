@@ -78,8 +78,6 @@
   "error.emailInUse": "Email già in uso",
   "error.invalidEmail": "Formato email non valido",
   "error.network": "Errore di rete",
-  "error.passwordsMismatch": "Password non corrispondono",
-  "error.passwordTooShort": "Password minima 8 caratteri",
   "error.required": "Campo obbligatorio",
   "error.server": "Errore server",
   "error.tooLong": "Troppo lungo",

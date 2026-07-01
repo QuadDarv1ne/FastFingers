@@ -78,8 +78,6 @@
   "error.emailInUse": "既に使用されているメール",
   "error.invalidEmail": "無効なメール形式",
   "error.network": "ネットワークエラー",
-  "error.passwordsMismatch": "パスワードが一致しません",
-  "error.passwordTooShort": "パスワードは 8 文字以上",
   "error.required": "必須項目",
   "error.server": "サーバーエラー",
   "error.tooLong": "長すぎます",
