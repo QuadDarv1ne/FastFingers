@@ -416,6 +416,7 @@ function AppContent() {
             <Suspense fallback={<LoadingFallback />}>
               <AnimatePresence mode="wait">
                 <GameModeRenderer
+                  key={gameMode}
                   gameMode={gameMode}
                   view={view}
                   speedTestDuration={speedTestDuration}

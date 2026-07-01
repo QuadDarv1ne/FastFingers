@@ -95,6 +95,10 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     }
 
     previousStreakRef.current = streak
+
+    return () => {
+      if (rankUpTimerRef.current) clearTimeout(rankUpTimerRef.current)
+    }
   }, [streak, addNotification, t])
 
   // Track mount status to prevent setState after unmount
@@ -276,6 +280,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
           const rankInfo = getRankByStreak(streak)
           return (
           <motion.div
+            key="rank-up"
             initial={{ opacity: 0, y: -50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -50, scale: 0.8 }}
