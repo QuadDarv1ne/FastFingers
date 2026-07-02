@@ -238,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       await withActionState(authService.confirmPasswordReset(confirm));
+      setLastResetToken(null);
       setState(prev => ({
         ...prev,
         isLoading: false,

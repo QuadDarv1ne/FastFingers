@@ -3,7 +3,7 @@ import { AuthError, isValidEmail, isValidPassword, MIN_PASSWORD_LENGTH } from '.
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
 import { getFromStorageAsArray, setToStorageWithQuotaHandling } from '../utils/storage';
-import { generateId } from '../utils/id';
+import { generateId, generateShortId } from '../utils/id';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 
 const USERS_STORAGE_KEY = STORAGE_KEYS.USERS;
@@ -382,7 +382,7 @@ export const authService = {
       throw new AuthError('user-not-found', 'User with this email not found');
     }
 
-    const token = generateId();
+    const token = generateShortId(6).toUpperCase();
     const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS).toISOString();
 
     const tokens = getFromStorageAsArray<{ email: string; token: string; expiresAt: string }>(RESET_TOKENS_KEY);

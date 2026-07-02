@@ -9,7 +9,7 @@ interface PasswordResetProps {
   onBack: () => void
 }
 
-const TOKEN_EXPIRY_SECONDS = 300 // 5 минут
+const TOKEN_EXPIRY_SECONDS = 3600 // 1 hour — matches authService RESET_TOKEN_EXPIRY_MS
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function PasswordReset({ onBack }: PasswordResetProps) {
@@ -33,6 +33,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
   useEffect(() => {
     if (lastResetToken?.token) {
+      setToken(lastResetToken.token)
       setStep('confirm')
       setTimeLeft(TOKEN_EXPIRY_SECONDS)
     }
@@ -171,7 +172,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           <p className="text-dark-400">
             {step === 'request' 
               ? t('auth.enterEmailForReset', 'Enter your email to reset password') 
-              : t('auth.enterCodeAndPassword', 'Enter the code from email and a new password')}
+              : t('auth.enterCodeAndPassword', 'Enter the code and set a new password')}
           </p>
         </div>
 
@@ -198,12 +199,12 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           </div>
         )}
 
-        {/* Сообщение об отправке кода */}
+        {/* Сообщение с кодом */}
         {step === 'confirm' && (
           <div className="mb-6 p-4 bg-success/20 border border-success/50 rounded-lg">
-            <p className="text-sm font-medium text-success mb-1">{t('auth.codeSent', 'Code sent to email')}</p>
+            <p className="text-sm font-medium text-success mb-1">{t('auth.codeSent', 'Code generated')}</p>
             <p className="text-xs text-dark-400">
-              {t('auth.enterCodeHint', 'Enter the 6-digit code from the email')}
+              {t('auth.enterCodeHint', 'Enter the code above and set a new password')}
             </p>
           </div>
         )}
@@ -274,7 +275,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 onKeyDown={handleKeyDown}
                 placeholder="ABC123"
                 required
-                maxLength={6}
+                readOnly={!!lastResetToken?.token}
                 className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-center text-lg tracking-wider uppercase"
               />
               <div className="mt-2 flex items-center justify-center gap-2">

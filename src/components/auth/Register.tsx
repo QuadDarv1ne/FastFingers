@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useAppTranslation } from '../../i18n/config'
-import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
+import { MIN_PASSWORD_LENGTH, checkPasswordStrength } from '../../services/authErrors'
 
 interface RegisterProps {
   onSwitchToLogin: () => void
@@ -23,6 +23,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
   const [showPassword, setShowPassword] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState('')
   
   const nameInputRef = useRef<HTMLInputElement>(null)
 
@@ -40,11 +41,19 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
   useEffect(() => {
     if (password && password.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(t('auth.error.passwordLength', `Minimum {{min}} characters`, { min: MIN_PASSWORD_LENGTH }))
+      setPasswordError(t('auth.error.passwordLength', 'Minimum {{min}} characters', { min: MIN_PASSWORD_LENGTH }))
     } else {
       setPasswordError('')
     }
   }, [password, t])
+
+  useEffect(() => {
+    if (confirmPassword && password !== confirmPassword) {
+      setConfirmPasswordError(t('auth.error.passwordsMismatch', 'Passwords do not match'))
+    } else {
+      setConfirmPasswordError('')
+    }
+  }, [password, confirmPassword, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +69,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
     }
     
     if (password !== confirmPassword) {
-      setPasswordError(t('auth.error.passwordsMismatch', 'Passwords do not match'))
+      setConfirmPasswordError(t('auth.error.passwordsMismatch', 'Passwords do not match'))
       return
     }
     
@@ -86,13 +95,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
 
   const passwordStrength = (() => {
     if (!password) return 0
-    let strength = 0
-    if (password.length >= 8) strength++
-    if (password.length >= 12) strength++
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++
-    if (/\d/.test(password)) strength++
-    if (/[^a-zA-Z0-9]/.test(password)) strength++
-    return strength
+    return checkPasswordStrength(password).score
   })()
 
   const isFormValid = 
@@ -102,6 +105,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
     password && 
     !passwordError && 
     confirmPassword && 
+    !confirmPasswordError &&
     password === confirmPassword && 
     agreeToTerms
 
@@ -219,14 +223,14 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
             {password && (
               <div className="mt-2">
                 <div className="flex gap-1 mb-1">
-                  {[1, 2, 3, 4, 5].map((level) => (
+                  {[1, 2, 3, 4].map((level) => (
                     <div
                       key={level}
                       className={`h-1 flex-1 rounded-full transition-colors ${
                         level <= passwordStrength
-                          ? passwordStrength <= 2
+                          ? passwordStrength <= 1
                             ? 'bg-error'
-                            : passwordStrength <= 4
+                            : passwordStrength <= 2
                             ? 'bg-yellow-400'
                             : 'bg-success'
                           : 'bg-dark-700'
@@ -235,8 +239,9 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
                   ))}
                 </div>
                 <p className="text-xs text-dark-500">
-                  {passwordStrength <= 2 ? t('auth.passwordStrength.weak', 'Weak password') :
-                   passwordStrength <= 4 ? t('auth.passwordStrength.good', 'Good password') :
+                  {passwordStrength <= 1 ? t('auth.passwordStrength.weak', 'Weak password') :
+                   passwordStrength <= 2 ? t('auth.passwordStrength.fair', 'Fair password') :
+                   passwordStrength <= 3 ? t('auth.passwordStrength.good', 'Good password') :
                    t('auth.passwordStrength.excellent', 'Excellent password')}
                 </p>
                 {passwordError && (
@@ -266,7 +271,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
               className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
             />
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-error mt-1">{t('auth.error.passwordsMismatch')}</p>
+              <p className="text-xs text-error mt-1">{confirmPasswordError || t('auth.error.passwordsMismatch')}</p>
             )}
           </div>
 

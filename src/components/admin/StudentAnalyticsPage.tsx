@@ -45,14 +45,13 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       })
       .catch(err => {
         logger.error('Failed to load student sessions:', err)
-        setError(err.message || 'Не удалось загрузить данные')
+        setError(err.message || t('admin.studentAnalytics.loadError'))
         setIsLoading(false)
       })
-  }, [userId])
+  }, [userId, t])
 
   const stats = useMemo(() => computeStudentStats(sessions, i18n.language), [sessions, i18n.language])
 
-  // Load user aggregate stats from localStorage
   const userStats = useMemo(() => {
     try {
       const users = getFromStorageAsArray<{ id: string; stats?: Record<string, unknown> }>(STORAGE_KEYS.USERS)
@@ -63,7 +62,6 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
     }
   }, [userId])
 
-  // Compute session distribution by WPM ranges
   const wpmDistribution = useMemo(() => {
     const ranges = [
       { label: '< 20', min: 0, max: 20, count: 0 },
@@ -81,7 +79,6 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
     return ranges
   }, [sessions])
 
-  // Skill assessment
   const skillAssessment = useMemo(() => {
     if (sessions.length < 2) return null
 
@@ -92,12 +89,11 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
     const recentAvgAcc = Math.round(recent.reduce((s, sess) => s + sess.accuracy, 0) / recent.length)
     const recentAvgErrors = Math.round(recent.reduce((s, sess) => s + sess.errors, 0) / recent.length)
 
-    // Consistency: standard deviation of WPM
     const wpmVariance = recent.reduce((sum, s) => sum + Math.pow(s.wpm - recentAvgWpm, 2), 0) / recent.length
     const wpmStdDev = Math.round(Math.sqrt(wpmVariance) * 10) / 10
     const consistency = Math.max(0, Math.min(100, Math.round(100 - wpmStdDev * 2)))
 
-    // Progress trend: compare recent 10 with older 10
+    const stableLabel = t('admin.studentAnalytics.stable')
     let trendLabel = '—'
     let trendColor = 'text-dark-400'
     if (older.length > 0) {
@@ -105,17 +101,16 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       const diff = recentAvgWpm - olderAvgWpm
       if (diff > 5) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
       else if (diff < -5) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
-      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
+      else { trendLabel = stableLabel; trendColor = 'text-yellow-400' }
     } else if (stats.wpmTrend.length >= 3) {
       const first3 = stats.wpmTrend.slice(0, 3).reduce((s, d) => s + d.wpm, 0) / 3
       const last3 = stats.wpmTrend.slice(-3).reduce((s, d) => s + d.wpm, 0) / 3
       const diff = last3 - first3
       if (diff > 3) { trendLabel = `+${Math.round(diff)} WPM`; trendColor = 'text-success' }
       else if (diff < -3) { trendLabel = `${Math.round(diff)} WPM`; trendColor = 'text-error' }
-      else { trendLabel = 'Стабильно'; trendColor = 'text-yellow-400' }
+      else { trendLabel = stableLabel; trendColor = 'text-yellow-400' }
     }
 
-    // Accuracy stability
     const accVariance = recent.reduce((sum, s) => sum + Math.pow(s.accuracy - recentAvgAcc, 2), 0) / recent.length
     const accStdDev = Math.round(Math.sqrt(accVariance) * 10) / 10
     const accuracyStability = Math.max(0, Math.min(100, Math.round(100 - accStdDev * 3)))
@@ -131,15 +126,13 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       wpmStdDev,
       accStdDev,
     }
-  }, [sessions, stats.wpmTrend])
+  }, [sessions, stats.wpmTrend, t])
 
-  // Weakest sessions (lowest accuracy)
   const weakestSessions = useMemo(
     () => [...sessions].sort((a, b) => a.accuracy - b.accuracy).slice(0, 5),
     [sessions],
   )
 
-  // Best sessions
   const bestSessions = useMemo(
     () => [...sessions].sort((a, b) => b.wpm - a.wpm).slice(0, 5),
     [sessions],
@@ -150,7 +143,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">{t('admin.studentAnalytics', 'Аналитика ученика')}</h1>
+            <h1 className="text-3xl font-bold text-white">{t('admin.studentAnalytics')}</h1>
             <div className="w-48 h-4 bg-dark-700 rounded mt-2 animate-pulse" />
           </div>
         </div>
@@ -172,7 +165,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       <div className="max-w-7xl mx-auto p-6">
         <div className="glass rounded-xl p-8 text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-white mb-2">{t('stats.error', 'Ошибка загрузки')}</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t('stats.error')}</h2>
           <p className="text-dark-400 mb-4">{error}</p>
           <div className="flex gap-2 justify-center">
             <button
@@ -187,14 +180,14 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
                     setSessions(mapSupabaseSessions(result.data || []))
                     setIsLoading(false)
                   })
-                  .catch(err => { logger.error('Failed to retry loading student sessions:', err); setError(err.message || 'Не удалось загрузить данные'); setIsLoading(false) })
+                  .catch(err => { logger.error('Failed to retry loading student sessions:', err); setError(err.message || t('admin.studentAnalytics.loadError')); setIsLoading(false) })
               }}
               className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm"
             >
-              Попробовать снова
+              {t('admin.studentAnalytics.retry')}
             </button>
             <button onClick={onBack} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm">
-              Назад
+              {t('admin.studentAnalytics.back')}
             </button>
           </div>
         </div>
@@ -206,17 +199,17 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
     return (
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-white">{t('admin.studentAnalytics', 'Аналитика ученика')}: {userName}</h1>
+          <h1 className="text-3xl font-bold text-white">{t('admin.studentAnalytics')}: {userName}</h1>
           <button onClick={onBack} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm">
-            ← {t('action.back', 'Назад')}
+            ← {t('admin.studentAnalytics.back')}
           </button>
         </div>
         <div className="glass rounded-xl p-8 text-center">
           <div className="text-4xl mb-4">📭</div>
-          <h2 className="text-xl font-bold text-white mb-2">Нет данных</h2>
-          <p className="text-dark-400">Ученик ещё не завершил ни одной тренировки</p>
+          <h2 className="text-xl font-bold text-white mb-2">{t('admin.studentAnalytics.noData')}</h2>
+          <p className="text-dark-400">{t('admin.studentAnalytics.noDataDesc')}</p>
           <button onClick={onBack} className="mt-4 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm">
-            ← Назад к списку
+            {t('admin.studentAnalytics.backToList')}
           </button>
         </div>
       </div>
@@ -230,13 +223,20 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gradient">{t('admin.studentAnalytics', 'Аналитика ученика')}: {userName}</h1>
-          <p className="text-dark-400 mt-1">{summary.totalSessions} {t('stats.sessions', 'сессий')}</p>
+          <h1 className="text-3xl font-bold text-gradient">{t('admin.studentAnalytics')}: {userName}</h1>
+          <p className="text-dark-400 mt-1">{summary.totalSessions} {t('admin.studentAnalytics.sessions')}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => {
-              const headers = ['Дата', 'WPM', 'CPM', 'Точность (%)', 'Ошибки', 'Длительность (с)', 'XP']
+              const headers = [
+                t('admin.studentAnalytics.csvDate'),
+                'WPM', 'CPM',
+                t('admin.studentAnalytics.csvAccuracy'),
+                t('admin.studentAnalytics.errorsLabel'),
+                t('admin.studentAnalytics.csvDuration'),
+                'XP',
+              ]
               const rows = sessions.map(s => [
                 new Date(s.date).toLocaleString(i18n.language),
                 s.wpm.toString(),
@@ -249,17 +249,17 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
               const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
               const bom = '\uFEFF'
               const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' })
-              downloadBlob(blob, `student-${(userName ?? 'unknown').replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`)
+              downloadBlob(blob, `student-${(userName ?? t('admin.studentAnalytics.student')).replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`)
             }}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Экспорт CSV
+            {t('admin.studentAnalytics.exportCsv')}
           </button>
           <button onClick={onBack} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg text-sm transition-colors">
-            ← {t('action.back', 'Назад')}
+            ← {t('action.back')}
           </button>
         </div>
       </div>
@@ -267,31 +267,31 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       {/* User stats from localStorage */}
       {userStats && (
         <div className="glass rounded-xl p-4 mb-6 flex flex-wrap items-center gap-6">
-          <StatBadge icon="🎓" label="Уровень" value={String((userStats as Record<string, unknown>).level ?? 0)} />
-          <StatBadge icon="⭐" label="XP" value={String((userStats as Record<string, unknown>).totalXp ?? 0)} />
-          <StatBadge icon="🔥" label="Серия" value={`${(userStats as Record<string, unknown>).currentStreak ?? 0} дн.`} />
-          <StatBadge icon="🏆" label="Лучшая серия" value={`${(userStats as Record<string, unknown>).longestStreak ?? 0} дн.`} />
+          <StatBadge icon="🎓" label={t('admin.studentAnalytics.level')} value={String((userStats as Record<string, unknown>).level ?? 0)} />
+          <StatBadge icon="⭐" label={t('admin.studentAnalytics.xp')} value={String((userStats as Record<string, unknown>).totalXp ?? 0)} />
+          <StatBadge icon="🔥" label={t('admin.studentAnalytics.streak')} value={`${(userStats as Record<string, unknown>).currentStreak ?? 0} ${t('admin.studentAnalytics.days')}`} />
+          <StatBadge icon="🏆" label={t('admin.studentAnalytics.bestStreak')} value={`${(userStats as Record<string, unknown>).longestStreak ?? 0} ${t('admin.studentAnalytics.days')}`} />
         </div>
       )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <SummaryCard title="Сессий" value={summary.totalSessions.toString()} icon="📊" />
-        <SummaryCard title="Лучший WPM" value={summary.bestWpm.toString()} icon="🚀" highlight />
-        <SummaryCard title="Средняя точность" value={`${summary.avgAccuracy}%`} icon="🎯" />
-        <SummaryCard title="Время практики" value={formatDuration(summary.totalPracticeTime)} icon="⏱️" />
-        <SummaryCard title="Средний WPM" value={summary.avgWpm.toString()} icon="📈" />
-        <SummaryCard title="Ошибки" value={summary.totalErrors.toString()} icon="❌" />
+        <SummaryCard title={t('admin.studentAnalytics.sessionsLabel')} value={summary.totalSessions.toString()} icon="📊" />
+        <SummaryCard title={t('admin.studentAnalytics.bestWpm')} value={summary.bestWpm.toString()} icon="🚀" highlight />
+        <SummaryCard title={t('admin.studentAnalytics.avgAccuracy')} value={`${summary.avgAccuracy}%`} icon="🎯" />
+        <SummaryCard title={t('admin.studentAnalytics.practiceTime')} value={formatDuration(summary.totalPracticeTime)} icon="⏱️" />
+        <SummaryCard title={t('admin.studentAnalytics.avgWpm')} value={summary.avgWpm.toString()} icon="📈" />
+        <SummaryCard title={t('admin.studentAnalytics.errors')} value={summary.totalErrors.toString()} icon="❌" />
       </div>
 
       {/* Personal records */}
       <div className="glass rounded-xl p-6 mb-8">
-        <h3 className="text-lg font-semibold text-white mb-4">🏅 Персональные рекорды</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.personalRecords')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <RecordItem label="Лучший WPM" value={personalRecords.bestWpm.toString()} color="text-yellow-400" />
-          <RecordItem label="Лучшая точность" value={`${personalRecords.bestAccuracy}%`} color="text-green-400" />
-          <RecordItem label="Лучший CPM" value={personalRecords.bestCpm.toString()} color="text-blue-400" />
-          <RecordItem label="Серия дней" value={personalRecords.longestStreak.toString()} color="text-orange-400" />
+          <RecordItem label={t('admin.studentAnalytics.bestWpmLabel')} value={personalRecords.bestWpm.toString()} color="text-yellow-400" />
+          <RecordItem label={t('admin.studentAnalytics.bestAccuracy')} value={`${personalRecords.bestAccuracy}%`} color="text-green-400" />
+          <RecordItem label={t('admin.studentAnalytics.bestCpm')} value={personalRecords.bestCpm.toString()} color="text-blue-400" />
+          <RecordItem label={t('admin.studentAnalytics.dayStreak')} value={personalRecords.longestStreak.toString()} color="text-orange-400" />
         </div>
       </div>
 
@@ -299,7 +299,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* WPM Trend */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">📈 Прогресс скорости (WPM)</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.speedProgress')}</h3>
           <div className="h-64">
             {wpmTrend.length > 0 ? (
               <SimpleLineChart data={wpmTrend} dataKey="wpm" xAxisKey="date" stroke="#8b5cf6" />
@@ -309,7 +309,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
 
         {/* Accuracy Trend */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">🎯 Динамика точности</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.accuracyTrend')}</h3>
           <div className="h-64">
             {wpmTrend.length > 0 ? (
               <SimpleLineChart data={wpmTrend} dataKey="accuracy" xAxisKey="date" stroke="#22c55e" />
@@ -319,7 +319,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
 
         {/* Activity by Day of Week */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">📅 Активность по дням</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.activityByDay')}</h3>
           <div className="h-64">
             <SimpleBarChart data={activityByDayOfWeek as unknown[] as Record<string, string | number>[]} dataKey="sessions" xAxisKey="day" fill="#8b5cf6" />
           </div>
@@ -327,7 +327,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
 
         {/* Practice Time Last 7 Days */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">⏱️ Время практики (7 дней)</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.practiceTime7days')}</h3>
           <div className="h-64">
             <SimpleBarChart
               data={dailyStats.slice(-7).map(d => ({
@@ -345,32 +345,32 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       {/* Skill Assessment & Progress Trend */}
       {skillAssessment && (
         <div className="glass rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">🧠 Оценка навыков</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.skillAssessment')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-dark-400 mb-1">Стабильность WPM</div>
+              <div className="text-xs text-dark-400 mb-1">{t('admin.studentAnalytics.wpmStability')}</div>
               <div className={`text-2xl font-bold ${skillAssessment.consistency >= 70 ? 'text-green-400' : skillAssessment.consistency >= 40 ? 'text-yellow-400' : 'text-error'}`}>
                 {skillAssessment.consistency}%
               </div>
               <div className="text-xs text-dark-500 mt-1">σ = {skillAssessment.wpmStdDev}</div>
             </div>
             <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-dark-400 mb-1">Стабильность точности</div>
+              <div className="text-xs text-dark-400 mb-1">{t('admin.studentAnalytics.accuracyStability')}</div>
               <div className={`text-2xl font-bold ${skillAssessment.accuracyStability >= 70 ? 'text-green-400' : skillAssessment.accuracyStability >= 40 ? 'text-yellow-400' : 'text-error'}`}>
                 {skillAssessment.accuracyStability}%
               </div>
               <div className="text-xs text-dark-500 mt-1">σ = {skillAssessment.accStdDev}</div>
             </div>
             <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-dark-400 mb-1">Средний WPM (10)</div>
+              <div className="text-xs text-dark-400 mb-1">{t('admin.studentAnalytics.avgWpmRecent')}</div>
               <div className="text-2xl font-bold text-primary-400">{skillAssessment.recentAvgWpm}</div>
             </div>
             <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-dark-400 mb-1">Средняя точность (10)</div>
+              <div className="text-xs text-dark-400 mb-1">{t('admin.studentAnalytics.avgAccuracyRecent')}</div>
               <div className="text-2xl font-bold text-purple-400">{skillAssessment.recentAvgAcc}%</div>
             </div>
             <div className="bg-dark-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-dark-400 mb-1">Тренд</div>
+              <div className="text-xs text-dark-400 mb-1">{t('admin.studentAnalytics.trend')}</div>
               <div className={`text-2xl font-bold ${skillAssessment.trendColor}`}>{skillAssessment.trendLabel}</div>
             </div>
           </div>
@@ -380,7 +380,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       {/* WPM Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">📊 Распределение по WPM</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.wpmDistribution')}</h3>
           <div className="space-y-2">
             {wpmDistribution.map(r => {
               const maxCount = Math.max(...wpmDistribution.map(d => d.count), 1)
@@ -403,7 +403,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
 
         {/* Best Sessions */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">🏆 Лучшие сессии</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.bestSessions')}</h3>
           <div className="space-y-2">
             {bestSessions.map((s, i) => (
               <div key={s.id} className="flex items-center justify-between text-sm py-1.5 border-b border-dark-800/50 last:border-0">
@@ -428,7 +428,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
       {/* Weakest Sessions */}
       {weakestSessions.some(s => s.accuracy < 90) && (
         <div className="glass rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">⚠️ Сессии с низкой точностью</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.lowAccuracySessions')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {weakestSessions.filter(s => s.accuracy < 90).map(s => (
               <div key={s.id} className="bg-dark-800/50 rounded-xl p-3 text-center">
@@ -436,7 +436,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
                   {new Date(s.date).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}
                 </div>
                 <div className="text-lg font-bold text-error">{s.accuracy}%</div>
-                <div className="text-xs text-dark-500">{s.wpm} WPM · {s.errors} ошибок</div>
+                <div className="text-xs text-dark-500">{s.wpm} WPM · {s.errors} {t('admin.studentAnalytics.errorsCount')}</div>
               </div>
             ))}
           </div>
@@ -445,33 +445,33 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
 
       {/* Per-Key Error Heatmap */}
       <div className="glass rounded-xl p-6 mb-8">
-        <h3 className="text-lg font-semibold text-white mb-2">⌨️ Анализ ошибок по клавишам</h3>
-        <p className="text-sm text-dark-400 mb-4">Показывает, какие клавиши вызывают больше всего трудностей</p>
+        <h3 className="text-lg font-semibold text-white mb-2">{t('admin.studentAnalytics.keyErrorAnalysis')}</h3>
+        <p className="text-sm text-dark-400 mb-4">{t('admin.studentAnalytics.keyErrorAnalysisDesc')}</p>
 
-        <PerKeyErrorHeatmap sessions={sessions} />
+        <PerKeyErrorHeatmap sessions={sessions} t={t} />
       </div>
 
       {/* Key Error Trends Over Time */}
       <div className="glass rounded-xl p-6 mb-8">
-        <h3 className="text-lg font-semibold text-white mb-2">📈 Динамика ошибок по клавишам</h3>
-        <p className="text-sm text-dark-400 mb-4">Как меняются ошибки по клавишам со временем (сравнение первых и последних 15 сессий)</p>
+        <h3 className="text-lg font-semibold text-white mb-2">{t('admin.studentAnalytics.keyErrorTrend')}</h3>
+        <p className="text-sm text-dark-400 mb-4">{t('admin.studentAnalytics.keyErrorTrendDesc')}</p>
 
-        <PerKeyErrorTrend sessions={sessions} />
+        <PerKeyErrorTrend sessions={sessions} t={t} />
       </div>
 
       {/* Session History Table */}
       <div className="glass rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">📋 Последние сессии</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.lastSessions')}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-dark-700">
-                <th className="text-left py-3 px-4 text-dark-400 font-medium">Дата</th>
-                <th className="text-center py-3 px-4 text-dark-400 font-medium">WPM</th>
-                <th className="text-center py-3 px-4 text-dark-400 font-medium">Точность</th>
-                <th className="text-center py-3 px-4 text-dark-400 font-medium">Ошибки</th>
-                <th className="text-center py-3 px-4 text-dark-400 font-medium">CPM</th>
-                <th className="text-right py-3 px-4 text-dark-400 font-medium">Время</th>
+                <th className="text-left py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.date')}</th>
+                <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.wpm')}</th>
+                <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.accuracy')}</th>
+                <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.errorsLabel')}</th>
+                <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.cpm')}</th>
+                <th className="text-right py-3 px-4 text-dark-400 font-medium">{t('admin.studentAnalytics.time')}</th>
               </tr>
             </thead>
             <tbody>
@@ -561,12 +561,15 @@ function computeKeyErrorRate(sessions: SessionData[]): Map<string, { accuracy: n
   return keyMap
 }
 
-function PerKeyErrorHeatmap({ sessions }: { sessions: SessionData[] }) {
+interface WithTranslation {
+  t: (key: string) => string
+}
+
+function PerKeyErrorHeatmap({ sessions, t }: { sessions: SessionData[] } & WithTranslation) {
   const keyMap = computeKeyErrorRate(sessions)
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'
   const rows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
 
-  // Find min/max accuracy for color scaling
   const accuracies = alphabet.split('').map(k => keyMap.get(k)?.accuracy ?? 100)
   const minAcc = Math.min(...accuracies)
   const maxAcc = Math.max(...accuracies)
@@ -593,7 +596,7 @@ function PerKeyErrorHeatmap({ sessions }: { sessions: SessionData[] }) {
               <div
                 key={key}
                 className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center text-sm font-bold ${getAccuracyColor(acc)}`}
-                title={`${key.toUpperCase()}: ${acc}% точность`}
+                title={t('admin.studentAnalytics.keyErrorTrendTooltip').replace('${key}', key.toUpperCase()).replace('${acc}', `${acc}`)}
               >
                 <span className="text-xs">{key.toUpperCase()}</span>
                 <span className="text-[10px] font-normal">{acc}%</span>
@@ -603,20 +606,20 @@ function PerKeyErrorHeatmap({ sessions }: { sessions: SessionData[] }) {
         </div>
       ))}
       <div className="flex items-center justify-between text-xs text-dark-500 mt-3 pt-3 border-t border-dark-800/50">
-        <span>Низкая точность</span>
+        <span>{t('admin.studentAnalytics.lowAccuracy')}</span>
         <div className="flex gap-1">
           <div className="w-6 h-3 rounded bg-red-500/30" />
           <div className="w-6 h-3 rounded bg-orange-500/30" />
           <div className="w-6 h-3 rounded bg-yellow-500/30" />
           <div className="w-6 h-3 rounded bg-green-500/30" />
         </div>
-        <span>Высокая точность</span>
+        <span>{t('admin.studentAnalytics.highAccuracy')}</span>
       </div>
     </div>
   )
 }
 
-function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
+function PerKeyErrorTrend({ sessions, t }: { sessions: SessionData[] } & WithTranslation) {
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'
   const recentSessions = sessions.slice(0, 15)
   const olderSessions = sessions.slice(15, 30)
@@ -624,7 +627,7 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
   if (olderSessions.length === 0) {
     return (
       <div className="text-center text-dark-500 py-4">
-        Недостаточно данных для сравнения (нужно минимум 30 сессий)
+        {t('admin.studentAnalytics.insufficientData')}
       </div>
     )
   }
@@ -632,7 +635,6 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
   const recentMap = computeKeyErrorRate(recentSessions)
   const olderMap = computeKeyErrorRate(olderSessions)
 
-  // Compute improvement: positive = improved, negative = worsened
   const improvements = alphabet.split('').map(key => {
     const recent = recentMap.get(key)
     const older = olderMap.get(key)
@@ -645,10 +647,8 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
     }
   })
 
-  // Sort by improvement (worst first)
   improvements.sort((a: { improvement: number }, b: { improvement: number }) => a.improvement - b.improvement)
 
-  // Show top 10 worst improving keys
   const top10 = improvements.slice(0, 10)
 
   return (
@@ -660,7 +660,6 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
           <div key={item.key} className="flex items-center gap-3 text-sm">
             <span className="w-8 text-center font-bold text-white">{item.key.toUpperCase()}</span>
             <div className="flex-1 flex items-center gap-2">
-              {/* Older bar */}
               <div className="flex-1 h-4 bg-dark-800/50 rounded-l overflow-hidden relative">
                 <div
                   className="h-full bg-blue-500/40"
@@ -673,7 +672,6 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
               <svg className="w-4 h-4 text-dark-500" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M4 10h12M12 6l4 4-4 4" />
               </svg>
-              {/* Recent bar */}
               <div className="flex-1 h-4 bg-dark-800/50 rounded-r overflow-hidden relative">
                 <div
                   className={`h-full ${isImproving ? 'bg-green-500/40' : isNeutral ? 'bg-yellow-500/40' : 'bg-red-500/40'}`}
@@ -691,7 +689,7 @@ function PerKeyErrorTrend({ sessions }: { sessions: SessionData[] }) {
         )
       })}
       <div className="text-xs text-dark-500 mt-3 pt-3 border-t border-dark-800/50">
-        Показаны 10 клавиш с наибольшим изменением точности (ранние vs последние 15 сессий)
+        {t('admin.studentAnalytics.perKeyTrendFootnote')}
       </div>
     </div>
   )
