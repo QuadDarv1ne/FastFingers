@@ -474,4 +474,21 @@ export const authService = {
 
     return userWithoutPassword;
   },
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const users = getUsers();
+    const user = findUserOrThrow(users, u => u.id === userId);
+
+    const hashedCurrent = await hashPassword(currentPassword, user.salt);
+    if (user.password !== hashedCurrent) {
+      throw new AuthError('wrong-password', 'Current password is incorrect');
+    }
+
+    const salt = generateSalt();
+    const hashedNew = await hashPassword(newPassword, salt);
+
+    const userIndex = users.indexOf(user);
+    users[userIndex] = { ...user, password: hashedNew, salt };
+    saveUsers(users);
+  },
 };

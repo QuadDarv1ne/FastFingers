@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import type { User, UserRole } from '../../types/auth'
 import { getFromStorageAsArray } from '../../utils/storage'
-
-const USERS_STORAGE_KEY = 'fastfingers_users'
-const HISTORY_STORAGE_KEY = 'fastfingers_history'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
 
 interface StoredUser extends User {
   password: string
@@ -14,12 +12,12 @@ interface StoredUser extends User {
 type DisplayUser = User
 
 function loadUsers(): StoredUser[] {
-  return getFromStorageAsArray(USERS_STORAGE_KEY)
+  return getFromStorageAsArray(STORAGE_KEYS.USERS)
 }
 
 function saveUsers(users: StoredUser[]) {
   try {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
   } catch {
     // Ignore storage errors
   }
@@ -30,7 +28,7 @@ function stripPasswords(users: StoredUser[]): DisplayUser[] {
 }
 
 function loadHistory(): Array<{ userId: string; date: string; wpm: number; accuracy: number; duration: number; errors: number; wordsTyped: number }> {
-  return getFromStorageAsArray(HISTORY_STORAGE_KEY)
+  return getFromStorageAsArray(STORAGE_KEYS.HISTORY)
 }
 
 type SortField = 'name' | 'level' | 'xp' | 'wpm' | 'lastLogin' | 'createdAt'

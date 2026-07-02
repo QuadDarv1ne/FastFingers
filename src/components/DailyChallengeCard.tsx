@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useAppTranslation } from '../i18n/config'
@@ -49,6 +49,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
     {}
   )
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)
+  const completedRef = useRef<string | null>(null)
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
@@ -60,7 +61,8 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
 
   useEffect(() => {
     const active = challengeProp ?? localChallenge
-    if (active?.completed && active.progress >= active.goal.target) {
+    if (active?.completed && active.progress >= active.goal.target && completedRef.current !== active.id) {
+      completedRef.current = active.id
       onComplete(active.id, 0, 0)
     }
   }, [challengeProp, localChallenge, onComplete])

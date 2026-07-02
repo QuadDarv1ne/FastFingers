@@ -108,6 +108,7 @@ function ExportImport() {
         }
 
         const entries = Object.entries(importData.data)
+          .filter(([key]) => typeof key === 'string' && key.startsWith('fastfingers_'))
         let importedCount = 0
         let quotaExceeded = false
 

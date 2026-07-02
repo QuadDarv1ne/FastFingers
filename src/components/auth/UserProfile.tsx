@@ -9,11 +9,10 @@ import { useAppTranslation } from '@i18n/config'
 import i18n from 'i18next'
 import { getHeatmapColor } from '@utils/stats'
 import { logger } from '@utils/logger'
-import { authService, hashPassword } from '@services/authService'
+import { authService } from '@services/authService'
 import type { Goal } from '@components/GoalsPanel'
 import type { TFunction } from 'i18next'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
-import { generateId } from '../../utils/id'
 import { downloadBlob } from '@utils/export'
 
 interface UserProfileProps {
@@ -1228,15 +1227,6 @@ function ToggleRow({ label, description, checked, onChange }: {
   )
 }
 
-function generateSalt(): string {
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const array = new Uint8Array(16)
-    crypto.getRandomValues(array)
-    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('')
-  }
-  return generateId()
-}
-
 function SecuritySettingsSubPage() {
   const { t } = useAppTranslation()
   const [showChangePassword, setShowChangePassword] = useState(false)
@@ -1259,7 +1249,6 @@ function SecuritySettingsSubPage() {
       return
     }
 
-    // Use authService to verify current password and update with hashed password
     try {
       const userRaw = localStorage.getItem(STORAGE_KEYS.USER)
       if (!userRaw) {
@@ -1272,36 +1261,7 @@ function SecuritySettingsSubPage() {
         return
       }
 
-      // Verify current password by attempting login
-      await authService.login({
-        email: currentUser.email,
-        password: currentPassword,
-        rememberMe: true,
-      })
-
-      // Update password using authService updateProfile with new password
-      // We need to manually update since authService doesn't have changePassword method
-      const users: Array<{ id: string; email: string; password: string; salt: string }> =
-        JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]')
-      const userIdx = users.findIndex(u => u.id === currentUser.id)
-      if (userIdx === -1) {
-        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
-        return
-      }
-
-      const currentUserEntry = users[userIdx]
-      if (!currentUserEntry) {
-        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
-        return
-      }
-
-      // Generate salt and hash new password using crypto APIs
-      const salt = generateSalt()
-      const hashedPassword = await hashPassword(newPassword, salt)
-
-      currentUserEntry.password = hashedPassword
-      currentUserEntry.salt = salt
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
+      await authService.changePassword(currentUser.id, currentPassword, newPassword)
 
       setMessage({ type: 'success', text: t('profile.validation.passwordChanged', 'Password changed successfully') })
       setCurrentPassword('')
@@ -1394,7 +1354,7 @@ function SecuritySettingsSubPage() {
         <div className="text-sm font-medium text-white mb-2">{t('profile.activeSession', 'Active session')}</div>
         <div className="text-xs text-dark-400 space-y-1">
           <div>{t('profile.platform', 'Platform')}: {navigator.platform}</div>
-          <div>{t('profile.browser', 'Browser')}: {navigator.userAgent.split(' ').pop()}</div>
+          <div>{t('profile.browser', 'Browser')}: {navigator.userAgent.split(' ').pop() || navigator.userAgent}</div>
           <div>{t('profile.language', 'Language')}: {navigator.language}</div>
         </div>
       </div>
@@ -1438,7 +1398,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
         if (!confirm(t('profile.importOverwriteConfirm', 'Это действие перезапишет все текущие данные. Продолжить?'))) { setImporting(false); return }
         Object.entries(importData.data).forEach(([key, value]) => {
-          if (typeof value === 'string') localStorage.setItem(key, value)
+          if (typeof value === 'string' && key.startsWith('fastfingers_')) localStorage.setItem(key, value)
         })
         window.location.reload()
       } catch {

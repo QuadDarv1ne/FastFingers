@@ -672,7 +672,7 @@ function EditGoalModal({
             </div>
             <div>
               <label htmlFor="goal-unit" className="block text-sm font-medium text-dark-300 mb-2">{t('goalsPanel.unit')}</label>
-              <select value={unit} onChange={e => setUnit(e.target.value as Goal['unit'])} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <select id="goal-unit" value={unit} onChange={e => setUnit(e.target.value as Goal['unit'])} className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="wpm">WPM</option>
                 <option value="accuracy">{t('goalsPanel.unitAccuracy')}</option>
                 <option value="words">{t('goalsPanel.unitWords')}</option>

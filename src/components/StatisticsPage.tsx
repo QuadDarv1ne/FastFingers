@@ -65,6 +65,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   useEffect(() => {
     if (!isReady || sessionsForWorker.length === 0) return
 
+    let cancelled = false
     const runAnalysis = async () => {
       setIsAnalyzing(true)
       try {
@@ -73,17 +74,20 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           analyzeFunnel(sessionsForWorker, [20, 40, 60, 80, 100]),
           calculateCorrelationMatrix(sessionsForWorker),
         ])
-        setTimeAnalysis(timeResult)
-        setFunnelData(funnelResult.stages)
-        setCorrelationMatrix(correlationResult)
+        if (!cancelled) {
+          setTimeAnalysis(timeResult)
+          setFunnelData(funnelResult.stages)
+          setCorrelationMatrix(correlationResult)
+        }
       } catch (error) {
         logger.error('Analysis error:', error)
       } finally {
-        setIsAnalyzing(false)
+        if (!cancelled) setIsAnalyzing(false)
       }
     }
 
     runAnalysis()
+    return () => { cancelled = true }
   }, [isReady, sessionsForWorker, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix])
 
   // Данные за разные периоды
