@@ -13,10 +13,12 @@ import {
   setToStorageWithQuotaHandling,
   STORAGE_QUOTA_EXCEEDED,
   safeLocalStorageGet,
+  _resetStorageAvailabilityCache,
 } from './storage'
 
 describe('storage utils', () => {
   beforeEach(() => {
+    _resetStorageAvailabilityCache()
     localStorage.clear()
     sessionStorage.clear()
   })

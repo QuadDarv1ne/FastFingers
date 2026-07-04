@@ -35,7 +35,7 @@ const RECENT_SESSIONS_COUNT = 10
 // Pure functions used by both imperative methods and reactive selectors.
 
 export function getBestWpmFromSessions(sessions: TypingSession[]): number {
-  return sessions.length > 0 ? Math.max(...sessions.map((s) => s.wpm)) : 0
+  return sessions.reduce((max, s) => Math.max(max, s.wpm), 0)
 }
 
 export function getAvgAccuracyFromSessions(sessions: TypingSession[]): number {

@@ -111,7 +111,7 @@ export function computeStudentStats(sessions: SessionData[], locale = 'en'): Stu
 
   // Summary
   const totalSessions = sessions.length
-  const bestWpm = totalSessions > 0 ? Math.max(...sessions.map(s => s.wpm)) : 0
+  const bestWpm = sessions.reduce((max, s) => Math.max(max, s.wpm), 0)
   const avgAccuracy = totalSessions > 0
     ? Math.round(sessions.reduce((sum, s) => sum + s.accuracy, 0) / totalSessions)
     : 0
@@ -143,8 +143,8 @@ export function computeStudentStats(sessions: SessionData[], locale = 'en'): Stu
   }
 
   // Personal records
-  const bestAccuracy = totalSessions > 0 ? Math.max(...sessions.map(s => s.accuracy)) : 0
-  const bestCpm = totalSessions > 0 ? Math.max(...sessions.map(s => s.cpm)) : 0
+  const bestAccuracy = sessions.reduce((max, s) => Math.max(max, s.accuracy), 0)
+  const bestCpm = sessions.reduce((max, s) => Math.max(max, s.cpm), 0)
 
   // Longest streak
   const practiceDates = Array.from(sessionsByDate.keys())

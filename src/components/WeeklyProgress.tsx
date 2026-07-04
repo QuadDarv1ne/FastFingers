@@ -56,8 +56,8 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
     return result
   }, [history.sessions, t])
 
-  const maxSessions = Math.max(...weeklyData.map(d => d.sessions), 1)
-  const maxXp = Math.max(...weeklyData.map(d => d.xp), 1)
+  const maxSessions = weeklyData.reduce((m, d) => Math.max(m, d.sessions), 1)
+  const maxXp = weeklyData.reduce((m, d) => Math.max(m, d.xp), 1)
 
   const { totalSessions, totalXp, avgWpmWeek, totalTimeWeek } = useMemo(() => {
     let sessions = 0

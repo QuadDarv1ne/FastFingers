@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react'
+import { useMemo, useEffect, useRef, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 import { useAppTranslation } from '../i18n/config'
@@ -225,7 +225,14 @@ export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
   )
 }
 
-function AchievementCard({
+const RARITY_COLORS: Record<Achievement['rarity'], string> = {
+  common: 'from-gray-600 to-gray-500',
+  rare: 'from-blue-600 to-blue-500',
+  epic: 'from-purple-600 to-purple-500',
+  legendary: 'from-yellow-600 to-yellow-500',
+}
+
+const AchievementCard = memo(function AchievementCard({
   achievement,
   stats,
   t,
@@ -235,12 +242,6 @@ function AchievementCard({
   t: (key: string) => string
 }) {
   const progress = getAchievementProgress(achievement, stats)
-  const rarityColors = {
-    common: 'from-gray-600 to-gray-500',
-    rare: 'from-blue-600 to-blue-500',
-    epic: 'from-purple-600 to-purple-500',
-    legendary: 'from-yellow-600 to-yellow-500',
-  }
 
   return (
     <div
@@ -248,7 +249,7 @@ function AchievementCard({
     >
       <div className="flex items-start gap-3">
         <div
-          className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl bg-gradient-to-br ${rarityColors[achievement.rarity]}`}
+          className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl bg-gradient-to-br ${RARITY_COLORS[achievement.rarity]}`}
         >
           {achievement.unlocked ? achievement.icon : '🔒'}
         </div>
@@ -270,7 +271,7 @@ function AchievementCard({
               </div>
               <div className="w-full h-1.5 bg-dark-800 rounded-full overflow-hidden">
                 <div
-                  className={`h-full bg-gradient-to-r ${rarityColors[achievement.rarity]} transition-all duration-500`}
+                  className={`h-full bg-gradient-to-r ${RARITY_COLORS[achievement.rarity]} transition-all duration-500`}
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
               </div>
@@ -286,7 +287,7 @@ function AchievementCard({
       </div>
     </div>
   )
-}
+})
 
 function checkAchievement(
   achievement: Achievement,

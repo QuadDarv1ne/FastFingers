@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useAppTranslation } from '../../i18n/config'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
@@ -39,7 +39,7 @@ interface UserStatsSummary {
 }
 
 function AdminOverview() {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
   const { user } = useAuth()
 
   const totalUsers = useMemo(() => safeParseLength(STORAGE_KEYS.USERS), [])
@@ -204,7 +204,7 @@ function AdminOverview() {
 }
 
 export function AdminDashboard({ onClose, onNavigate }: { onClose: () => void; onNavigate?: (view: string) => void }) {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
   const [activeTab, setActiveTab] = useState<AdminTab>('overview')
   const { select } = useSelectedStudent()
 

@@ -21,17 +21,27 @@ const handleStorageError = (operation: string, key?: string, error?: unknown) =>
 
 /**
  * Проверка доступности localStorage (работает в приватных режимах и iframe)
+ * Результат кэшируется — повторные вызовы не выполняют disk I/O.
  */
+let _localStorageAvailable: boolean | null = null
 export function isLocalStorageAvailable(): boolean {
+  if (_localStorageAvailable !== null) return _localStorageAvailable
   try {
     const testKey = '__storage_test__'
-    if (typeof localStorage === 'undefined') return false
+    if (typeof localStorage === 'undefined') { _localStorageAvailable = false; return false }
     localStorage.setItem(testKey, testKey)
     localStorage.removeItem(testKey)
+    _localStorageAvailable = true
     return true
   } catch {
+    _localStorageAvailable = false
     return false
   }
+}
+
+/** Reset cached availability check — for tests only */
+export function _resetStorageAvailabilityCache(): void {
+  _localStorageAvailable = null
 }
 
 /**

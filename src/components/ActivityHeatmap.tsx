@@ -49,7 +49,7 @@ export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
     })
 
     // Определяем уровень активности
-    const maxCount = Math.max(...Array.from(sessionsByDate.values()).map(v => v.count), 1)
+    const maxCount = Array.from(sessionsByDate.values()).reduce((m, v) => Math.max(m, v.count), 1)
 
     const weeks: WeekData[] = []
     let currentWeek: DayData[] = []

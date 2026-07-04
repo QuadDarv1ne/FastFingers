@@ -5,7 +5,7 @@
  */
 
 import type { TypingStats } from '../types'
-import { PracticeText } from '../data/practiceTexts'
+import type { PracticeText } from '../data/practiceTexts'
 import { logger } from './logger'
 
 export interface AdaptiveDifficultyState {

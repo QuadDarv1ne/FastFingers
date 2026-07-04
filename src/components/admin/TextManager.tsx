@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { PracticeText, TextCategory } from '../../data/practiceTexts'
 import { useToast } from '@contexts/ToastContext'
-import { useTranslation } from 'react-i18next'
+import { useAppTranslation } from '@i18n/config'
 import { useTextUsageStats } from '@hooks/useTextUsage'
 import { getFromStorageAsArray } from '../../utils/storage'
 import { logger } from '../../utils/logger'
@@ -63,10 +63,9 @@ function getExistingIds(texts: PracticeText[]): Set<string> {
 
 export function TextManager() {
   const { showToast } = useToast()
-  const { t } = useTranslation()
+  const { t, i18n } = useAppTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
-  const { i18n } = useTranslation()
   const [texts, setTexts] = useState<PracticeText[]>([])
   const [editing, setEditing] = useState<PracticeText | null>(null)
   const [showForm, setShowForm] = useState(false)

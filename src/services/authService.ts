@@ -151,7 +151,7 @@ const checkLockout = (email: string): number | null => {
   const recentAttempts = attempts.filter(a => Date.now() - a.timestamp < LOCKOUT_TIME_MS);
 
   if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
-    const mostRecent = Math.max(...recentAttempts.map(a => a.timestamp));
+    const mostRecent = recentAttempts.reduce((max, a) => Math.max(max, a.timestamp), 0);
     const remainingTime = LOCKOUT_TIME_MS - (Date.now() - mostRecent);
     return remainingTime > 0 ? remainingTime : null;
   }

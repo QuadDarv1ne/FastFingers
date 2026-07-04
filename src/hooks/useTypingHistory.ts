@@ -171,7 +171,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     return {
       avgWpm: Math.round(filtered.reduce((sum, s) => sum + s.wpm, 0) / filtered.length),
       avgAccuracy: Math.round(filtered.reduce((sum, s) => sum + s.accuracy, 0) / filtered.length),
-      bestWpm: Math.max(...filtered.map(s => s.wpm)),
+      bestWpm: filtered.reduce((max, s) => Math.max(max, s.wpm), 0),
       sessions: filtered.length,
     }
   }, [history.sessions])

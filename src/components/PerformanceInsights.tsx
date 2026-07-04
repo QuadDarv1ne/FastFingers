@@ -258,7 +258,7 @@ export const TimeOfDayAnalysis = memo(function TimeOfDayAnalysis({ sessions }: T
     return null
   }
 
-  const maxWpm = Math.max(...timeData.map(d => d.avgWpm))
+  const maxWpm = timeData.reduce((m, d) => Math.max(m, d.avgWpm), 0)
 
   const timeOfDayLabel = (tod: string) => {
     switch (tod) {

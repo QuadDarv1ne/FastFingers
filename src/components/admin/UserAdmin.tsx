@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useAppTranslation } from '../../i18n/config'
 import { useAuth } from '../../hooks/useAuth'
 import type { User, UserRole } from '../../types/auth'
 import { getFromStorageAsArray } from '../../utils/storage'
@@ -39,7 +39,7 @@ interface UserAdminProps {
 
 export function UserAdmin({ onViewStudent }: UserAdminProps) {
   const { user: currentUser } = useAuth()
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useAppTranslation()
   const [users, setUsers] = useState<DisplayUser[]>([])
   const [rawUsers, setRawUsers] = useState<StoredUser[]>([])
   const [search, setSearch] = useState('')

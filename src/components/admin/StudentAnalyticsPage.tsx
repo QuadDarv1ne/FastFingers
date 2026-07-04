@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useAppTranslation } from '../../i18n/config'
 import { motion } from 'framer-motion'
 import { cloudSyncService } from '../../services/cloudSyncService'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
@@ -26,7 +26,7 @@ function formatDuration(seconds: number): string {
 }
 
 export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useAppTranslation()
   const { userId, userName } = useSelectedStudent()
   const [sessions, setSessions] = useState<SessionData[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -383,7 +383,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
           <h3 className="text-lg font-semibold text-white mb-4">{t('admin.studentAnalytics.wpmDistribution')}</h3>
           <div className="space-y-2">
             {wpmDistribution.map(r => {
-              const maxCount = Math.max(...wpmDistribution.map(d => d.count), 1)
+              const maxCount = wpmDistribution.reduce((m, d) => Math.max(m, d.count), 1)
               const width = (r.count / maxCount) * 100
               return (
                 <div key={r.label} className="flex items-center gap-3">
@@ -571,8 +571,8 @@ function PerKeyErrorHeatmap({ sessions, t }: { sessions: SessionData[] } & WithT
   const rows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
 
   const accuracies = alphabet.split('').map(k => keyMap.get(k)?.accuracy ?? 100)
-  const minAcc = Math.min(...accuracies)
-  const maxAcc = Math.max(...accuracies)
+  const minAcc = accuracies.reduce((m, v) => Math.min(m, v), 100)
+  const maxAcc = accuracies.reduce((m, v) => Math.max(m, v), 0)
 
   const getAccuracyColor = (acc: number): string => {
     const range = maxAcc - minAcc || 1

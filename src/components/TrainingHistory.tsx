@@ -41,7 +41,7 @@ const TrainingHistory = memo(function TrainingHistory({ onBack }: TrainingHistor
   }, [history.sessions])
 
   // Максимальный WPM для масштаба графика
-  const maxWpm = Math.max(...wpmData.map(d => d.wpm), 1)
+  const maxWpm = wpmData.reduce((m, d) => Math.max(m, d.wpm), 1)
 
   // Данные для экспорта
   const exportData: ExportData[] = useMemo(() => history.sessions.map(s => ({

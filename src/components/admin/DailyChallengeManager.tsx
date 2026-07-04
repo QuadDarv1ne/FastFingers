@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useAppTranslation } from '../../i18n/config'
 import { logger } from '../../utils/logger'
 import { getTodayDate } from '../../utils/format'
 
@@ -55,7 +55,7 @@ function generateChallenge(date: string, text?: string, wpm?: number, acc?: numb
 }
 
 export function DailyChallengeManager() {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useAppTranslation()
   const [challenges, setChallenges] = useState<DailyChallenge[]>([])
   const [streak, setStreak] = useState<StreakData>({ current: 0, longest: 0, lastPracticeDate: null, practiceDates: [] })
   const [showCreateModal, setShowCreateModal] = useState(false)

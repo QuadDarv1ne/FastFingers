@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import { getChartColors } from '../utils/getThemeColors'
 
 interface AreaChartData {
@@ -26,7 +26,7 @@ interface TooltipData {
   value: number
 }
 
-export function SimpleAreaChart({
+export const SimpleAreaChart = memo(function SimpleAreaChart({
   data,
   dataKey,
   xAxisKey,
@@ -44,7 +44,7 @@ export function SimpleAreaChart({
   const innerHeight = chartHeight - padding.top - padding.bottom
 
   const maxValue = useMemo(() => {
-    const max = Math.max(...data.map(d => Number(d[dataKey]) || 0), 1)
+    const max = data.reduce((m, d) => Math.max(m, Number(d[dataKey]) || 0), 1)
     return Math.ceil(max / 10) * 10 || 10
   }, [data, dataKey])
 
@@ -208,4 +208,4 @@ export function SimpleAreaChart({
       )}
     </div>
   )
-}
+})

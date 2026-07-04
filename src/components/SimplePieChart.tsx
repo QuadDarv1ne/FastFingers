@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import { getChartColors } from '../utils/getThemeColors'
 
 interface PieChartData {
@@ -48,7 +48,7 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   ].join(' ')
 }
 
-export function SimplePieChart({
+export const SimplePieChart = memo(function SimplePieChart({
   data,
   height = 256,
   outerRadius = 80,
@@ -131,4 +131,4 @@ export function SimplePieChart({
       )}
     </div>
   )
-}
+})
