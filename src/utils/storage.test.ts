@@ -12,6 +12,7 @@ import {
   getFromStorageAsObject,
   setToStorageWithQuotaHandling,
   STORAGE_QUOTA_EXCEEDED,
+  safeLocalStorageGet,
 } from './storage'
 
 describe('storage utils', () => {
@@ -22,6 +23,22 @@ describe('storage utils', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  describe('safeLocalStorageGet', () => {
+    it('должен возвращать значение по ключу', () => {
+      localStorage.setItem('test-key', 'test-value')
+      expect(safeLocalStorageGet('test-key')).toBe('test-value')
+    })
+
+    it('должен возвращать null для отсутствующего ключа', () => {
+      expect(safeLocalStorageGet('nonexistent')).toBeNull()
+    })
+
+    it('должен возвращать null при ошибке localStorage', () => {
+      vi.spyOn(globalThis as any, 'localStorage', 'get').mockImplementation(() => { throw new Error('storage unavailable') })
+      expect(safeLocalStorageGet('key')).toBeNull()
+    })
   })
 
   describe('isLocalStorageAvailable', () => {

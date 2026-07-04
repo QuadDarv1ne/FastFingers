@@ -50,6 +50,17 @@ export function isSessionStorageAvailable(): boolean {
 }
 
 /**
+ * Получить сырое значение из localStorage без JSON-парсинга (с защитой от ошибок)
+ */
+export function safeLocalStorageGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+/**
  * Получить значение из localStorage
  */
 export function getFromStorage<T extends StorageValue>(

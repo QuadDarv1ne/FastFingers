@@ -50,6 +50,15 @@ export function formatPercent(value: number, decimals = 0, locale = 'en'): strin
   }
 }
 
+/**
+ * Парсит строку как целое число с защитой от ошибок и возвратом 0 при неудаче
+ */
+export function safeParseInt(value: string | null | undefined): number {
+  if (value == null) return 0
+  const parsed = Number.parseInt(String(value), 10)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
+
 export function roundTo(num: number, decimals = 0): number {
   const safe = Number(num) || 0
   const factor = Math.pow(10, decimals)

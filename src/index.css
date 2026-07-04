@@ -1038,50 +1038,6 @@ body {
   animation: slide-in-right 0.3s ease-out;
 }
 
-/* Плавное появление с размытием */
-@keyframes blur-in {
-  from {
-    opacity: 0;
-    filter: blur(10px);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-
-.animate-blur-in {
-  animation: blur-in 0.4s ease-out;
-}
-
-/* Float-анимация для иконок */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Bounce-анимация для привлекающих внимание элементов */
-@keyframes gentle-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-.animate-gentle-bounce {
-  animation: gentle-bounce 2s ease-in-out infinite;
-}
-
 /* Стили для nav pill групп */
 .nav-pill-group {
   display: flex;

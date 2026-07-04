@@ -244,6 +244,26 @@ Coverage gaps / Пробелы в покрытии:
 
 ## ✅ Completed (Recent) / Выполнено (Последнее)
 
+### 2026-07-04 — Cleanup: Removed Dead Components & Unused CSS
+/ Очистка: удаление мёртвых компонентов и неиспользуемого CSS
+- ✅ Removed 24 unused components: AdvancedAnalytics, Button, CloudSyncCleanup, ComboCounter, CountdownTimer, FeedbackToast, KeyboardHeatmapVisualization, KeyboardShortcuts, KeyboardShortcutsHelp, LazyBoundary, LiveStats, NotFound404, PracticeRecommendations, ProgressBar, RequireAuth, SessionTimerWidget, SoundThemeSelector, Spinner, Tooltip, TypingProgress
+- ✅ Removed 3 unused CSS animations: `animate-float`, `animate-gentle-bounce`, `animate-blur-in` (+ keyframes)
+- ✅ Moved `safeLocalStorageGet` to `src/utils/storage.ts` (reusable utility)
+- ✅ Moved `safeParseInt` to `src/utils/number.ts` (reusable utility)
+- ✅ Created `useAchievementStats` hook in `src/hooks/useAchievementStats.ts`
+  - Extracted 120-character inline `useMemo` from `AppContent` into dedicated hook
+  - Reduced `App.tsx` by 29 lines, improved separation of concerns
+- ✅ All tests pass (1016 passed), TypeScript 0 errors, ESLint 0 warnings
+
+### 2026-07-04 — App.tsx Refactoring: Extract Utilities & Achievement Stats
+/ Рефакторинг App.tsx: извлечение утилит и статистики достижений
+- ✅ Moved `safeLocalStorageGet` to `src/utils/storage.ts` (reusable utility)
+- ✅ Moved `safeParseInt` to `src/utils/number.ts` (reusable utility)
+- ✅ Created `useAchievementStats` hook in `src/hooks/useAchievementStats.ts`
+  - Extracted 120-character inline `useMemo` from `AppContent` into dedicated hook
+  - Reduced `App.tsx` by 29 lines, improved separation of concerns
+- ✅ All tests pass (1008 passed), TypeScript 0 errors, ESLint 0 warnings, Build ~7.2s
+
 ### 2026-06-07 — App.tsx Refactoring: Modal State Extraction / Рефакторинг App.tsx: извлечение состояния модалов
 - ✅ Created `useModals` hook in `src/hooks/useModals.ts` for centralized modal/panel state management
 - ✅ Extracted 8 state variables + 10 setters + 2 utilities from `AppContent` (showAchievements, showSessionSummary, showStreakRewards, showProfile, showGoals, showOnboarding, activeChallenge, lastSessionXp)
@@ -585,11 +605,11 @@ Coverage gaps / Пробелы в покрытии:
 
 ---
 
-## 📋 Quality Assurance / Обеспечение качества (2026-06-07)
+## 📋 Quality Assurance / Обеспечение качества (2026-07-04)
 
-- ✅ All 1048 tests pass (1 skipped)
+- ✅ All 1008 tests pass (55 files)
 - ✅ TypeScript: 0 errors
 - ✅ ESLint: 0 errors, 0 warnings
-- ✅ Build: ~5.9s (production)
+- ✅ Build: ~7.2s (production)
 - ✅ Git: clean working tree, only `main` branch exists
-- ✅ Bundle: animations-vendor 125KB, react-vendor 185KB, auth-vendor 207KB (gzipped: 41KB, 59KB, 54KB)
+- ✅ Bundle: animations-vendor 126KB, react-vendor 185KB, auth-vendor 207KB (gzipped: 41KB, 59KB, 54KB)

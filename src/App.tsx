@@ -23,6 +23,7 @@ import { ToastProvider } from './contexts/ToastContext'
 import { useNotifications } from '@hooks/useNotifications'
 import { createLevelUpNotification } from '@utils/notifications'
 import { triggerConfetti } from '@utils/confetti'
+import type { KeyboardSkin } from './types'
 import type { CustomExercise } from './components/CustomExerciseEditor'
 import { logger } from '@utils/logger'
 
@@ -38,7 +39,8 @@ import { useHotkeys } from '@hooks/useHotkeys'
 import { useSessionHandlers } from '@hooks/useSessionHandlers'
 import { useModals } from '@hooks/useModals'
 import { useAppTranslation } from '@i18n/config'
-import { STORAGE_KEYS } from './constants/storageKeys'
+import { useAchievementStats } from '@hooks/useAchievementStats'
+import type { GameMode, View } from '@hooks/useGameMode'
 import { ModeButton } from './components/ui/ModeButton'
 import { SpeedTestDropdown } from './components/ui/SpeedTestDropdown'
 import { SettingsPanel } from './components/ui/SettingsPanel'
@@ -48,18 +50,6 @@ const ExportImport = lazy(() => import('./components/ExportImport'))
 const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
 const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
 
-const safeLocalStorageGet = (key: string): string | null => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-const safeParseInt = (value: string | null): number => {
-  if (!value) return 0
-  const parsed = Number.parseInt(value, 10)
-  return Number.isNaN(parsed) ? 0 : parsed
-}
 const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
 const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
@@ -249,22 +239,47 @@ function AppContent() {
     { view: 'learning' as const, icon: '📚', label: t('nav.learning'), title: t('nav.learning') },
   ], [t])
 
-  const achievementStats = useMemo(() => ({
-    maxWpm: progress.bestWpm,
-    maxAccuracy: progress.bestAccuracy,
-    totalWords: progress.totalWordsTyped,
-    totalSessions: history.totalSessions,
-    currentStreak: progress.streak,
-    perfectSessions: history.sessions.filter(s => s.accuracy >= 99.99).length,
-    duelsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DUELS_PLAYED)),
-    tournamentsPlayed: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.TOURNAMENTS_PLAYED)),
-    customExercisesCreated: customExercises.length,
-    dailyChallengesCompleted: safeParseInt(safeLocalStorageGet(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED)),
-    gameModesUsed: new Set([gameMode, ...(safeLocalStorageGet(STORAGE_KEYS.USED_GAME_MODES) || '')
-      .split(',')
-      .filter(Boolean)]).size,
-    level: progress.level,
-  }), [progress, history, customExercises.length, gameMode])
+  const achievementStats = useAchievementStats(
+    progress,
+    history,
+    customExercises.length,
+    gameMode,
+  )
+
+  // Stable callbacks to prevent breaking memo on child components
+  const handleProfileClick = useCallback(() => setShowProfile(true), [setShowProfile])
+  const handlePracticeClick = useCallback(() => { setGameMode('practice'); setView('main') }, [setGameMode, setView])
+  const handleSprintClick = useCallback(() => { setGameMode('sprint'); setView('main') }, [setGameMode, setView])
+  const handleHardcoreClick = useCallback(() => { setGameMode('hardcore'); setView('main') }, [setGameMode, setView])
+  const handleGameModeClick = useCallback((mode: string) => setGameMode(mode as GameMode), [setGameMode])
+  const handleViewClick = useCallback((v: string) => setView(v as View), [setView])
+  const handleSkinChange = useCallback((skin: string) => updateSetting('keyboardSkin', skin as KeyboardSkin), [updateSetting])
+  const handleViewHistory = useCallback(() => setView('history'), [setView])
+  const handleViewAchievements = useCallback(() => setShowAchievements(true), [setShowAchievements])
+  const handleShowStreakRewards = useCallback(() => setShowStreakRewards(true), [setShowStreakRewards])
+  const handleCloseAchievements = useCallback(() => setShowAchievements(false), [setShowAchievements])
+  const handleCloseSessionSummary = useCallback(() => setShowSessionSummary(false), [setShowSessionSummary])
+  const handleCloseStreakRewards = useCallback(() => setShowStreakRewards(false), [setShowStreakRewards])
+  const handleCloseProfile = useCallback(() => setShowProfile(false), [setShowProfile])
+  const handleCloseGoals = useCallback(() => setShowGoals(false), [setShowGoals])
+  const handleSessionRetry = useCallback(() => { setShowSessionSummary(false); resetToPractice() }, [setShowSessionSummary, resetToPractice])
+  const handleCompleteChallenge = useCallback(
+    (_challengeId: string, wpm: number, accuracy: number) => {
+      if (todayChallenge) {
+        completeChallenge(todayChallenge.id, wpm, accuracy)
+        setGameMode('practice')
+        setView('main')
+      }
+    },
+    [todayChallenge, completeChallenge, setGameMode, setView]
+  )
+  const handleNavigate = useCallback((v: string) => {
+    setShowProfile(false)
+    if (v === 'statistics') setView('statistics')
+    else if (v === 'history') setView('history')
+    else if (v === 'achievements') setShowAchievements(true)
+    else if (v === 'goals') setShowGoals(true)
+  }, [setView, setShowAchievements, setShowGoals, setShowProfile])
 
   if (authLoading) {
     return (
@@ -323,7 +338,7 @@ function AppContent() {
         level={progress.level}
         xp={progress.xp}
         xpToNextLevel={progress.xpToNextLevel}
-        onProfileClick={() => setShowProfile(true)}
+        onProfileClick={handleProfileClick}
       />
 
       <main id="main-content" className="container mx-auto px-4 py-6 max-w-6xl" role="main">
@@ -333,7 +348,7 @@ function AppContent() {
               <div className="flex items-center gap-0.5 min-w-max">
                 <ModeButton
                   isActive={gameMode === 'practice' && view === 'main'}
-                  onClick={() => { setGameMode('practice'); setView('main') }}
+                  onClick={handlePracticeClick}
                   icon="📝"
                   label={t('nav.practice')}
                   title={t('mode.practice')}
@@ -341,14 +356,14 @@ function AppContent() {
                 <span className="w-px h-4 bg-dark-700/40 mx-0.5" aria-hidden="true" />
                 <ModeButton
                   isActive={gameMode === 'sprint'}
-                  onClick={() => { setGameMode('sprint'); setView('main') }}
+                  onClick={handleSprintClick}
                   icon="⚡"
                   label={t('nav.sprint')}
                   title={t('tooltip.sprint')}
                 />
                 <ModeButton
                   isActive={gameMode === 'hardcore'}
-                  onClick={() => { setGameMode('hardcore'); setView('main') }}
+                  onClick={handleHardcoreClick}
                   icon="💀"
                   label={t('mode.hardcore')}
                   title={t('tooltip.hardcore')}
@@ -367,7 +382,7 @@ function AppContent() {
                   <ModeButton
                     key={b.mode}
                     isActive={gameMode === b.mode}
-                    onClick={() => setGameMode(b.mode)}
+                    onClick={() => handleGameModeClick(b.mode)}
                     icon={b.icon}
                     label={b.label}
                     title={b.title}
@@ -381,7 +396,7 @@ function AppContent() {
                   <ModeButton
                     key={b.view}
                     isActive={view === b.view}
-                    onClick={() => setView(b.view)}
+                    onClick={() => handleViewClick(b.view)}
                     icon={b.icon}
                     label={b.label}
                     title={b.title}
@@ -390,7 +405,7 @@ function AppContent() {
                 {user?.role === 'admin' && (
                   <ModeButton
                     isActive={view === 'admin'}
-                    onClick={() => setView('admin')}
+                    onClick={() => handleViewClick('admin')}
                     icon="⚙️"
                     label={t('label.admin', 'Admin')}
                     title={t('tooltip.admin')}
@@ -403,7 +418,7 @@ function AppContent() {
               <Suspense fallback={<LoadingFallback />}>
                 <KeyboardSkinSelector
                   skin={settings.keyboardSkin}
-                  onSkinChange={(skin) => updateSetting('keyboardSkin', skin)}
+                  onSkinChange={handleSkinChange}
                 />
                 <ThemeToggle theme={theme} themeOption={themeOption} onThemeChange={setTheme} onThemeOptionChange={setThemeOption} />
               </Suspense>
@@ -433,13 +448,7 @@ function AppContent() {
                   onSessionComplete={handleSessionCompleteWithProgress}
                   onKeyInput={updateHeatmap}
                   onSaveCustomExercise={handleSaveCustomExercise}
-                  onCompleteChallenge={(_challengeId, wpm, accuracy) => {
-                    if (todayChallenge) {
-                      completeChallenge(todayChallenge.id, wpm, accuracy)
-                      setGameMode('practice')
-                      setView('main')
-                    }
-                  }}
+                  onCompleteChallenge={handleCompleteChallenge}
                 />
               </AnimatePresence>
             </Suspense>
@@ -460,8 +469,8 @@ function AppContent() {
                   <Stats
                     progress={progress}
                     currentStats={currentStats}
-                    onViewHistory={() => setView('history')}
-                    onViewAchievements={() => setShowAchievements(true)}
+                    onViewHistory={handleViewHistory}
+                    onViewAchievements={handleViewAchievements}
                     challengeStats={challengeStats}
                   />
                 </Suspense>
@@ -472,7 +481,7 @@ function AppContent() {
               <SettingsPanel
                 settings={settings}
                 onSettingChange={updateSetting}
-                onShowStreakRewards={() => setShowStreakRewards(true)}
+                onShowStreakRewards={handleShowStreakRewards}
                 streak={streak.current}
               />
             </ErrorBoundary>
@@ -505,7 +514,7 @@ function AppContent() {
           <Suspense fallback={<LoadingFallback />}>
             <AchievementsPanel
               stats={achievementStats}
-              onClose={() => setShowAchievements(false)}
+              onClose={handleCloseAchievements}
             />
           </Suspense>
         </ErrorBoundary>
@@ -517,11 +526,8 @@ function AppContent() {
             <SessionSummary
               stats={currentStats}
               xpEarned={lastSessionXp}
-              onClose={() => setShowSessionSummary(false)}
-              onRetry={() => {
-                setShowSessionSummary(false)
-                resetToPractice()
-              }}
+              onClose={handleCloseSessionSummary}
+              onRetry={handleSessionRetry}
             />
           </Suspense>
         </ErrorBoundary>
@@ -532,7 +538,7 @@ function AppContent() {
           <Suspense fallback={<LoadingFallback />}>
             <StreakRewardsPanel
               currentStreak={streak.current}
-              onClose={() => setShowStreakRewards(false)}
+              onClose={handleCloseStreakRewards}
             />
           </Suspense>
         </ErrorBoundary>
@@ -542,14 +548,8 @@ function AppContent() {
         <ErrorBoundary key="user-profile" fallback={null}>
           <Suspense fallback={<LoadingFallback />}>
             <UserProfile
-              onClose={() => setShowProfile(false)}
-              onNavigate={(view) => {
-                setShowProfile(false)
-                if (view === 'statistics') setView('statistics')
-                else if (view === 'history') setView('history')
-                else if (view === 'achievements') setShowAchievements(true)
-                else if (view === 'goals') setShowGoals(true)
-              }}
+              onClose={handleCloseProfile}
+              onNavigate={handleNavigate}
             />
           </Suspense>
         </ErrorBoundary>
@@ -559,7 +559,7 @@ function AppContent() {
         <ErrorBoundary key="goals" fallback={null}>
           <Suspense fallback={<LoadingFallback />}>
             <GoalsPanel
-              onClose={() => setShowGoals(false)}
+              onClose={handleCloseGoals}
               currentProgress={{
                 wpm: progress.bestWpm,
                 accuracy: progress.bestAccuracy,

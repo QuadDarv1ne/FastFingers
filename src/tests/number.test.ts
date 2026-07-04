@@ -7,6 +7,7 @@ import {
   clamp,
   isInRange,
   formatDuration,
+  safeParseInt,
 } from '../utils/number'
 
 describe('number utils', () => {
@@ -80,6 +81,30 @@ describe('number utils', () => {
 
     it('должен обрабатывать дробные значения', () => {
       expect(formatDuration(90.7)).toBe('01:30')
+    })
+  })
+
+  describe('safeParseInt', () => {
+    it('должен парсить валидную строку', () => {
+      expect(safeParseInt('42')).toBe(42)
+      expect(safeParseInt('0')).toBe(0)
+      expect(safeParseInt('-1')).toBe(-1)
+    })
+
+    it('должен возвращать 0 для null', () => {
+      expect(safeParseInt(null)).toBe(0)
+    })
+
+    it('должен возвращать 0 для undefined', () => {
+      expect(safeParseInt(undefined)).toBe(0)
+    })
+
+    it('должен возвращать 0 для невалидной строки', () => {
+      expect(safeParseInt('abc')).toBe(0)
+    })
+
+    it('должен возвращать 0 для пустой строки', () => {
+      expect(safeParseInt('')).toBe(0)
     })
   })
 })
