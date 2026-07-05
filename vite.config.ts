@@ -147,6 +147,7 @@ export default defineConfig({
               return 'confetti-vendor'
             }
             if (id.includes('@tanstack')) {
+              if (id.includes('react-query-devtools')) return 'devtools-vendor'
               if (id.includes('react-query')) return 'query-vendor'
               if (id.includes('virtual')) return 'virtual-vendor'
             }
@@ -158,6 +159,9 @@ export default defineConfig({
             }
             if (id.includes('@sentry')) {
               return 'monitoring-vendor'
+            }
+            if (id.includes('canvas-confetti')) {
+              return 'confetti-vendor'
             }
           }
           return undefined

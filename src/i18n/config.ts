@@ -510,23 +510,31 @@ i18n
     },
   })
 
-// Загружаем русский язык сразу (язык по умолчанию)
-loadLanguageFile('ru').then((translations) => {
+// Загружаем язык по умолчанию сразу (блокирует рендеринг)
+// Английский загружается в фоне после первоначального рендеринга
+loadLanguageFile(savedLang).then((translations) => {
   if (Object.keys(translations).length > 0) {
-    i18n.addResourceBundle('ru', 'translation', translations, true, true)
+    i18n.addResourceBundle(savedLang, 'translation', translations, true, true)
   } else {
-    logger.error('Default language (ru) bundle is empty — translations unavailable')
+    logger.error(`Default language (${savedLang}) bundle is empty — translations unavailable`)
   }
 }).catch((err) => {
-  logger.error('Failed to load default language (ru):', err)
+  logger.error(`Failed to load default language (${savedLang}):`, err)
 })
 
-// Загружаем английский как резервный язык
-loadLanguageFile('en').then((translations) => {
-  if (Object.keys(translations).length > 0) {
-    i18n.addResourceBundle('en', 'translation', translations, true, true)
+// Фоновая загрузка английского (резервный язык) — не блокирует рендеринг
+const idleCallback = typeof requestIdleCallback === 'function'
+  ? requestIdleCallback
+  : (fn: () => void) => setTimeout(fn, 1000)
+idleCallback(() => {
+  if (!loadedLanguages.has('en')) {
+    loadLanguageFile('en').then((translations) => {
+      if (Object.keys(translations).length > 0) {
+        i18n.addResourceBundle('en', 'translation', translations, true, true)
+      }
+    }).catch((err) => logger.warn('Failed to preload English fallback:', err))
   }
-}).catch((err) => logger.warn('Failed to preload English fallback:', err))
+})
 
 // Автоматически подгружаем язык при переключении
 i18n.on('languageChanged', (lng) => {
