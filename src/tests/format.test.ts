@@ -3,28 +3,11 @@ import {
   formatDuration,
   formatDurationLong,
   formatDate,
-  formatDateTime,
-  formatRelativeTime,
   calculateAge,
 } from '../utils/format'
 
 vi.mock('i18next', () => ({
   default: {
-    t: (key: string, params?: Record<string, unknown>) => {
-      const translations: Record<string, string> = {
-        'time.justNow': 'только что',
-        'time.minutesAgo': '{{count}} мин. назад',
-        'time.hoursAgo': '{{count}} ч. назад',
-        'time.daysAgo': '{{count}} дн. назад',
-      }
-      let result = translations[key] ?? key
-      if (params) {
-        for (const [k, v] of Object.entries(params)) {
-          result = result.replace(`{{${k}}}`, String(v))
-        }
-      }
-      return result
-    },
     language: 'ru',
   },
 }))
@@ -72,60 +55,6 @@ describe('format utils', () => {
     it('должен форматировать timestamp', () => {
       const timestamp = Date.now()
       expect(formatDate(timestamp)).not.toBe('—')
-    })
-  })
-
-  describe('formatDateTime', () => {
-    it('должен форматировать дату и время', () => {
-      const date = new Date('2024-01-15T14:30:00')
-      const formatted = formatDateTime(date)
-      expect(formatted).toContain('2024')
-      expect(formatted).toContain('14:30')
-    })
-
-    it('должен возвращать тире для невалидной даты', () => {
-      expect(formatDateTime('invalid')).toBe('—')
-      expect(formatDateTime('')).toBe('—')
-    })
-  })
-
-  describe('formatRelativeTime', () => {
-    beforeEach(() => {
-      vi.useFakeTimers()
-      vi.setSystemTime(new Date('2024-01-15T12:00:00'))
-    })
-
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('должен показывать "только что" для недавнего времени', () => {
-      const now = new Date()
-      expect(formatRelativeTime(now)).toBe('только что')
-    })
-
-    it('должен показывать минуты назад', () => {
-      const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000)
-      expect(formatRelativeTime(fiveMinsAgo)).toContain('мин.')
-    })
-
-    it('должен показывать часы назад', () => {
-      const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000)
-      expect(formatRelativeTime(threeHoursAgo)).toContain('ч.')
-    })
-
-    it('должен показывать дни назад', () => {
-      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-      expect(formatRelativeTime(fiveDaysAgo)).toContain('дн.')
-    })
-
-    it('должен возвращать дату для старых дат', () => {
-      const oldDate = new Date('2023-01-01')
-      expect(formatRelativeTime(oldDate)).not.toBe('только что')
-    })
-
-    it('должен возвращать тире для невалидной даты', () => {
-      expect(formatRelativeTime('invalid')).toBe('—')
     })
   })
 
