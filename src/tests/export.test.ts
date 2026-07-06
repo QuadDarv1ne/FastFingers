@@ -1,17 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { convertToCSV, statsToExportData, downloadCSV, type ExportData } from '../utils/export'
-import type { TypingStats } from '../types'
+import { convertToCSV, downloadCSV, type ExportData } from '../utils/export'
 
 describe('export utils', () => {
-  const mockStats: TypingStats[] = [
-    { wpm: 60, cpm: 300, accuracy: 95, errors: 5, timeElapsed: 60, correctChars: 300, totalChars: 315, rhythmScore: 85 },
-    { wpm: 70, cpm: 350, accuracy: 98, errors: 2, timeElapsed: 60, correctChars: 350, totalChars: 357, rhythmScore: 90 },
+  const mockData: ExportData[] = [
+    { date: '2026-03-06', wpm: 60, cpm: 300, accuracy: 95, errors: 5, timeElapsed: 60, correctChars: 300, totalChars: 315 },
+    { date: '2026-03-07', wpm: 70, cpm: 350, accuracy: 98, errors: 2, timeElapsed: 60, correctChars: 350, totalChars: 357 },
   ]
 
   describe('convertToCSV', () => {
     it('должен конвертировать данные в CSV формат', () => {
-      const data = statsToExportData(mockStats)
-      const csv = convertToCSV(data)
+      const csv = convertToCSV(mockData)
       
       expect(csv).toContain('Date,WPM,CPM,Accuracy (%)')
       expect(csv).toContain('60,300,95')
@@ -36,32 +34,6 @@ describe('export utils', () => {
       }]
       const csv = convertToCSV(data)
       expect(csv.split('\n').length).toBeGreaterThanOrEqual(1)
-    })
-  })
-
-  describe('statsToExportData', () => {
-    it('должен конвертировать TypingStats в ExportData', () => {
-      const result = statsToExportData(mockStats)
-      
-      expect(result).toHaveLength(2)
-      expect(result[0]).toHaveProperty('wpm', 60)
-      expect(result[0]).toHaveProperty('accuracy', 95)
-      expect(result[1]).toHaveProperty('wpm', 70)
-    })
-
-    it('должен использовать предоставленные даты', () => {
-      const dates = ['2026-03-06', '2026-03-07']
-      const result = statsToExportData(mockStats, dates)
-
-      expect(result[0]?.date).toBe('2026-03-06')
-      expect(result[1]?.date).toBe('2026-03-07')
-    })
-
-    it('должен использовать текущую дату по умолчанию', () => {
-      const result = statsToExportData(mockStats)
-
-      expect(result[0]?.date).toBeDefined()
-      expect(new Date(result[0]?.date ?? '').getTime()).toBeLessThanOrEqual(Date.now())
     })
   })
 

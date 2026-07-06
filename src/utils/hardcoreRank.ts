@@ -110,13 +110,6 @@ export function getRankProgress(streak: number): number {
 }
 
 /**
- * Получить все ранги для отображения в UI
- */
-export function getAllRanks(): RankInfo[] {
-  return RANKS
-}
-
-/**
  * Проверить, получен ли новый ранг
  */
 export function checkRankUp(oldStreak: number, newStreak: number): boolean {

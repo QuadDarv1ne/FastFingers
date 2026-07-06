@@ -1,4 +1,3 @@
-import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
 
 export interface ExportData {
@@ -61,19 +60,4 @@ export function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url)
 }
 
-export function statsToExportData(stats: TypingStats[], dates?: string[]): ExportData[] {
-  if (!stats || stats.length === 0) return []
 
-  return stats
-    .filter((stat): stat is TypingStats => stat !== null && stat !== undefined)
-    .map((stat, index) => ({
-    date: dates?.[index] ?? new Date().toISOString(),
-    wpm: stat.wpm ?? 0,
-    cpm: stat.cpm ?? 0,
-    accuracy: stat.accuracy ?? 0,
-    errors: stat.errors ?? 0,
-    timeElapsed: stat.timeElapsed ?? 0,
-    correctChars: stat.correctChars ?? 0,
-    totalChars: stat.totalChars ?? 0,
-  }))
-}

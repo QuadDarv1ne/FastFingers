@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import type { User, UserStats } from '../types/auth'
 import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
-import { getFromStorageAsArray, getFromStorageAsObject } from '../utils/storage'
+import { getFromStorageAsArray } from '../utils/storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 
 const LOCAL_STORAGE_KEY = STORAGE_KEYS.CLOUD_SYNC
@@ -284,15 +284,25 @@ export async function flushPendingSessions(): Promise<void> {
   }
 }
 
+function _loadLocalSessions(): CloudSession[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.HISTORY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed
+    if (parsed && typeof parsed === 'object') return (parsed.sessions as CloudSession[]) || []
+  } catch {
+    // Ignore storage errors
+  }
+  return []
+}
+
 export async function loadUserSessions(
   userId: string,
   limit: number = 100
 ): Promise<{ sessions: CloudSession[]; isOffline: boolean }> {
   if (!supabase) {
-    // Fallback на localStorage
-    const stored = getFromStorageAsObject<Record<string, unknown>>(STORAGE_KEYS.HISTORY)
-    const localSessions: CloudSession[] = Array.isArray(stored) ? stored : ((stored.sessions as CloudSession[]) || [])
-    return { sessions: localSessions, isOffline: true }
+    return { sessions: _loadLocalSessions(), isOffline: true }
   }
 
   try {
@@ -320,11 +330,8 @@ export async function loadUserSessions(
     return { sessions, isOffline: false }
   } catch (error) {
     logger.warn('Failed to load user sessions from Supabase', error)
-    // Fallback на localStorage
-    const stored = getFromStorageAsObject<Record<string, unknown>>(STORAGE_KEYS.HISTORY)
-    const localSessions: CloudSession[] = Array.isArray(stored) ? stored : ((stored.sessions as CloudSession[]) || [])
     updateBackendStatus({ sync: false })
-    return { sessions: localSessions, isOffline: true }
+    return { sessions: _loadLocalSessions(), isOffline: true }
   }
 }
 

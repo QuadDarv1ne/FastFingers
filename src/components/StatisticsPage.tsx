@@ -1,6 +1,5 @@
 import { memo, useMemo, Suspense, lazy, useState, useEffect } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
-import { useAdvancedStats } from '../hooks/useAdvancedStats'
 import { useStatsWorker } from '../hooks/useStatsWorker'
 import { useAppTranslation } from '../i18n/config'
 import { SimpleBarChart } from './SimpleBarChart'
@@ -32,7 +31,6 @@ const CORRELATION_METRICS = ['stats.metric.wpm', 'stats.metric.accuracy', 'stats
 export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage({ onBack }: StatisticsPageProps) {
   const { t, i18n } = useAppTranslation()
   const { history, getStatsForPeriod } = useTypingHistory()
-  const { wpmTrend: _wpmTrend, activityByDayOfWeek: _activityByDayOfWeek } = useAdvancedStats()
   const { isReady, analyzeTimeOfDay, analyzeFunnel, calculateCorrelationMatrix } = useStatsWorker()
 
   // Расширенная аналитика через Web Worker

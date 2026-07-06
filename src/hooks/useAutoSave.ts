@@ -118,11 +118,11 @@ export function useAutoSave(options: UseAutoSaveOptions): UseAutoSaveReturn {
    */
   const clearAutoSave = useCallback(() => {
     try {
-      localStorage.removeItem(storageKey)
+      localStorage.removeItem(storageKeyRef.current)
     } catch (error) {
       logger.warn('Failed to clear:', error)
     }
-  }, [storageKey])
+  }, [])
 
   /**
    * Принудительное сохранение

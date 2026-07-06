@@ -105,6 +105,9 @@ export function useUserProgress(options?: UseUserProgressOptions): UseUserProgre
         case 'unchanged':
           newStreak = prev.streak;
           break;
+        default:
+          newStreak = prev.streak;
+          break;
       }
 
       return {

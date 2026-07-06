@@ -66,7 +66,11 @@ export function useTextUsageStats() {
 
   const clearStats = useCallback(() => {
     if (!confirm(i18n.t('admin.clearStatsConfirm', 'Reset text usage statistics?'))) return
-    localStorage.removeItem(USAGE_KEY)
+    try {
+      localStorage.removeItem(USAGE_KEY)
+    } catch {
+      logger.warn('Failed to clear text usage data')
+    }
     setUsage({})
   }, [])
 

@@ -108,40 +108,49 @@ export function useHardcoreMode({
     onComplete(stats)
   }, [calculateCorrectCount, onComplete, setBestStreak])
 
+  const isHandlingInput = useRef(false)
+
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    if (!isActive && countdown === null) {
-      handleStart()
-      return
-    }
+    if (isHandlingInput.current) return
+    isHandlingInput.current = true
 
-    const value = e.currentTarget.value
-    const newChar = value[value.length - 1]
-    if (!newChar) return
-
-    if (currentIndex < textLengthRef.current) {
-      const expectedChar = text[currentIndex]
-      const isCorrect = newChar === expectedChar
-
-      if (!isCorrect) {
-        try { if (sound) sound.playError() } catch { /* sound failure is non-critical */ }
-        handleMistake()
+    try {
+      if (!isActive && countdown === null) {
+        handleStart()
         return
       }
 
-      try { if (sound) sound.playCorrect(expectedChar.toLowerCase()) } catch { /* sound failure is non-critical */ }
+      const value = e.currentTarget.value
+      const newChar = value[value.length - 1]
+      if (!newChar) return
 
-      setStreak(prev => prev + 1)
+      if (currentIndex < textLengthRef.current) {
+        const expectedChar = text[currentIndex]
+        const isCorrect = newChar === expectedChar
 
-      setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
+        if (!isCorrect) {
+          try { if (sound) sound.playError() } catch { /* sound failure is non-critical */ }
+          handleMistake()
+          return
+        }
 
-      if (currentIndex >= textLengthRef.current - 1) {
-        pendingCompletionRef.current = true
+        try { if (sound) sound.playCorrect(expectedChar.toLowerCase()) } catch { /* sound failure is non-critical */ }
+
+        setStreak(prev => prev + 1)
+
+        setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
+
+        if (currentIndex >= textLengthRef.current - 1) {
+          pendingCompletionRef.current = true
+        }
+
+        setCurrentIndex(prev => prev + 1)
       }
 
-      setCurrentIndex(prev => prev + 1)
+      e.currentTarget.value = ''
+    } finally {
+      isHandlingInput.current = false
     }
-
-    e.currentTarget.value = ''
   }, [isActive, countdown, text, currentIndex, sound, handleMistake, handleStart])
 
   // Process deferred text generation outside of setState updaters

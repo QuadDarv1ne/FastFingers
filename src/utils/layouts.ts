@@ -78,14 +78,3 @@ export const fingerZones: Record<string, string> = {
   'right-pinky': 'finger.rightPinky',
 };
 
-// Цвета для зон пальцев
-export const fingerColors: Record<string, string> = {
-  'left-pinky': '#8b5cf6',
-  'left-ring': '#a78bfa',
-  'left-middle': '#c4b5fd',
-  'left-index': '#ddd6fe',
-  'right-index': '#ddd6fe',
-  'right-middle': '#c4b5fd',
-  'right-ring': '#a78bfa',
-  'right-pinky': '#8b5cf6',
-};

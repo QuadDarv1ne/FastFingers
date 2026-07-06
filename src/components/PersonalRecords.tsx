@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useAdvancedStats } from '@hooks/useAdvancedStats'
 import { useAppTranslation } from '../i18n/config'
 import { formatDurationLong } from '../utils/format'
@@ -11,7 +11,7 @@ export const PersonalRecords = memo(function PersonalRecords({ className = '' }:
   const { t } = useAppTranslation()
   const { personalRecords } = useAdvancedStats()
 
-  const records = [
+  const records = useMemo(() => [
     {
       label: t('stats.bestWpm'),
       value: personalRecords.bestWpm.toString(),
@@ -54,7 +54,7 @@ export const PersonalRecords = memo(function PersonalRecords({ className = '' }:
       color: 'text-red-400',
       bg: 'bg-red-400/10',
     },
-  ]
+  ], [personalRecords.bestWpm, personalRecords.bestAccuracy, personalRecords.bestCpm, personalRecords.totalSessions, personalRecords.totalTime, personalRecords.longestStreak, t])
 
   return (
     <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 ${className}`}>

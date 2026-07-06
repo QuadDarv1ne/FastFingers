@@ -5,9 +5,8 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import type { User } from '../types/auth'
 import type { CertificateData, CertificateOptions } from './certificateTypes'
-import { generateCertificateId, calculateRank } from './certificateTypes'
+import { generateCertificateId } from './certificateTypes'
 
 const rankColors = {
   Bronze: { primary: '#CD7F32', secondary: '#8B4513' },
@@ -231,21 +230,3 @@ export async function generateCertificate(
   })
 }
 
-export function generateSprintCertificate(
-  user: User,
-  wpm: number,
-  accuracy: number,
-  correctChars: number,
-  language: 'en' | 'ru' = 'en'
-): Promise<Blob> {
-  const data: CertificateData = {
-    user,
-    testType: 'sprint',
-    wpm,
-    accuracy,
-    cpm: correctChars,
-    date: new Date().toISOString(),
-    rank: calculateRank(wpm, accuracy),
-  }
-  return generateCertificate(data, { language, download: true, theme: 'classic' })
-}
