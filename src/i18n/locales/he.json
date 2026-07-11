@@ -448,5 +448,17 @@
   "tournament.final": "גמר",
   "tournament.unknownPlayer": "לא ידוע",
   "tournament.defaultPlayer": "שחקן",
-  "tournament.matchInProgress": "משחק מתנהל..."
+  "tournament.matchInProgress": "משחק מתנהל...",
+  "tip.all": "הכל",
+  "tip.postureCategory": "יציבה",
+  "tip.techniqueCategory": "טכניקה",
+  "tip.practiceCategory": "תרגול",
+  "tip.healthCategory": "בריאות",
+  "tournament.champion": "🏆 אלוף",
+  "tournament.championAccuracy": "{{accuracy}}% דיוק",
+  "tournament.waitingParticipants": "ממתין למשתתפים...",
+  "tournament.minParticipants": "נדרשים לפחות 2 משתתפים",
+  "stats.period24h": "24 שעות",
+  "stats.period7d": "7 ימים",
+  "stats.period30d": "30 ימים"
 }

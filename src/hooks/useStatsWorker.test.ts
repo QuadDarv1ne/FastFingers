@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { useStatsWorker } from '../hooks/useStatsWorker'
 import type { KeystrokeData, TypingStats } from '../types'
 
@@ -126,7 +126,9 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    result.current.terminate()
+    act(() => {
+      result.current.terminate()
+    })
     await waitFor(() => {
       expect(result.current.isReady).toBe(false)
     }, { timeout: 1000 })
@@ -148,7 +150,9 @@ describe('useStatsWorker', () => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
     const rhythm1 = await result.current.calculateRhythm(mockKeystrokes)
-    result.current.terminate()
+    act(() => {
+      result.current.terminate()
+    })
     // Второй вызов должен失败, т.к. worker terminated
     try {
       await result.current.calculateRhythm(mockKeystrokes.slice(0, 5))

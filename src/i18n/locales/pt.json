@@ -470,5 +470,17 @@
   "tournament.final": "Final",
   "tournament.unknownPlayer": "Desconhecido",
   "tournament.defaultPlayer": "Jogador",
-  "tournament.matchInProgress": "Partida em andamento..."
+  "tournament.matchInProgress": "Partida em andamento...",
+  "tip.all": "Todos",
+  "tip.postureCategory": "Postura",
+  "tip.techniqueCategory": "Técnica",
+  "tip.practiceCategory": "Prática",
+  "tip.healthCategory": "Saúde",
+  "tournament.champion": "🏆 CAMPEÃO",
+  "tournament.championAccuracy": "{{accuracy}}% precisão",
+  "tournament.waitingParticipants": "Aguardando participantes...",
+  "tournament.minParticipants": "Pelo menos 2 participantes são necessários",
+  "stats.period24h": "24 horas",
+  "stats.period7d": "7 dias",
+  "stats.period30d": "30 dias"
 }

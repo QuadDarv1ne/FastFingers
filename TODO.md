@@ -2,7 +2,7 @@
 
 **Author:** Dupley Maxim Igorevich | **Автор:** Дулей Максим Игорович
 **Copyright:** 2025-2026 © Dupley Maxim Igorevich
-**Last updated:** 2026-05-17 (full code audit) | **Последнее обновление:** 2026-05-17 (полный аудит кода)
+**Last updated:** 2026-07-11 (TranslationKey auto-generated from en.json, authService tests) | **Последнее обновление:** 2026-07-11 (TranslationKey авто-генерация из en.json, тесты authService)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Metric / Метрика | Value / Значение | Status / Статус |
 |------------------|-----------------|-----------------|
-| Unit tests / Unit-тесты | 916 passed (56 files) | ✅ |
+| Unit tests / Unit-тесты | 864 passed (47 files) | ✅ |
 | Test Coverage / Покрытие тестов | ~91% | ✅ |
 | Build time / Время сборки | **~8s** (was / было 14.4s) | ✅ **<15s** |
 | Bundle size (core) / Размер бандла | ~250KB gzipped | ✅ |
@@ -41,13 +41,14 @@
 
 ## 🟡 Medium Priority / Средний приоритет
 
-### 2. Split Monolithic i18n Config into Per-Language Files / Разделить монолитный i18n config на файлы по языкам
+### 2. i18n Config / Конфигурация i18n
 
-- [ ] `src/i18n/config.ts` — 1569 lines, all 10 languages in a single file / 1569 строк, все 10 языков в одном файле
-- [ ] IT/PT/JA translations compressed to 1-2 lines each — hard to maintain / IT/PT/JA переводы сжаты до 1-2 строк — сложно поддерживать
-- [ ] **Solution / Решение:** Extract each language into `src/i18n/locales/{en,ru,de,fr,es,it,pt,zh,ja,he}.json`
-- [ ] Load languages dynamically via `i18next.use(Backend)` / Загружать языки динамически
-- [ ] **Benefit / Выгода:** Faster cold start, smaller initial bundle, easier maintenance / быстрее холодный старт, меньше начальный бандл, проще поддержка
+- [x] `src/i18n/config.ts` — 592 lines, languages loaded dynamically from JSON files / 592 строк, языки загружаются динамически из JSON файлов
+- [x] Each language in its own `src/i18n/locales/{lang}.json` file / Каждый язык в отдельном файле
+- [x] Languages loaded dynamically via dynamic `import()` / Языки загружаются динамически через `import()`
+- [x] Preloading: saved language loads synchronously, English preloaded in background via `requestIdleCallback`
+- [x] **TranslationKey type** — now auto-generated from `en.json` (`keyof typeof enJson`) instead of hand-maintained 627-member union / Тип TranslationKey теперь автоматически генерируется из en.json вместо ручного поддержания объединения из 627 элементов
+- [x] **Coverage**: all 1,367 en.json keys are now type-safe / Все 1,367 ключей en.json теперь типобезопасны
 
 ### 3. Replace Direct `console` Calls with `logger` Utility / Заменить прямые `console` вызовы на утилиту `logger`
 
@@ -96,10 +97,11 @@
 
 Coverage gaps / Пробелы в покрытии:
 
-- [ ] `TypingTrainer.tsx` — core engine, no direct tests / основной движок, нет прямых тестов
-- [ ] `useHotkeys` — no tests / нет тестов
-- [ ] `useTheme` — no tests / нет тестов
-- [ ] `AuthContext` — no tests / нет тестов
+- [x] `TypingTrainer.tsx` — tests exist / тесты есть
+- [x] `useHotkeys` — tests exist / тесты есть
+- [x] `useTheme` — tests exist / тесты есть
+- [x] `AuthContext` — tests exist / тесты есть
+- [x] `authService.ts` — 34 tests added (2026-07-11) / 34 теста добавлено
 
 ### 9. Decouple localStorage Auth Fallback from Supabase Service / Отделить localStorage auth fallback от Supabase сервиса
 
@@ -243,6 +245,19 @@ Coverage gaps / Пробелы в покрытии:
 ---
 
 ## ✅ Completed (Recent) / Выполнено (Последнее)
+
+### 2026-07-11 — TranslationKey Type Auto-Generation & authService Tests
+/ Авто-генерация типа TranslationKey и тесты authService
+
+- ✅ **TranslationKey type** — replaced hand-maintained 627-member union with `keyof typeof enJson`
+  / Заменено ручное объединение 627 элементов на автоматическое из en.json
+  - Now covers all 1,367 keys from en.json (was missing 740+ keys)
+  / Теперь покрывает все 1,367 ключей из en.json (раньше не хватало 740+ ключей)
+  - Zero maintenance — stays in sync automatically / Ноль поддержки — синхронизируется автоматически
+- ✅ **authService tests** — added 34 comprehensive tests (register, login, logout, password reset, profile update, stats sync, change password)
+  / Добавлено 34 комплексных теста
+- ✅ TypeScript 0 errors, ESLint 0 errors, Build ~7.9s
+- ✅ All tests pass (864 passed, 47 files)
 
 ### 2026-07-04 — Cleanup: Removed Dead Components & Unused CSS
 / Очистка: удаление мёртвых компонентов и неиспользуемого CSS
@@ -473,18 +488,14 @@ Coverage gaps / Пробелы в покрытии:
 
 ## 🎯 Next Sprint Priorities / Следующий спринт (приоритеты)
 
-1. **Split i18n config** — Break 1569-line config.ts into per-language JSON files
-   / Разбить 1569-строчный config.ts на per-language JSON файлы
-2. **Replace console with logger** — 19 files, quick win for consistency
-   / 19 файлов, быстрый win для консистентности
-3. **Create .env.example** — simple task, blocks new developers
-   / простая задача, блокирует новых разработчиков
-4. **Supabase Realtime** — Enable for duels, tournaments, tournament_participants
+1. **Supabase Realtime** — Enable for duels, tournaments, tournament_participants
    / Включить для duels, tournaments, tournament_participants
-5. **Vitest coverage thresholds** — Add minimum coverage gates
-   / Добавить минимальные пороги
-6. **E2E tests** — Critical path coverage + offline mode
+2. **Unify Supabase null-handling** — 6 files, 22 null checks with 3 different patterns
+   / 6 файлов, 22 null-чека с 3 разными паттернами
+3. **E2E tests** — Critical path coverage + offline mode
    / Покрытие критических путей + offline mode
+4. **Visual regression tests** — Playwright screenshot tests for key pages
+   / Playwright скриншотные тесты для ключевых страниц
 
 ---
 
@@ -515,11 +526,11 @@ Coverage gaps / Пробелы в покрытии:
 - Some tests require `act()` wrapper (React warnings)
   / Некоторые тесты требуют `act()` обёртки (React warnings)
 
-### Project Metrics (2026-05-11) / Метрики проекта
+### Project Metrics (2026-07-11) / Метрики проекта
 
-- **Tests / Тесты**: 905 passed, 8 skipped (56 files / файлов)
+- **Tests / Тесты**: 864 passed (47 files / файлов)
 - **Coverage / Покрытие**: ~91%
-- **Build / Сборка**: ~8s (was / было 14.4s, optimization -44%)
+- **Build / Сборка**: ~7.9s (was / было 14.4s, optimization -45%)
 - **Bundle / Бандл**: animations-vendor 125KB gzipped, settings 85KB, game-modes 67KB
 - **Removed dependencies / Удалено зависимостей**: jspdf (390KB), recharts (532KB) = 922KB saved / экономии
 - **i18n**: 10 languages / языков (ru, en, zh, he, de, fr, es, it, pt, ja)
@@ -587,7 +598,7 @@ Coverage gaps / Пробелы в покрытии:
 
 | # | Предложение | Статус в TODO |
 |---|------------|---------------|
-| 1 | Разделить i18n config (1569 → per-language files) | 🟡 Medium #2 |
+| 1 | Разделить i18n config (1569 → per-language files), TranslationKey из en.json | ✅ Done |
 | 2 | Null-safe Supabase client (`useSupabase()` hook) | 🟡 Medium #10 |
 | 3 | Per-route Error Boundaries | 🟢 Low #22 |
 | 4 | Тесты: TypingTrainer, useHotkeys, useTheme, AuthContext | 🟡 Medium #8 |

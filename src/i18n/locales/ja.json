@@ -470,5 +470,17 @@
   "tournament.final": "決勝",
   "tournament.unknownPlayer": "不明",
   "tournament.defaultPlayer": "プレイヤー",
-  "tournament.matchInProgress": "試合中..."
+  "tournament.matchInProgress": "試合中...",
+  "tip.all": "すべて",
+  "tip.postureCategory": "姿勢",
+  "tip.techniqueCategory": "テクニック",
+  "tip.practiceCategory": "練習",
+  "tip.healthCategory": "健康",
+  "tournament.champion": "🏆 チャンピオン",
+  "tournament.championAccuracy": "{{accuracy}}% 精度",
+  "tournament.waitingParticipants": "参加者待ち...",
+  "tournament.minParticipants": "少なくとも2人の参加者が必要です",
+  "stats.period24h": "24時間",
+  "stats.period7d": "7日",
+  "stats.period30d": "30日"
 }

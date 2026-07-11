@@ -155,7 +155,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
           animate={{ scale: 1, opacity: 1 }}
           className="mb-8 p-6 bg-gradient-to-r from-yellow-600/20 via-orange-600/20 to-yellow-600/20 rounded-xl border border-yellow-500/50 text-center"
         >
-          <p className="text-yellow-400 text-sm font-medium mb-2">🏆 ЧЕМПИОН</p>
+          <p className="text-yellow-400 text-sm font-medium mb-2">{t('tournament.champion')}</p>
           <div className="flex items-center justify-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center text-xl font-bold">
               {champion.user_avatar || champion.user_name?.[0]?.toUpperCase() || '🏆'}

@@ -1353,5 +1353,17 @@
   "admin.studentAnalytics.perKeyTrendFootnote": "Showing 10 keys with the largest accuracy change (early vs last 15 sessions)",
   "admin.studentAnalytics.csvDate": "Date",
   "admin.studentAnalytics.csvAccuracy": "Accuracy (%)",
-  "admin.studentAnalytics.csvDuration": "Duration (s)"
+  "admin.studentAnalytics.csvDuration": "Duration (s)",
+  "tip.all": "All",
+  "tip.postureCategory": "Posture",
+  "tip.techniqueCategory": "Technique",
+  "tip.practiceCategory": "Practice",
+  "tip.healthCategory": "Health",
+  "tournament.champion": "🏆 CHAMPION",
+  "tournament.championAccuracy": "{{accuracy}}% accuracy",
+  "tournament.waitingParticipants": "Waiting for participants...",
+  "tournament.minParticipants": "At least 2 participants are required to start the tournament",
+  "stats.period24h": "24 hours",
+  "stats.period7d": "7 days",
+  "stats.period30d": "30 days"
 }

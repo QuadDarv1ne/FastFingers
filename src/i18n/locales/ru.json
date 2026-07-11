@@ -1353,5 +1353,17 @@
   "admin.studentAnalytics.perKeyTrendFootnote": "Показаны 10 клавиш с наибольшим изменением точности (ранние vs последние 15 сессий)",
   "admin.studentAnalytics.csvDate": "Дата",
   "admin.studentAnalytics.csvAccuracy": "Точность (%)",
-  "admin.studentAnalytics.csvDuration": "Длительность (с)"
+  "admin.studentAnalytics.csvDuration": "Длительность (с)",
+  "tip.all": "Все",
+  "tip.postureCategory": "Осанка",
+  "tip.techniqueCategory": "Техника",
+  "tip.practiceCategory": "Практика",
+  "tip.healthCategory": "Здоровье",
+  "tournament.champion": "🏆 ЧЕМПИОН",
+  "tournament.championAccuracy": "{{accuracy}}% точность",
+  "tournament.waitingParticipants": "Ожидание участников...",
+  "tournament.minParticipants": "Для начала турнира необходимо минимум 2 участника",
+  "stats.period24h": "24 часа",
+  "stats.period7d": "7 дней",
+  "stats.period30d": "30 дней"
 }

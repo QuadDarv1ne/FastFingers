@@ -706,5 +706,17 @@
   "tournament.final": "决赛",
   "tournament.unknownPlayer": "未知",
   "tournament.defaultPlayer": "玩家",
-  "tournament.matchInProgress": "比赛进行中..."
+  "tournament.matchInProgress": "比赛进行中...",
+  "tip.all": "全部",
+  "tip.postureCategory": "姿势",
+  "tip.techniqueCategory": "技巧",
+  "tip.practiceCategory": "练习",
+  "tip.healthCategory": "健康",
+  "tournament.champion": "🏆 冠军",
+  "tournament.championAccuracy": "{{accuracy}}% 准确率",
+  "tournament.waitingParticipants": "等待参与者...",
+  "tournament.minParticipants": "至少需要2名参与者才能开始比赛",
+  "stats.period24h": "24小时",
+  "stats.period7d": "7天",
+  "stats.period30d": "30天"
 }
