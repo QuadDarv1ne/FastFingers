@@ -50,7 +50,10 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const rhythmScore = await result.current.calculateRhythm(mockKeystrokes)
+    let rhythmScore = 0
+    await act(async () => {
+      rhythmScore = await result.current.calculateRhythm(mockKeystrokes)
+    })
     expect(rhythmScore).toBeGreaterThanOrEqual(0)
     expect(rhythmScore).toBeLessThanOrEqual(100)
   })
@@ -60,7 +63,10 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const balance = await result.current.calculateFingerBalance(mockKeystrokes)
+    let balance!: { left: number; right: number }
+    await act(async () => {
+      balance = await result.current.calculateFingerBalance(mockKeystrokes)
+    })
     expect(balance).toHaveProperty('left')
     expect(balance).toHaveProperty('right')
     expect(balance.left + balance.right).toBe(100)
@@ -71,7 +77,10 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const recoveryTime = await result.current.calculateErrorRecovery(mockKeystrokes)
+    let recoveryTime = 0
+    await act(async () => {
+      recoveryTime = await result.current.calculateErrorRecovery(mockKeystrokes)
+    })
     expect(recoveryTime).toBeGreaterThanOrEqual(0)
   })
 
@@ -80,12 +89,16 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const timeAnalysis = await result.current.analyzeTimeOfDay(mockSessions)
+    let timeAnalysis: unknown
+    await act(async () => {
+      timeAnalysis = await result.current.analyzeTimeOfDay(mockSessions)
+    })
     expect(Array.isArray(timeAnalysis)).toBe(true)
-    expect(timeAnalysis.length).toBeGreaterThan(0)
-    expect(timeAnalysis[0]).toHaveProperty('timeOfDay')
-    expect(timeAnalysis[0]).toHaveProperty('avgWpm')
-    expect(timeAnalysis[0]).toHaveProperty('avgAccuracy')
+    const arr = timeAnalysis as Record<string, unknown>[]
+    expect(arr.length).toBeGreaterThan(0)
+    expect(arr[0]).toHaveProperty('timeOfDay')
+    expect(arr[0]).toHaveProperty('avgWpm')
+    expect(arr[0]).toHaveProperty('avgAccuracy')
   })
 
   it('should analyze funnel', async () => {
@@ -93,7 +106,10 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const funnelResult = await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
+    let funnelResult!: { stages: unknown[]; conversionRates: number[] }
+    await act(async () => {
+      funnelResult = await result.current.analyzeFunnel(mockSessions, [20, 40, 60])
+    })
     expect(funnelResult).toHaveProperty('stages')
     expect(funnelResult).toHaveProperty('conversionRates')
     expect(Array.isArray(funnelResult.stages)).toBe(true)
@@ -105,7 +121,10 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const matrix = await result.current.calculateCorrelationMatrix(mockSessions)
+    let matrix: number[][] = []
+    await act(async () => {
+      matrix = await result.current.calculateCorrelationMatrix(mockSessions)
+    })
     expect(Array.isArray(matrix)).toBe(true)
     expect(matrix.length).toBeGreaterThan(0)
     expect(matrix[0]?.length).toBeGreaterThan(0)
@@ -113,9 +132,10 @@ describe('useStatsWorker', () => {
 
   it('should handle worker not ready', async () => {
     const { result } = renderHook(() => useStatsWorker())
-    // Пытаемся вызвать до готовности
     try {
-      await result.current.calculateRhythm(mockKeystrokes)
+      await act(async () => {
+        await result.current.calculateRhythm(mockKeystrokes)
+      })
     } catch (error) {
       expect(error).toBeDefined()
     }
@@ -139,9 +159,11 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    // Пустые данные возвращают значение по умолчанию
-    const rhythmScore = await result.current.calculateRhythm([])
-    expect(rhythmScore).toBe(75) // Mock возвращает 75
+    let rhythmScore = 0
+    await act(async () => {
+      rhythmScore = await result.current.calculateRhythm([])
+    })
+    expect(rhythmScore).toBe(75)
   })
 
   it('should handle multiple calculations sequentially', async () => {
@@ -149,13 +171,17 @@ describe('useStatsWorker', () => {
     await waitFor(() => {
       expect(result.current.isReady).toBe(true)
     }, { timeout: 2000 })
-    const rhythm1 = await result.current.calculateRhythm(mockKeystrokes)
+    let rhythm1 = 0
+    await act(async () => {
+      rhythm1 = await result.current.calculateRhythm(mockKeystrokes)
+    })
     act(() => {
       result.current.terminate()
     })
-    // Второй вызов должен失败, т.к. worker terminated
     try {
-      await result.current.calculateRhythm(mockKeystrokes.slice(0, 5))
+      await act(async () => {
+        await result.current.calculateRhythm(mockKeystrokes.slice(0, 5))
+      })
     } catch (error) {
       expect(error).toBeDefined()
     }

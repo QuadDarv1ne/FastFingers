@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import { MotivationalQuote } from '../components/MotivationalQuote'
 import { QUOTES } from '../constants/quotes'
 
@@ -191,7 +191,7 @@ describe('MotivationalQuote с autoChange', () => {
   it('должен автоматически менять цитату при autoChange=true', () => {
     render(<MotivationalQuote autoChange={true} changeInterval={1000} />)
 
-    vi.advanceTimersByTime(1000)
+    act(() => { vi.advanceTimersByTime(1000) })
 
     expect(screen.getByRole('complementary')).toBeInTheDocument()
   })
@@ -199,7 +199,7 @@ describe('MotivationalQuote с autoChange', () => {
   it('не должен менять цитату без autoChange', () => {
     render(<MotivationalQuote autoChange={false} />)
 
-    vi.advanceTimersByTime(5000)
+    act(() => { vi.advanceTimersByTime(5000) })
 
     expect(screen.getByRole('complementary')).toBeInTheDocument()
   })
@@ -207,7 +207,7 @@ describe('MotivationalQuote с autoChange', () => {
   it('должен использовать кастомный интервал', () => {
     render(<MotivationalQuote autoChange={true} changeInterval={500} />)
 
-    vi.advanceTimersByTime(500)
+    act(() => { vi.advanceTimersByTime(500) })
 
     expect(screen.getByRole('complementary')).toBeInTheDocument()
   })

@@ -114,18 +114,16 @@ vi.mock('../utils/confetti', () => ({
   triggerConfetti: vi.fn(() => Promise.resolve()),
 }))
 
-// Мок для Web Worker
+// Мок для Web Worker — отвечает синхронно, чтобы state updates попадали в act()
 class MockWorker {
   onmessage: ((event: MessageEvent) => void) | null = null
   onerror: ((event: Event) => void) | null = null
 
   constructor() {
-    // Имитируем асинхронную инициализацию через microtask (флашится внутри act())
-    queueMicrotask(() => {
-      if (this.onmessage) {
-        this.onmessage({ data: {} } as MessageEvent)
-      }
-    })
+    // Синхронная инициализация — onmessage уже установлен к этому моменту
+    if (this.onmessage) {
+      this.onmessage({ data: {} } as MessageEvent)
+    }
   }
 
   postMessage(message: Record<string, unknown>) {
@@ -184,24 +182,20 @@ class MockWorker {
         default:
           result = { type: 'ERROR', payload: 'Unknown message type', messageId }
       }
-      // Используем microtask вместо setTimeout — флашится внутри act()
-      queueMicrotask(() => {
-        if (this.onmessage) {
-          this.onmessage({ data: result } as MessageEvent)
-        }
-      })
+      // Синхронный ответ — state update попадает в act() scope вызывающего теста
+      if (this.onmessage) {
+        this.onmessage({ data: result } as MessageEvent)
+      }
     } catch (error) {
-      queueMicrotask(() => {
-        if (this.onmessage) {
-          this.onmessage({
-            data: {
-              type: 'ERROR',
-              payload: error instanceof Error ? error.message : 'Unknown error',
-              messageId,
-            },
-          } as MessageEvent)
-        }
-      })
+      if (this.onmessage) {
+        this.onmessage({
+          data: {
+            type: 'ERROR',
+            payload: error instanceof Error ? error.message : 'Unknown error',
+            messageId,
+          },
+        } as MessageEvent)
+      }
     }
   }
 
