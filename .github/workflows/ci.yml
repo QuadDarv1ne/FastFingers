@@ -17,11 +17,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Run ESLint
         run: npm run lint
@@ -36,11 +36,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Run TypeScript type check
         run: npx tsc --noEmit
@@ -55,11 +55,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Run tests
         run: npm run test:run
@@ -81,11 +81,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
@@ -112,11 +112,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Build
         run: npm run build
@@ -139,11 +139,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-fund --no-audit
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.14.x

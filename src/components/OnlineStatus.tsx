@@ -17,14 +17,11 @@ function OnlineStatus() {
         </svg>
         <div className="online-status__text">
           <strong>{t('error.network')}</strong>
-          <p>
-            {t('misc.about')}
-            {lastOffline && (
-              <span className="online-status__time">
-                {' '}{t('common.time')}: {lastOffline.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            )}
-          </p>
+          {lastOffline && (
+            <p className="online-status__time">
+              {t('common.time')}: {lastOffline.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -165,7 +165,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
 
       <p className="text-sm text-dark-400">
         {t('admin.userCount', { count: filteredAndSorted.length, total: users.length })}
-        {search && ` · поиск: "${search}"`}
+        {search && t('admin.searchQuery', { query: search })}
       </p>
 
       {filteredAndSorted.length === 0 && (
@@ -178,7 +178,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
         const sessions = userSessionCounts[u.id]?.sessions ?? 0
         const totalWords = userSessionCounts[u.id]?.totalWords ?? 0
         const totalTime = userSessionCounts[u.id]?.totalTime ?? 0
-        const timeStr = totalTime < 60 ? `${Math.round(totalTime)}с` : `${Math.round(totalTime / 60)}мин`
+        const timeStr = totalTime < 60 ? t('admin.secondsShort', { count: Math.round(totalTime) }) : t('admin.minutesShort', { count: Math.round(totalTime / 60) })
 
         return (
           <div key={u.id} className="glass rounded-xl p-4">
@@ -200,18 +200,18 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                   {u.role === 'admin' ? t('admin.roleAdmin', 'Admin') : t('admin.roleUser', 'User')}
                 </span>
                 {u.id === currentUser?.id && (
-                  <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Вы</span>
+                  <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">{t('admin.you')}</span>
                 )}
               </div>
               <p className="text-xs text-dark-400">{u.email}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-dark-500">
-                {u.lastLogin && <span>Последний вход: {formatDate(u.lastLogin)}</span>}
-                <span>Регистрация: {formatDate(u.createdAt)}</span>
+                {u.lastLogin && <span>{t('admin.lastLogin')} {formatDate(u.lastLogin)}</span>}
+                <span>{t('admin.registered')} {formatDate(u.createdAt)}</span>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-dark-500">
-                <span>Уровень {u.stats?.level ?? 0} · {u.stats?.totalXp ?? 0} XP</span>
-                <span>{u.stats?.bestWpm ?? 0} WPM · {u.stats?.totalWordsTyped ?? 0} слов</span>
-                {sessions > 0 && <span>{sessions} тренировок · {totalWords} слов · {timeStr}</span>}
+                <span>{t('admin.level', { level: u.stats?.level ?? 0 })} · {u.stats?.totalXp ?? 0} XP</span>
+                <span>{u.stats?.bestWpm ?? 0} WPM · {u.stats?.totalWordsTyped ?? 0} {t('admin.words')}</span>
+                {sessions > 0 && <span>{t('admin.sessionsCount', { count: sessions })} · {totalWords} {t('admin.words')} · {timeStr}</span>}
               </div>
             </div>
             <div className="flex gap-1 flex-wrap">
@@ -220,7 +220,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                   onClick={() => onViewStudent(u.id, u.name || u.email)}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary-500/20 text-primary-400 hover:bg-primary-500/30 transition-colors"
                 >
-                  📊 Аналитика
+                  {t('admin.analytics')}
                 </button>
               )}
               {u.id !== currentUser?.id && (
@@ -239,7 +239,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
                     onClick={() => deleteUser(u.id)}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium bg-error/10 text-error hover:bg-error/20 transition-colors"
                   >
-                    🗑 Удалить
+                    {t('admin.deleteUser')}
                   </button>
                 </>
               )}

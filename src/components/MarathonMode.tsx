@@ -41,7 +41,6 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
   const [showMilestone, setShowMilestone] = useState<string | null>(null)
   const [combo, setCombo] = useState(0)
   const [maxCombo, setMaxCombo] = useState(0)
-  const milestoneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const {
     text,
@@ -111,15 +110,6 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
     const timer = setTimeout(() => setShowMilestone(null), 3000)
     return () => clearTimeout(timer)
   }, [showMilestone])
-
-  useEffect(() => {
-    return () => {
-      if (milestoneTimerRef.current) {
-        clearTimeout(milestoneTimerRef.current)
-        milestoneTimerRef.current = null
-      }
-    }
-  }, [])
 
   // Подсчёт комбо
   useEffect(() => {
@@ -273,7 +263,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
             />
           </div>
           <p className="text-xs text-dark-400">
-            {currentMilestone} / {MILESTONE_INTERVALS.length} этапов
+            {currentMilestone} / {MILESTONE_INTERVALS.length} {t('marathon.stages')}
           </p>
         </div>
       </div>
@@ -288,9 +278,9 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
           <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full animate-combo-scale">
             <span className="text-2xl">🔥</span>
             <span className="text-lg font-bold text-gradient">
-              Комбо: {combo}
+              {t('marathon.combo')}: {combo}
             </span>
-            {combo >= 10 && <span className="text-xs text-yellow-400">Максимум: {maxCombo}</span>}
+            {combo >= 10 && <span className="text-xs text-yellow-400">{t('marathon.maxCombo')}: {maxCombo}</span>}
           </div>
         </motion.div>
       )}
@@ -312,7 +302,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
           <p className="text-2xl font-bold text-dark-300" aria-live="polite">{currentIndex}</p>
         </div>
         <div className="bg-dark-800 rounded-lg p-3 text-center">
-          <p className="text-xs text-dark-400">Этап</p>
+          <p className="text-xs text-dark-400">{t('marathon.stage')}</p>
           <p className="text-2xl font-bold text-purple-400" aria-live="polite">{currentMilestone + 1}</p>
         </div>
       </div>
@@ -329,7 +319,7 @@ export const MarathonMode = memo(function MarathonMode({ onExit, onComplete, sou
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
-          spellCheck="false"
+          spellCheck={false}
         />
 
         <TypingTextDisplay

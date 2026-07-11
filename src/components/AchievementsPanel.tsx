@@ -112,7 +112,11 @@ export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
       return ach
     })
 
-    if (JSON.stringify(updated) !== JSON.stringify(achievements)) {
+    const hasChanges = updated.some((ach, i) => {
+      const prev = achievements[i]
+      return prev && (ach.unlocked !== prev.unlocked || ach.unlockedAt !== prev.unlockedAt)
+    })
+    if (hasChanges) {
       setAchievements(updated)
     }
   }, [stats, achievements, setAchievements])

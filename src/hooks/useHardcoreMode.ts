@@ -50,12 +50,16 @@ export function useHardcoreMode({
 
   const inputRef = useRef<HTMLInputElement>(null)
   const textLengthRef = useRef(0)
+  const textRef = useRef(text)
   const streakRef = useRef(0)
   const pendingCompletionRef = useRef(false)
   const inputResultsRef = useRef(inputResults)
+  const currentIndexRef = useRef(currentIndex)
   const startTimeRef = useRef(startTime)
   streakRef.current = streak
   inputResultsRef.current = inputResults
+  textRef.current = text
+  currentIndexRef.current = currentIndex
   startTimeRef.current = startTime
 
   const calculateCorrectCount = useCallback((results: Array<{ isCorrect: boolean }>): number => {
@@ -124,8 +128,10 @@ export function useHardcoreMode({
       const newChar = value[value.length - 1]
       if (!newChar) return
 
-      if (currentIndex < textLengthRef.current) {
-        const expectedChar = text[currentIndex]
+      const idx = currentIndexRef.current
+      const currentText = textRef.current
+      if (idx < textLengthRef.current) {
+        const expectedChar = currentText[idx]
         const isCorrect = newChar === expectedChar
 
         if (!isCorrect) {
@@ -140,7 +146,7 @@ export function useHardcoreMode({
 
         setInputResults(prev => [...prev, { isCorrect: true, char: newChar }])
 
-        if (currentIndex >= textLengthRef.current - 1) {
+        if (idx >= textLengthRef.current - 1) {
           pendingCompletionRef.current = true
         }
 
@@ -151,7 +157,7 @@ export function useHardcoreMode({
     } finally {
       isHandlingInput.current = false
     }
-  }, [isActive, countdown, text, currentIndex, sound, handleMistake, handleStart])
+  }, [isActive, countdown, sound, handleMistake, handleStart])
 
   // Process deferred text generation outside of setState updaters
   useEffect(() => {

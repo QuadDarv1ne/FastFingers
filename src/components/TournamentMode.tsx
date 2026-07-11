@@ -388,7 +388,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            spellCheck="false"
+            spellCheck={false}
           />
           <TypingTextDisplay
             text={matchText}

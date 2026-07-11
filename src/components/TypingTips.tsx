@@ -104,7 +104,7 @@ export function TypingTips() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold">💡 {t('nav.tips')}</h2>
-          <p className="text-sm text-dark-400">Правила и рекомендации для быстрого обучения</p>
+          <p className="text-sm text-dark-400">{t('tip.subtitle')}</p>
         </div>
       </div>
 

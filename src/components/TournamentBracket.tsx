@@ -71,7 +71,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
     }
 
     const allRounds: BracketRound[] = [{
-      name: 'Раунд 1',
+      name: t('tournament.round', { round: 1 }),
       matches: firstRoundMatches,
     }]
 
@@ -80,7 +80,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
 
     for (let round = 2; round <= numRounds; round++) {
       const roundMatches: BracketMatch[] = []
-      const roundName = round === numRounds ? 'Финал' : round === numRounds - 1 ? 'Полуфинал' : `Раунд ${round}`
+      const roundName = round === numRounds ? t('tournament.final') : round === numRounds - 1 ? t('tournament.semifinal') : t('tournament.round', { round })
 
       for (let i = 0; i < prevRoundWinners.length; i += 2) {
         const player1 = prevRoundWinners[i] ?? null
@@ -113,7 +113,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
     }
 
     return allRounds
-  }, [participants])
+  }, [participants, t])
 
   const lastRound = rounds.length > 0 ? rounds[rounds.length - 1] : undefined
   const champion = lastRound?.matches[0]?.winner || null
@@ -126,14 +126,14 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
           <h2 className="text-2xl font-bold text-gradient flex items-center gap-2">
             🏆 {tournament.name}
           </h2>
-          <p className="text-sm text-dark-400">Турнирная сетка</p>
+          <p className="text-sm text-dark-400">{t('tournament.bracketTitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
             className="px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded-lg text-sm font-medium transition-colors"
           >
-            ← Назад
+            {t('action.back')}
           </button>
           <button
             onClick={onExit}
@@ -161,7 +161,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
               {champion.user_avatar || champion.user_name?.[0]?.toUpperCase() || '🏆'}
             </div>
             <div>
-              <p className="text-xl font-bold">{champion.user_name || 'Неизвестен'}</p>
+              <p className="text-xl font-bold">{champion.user_name || t('tournament.unknownPlayer')}</p>
               <p className="text-sm text-dark-400">
                 {champion.wpm || champion.score || 0} WPM • {champion.accuracy || 0}% точность
               </p>
@@ -203,19 +203,19 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
 
       {/* Легенда */}
       <div className="mt-6 pt-6 border-t border-dark-700">
-        <h4 className="text-sm font-medium text-dark-400 mb-3">Условные обозначения</h4>
+        <h4 className="text-sm font-medium text-dark-400 mb-3">{t('tournament.legend')}</h4>
         <div className="flex flex-wrap gap-4 text-xs text-dark-500">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500/30 border border-green-500 rounded" />
-            <span>Победитель</span>
+            <span>{t('tournament.winner')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-dark-700 border border-dark-600 rounded" />
-            <span>Ожидание матча</span>
+            <span>{t('tournament.awaitingMatch')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-primary-600/30 border border-primary-500 rounded" />
-            <span>Ваш матч</span>
+            <span>{t('tournament.yourMatch')}</span>
           </div>
         </div>
       </div>
@@ -230,6 +230,7 @@ interface BracketMatchCardProps {
 
 function BracketMatchCard({ match, isFinalRound }: BracketMatchCardProps) {
   const { user } = useAuth()
+  const { t } = useAppTranslation()
   const currentUserId = user?.id || ''
   const isUserMatch = match.player1?.user_id === currentUserId || match.player2?.user_id === currentUserId
 
@@ -256,11 +257,11 @@ function BracketMatchCard({ match, isFinalRound }: BracketMatchCardProps) {
                 {match.player1.user_avatar || match.player1.user_name?.[0]?.toUpperCase() || '?'}
               </div>
               <span className="text-sm font-medium truncate">
-                {match.player1.user_name || 'Игрок'}
+                {match.player1.user_name || t('tournament.defaultPlayer')}
               </span>
             </>
           ) : (
-            <span className="text-sm text-dark-600 italic">Ожидание...</span>
+            <span className="text-sm text-dark-600 italic">{t('tournament.awaitingMatch')}...</span>
           )}
         </div>
         {match.player1 && (
@@ -284,11 +285,11 @@ function BracketMatchCard({ match, isFinalRound }: BracketMatchCardProps) {
                 {match.player2.user_avatar || match.player2.user_name?.[0]?.toUpperCase() || '?'}
               </div>
               <span className="text-sm font-medium truncate">
-                {match.player2.user_name || 'Игрок'}
+                {match.player2.user_name || t('tournament.defaultPlayer')}
               </span>
             </>
           ) : (
-            <span className="text-sm text-dark-600 italic">Ожидание...</span>
+            <span className="text-sm text-dark-600 italic">{t('tournament.awaitingMatch')}...</span>
           )}
         </div>
         {match.player2 && (
@@ -300,9 +301,9 @@ function BracketMatchCard({ match, isFinalRound }: BracketMatchCardProps) {
 
       {/* Статус матча */}
       {!match.player1 || !match.player2 ? (
-        <p className="text-xs text-dark-500 text-center mt-2">Ожидание игроков</p>
+        <p className="text-xs text-dark-500 text-center mt-2">{t('tournament.waitingForPlayers')}</p>
       ) : !match.winner ? (
-        <p className="text-xs text-dark-500 text-center mt-2">Матч идет...</p>
+        <p className="text-xs text-dark-500 text-center mt-2">{t('tournament.matchInProgress')}</p>
       ) : null}
     </motion.div>
   )

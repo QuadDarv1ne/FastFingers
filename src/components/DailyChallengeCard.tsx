@@ -54,10 +54,10 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
     if (!today) return
-    const dailyChallenge = generateDailyChallenge(today)
+    const dailyChallenge = generateDailyChallenge(today, t)
     const challengeProgress = progress[dailyChallenge?.id] || { completed: false, progress: 0 }
     setLocalChallenge({ ...dailyChallenge, completed: challengeProgress.completed, progress: challengeProgress.progress })
-  }, [progress])
+  }, [progress, t])
 
   useEffect(() => {
     const active = challengeProp ?? localChallenge
@@ -161,15 +161,15 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
   )
 }
 
-function generateDailyChallenge(date: string): DailyChallenge {
+function generateDailyChallenge(date: string, t: (key: string) => string): DailyChallenge {
   const seed = date.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
   
   const challenges: Omit<DailyChallenge, 'completed' | 'progress'>[] = [
     {
       id: `daily-${date}-speed`,
       date,
-      title: 'Скоростная печать',
-      description: 'Достигните высокой скорости печати',
+      title: t('challenge.speedTitle'),
+      description: t('challenge.speedDesc'),
       goal: {
         type: 'wpm',
         target: 60 + (seed % 40),
@@ -184,8 +184,8 @@ function generateDailyChallenge(date: string): DailyChallenge {
     {
       id: `daily-${date}-accuracy`,
       date,
-      title: 'Точность',
-      description: 'Напечатайте текст с минимальными ошибками',
+      title: t('challenge.accuracyTitle'),
+      description: t('challenge.accuracyDesc'),
       goal: {
         type: 'accuracy',
         target: 95 + (seed % 5),
@@ -200,12 +200,12 @@ function generateDailyChallenge(date: string): DailyChallenge {
     {
       id: `daily-${date}-endurance`,
       date,
-      title: 'Выносливость',
-      description: 'Напечатайте большое количество слов',
+      title: t('challenge.enduranceTitle'),
+      description: t('challenge.enduranceDesc'),
       goal: {
         type: 'words',
         target: 50 + (seed % 100),
-        unit: 'слов',
+        unit: t('common.words'),
       },
       reward: {
         points: 120 + (seed % 60),
@@ -221,8 +221,8 @@ function generateDailyChallenge(date: string): DailyChallenge {
     return {
       id: 'default',
       date: new Date().toISOString(),
-      title: 'Ежедневное испытание',
-      description: 'Пройдите испытание дня',
+      title: t('challenge.fallbackTitle'),
+      description: t('challenge.fallbackDesc'),
       goal: { type: 'wpm' as const, target: 60, unit: 'WPM' },
       reward: { points: 100, badge: '🏆' },
       difficulty: 'medium' as const,

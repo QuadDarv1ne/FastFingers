@@ -271,11 +271,13 @@ export async function flushPendingSessions(): Promise<void> {
         total_chars: session.stats.totalChars,
         duration: Math.floor(session.stats.timeElapsed),
         xp: session.xp,
+      }).then(({ error }) => {
+        if (error) throw error
       })
     })
   )
 
-  // Keep only failed sessions
+  // Keep only failed sessions (rejected or fulfilled with error)
   const remaining = pending.filter((_, i) => results[i]?.status === 'rejected')
   try {
     localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))

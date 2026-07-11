@@ -289,7 +289,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
-          spellCheck="false"
+          spellCheck={false}
         />
 
         <div className="font-mono text-base leading-relaxed break-all whitespace-pre-wrap">

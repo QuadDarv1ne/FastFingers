@@ -269,7 +269,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
     [t],
   )
 
-  const renderedChars = text.split('').map((char, i) => {
+  const renderedChars = useMemo(() => text.split('').map((char, i) => {
     if (!char) return null
     let status: 'correct' | 'incorrect' | 'current' | 'pending' = 'pending'
     if (i < currentIndex) {
@@ -285,7 +285,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
         status={status}
       />
     )
-  })
+  }), [text, currentIndex, inputResults, isComplete])
 
   const liveRegionText = useMemo(() => {
     const label = t('trainer.liveRegion')

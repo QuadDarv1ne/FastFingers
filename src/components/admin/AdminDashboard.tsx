@@ -126,19 +126,19 @@ function AdminOverview() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="glass rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-success">{avgWpmAll}</div>
-            <div className="text-xs text-dark-400 mt-1">Средний лучший WPM</div>
+            <div className="text-xs text-dark-400 mt-1">{t('admin.avgBestWpmLabel')}</div>
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-blue-400">{totalWordsAll.toLocaleString()}</div>
-            <div className="text-xs text-dark-400 mt-1">Всего слов набрано</div>
+            <div className="text-xs text-dark-400 mt-1">{t('admin.totalWordsAll')}</div>
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-cyan-400">{formatDuration(totalPracticeTimeAll)}</div>
-            <div className="text-xs text-dark-400 mt-1">Общее время практики</div>
+            <div className="text-xs text-dark-400 mt-1">{t('admin.totalPracticeTimeLabel')}</div>
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-yellow-400">{staticTextsCount}</div>
-            <div className="text-xs text-dark-400 mt-1">Статических текстов</div>
+            <div className="text-xs text-dark-400 mt-1">{t('admin.staticTextsCount')}</div>
           </div>
         </div>
       )}
@@ -147,7 +147,7 @@ function AdminOverview() {
       {topByWpm.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="glass rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-white mb-3">🚀 Лучшие по WPM</h3>
+            <h3 className="text-sm font-semibold text-white mb-3">{t('admin.topByWpmTitle')}</h3>
             <div className="space-y-2">
               {topByWpm.map((u, i) => (
                 <div key={u.id} className="flex items-center justify-between text-sm">
@@ -161,7 +161,7 @@ function AdminOverview() {
             </div>
           </div>
           <div className="glass rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-white mb-3">⭐ Лучшие по XP</h3>
+            <h3 className="text-sm font-semibold text-white mb-3">{t('admin.topByXpTitle')}</h3>
             <div className="space-y-2">
               {topByXp.map((u, i) => (
                 <div key={u.id} className="flex items-center justify-between text-sm">
@@ -194,7 +194,7 @@ function AdminOverview() {
             <dd className="text-white">{user?.name || user?.email}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-dark-400">Хранилище данных</dt>
+            <dt className="text-dark-400">{t('admin.dataStorage')}</dt>
             <dd className="text-white">{(new Blob([JSON.stringify(localStorage)]).size / 1024).toFixed(1)} КБ</dd>
           </div>
         </dl>

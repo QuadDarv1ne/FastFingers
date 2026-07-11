@@ -205,7 +205,7 @@ export const SprintMode = memo(function SprintMode({ duration, onExit, onComplet
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
-          spellCheck="false"
+          spellCheck={false}
         />
 
         <TypingTextDisplay

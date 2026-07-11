@@ -11,12 +11,6 @@ import { useAppTranslation } from '../i18n/config'
 import { lessons, isLessonUnlocked } from '@utils/lessons'
 import type { Lesson, LessonLayout } from '@utils/lessons'
 
-const LAYOUT_META: Record<LessonLayout, { label: string; flag: string; desc: string }> = {
-  jcuken: { label: 'JCUKEN', flag: '🇷🇺', desc: 'Русская раскладка' },
-  qwerty: { label: 'QWERTY', flag: '🇺🇸', desc: 'English layout' },
-  dvorak: { label: 'Dvorak', flag: '🇺🇸', desc: 'Dvorak layout' },
-}
-
 interface LearningModeProps {
   onClose: () => void
   onStartLesson: (lesson: Lesson, exercise: string) => void
@@ -30,6 +24,12 @@ export const LearningMode = memo(function LearningMode({ onClose, onStartLesson 
   )
   const [layout, setLayout] = useState<LessonLayout>('jcuken')
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
+
+  const layoutMeta = useMemo(() => ({
+    jcuken: { label: 'JCUKEN', flag: '🇷🇺', desc: t('layout.jcukenDesc') },
+    qwerty: { label: 'QWERTY', flag: '🇺🇸', desc: t('layout.qwertyDesc') },
+    dvorak: { label: 'Dvorak', flag: '🇺🇸', desc: t('layout.dvorakDesc') },
+  }), [t])
 
   const layoutLessons = useMemo(
     () => lessons.filter(l => l.layout === layout),
@@ -94,8 +94,8 @@ export const LearningMode = memo(function LearningMode({ onClose, onStartLesson 
 
           {/* Layout Selector */}
           <div className="flex gap-2 mt-4">
-            {(Object.keys(LAYOUT_META) as LessonLayout[]).map(key => {
-              const meta = LAYOUT_META[key]
+            {(Object.keys(layoutMeta) as LessonLayout[]).map(key => {
+              const meta = layoutMeta[key]
               const count = lessons.filter(l => l.layout === key).length
               const done = lessons.filter(l => l.layout === key && progress[String(l.id)]).length
               return (
@@ -119,9 +119,9 @@ export const LearningMode = memo(function LearningMode({ onClose, onStartLesson 
           {/* Progress */}
           <div className="mt-3">
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-dark-400">{LAYOUT_META[layout].desc} — прогресс</span>
+              <span className="text-dark-400">{layoutMeta[layout].desc} — {t('stats.progress')}</span>
               <span className="font-semibold">
-                {completedCount} / {enrichedLessons.length} уроков
+                {t('learning.lessonsCount', { count: enrichedLessons.length })}
               </span>
             </div>
             <div className="w-full h-2 bg-dark-800 rounded-full overflow-hidden">
@@ -176,13 +176,13 @@ export const LearningMode = memo(function LearningMode({ onClose, onStartLesson 
 
                     {/* Requirements */}
                     <div className="flex gap-4 text-xs text-dark-500 mb-4">
-                      <span>Мин. WPM: <strong className="text-dark-300">{selectedLesson.minWpm}</strong></span>
-                      <span>Мин. точность: <strong className="text-dark-300">{selectedLesson.minAccuracy}%</strong></span>
+                      <span>{t('learning.minWpm')}: <strong className="text-dark-300">{selectedLesson.minWpm}</strong></span>
+                      <span>{t('learning.minAccuracy')}: <strong className="text-dark-300">{selectedLesson.minAccuracy}%</strong></span>
                     </div>
 
                     {selectedLesson.focusKeys.length > 0 && (
                       <div>
-                        <p className="text-sm text-dark-400 mb-2">Клавиши для изучения:</p>
+                        <p className="text-sm text-dark-400 mb-2">{t('learning.keysToLearn')}</p>
                         <div className="flex flex-wrap gap-2">
                           {selectedLesson.focusKeys.map(key => (
                             <div
@@ -199,7 +199,7 @@ export const LearningMode = memo(function LearningMode({ onClose, onStartLesson 
                 </div>
               </div>
 
-              <h4 className="text-lg font-semibold mb-4">Упражнение</h4>
+              <h4 className="text-lg font-semibold mb-4">{t('learning.exercise')}</h4>
               <div className="card p-4 border border-dark-700/30">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -239,6 +239,7 @@ function LessonCard({
   isLocked: boolean
   onSelect: () => void
 }) {
+  const { t } = useAppTranslation()
   return (
     <button
       onClick={onSelect}
@@ -257,7 +258,7 @@ function LessonCard({
           <div className="flex items-start justify-between mb-1">
             <div>
               <h3 className="font-semibold text-sm">{lesson.title}</h3>
-              <p className="text-xs text-dark-500">Сложность {lesson.difficulty}/10</p>
+              <p className="text-xs text-dark-500">{t('learning.difficultyShort')} {lesson.difficulty}/10</p>
             </div>
             {lesson.completed && (
               <span className="text-green-400 text-sm flex-shrink-0 ml-2">✓</span>
@@ -267,11 +268,11 @@ function LessonCard({
           <div className="flex items-center gap-3 text-xs text-dark-500">
             <span>WPM ≥ {lesson.minWpm}</span>
             <span>•</span>
-            <span>Точность ≥ {lesson.minAccuracy}%</span>
+            <span>{t('learning.accuracyRequirement', { accuracy: lesson.minAccuracy })}</span>
             {lesson.focusKeys.length > 0 && (
               <>
                 <span>•</span>
-                <span>{lesson.focusKeys.length} клавиш</span>
+                <span>{t('learning.keysCount', { count: lesson.focusKeys.length })}</span>
               </>
             )}
           </div>

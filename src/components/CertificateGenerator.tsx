@@ -294,6 +294,8 @@ export const CertificateGenerator = memo<CertificateGeneratorProps>(function Cer
     prevProps.accuracy === nextProps.accuracy &&
     prevProps.cpm === nextProps.cpm &&
     prevProps.testType === nextProps.testType &&
+    prevProps.level === nextProps.level &&
+    prevProps.streak === nextProps.streak &&
     prevProps.onClose === nextProps.onClose
   )
 })

@@ -557,7 +557,7 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              spellCheck="false"
+              spellCheck={false}
             />
             <TypingTextDisplay
               text={text}

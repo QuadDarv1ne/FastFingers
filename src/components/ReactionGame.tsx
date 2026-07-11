@@ -190,21 +190,6 @@ export const ReactionGame = memo(function ReactionGame({ onExit, onComplete }: R
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isPlaying, handleTargetClick])
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    // Capture refs at subscription time for cleanup
-    const timeouts = timeoutIdsRef.current
-    const targetTimeouts = targetTimeoutsRef.current
-
-    return () => {
-      for (const id of timeouts) {
-        clearTimeout(id)
-      }
-      timeouts.clear()
-      targetTimeouts.clear()
-    }
-  }, [])
-
   const progress = ((GAME_DURATION - timeLeft) / GAME_DURATION) * 100
 
   return (
