@@ -100,7 +100,7 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
         >
           ⌨️
         </div>
-        <span className="text-sm hidden sm:inline">{currentSkin.label}</span>
+        <span className="text-sm hidden sm:inline">{t(currentSkin.labelKey)}</span>
         <svg
           className={`w-4 h-4 transition-transform ${showMenu ? 'rotate-180' : ''}`}
           fill="none"
@@ -161,8 +161,8 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
                   </div>
 
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium">{preset.label}</p>
-                    <p className="text-xs text-dark-400">{preset.description}</p>
+                    <p className="text-sm font-medium">{t(preset.labelKey)}</p>
+                    <p className="text-xs text-dark-400">{t(preset.descriptionKey)}</p>
                   </div>
 
                   {skin === preset.value && (

@@ -219,13 +219,13 @@ export function getKeyboardSkin(skin: KeyboardSkin): KeyboardSkinColors {
 
 /** Список всех скинов с метаданными */
 export const keyboardSkinPresets = [
-  { value: 'classic' as KeyboardSkin, label: 'Классика', icon: '⌨️', description: 'Классическая тёмная тема' },
-  { value: 'neon' as KeyboardSkin, label: 'Неон', icon: '✨', description: 'Яркие неоновые цвета' },
-  { value: 'cyberpunk' as KeyboardSkin, label: 'Киберпанк', icon: '🤖', description: 'Футуристичный стиль' },
-  { value: 'minimal' as KeyboardSkin, label: 'Минимализм', icon: '⚪', description: 'Чистый светлый дизайн' },
-  { value: 'ocean' as KeyboardSkin, label: 'Океан', icon: '🌊', description: 'Морские оттенки' },
-  { value: 'sunset' as KeyboardSkin, label: 'Закат', icon: '🌅', description: 'Тёплые цвета заката' },
-  { value: 'matrix' as KeyboardSkin, label: 'Матрица', icon: '🟩', description: 'Легендарный зелёный' },
-  { value: 'monokai' as KeyboardSkin, label: 'Monokai', icon: '🎨', description: 'Популярная тема редактора' },
-  { value: 'galaxy' as KeyboardSkin, label: 'Галактика', icon: '🌌', description: 'Фиолетовые космические оттенки' },
+  { value: 'classic' as KeyboardSkin, labelKey: 'skin.classic', icon: '⌨️', descriptionKey: 'skin.classicDesc' },
+  { value: 'neon' as KeyboardSkin, labelKey: 'skin.neon', icon: '✨', descriptionKey: 'skin.neonDesc' },
+  { value: 'cyberpunk' as KeyboardSkin, labelKey: 'skin.cyberpunk', icon: '🤖', descriptionKey: 'skin.cyberpunkDesc' },
+  { value: 'minimal' as KeyboardSkin, labelKey: 'skin.minimal', icon: '⚪', descriptionKey: 'skin.minimalDesc' },
+  { value: 'ocean' as KeyboardSkin, labelKey: 'skin.ocean', icon: '🌊', descriptionKey: 'skin.oceanDesc' },
+  { value: 'sunset' as KeyboardSkin, labelKey: 'skin.sunset', icon: '🌅', descriptionKey: 'skin.sunsetDesc' },
+  { value: 'matrix' as KeyboardSkin, labelKey: 'skin.matrix', icon: '🟩', descriptionKey: 'skin.matrixDesc' },
+  { value: 'monokai' as KeyboardSkin, labelKey: 'skin.monokai', icon: '🎨', descriptionKey: 'skin.monokaiDesc' },
+  { value: 'galaxy' as KeyboardSkin, labelKey: 'skin.galaxy', icon: '🌌', descriptionKey: 'skin.galaxyDesc' },
 ] as const
