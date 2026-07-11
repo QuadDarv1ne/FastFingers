@@ -83,13 +83,10 @@ const tips: Tip[] = [
   },
 ]
 
-const categories = [
-  { id: 'all', label: 'Все', icon: '📚' },
-  { id: 'posture', label: 'Осанка', icon: '🪑' },
-  { id: 'technique', label: 'Техника', icon: '🎯' },
-  { id: 'practice', label: 'Практика', icon: '⏰' },
-  { id: 'health', label: 'Здоровье', icon: '🧘' },
-]
+type CategoryId = 'all' | 'posture' | 'technique' | 'practice' | 'health'
+const categoryIds: CategoryId[] = ['all', 'posture', 'technique', 'practice', 'health']
+const categoryIcons: Record<CategoryId, string> = { all: '📚', posture: '🪑', technique: '🎯', practice: '⏰', health: '🧘' }
+const categoryKeyMap: Record<CategoryId, string> = { all: 'tip.all', posture: 'tip.postureCategory', technique: 'tip.techniqueCategory', practice: 'tip.practiceCategory', health: 'tip.healthCategory' }
 
 export function TypingTips() {
   const { t } = useAppTranslation()
@@ -110,19 +107,19 @@ export function TypingTips() {
 
       {/* Категории */}
       <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label={t('tip.categories')}>
-        {categories.map(cat => (
+        {categoryIds.map(id => (
           <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            key={id}
+            onClick={() => setSelectedCategory(id)}
             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-              selectedCategory === cat.id
+              selectedCategory === id
                 ? 'bg-primary-600 text-white'
                 : 'bg-dark-800 text-dark-400 hover:text-white'
             }`}
-            aria-pressed={selectedCategory === cat.id}
+            aria-pressed={selectedCategory === id}
           >
-            <span aria-hidden="true">{cat.icon}</span>
-            <span className="hidden sm:inline">{cat.label}</span>
+            <span aria-hidden="true">{categoryIcons[id]}</span>
+            <span className="hidden sm:inline">{t(categoryKeyMap[id])}</span>
           </button>
         ))}
       </div>

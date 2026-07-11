@@ -1365,5 +1365,6 @@
   "tournament.minParticipants": "Для начала турнира необходимо минимум 2 участника",
   "stats.period24h": "24 часа",
   "stats.period7d": "7 дней",
-  "stats.period30d": "30 дней"
+  "stats.period30d": "30 дней",
+  "common.kb": "КБ"
 }

@@ -2,43 +2,35 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
 
-// Мок для framer-motion
+// Мок для framer-motion — strip motion-specific props to avoid DOM warnings
+import { createElement } from 'react'
+
+const motionPropNames = new Set([
+  'animate', 'exit', 'initial', 'transition', 'variants',
+  'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
+  'layout', 'layoutId', 'drag', 'dragConstraints', 'dragElastic',
+  'dragSnapToOrigin', 'onAnimationStart', 'onAnimationComplete',
+])
+
 vi.mock('framer-motion', async () => {
   const actual = await vi.importActual('framer-motion')
-  return {
-    ...actual,
-    motion: {
-      div: 'div',
-      span: 'span',
-      button: 'button',
-      input: 'input',
-      p: 'p',
-      h1: 'h1',
-      h2: 'h2',
-      h3: 'h3',
-      h4: 'h4',
-      li: 'li',
-      ul: 'ul',
-      nav: 'nav',
-      header: 'header',
-      footer: 'footer',
-      main: 'main',
-      section: 'section',
-      article: 'article',
-      aside: 'aside',
-      svg: 'svg',
-      path: 'path',
-      line: 'line',
-      circle: 'circle',
-      rect: 'rect',
-      g: 'g',
-      text: 'text',
-      tspan: 'tspan',
-      defs: 'defs',
-      linearGradient: 'linearGradient',
-      stop: 'stop',
-    },
+  const motionTags = [
+    'div', 'span', 'button', 'input', 'p', 'h1', 'h2', 'h3', 'h4',
+    'li', 'ul', 'nav', 'header', 'footer', 'main', 'section', 'article', 'aside',
+    'svg', 'path', 'line', 'circle', 'rect', 'g', 'text', 'tspan', 'defs',
+    'linearGradient', 'stop',
+  ] as const
+  const motion: Record<string, React.ComponentType<Record<string, unknown>>> = {}
+  for (const tag of motionTags) {
+    motion[tag] = ({ children, ...rest }: Record<string, unknown>) => {
+      const safe: Record<string, unknown> = {}
+      for (const [k, v] of Object.entries(rest)) {
+        if (!motionPropNames.has(k)) safe[k] = v
+      }
+      return createElement(tag, safe, children)
+    }
   }
+  return { ...actual, motion }
 })
 
 // Очищать DOM после каждого теста

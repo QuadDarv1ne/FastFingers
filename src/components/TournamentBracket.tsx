@@ -163,7 +163,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
             <div>
               <p className="text-xl font-bold">{champion.user_name || t('tournament.unknownPlayer')}</p>
               <p className="text-sm text-dark-400">
-                {champion.wpm || champion.score || 0} WPM • {champion.accuracy || 0}% точность
+                {champion.wpm || champion.score || 0} WPM • {t('tournament.championAccuracy', { accuracy: String(champion.accuracy || 0) })}
               </p>
             </div>
           </div>
@@ -173,9 +173,9 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
       {/* Турнирная сетка */}
       {rounds.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-dark-400">Ожидание участников...</p>
+          <p className="text-dark-400">{t('tournament.waitingParticipants')}</p>
           <p className="text-sm text-dark-500 mt-2">
-            Для начала турнира необходимо минимум 2 участника
+            {t('tournament.minParticipants')}
           </p>
         </div>
       ) : (

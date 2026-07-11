@@ -482,5 +482,6 @@
   "tournament.minParticipants": "Pelo menos 2 participantes são necessários",
   "stats.period24h": "24 horas",
   "stats.period7d": "7 dias",
-  "stats.period30d": "30 dias"
+  "stats.period30d": "30 dias",
+  "common.kb": "KB"
 }

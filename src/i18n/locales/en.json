@@ -1365,5 +1365,6 @@
   "tournament.minParticipants": "At least 2 participants are required to start the tournament",
   "stats.period24h": "24 hours",
   "stats.period7d": "7 days",
-  "stats.period30d": "30 days"
+  "stats.period30d": "30 days",
+  "common.kb": "KB"
 }

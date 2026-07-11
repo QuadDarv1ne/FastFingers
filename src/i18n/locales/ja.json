@@ -482,5 +482,6 @@
   "tournament.minParticipants": "少なくとも2人の参加者が必要です",
   "stats.period24h": "24時間",
   "stats.period7d": "7日",
-  "stats.period30d": "30日"
+  "stats.period30d": "30日",
+  "common.kb": "KB"
 }

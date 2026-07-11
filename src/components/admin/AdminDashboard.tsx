@@ -109,15 +109,15 @@ function AdminOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass rounded-xl p-5 text-center">
           <div className="text-3xl font-bold text-white">{totalUsers}</div>
-          <div className="text-sm text-dark-400 mt-1">{t('admin.users', 'Пользователей')}</div>
+          <div className="text-sm text-dark-400 mt-1">{t('admin.users')}</div>
         </div>
         <div className="glass rounded-xl p-5 text-center">
           <div className="text-3xl font-bold text-white">{customTexts}</div>
-          <div className="text-sm text-dark-400 mt-1">{t('admin.customTexts', 'Пользовательских текстов')}</div>
+          <div className="text-sm text-dark-400 mt-1">{t('admin.customTexts')}</div>
         </div>
         <div className="glass rounded-xl p-5 text-center">
           <div className="text-3xl font-bold text-white">{totalSessions}</div>
-          <div className="text-sm text-dark-400 mt-1">{t('admin.sessions', 'Тренировок')}</div>
+          <div className="text-sm text-dark-400 mt-1">{t('admin.sessions')}</div>
         </div>
       </div>
 
@@ -179,23 +179,23 @@ function AdminOverview() {
 
       {/* System info */}
       <div className="glass rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-3">{t('admin.systemInfo', 'Информация о системе')}</h3>
+        <h3 className="text-lg font-semibold text-white mb-3">{t('admin.systemInfo')}</h3>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-dark-400">{t('admin.version', 'Версия приложения')}</dt>
+            <dt className="text-dark-400">{t('admin.version')}</dt>
             <dd className="text-white">{APP_VERSION}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-dark-400">{t('admin.authMode', 'Режим аутентификации')}</dt>
+            <dt className="text-dark-400">{t('admin.authMode')}</dt>
             <dd className="text-white">localStorage</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-dark-400">{t('admin.administrator', 'Администратор')}</dt>
+            <dt className="text-dark-400">{t('admin.administrator')}</dt>
             <dd className="text-white">{user?.name || user?.email}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-dark-400">{t('admin.dataStorage')}</dt>
-            <dd className="text-white">{(new Blob([JSON.stringify(localStorage)]).size / 1024).toFixed(1)} КБ</dd>
+            <dd className="text-white">{(new Blob([JSON.stringify(localStorage)]).size / 1024).toFixed(1)} {t('common.kb')}</dd>
           </div>
         </dl>
       </div>
@@ -214,10 +214,10 @@ export function AdminDashboard({ onClose, onNavigate }: { onClose: () => void; o
   }, [select, onNavigate])
 
   const tabs: { id: AdminTab; label: string; icon: string }[] = [
-    { id: 'overview', label: t('admin.tabOverview', 'Обзор'), icon: '📊' },
-    { id: 'texts', label: t('admin.tabTexts', 'Тексты'), icon: '📝' },
-    { id: 'users', label: t('admin.tabUsers', 'Пользователи'), icon: '👥' },
-    { id: 'challenges', label: t('admin.tabChallenges', 'Челленджи'), icon: '🎯' },
+    { id: 'overview', label: t('admin.tabOverview'), icon: '📊' },
+    { id: 'texts', label: t('admin.tabTexts'), icon: '📝' },
+    { id: 'users', label: t('admin.tabUsers'), icon: '👥' },
+    { id: 'challenges', label: t('admin.tabChallenges'), icon: '🎯' },
   ]
 
   return (
@@ -229,9 +229,9 @@ export function AdminDashboard({ onClose, onNavigate }: { onClose: () => void; o
     >
       <div className="glass rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">{t('admin.title', 'Панель администратора')}</h2>
+          <h2 className="text-2xl font-bold text-white">{t('admin.title')}</h2>
           <button onClick={onClose} className="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors text-sm">
-            {t('action.close', 'Закрыть')}
+            {t('action.close')}
           </button>
         </div>
 

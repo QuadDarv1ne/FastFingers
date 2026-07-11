@@ -718,5 +718,6 @@
   "tournament.minParticipants": "至少需要2名参与者才能开始比赛",
   "stats.period24h": "24小时",
   "stats.period7d": "7天",
-  "stats.period30d": "30天"
+  "stats.period30d": "30天",
+  "common.kb": "KB"
 }
