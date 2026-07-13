@@ -96,11 +96,11 @@ function AdminOverview() {
   }, [userSummaries])
 
   function formatDuration(seconds: number): string {
-    if (seconds < 60) return `${Math.round(seconds)}с`
+    if (seconds < 60) return t('admin.secondsShort', { count: Math.round(seconds) })
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
-    if (h > 0) return `${h}ч ${m}м`
-    return `${m}м`
+    if (h > 0) return `${h}${t('profile.hoursShort')} ${m}${t('profile.minutesShort')}`
+    return `${m}${t('profile.minutesShort')}`
   }
 
   return (

@@ -248,7 +248,7 @@ function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
   try {
     localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-50)))
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to queue pending session in localStorage')
   }
 }
 
@@ -282,7 +282,7 @@ export async function flushPendingSessions(): Promise<void> {
   try {
     localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(remaining))
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to update pending sessions in localStorage')
   }
 }
 
@@ -294,7 +294,7 @@ function _loadLocalSessions(): CloudSession[] {
     if (Array.isArray(parsed)) return parsed
     if (parsed && typeof parsed === 'object') return (parsed.sessions as CloudSession[]) || []
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to load local sessions from localStorage')
   }
   return []
 }

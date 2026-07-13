@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth'
 import type { User, UserRole } from '../../types/auth'
 import { getFromStorageAsArray } from '../../utils/storage'
 import { STORAGE_KEYS } from '../../constants/storageKeys'
+import { logger } from '../../utils/logger'
 
 interface StoredUser extends User {
   password: string
@@ -19,7 +20,7 @@ function saveUsers(users: StoredUser[]) {
   try {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to save users to localStorage')
   }
 }
 

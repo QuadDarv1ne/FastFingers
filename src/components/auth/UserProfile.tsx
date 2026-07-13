@@ -710,9 +710,9 @@ function OverviewTab({
             {t('profile.recentActivity', 'Последние тренировки')}
           </h3>
           <div className="space-y-2">
-            {recentSessions.map((session, i) => (
+            {recentSessions.map((session) => (
               <div
-                key={i}
+                key={session.date}
                 className="flex items-center justify-between py-2 px-3 bg-dark-900/30 rounded-lg text-sm"
               >
                 <div className="flex items-center gap-3">

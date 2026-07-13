@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, memo } from 'react'
 import { useAppTranslation } from '../../i18n/config'
+import type { TFunction } from 'i18next'
 import { motion } from 'framer-motion'
 import { cloudSyncService } from '../../services/cloudSyncService'
 import { useSelectedStudent } from '../../hooks/useSelectedStudent'
@@ -17,12 +18,12 @@ interface StudentAnalyticsPageProps {
   onBack: () => void
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)}с`
+function formatDuration(t: TFunction, seconds: number): string {
+  if (seconds < 60) return t('admin.secondsShort', { count: Math.round(seconds) })
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
-  if (h > 0) return `${h}ч ${m}м`
-  return `${m}м`
+  if (h > 0) return `${h}${t('profile.hoursShort')} ${m}${t('profile.minutesShort')}`
+  return `${m}${t('profile.minutesShort')}`
 }
 
 export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack }: StudentAnalyticsPageProps) {
@@ -279,7 +280,7 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
         <SummaryCard title={t('admin.studentAnalytics.sessionsLabel')} value={summary.totalSessions.toString()} icon="📊" />
         <SummaryCard title={t('admin.studentAnalytics.bestWpm')} value={summary.bestWpm.toString()} icon="🚀" highlight />
         <SummaryCard title={t('admin.studentAnalytics.avgAccuracy')} value={`${summary.avgAccuracy}%`} icon="🎯" />
-        <SummaryCard title={t('admin.studentAnalytics.practiceTime')} value={formatDuration(summary.totalPracticeTime)} icon="⏱️" />
+        <SummaryCard title={t('admin.studentAnalytics.practiceTime')} value={formatDuration(t, summary.totalPracticeTime)} icon="⏱️" />
         <SummaryCard title={t('admin.studentAnalytics.avgWpm')} value={summary.avgWpm.toString()} icon="📈" />
         <SummaryCard title={t('admin.studentAnalytics.errors')} value={summary.totalErrors.toString()} icon="❌" />
       </div>

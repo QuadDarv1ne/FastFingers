@@ -93,6 +93,7 @@ export function DailyChallengeManager() {
       try {
         return parseInt(localStorage.getItem(COMPLETIONS_KEY) || '0')
       } catch {
+        logger.warn('Failed to load challenge completions count')
         return 0
       }
     })()
@@ -130,7 +131,7 @@ export function DailyChallengeManager() {
     try {
       localStorage.setItem(COMPLETIONS_KEY, '0')
     } catch {
-      // Ignore storage errors
+      logger.warn('Failed to reset challenge completions in localStorage')
     }
   }, [t])
 

@@ -156,7 +156,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
     try {
       localStorage.removeItem(STORAGE_KEYS.HISTORY)
     } catch {
-      // Ignore storage errors
+      logger.warn('Failed to clear typing history from localStorage')
     }
   }, [])
 

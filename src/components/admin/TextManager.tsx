@@ -31,7 +31,7 @@ function saveTexts(texts: PracticeText[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(texts))
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to save practice texts to localStorage')
   }
 }
 

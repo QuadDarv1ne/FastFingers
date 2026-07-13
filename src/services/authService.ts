@@ -103,7 +103,7 @@ const saveCurrentUser = (user: User, remember: boolean) => {
     const storage = remember ? localStorage : sessionStorage;
     storage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to save current user to storage');
   }
 };
 
@@ -112,7 +112,7 @@ const removeCurrentUser = () => {
     localStorage.removeItem(CURRENT_USER_KEY);
     sessionStorage.removeItem(CURRENT_USER_KEY);
   } catch {
-    // Ignore storage errors
+    logger.warn('Failed to remove current user from storage');
   }
 };
 

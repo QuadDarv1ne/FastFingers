@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useAppTranslation } from '../../i18n/config'
 import { MIN_PASSWORD_LENGTH, checkPasswordStrength } from '../../services/authErrors'
+import { logger } from '../../utils/logger'
 
 interface RegisterProps {
   onSwitchToLogin: () => void
@@ -83,7 +84,7 @@ export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) 
       await register({ email, password, confirmPassword, name, agreeToTerms })
       onRegisterSuccess()
     } catch {
-      // Ошибка уже установлена в контексте
+      logger.warn('Registration handler encountered an error')
     }
   }
 

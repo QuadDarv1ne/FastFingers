@@ -309,6 +309,7 @@ class CloudSyncService {
       const saves = this.getAllSaves()
       return saves[userId] || null
     } catch {
+      logger.warn('Failed to load cloud save from localStorage')
       return null
     }
   }
@@ -318,6 +319,7 @@ class CloudSyncService {
       const stored = localStorage.getItem(STORAGE_KEYS.CLOUD_SYNC)
       return stored ? JSON.parse(stored) : {}
     } catch {
+      logger.warn('Failed to parse cloud saves from localStorage')
       return {}
     }
   }

@@ -109,7 +109,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
       try {
         await saveMatchResult(stats)
       } catch {
-        // Error already logged inside saveMatchResult
+        logger.warn('Failed to save match result in tournament')
       }
       onComplete?.(stats)
       setMatchResult(stats)
