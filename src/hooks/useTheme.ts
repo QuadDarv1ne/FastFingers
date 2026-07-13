@@ -3,6 +3,7 @@ import { ThemeColor, applyTheme, ThemeColors } from '../utils/themes'
 import type { FontSize } from '../types'
 import { safeExecute } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { invalidateChartColors } from '../utils/getThemeColors'
 
 type ThemeOption = ThemeColor | 'auto'
 
@@ -63,6 +64,7 @@ export function useTheme(): UseThemeReturn {
   useEffect(() => {
     const timer = requestAnimationFrame(() => {
       applyTheme(theme, customColors || undefined)
+      invalidateChartColors()
     })
     return () => cancelAnimationFrame(timer)
   }, [theme, customColors])

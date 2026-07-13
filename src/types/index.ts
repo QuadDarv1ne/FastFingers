@@ -7,13 +7,6 @@
 /** Раскладки клавиатуры */
 export type KeyboardLayout = 'qwerty' | 'jcuken' | 'dvorak';
 
-export interface KeyPosition {
-  key: string;
-  finger: string;
-  row: number;
-  column: number;
-}
-
 export interface KeyboardLayoutData {
   name: string;
   rows: string[][];
@@ -44,13 +37,6 @@ export interface TypingStats {
   fingerBalance?: { left: number; right: number }; // Сравнение скорости левой/правой руки
   errorRecoveryTime?: number; // Время исправления ошибки (мс)
   sessionEfficiency?: number; // (Правильные символы / время) × точность
-}
-
-/** Данные для расчёта Learning Velocity (прирост WPM за неделю) */
-export interface WeeklyProgress {
-  week: string;
-  avgWpm: number;
-  sessions: number;
 }
 
 /** Данные для анализа оттока (Funnel Analysis) */
@@ -119,14 +105,6 @@ export interface ChallengeWithProgress {
   userAccuracy?: number;
 }
 
-/** Данные стрика */
-export interface StreakData {
-  current: number;
-  longest: number;
-  lastPracticeDate: string | null;
-  practiceDates: string[];
-}
-
 /** Упражнение */
 export interface Exercise {
   id: string;
@@ -137,26 +115,6 @@ export interface Exercise {
   category: string;
   focusKeys: string[];
   layout?: KeyboardLayout;
-}
-
-/** Достижение */
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlocked: boolean;
-  unlockedAt?: string;
-  condition: (stats: UserProgress, session: TypingStats) => boolean;
-}
-
-/** Событие для WebSocket (соревнования) */
-export interface RaceEvent {
-  type: 'start' | 'progress' | 'finish';
-  playerId: string;
-  progress: number;
-  wpm?: number;
-  timestamp: number;
 }
 
 /** Звуковые темы */
@@ -171,5 +129,4 @@ export type FontSize = 'small' | 'medium' | 'large';
 /** Темы оформления */
 export type Theme = 'dark' | 'light' | 'system';
 
-/** Finger zones for keyboard */
-export type FingerZone = 'left-pinky' | 'left-ring' | 'left-middle' | 'left-index' | 'right-index' | 'right-middle' | 'right-ring' | 'right-pinky' | 'thumb';
+
