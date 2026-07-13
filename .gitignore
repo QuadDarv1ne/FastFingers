@@ -37,6 +37,9 @@ htmlcov/
 .vscode/*.code-workspace
 .vscode/*.state.json
 
+# AI tools
+.mimocode/
+
 # OS
 .DS_Store
 Thumbs.db
