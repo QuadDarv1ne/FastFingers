@@ -106,7 +106,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
     // Время практики
     const time24h = Math.round(history.totalTime / 60)
-    const timeChange = time24h > 0 ? `+${time24h}ч` : '—'
+    const timeChange = time24h > 0 ? `+${time24h}${t('stats.hoursShort', 'h')}` : '—'
 
     // Лучший WPM
     const bestWpmChange = stats30.bestWpm > 0 && stats7.bestWpm > 0 && stats30.bestWpm !== stats7.bestWpm
@@ -245,7 +245,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
           />
           <StatCard
             label={t('stats.practiceTime')}
-            value={`${Math.round(history.totalTime / 60)}ч`}
+            value={`${Math.round(history.totalTime / 60)}${t('stats.hoursShort', 'h')}`}
             icon="⏱️"
             trend={trends.time}
           />
@@ -432,9 +432,9 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
         {/* Статистика по периодам */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <PeriodStats title="24 часа" stats={stats24h} t={t} />
-          <PeriodStats title="7 дней" stats={stats7d} t={t} />
-          <PeriodStats title="30 дней" stats={stats30d} t={t} />
+          <PeriodStats title={t('stats.period24h', '24 hours')} stats={stats24h} t={t} />
+          <PeriodStats title={t('stats.period7d', '7 days')} stats={stats7d} t={t} />
+          <PeriodStats title={t('stats.period30d', '30 days')} stats={stats30d} t={t} />
         </div>
 
         {/* Последние сессии */}

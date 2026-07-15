@@ -1386,5 +1386,6 @@
   "admin.studentAnalytics.csvAccuracy": "Accuracy (%)",
   "admin.studentAnalytics.csvDuration": "Duration (s)",
   "nav.extra": "נוספים",
-  "nav.views": "תצוגות"
+  "nav.views": "תצוגות",
+  "stats.hoursShort": "ש"
 }

@@ -1386,5 +1386,6 @@
   "skin.galaxy": "Galaxy",
   "skin.galaxyDesc": "Purple cosmic tones",
   "nav.extra": "Extra",
-  "nav.views": "Views"
+  "nav.views": "Views",
+  "stats.hoursShort": "h"
 }

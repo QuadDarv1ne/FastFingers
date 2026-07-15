@@ -1386,5 +1386,6 @@
   "admin.studentAnalytics.csvAccuracy": "Accuracy (%)",
   "admin.studentAnalytics.csvDuration": "Duration (s)",
   "nav.extra": "追加",
-  "nav.views": "表示"
+  "nav.views": "表示",
+  "stats.hoursShort": "時間"
 }

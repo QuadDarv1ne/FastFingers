@@ -312,6 +312,7 @@ export function DailyChallengeManager() {
                     onClick={() => handleDeleteChallenge(c.date)}
                     className="text-dark-500 hover:text-error transition-colors"
                     title={t('action.delete')}
+                    aria-label={t('action.delete')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

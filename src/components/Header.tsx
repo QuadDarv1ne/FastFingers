@@ -17,7 +17,7 @@ interface HeaderProps {
 const XPProgress = memo(function XPProgress({ xp, xpToNextLevel, progress }: { xp: number; xpToNextLevel: number; progress: string }) {
   return (
     <div className="w-36 lg:w-44">
-      <div className="w-full h-2 bg-dark-800/60 rounded-full overflow-hidden shadow-inner" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel}>
+      <div className="w-full h-2 bg-dark-800/60 rounded-full overflow-hidden shadow-inner" role="progressbar" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={xpToNextLevel} aria-label={`XP: ${xp} / ${xpToNextLevel}`}>
         <motion.div
           className="h-full bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 rounded-full relative overflow-hidden"
           style={{ width: `${progress}%` }}

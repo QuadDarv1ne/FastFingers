@@ -1386,5 +1386,6 @@
   "skin.galaxy": "Галактика",
   "skin.galaxyDesc": "Фиолетовые космические оттенки",
   "nav.extra": "Дополнительно",
-  "nav.views": "Виды"
+  "nav.views": "Виды",
+  "stats.hoursShort": "ч"
 }

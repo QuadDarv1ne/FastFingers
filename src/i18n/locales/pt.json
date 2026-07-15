@@ -1386,5 +1386,6 @@
   "admin.studentAnalytics.csvAccuracy": "Accuracy (%)",
   "admin.studentAnalytics.csvDuration": "Duration (s)",
   "nav.extra": "Extras",
-  "nav.views": "Visualizações"
+  "nav.views": "Visualizações",
+  "stats.hoursShort": "h"
 }
