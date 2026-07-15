@@ -363,8 +363,8 @@ describe('i18n config', () => {
   })
 
   describe('i18n configuration', () => {
-    it('should have fallback language set to Russian', () => {
-      expect(i18n.options.fallbackLng).toEqual(['ru'])
+    it('should have fallback language set to English', () => {
+      expect(i18n.options.fallbackLng).toEqual(['en'])
     })
 
     it('should have supported languages', () => {

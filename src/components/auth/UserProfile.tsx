@@ -129,8 +129,8 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
   }, [user])
 
   const handleDeleteAccount = useCallback(() => {
-    if (!confirm(t('profile.deleteAccountWarning', 'Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!'))) return
-    if (!confirm(t('profile.deleteAccountFinalWarning', 'Последнее предупреждение! Все достижения, статистика и настройки будут удалены.'))) return
+    if (!confirm(t('profile.deleteAccountWarning', 'Are you sure? This will delete ALL data and cannot be undone!'))) return
+    if (!confirm(t('profile.deleteAccountFinalWarning', 'Final warning! All achievements, stats and settings will be deleted.'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -1396,7 +1396,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         const content = e.target?.result as string
         const importData = JSON.parse(content)
         if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
-        if (!confirm(t('profile.importOverwriteConfirm', 'Это действие перезапишет все текущие данные. Продолжить?'))) { setImporting(false); return }
+        if (!confirm(t('profile.importOverwriteConfirm', 'This will overwrite all current data. Continue?'))) { setImporting(false); return }
         Object.entries(importData.data).forEach(([key, value]) => {
           if (typeof value === 'string' && key.startsWith('fastfingers_')) localStorage.setItem(key, value)
         })
@@ -1410,8 +1410,8 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
   }
 
   const handleClearData = () => {
-    if (!confirm(t('profile.clearDataConfirm', 'Вы уверены? Это действие удалит ВСЕ данные и не может быть отменено!'))) return
-    if (!confirm(t('profile.clearDataFinalWarning', 'Последнее предупреждение! Все достижения, статистика и настройки будут удалены.'))) return
+    if (!confirm(t('profile.clearDataConfirm', 'Are you sure? This will delete ALL data and cannot be undone!'))) return
+    if (!confirm(t('profile.clearDataFinalWarning', 'Final warning! All achievements, stats and settings will be deleted.'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
