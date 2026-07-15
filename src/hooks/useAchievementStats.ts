@@ -39,8 +39,6 @@ export function useAchievementStats(
   customExercisesCount: number,
   gameMode: string,
 ): AchievementStats {
-  const [, setStorageTick] = useState(0)
-
   const readCounters = useCallback(() => ({
     duelsPlayed: readLocalStorageCounter(STORAGE_KEYS.DUELS_PLAYED),
     tournamentsPlayed: readLocalStorageCounter(STORAGE_KEYS.TOURNAMENTS_PLAYED),
@@ -59,7 +57,6 @@ export function useAchievementStats(
     const handleStorage = (e: StorageEvent) => {
       if (e.key && e.key.startsWith('fastfingers_')) {
         setCounters(readCounters())
-        setStorageTick(t => t + 1)
       }
     }
     window.addEventListener('storage', handleStorage)

@@ -10,7 +10,7 @@ import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
-import { simulateInput } from '../utils/inputEvent'
+import { useTypingKeyDown } from '../hooks/useTypingKeyDown'
 import { useTypingSound } from '../hooks/useTypingSound'
 import type { TypingStats } from '../types'
 import { useSupabase } from '@hooks/useSupabase'
@@ -118,15 +118,7 @@ export const TournamentMode = memo(function TournamentMode({ onExit, onComplete 
     sound,
   })
 
-  // Handle key down instead of input to avoid controlled input loop
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return
-    if (e.key.length > 1 && e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.currentTarget
-    input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput(simulateInput(input))
-  }, [handleInput])
+  const handleKeyDown = useTypingKeyDown(handleInput)
 
   // Загрузка турниров
   const loadTournaments = useCallback(async () => {

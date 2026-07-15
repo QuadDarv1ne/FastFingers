@@ -11,7 +11,7 @@ import type { TypingStats } from '../types'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useToast } from '../contexts/ToastContext'
 import { useTypingGame } from '@hooks/useTypingGame'
-import { simulateInput } from '../utils/inputEvent'
+import { useTypingKeyDown } from '../hooks/useTypingKeyDown'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
 
 type TestDuration = 15 | 30 | 60
@@ -51,14 +51,7 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
     sound,
   })
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return
-    if (e.key.length > 1 && e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.currentTarget
-    input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput(simulateInput(input))
-  }, [handleInput])
+  const handleKeyDown = useTypingKeyDown(handleInput)
 
   // Skip text wrapper
   const handleSkipWrapper = useCallback(() => {

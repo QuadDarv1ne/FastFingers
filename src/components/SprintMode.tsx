@@ -1,17 +1,18 @@
 import { useState, useCallback, memo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { TypingStats } from '../types'
 import type { User } from '../types/auth'
 import { useTypingSound } from '../hooks/useTypingSound'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useAuth } from '@hooks/useAuth'
 import { useTypingGame } from '@hooks/useTypingGame'
-import { simulateInput } from '../utils/inputEvent'
+import { useTypingKeyDown } from '../hooks/useTypingKeyDown'
 import { useToast } from '@contexts/ToastContext'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useAppTranslation } from '../i18n/config'
 import { useCountdown } from '@hooks/useCountdown'
 import { TypingTextDisplay } from './ui/TypingTextDisplay'
+import { CountdownOverlay } from './ui/CountdownOverlay'
 
 interface SprintModeProps {
   duration: number
@@ -83,46 +84,14 @@ export const SprintMode = memo(function SprintMode({ duration, onExit, onComplet
     inputRef.current?.focus({ preventScroll: true })
   }, [handleSkip, inputRef])
 
-  // Handle key down instead of input to avoid controlled input loop
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return
-    if (e.key.length > 1 && e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.currentTarget
-    input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput(simulateInput(input))
-  }, [handleInput])
+  const handleKeyDown = useTypingKeyDown(handleInput)
 
   // Прогресс времени
   const timeProgress = ((duration - timeLeft) / duration) * 100
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden">
-      {/* Overlay с обратным отсчётом */}
-      <AnimatePresence>
-        {countdown !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-dark-900/90 z-50 flex items-center justify-center"
-            role="dialog"
-            aria-modal="true"
-            aria-label={t('sprint.countdown', 'Countdown')}
-          >
-            <motion.div
-              key={countdown}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-9xl font-bold text-primary-400"
-            >
-              {countdown || 'GO'}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <CountdownOverlay countdown={countdown} />
 
       {/* Фон с прогрессом */}
       <div 

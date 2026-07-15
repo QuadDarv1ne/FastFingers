@@ -5,7 +5,6 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, memo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import type { TypingStats } from '../types'
 import { useHotkey } from '../hooks/useHotkeys'
 import { useToast } from '@contexts/ToastContext'
@@ -13,7 +12,8 @@ import { useAppTranslation } from '../i18n/config'
 import { practiceTexts } from '../data/practiceTexts'
 import { useCountdown } from '@hooks/useCountdown'
 import { useTypingGame } from '@hooks/useTypingGame'
-import { simulateInput } from '../utils/inputEvent'
+import { useTypingKeyDown } from '../hooks/useTypingKeyDown'
+import { CountdownOverlay } from './ui/CountdownOverlay'
 
 interface CodeModeProps {
   onExit: () => void
@@ -138,15 +138,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
     inputRef.current?.focus({ preventScroll: true })
   }, [reset, inputRef])
 
-  // Handle key down instead of input to avoid controlled input loop
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return
-    if (e.key.length > 1 && e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.currentTarget
-    input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput(simulateInput(input))
-  }, [handleInput])
+  const handleKeyDown = useTypingKeyDown(handleInput)
 
   const handleSelectRandomText = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * codeTexts.length)
@@ -155,27 +147,7 @@ export const CodeMode = memo(function CodeMode({ onExit, onComplete }: CodeModeP
 
   return (
     <div className="glass rounded-xl p-8 relative overflow-hidden">
-      <AnimatePresence>
-        {countdown !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-dark-900/90 z-50 flex items-center justify-center"
-          >
-            <motion.div
-              key={countdown}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-9xl font-bold text-primary-400"
-            >
-              {countdown || 'GO'}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <CountdownOverlay countdown={countdown} />
 
       <div className="flex items-center justify-between mb-6">
         <div>

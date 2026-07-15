@@ -54,6 +54,12 @@ export function calculateAge(birthDate: Date | string | number): number {
   }
 }
 
+export function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
 /** Return today's date as ISO YYYY-MM-DD string */
 export function getTodayDate(): string {
   return new Date().toISOString().split('T')[0] as string

@@ -7,7 +7,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useSupabase } from '@hooks/useSupabase'
 import { CertificateGenerator } from './CertificateGenerator'
 import { useHardcoreMode } from '@hooks/useHardcoreMode'
-import { simulateInput } from '../utils/inputEvent'
+import { useTypingKeyDown } from '../hooks/useTypingKeyDown'
 import { useHotkey } from '../hooks/useHotkeys'
 import { getRankByStreak, getRankProgress, checkRankUp, getRankUpMessage } from '../utils/hardcoreRank'
 import type { HardcoreRank } from '../utils/hardcoreRank'
@@ -18,6 +18,7 @@ import { logger } from '../utils/logger'
 import { triggerConfetti } from '../utils/confetti'
 import { StatCard } from './ui/StatCard'
 import { useAppTranslation } from '../i18n/config'
+import { CountdownOverlay } from './ui/CountdownOverlay'
 
 interface HardcoreModeProps {
   onExit: () => void
@@ -240,14 +241,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
     inputRef.current?.focus({ preventScroll: true })
   }, [resetGame, inputRef])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return
-    if (e.key.length > 1 && e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.currentTarget
-    input.value = e.key === 'Enter' ? '\n' : e.key
-    handleInput(simulateInput(input))
-  }, [handleInput])
+  const handleKeyDown = useTypingKeyDown(handleInput)
 
   const textProgress = text.length > 0 ? (currentIndex / text.length) * 100 : 0
 
@@ -297,27 +291,7 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         })()}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {countdown !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-dark-900/90 z-50 flex items-center justify-center"
-          >
-            <motion.div
-              key={countdown}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-9xl font-bold text-red-500"
-            >
-              {countdown || 'GO'}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <CountdownOverlay countdown={countdown} colorClass="text-red-500" />
 
       <div className="flex items-center justify-between mb-6">
         <div>

@@ -4,6 +4,7 @@ import { useAuth } from '@hooks/useAuth'
 import { logger } from '@utils/logger'
 import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
 import { useAppTranslation } from '../../i18n/config'
+import { formatTime } from '../../utils/format'
 
 interface PasswordResetProps {
   onBack: () => void
@@ -90,12 +91,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       setPasswordError('')
     }
   }, [newPassword, t])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault()
