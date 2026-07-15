@@ -1,7 +1,9 @@
 import { memo, useMemo } from 'react'
+import { useAppTranslation } from '../i18n/config'
 
 function EmptyChart() {
-  return <div className="h-full flex items-center justify-center text-dark-500">No data</div>
+  const { t } = useAppTranslation()
+  return <div className="h-full flex items-center justify-center text-dark-500">{t('stats.noData')}</div>
 }
 
 const W = 500

@@ -6,7 +6,8 @@ export function progressRouter(db: IDatabaseAdapter): Router {
 
   router.get('/stats/:userId', async (req: Request, res: Response) => {
     try {
-      const result = await db.getUserStats(req.params.userId)
+      const userId = req.params.userId as string
+      const result = await db.getUserStats(userId)
       res.json(result.rows[0] ?? null)
     } catch (err) {
       res.status(500).json({ error: (err as Error).message })
@@ -25,7 +26,8 @@ export function progressRouter(db: IDatabaseAdapter): Router {
 
   router.get('/hardcore/:userId', async (req: Request, res: Response) => {
     try {
-      const result = await db.getHardcoreRecords(req.params.userId)
+      const userId = req.params.userId as string
+      const result = await db.getHardcoreRecords(userId)
       res.json(result.rows)
     } catch (err) {
       res.status(500).json({ error: (err as Error).message })

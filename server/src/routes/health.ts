@@ -17,15 +17,6 @@ export function healthRouter(db: IDatabaseAdapter): Router {
 
   router.get('/', async (_req: Request, res: Response<HealthResponse>) => {
     const connected = db.isConnected()
-    let dbStats = null
-
-    if (connected) {
-      try {
-        dbStats = await db.getDatabaseStats()
-      } catch {
-        // Stats unavailable, continue without
-      }
-    }
 
     res.json({
       status: connected ? 'healthy' : 'unhealthy',

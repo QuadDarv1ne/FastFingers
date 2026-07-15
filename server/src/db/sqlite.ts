@@ -229,7 +229,7 @@ export class SQLiteAdapter implements IDatabaseAdapter {
       query += ' AND season = ?'
     }
     query += ' ORDER BY score DESC LIMIT 1'
-    const rows = this.db.prepare(query).all(...params, userId, gameMode)
+    const rows = this.db.prepare(query).all(...params, userId, gameMode) as Record<string, unknown>[]
     return { rows }
   }
 
