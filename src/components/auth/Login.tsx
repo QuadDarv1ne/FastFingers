@@ -82,37 +82,37 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-md"
+      className="w-full max-w-sm"
     >
-      <div className="glass rounded-2xl p-8">
+      <div className="bg-dark-800/80 border border-dark-700/50 rounded-lg p-6">
         {/* Заголовок */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold mb-2">{t('auth.welcomeBackFull', 'Welcome back')}</h1>
-          <p className="text-dark-400">{t('auth.loginSubtitle', 'Log in to continue training')}</p>
+          <h1 className="text-xl font-semibold text-dark-100 mb-1">{t('auth.welcomeBackFull', 'Welcome back')}</h1>
+          <p className="text-dark-400 text-sm">{t('auth.loginSubtitle', 'Log in to continue training')}</p>
         </div>
 
         {/* Ошибка */}
         {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error/50 rounded-lg flex items-start gap-3">
-            <svg className="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mb-5 p-3 bg-error/10 border border-error/30 rounded-md flex items-start gap-2.5">
+            <svg className="w-4 h-4 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-error font-medium">{t('auth.error.loginError', 'Login error')}</p>
-              <p className="text-error/80 text-sm">{error}</p>
+              <p className="text-error text-sm font-medium">{t('auth.error.loginError', 'Login error')}</p>
+              <p className="text-error/70 text-xs mt-0.5">{error}</p>
             </div>
           </div>
         )}
 
         {/* Форма */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label htmlFor="login-email" className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="login-email" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
               {t('auth.email')}
             </label>
             <input
@@ -124,8 +124,8 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
               onKeyDown={handleKeyDown}
               placeholder="your@email.com"
               required
-              className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
-                emailError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+              className={`w-full bg-dark-900/50 border rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                emailError ? 'border-error/50 focus:ring-error' : 'border-dark-600'
               }`}
             />
             {emailError && (
@@ -139,7 +139,7 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
           </div>
 
           <div>
-            <label htmlFor="login-password" className="block text-sm font-medium text-dark-300 mb-2">
+            <label htmlFor="login-password" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
               {t('auth.password')}
             </label>
             <div className="relative">
@@ -151,20 +151,20 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
                 onKeyDown={handleKeyDown}
                 placeholder="••••••••"
                 required
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className="w-full bg-dark-900/50 border border-dark-600 rounded-md px-3 py-2.5 text-sm pr-10 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-white transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-dark-500 hover:text-dark-300 transition-colors"
                 aria-label={showPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
               >
                 {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
@@ -181,20 +181,20 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
             )}
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-0.5">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded bg-dark-800 border-dark-700 text-primary-600 focus:ring-primary-500"
+                className="w-3.5 h-3.5 rounded bg-dark-900 border-dark-600 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-dark-400">{t('auth.rememberMe')}</span>
+              <span className="text-xs text-dark-400">{t('auth.rememberMe')}</span>
             </label>
             <button
               type="button"
               onClick={onSwitchToReset}
-              className="text-sm text-primary-400 hover:text-primary-300 transition-colors"
+              className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
             >
               {t('auth.forgotPassword')}
             </button>
@@ -203,11 +203,11 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
           <button
             type="submit"
             disabled={isLoading || !isFormValid}
-            className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
@@ -220,8 +220,8 @@ export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: L
         </form>
 
         {/* Переключатель */}
-        <div className="mt-6 text-center">
-          <p className="text-dark-400">
+        <div className="mt-5 pt-4 border-t border-dark-700/50 text-center">
+          <p className="text-dark-400 text-sm">
             {t('auth.noAccount')}{' '}
             <button
               onClick={onSwitchToRegister}

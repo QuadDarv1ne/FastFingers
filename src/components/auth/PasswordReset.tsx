@@ -156,52 +156,52 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-md"
+      className="w-full max-w-sm"
     >
-      <div className="glass rounded-2xl p-8">
+      <div className="bg-dark-800/80 border border-dark-700/50 rounded-lg p-6">
         {/* Заголовок */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold mb-2">
+          <h1 className="text-xl font-semibold text-dark-100 mb-1">
             {step === 'request' ? t('auth.resetPassword') : t('auth.resetPasswordNew', 'New password')}
           </h1>
-          <p className="text-dark-400">
-            {step === 'request' 
-              ? t('auth.enterEmailForReset', 'Enter your email to reset password') 
+          <p className="text-dark-400 text-sm">
+            {step === 'request'
+              ? t('auth.enterEmailForReset', 'Enter your email to reset password')
               : t('auth.enterCodeAndPassword', 'Enter the code and set a new password')}
           </p>
         </div>
 
         {/* Ошибка */}
         {error && (
-          <div className="mb-6 p-4 bg-error/20 border border-error/50 rounded-lg flex items-start gap-3">
-            <svg className="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mb-5 p-3 bg-error/10 border border-error/30 rounded-md flex items-start gap-2.5">
+            <svg className="w-4 h-4 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <div>
-              <p className="text-error font-medium">{t('auth.error.title', 'Error')}</p>
-              <p className="text-error/80 text-sm">{error}</p>
+              <p className="text-error text-sm font-medium">{t('auth.error.title', 'Error')}</p>
+              <p className="text-error/70 text-xs mt-0.5">{error}</p>
             </div>
           </div>
         )}
 
         {/* Успех */}
         {successMessage && (
-          <div className="mb-6 p-4 bg-success/20 border border-success/50 rounded-lg flex items-start gap-3">
-            <svg className="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mb-5 p-3 bg-success/10 border border-success/30 rounded-md flex items-start gap-2.5">
+            <svg className="w-4 h-4 text-success flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <p className="text-success">{successMessage}</p>
+            <p className="text-success text-sm">{successMessage}</p>
           </div>
         )}
 
         {/* Сообщение с кодом */}
         {step === 'confirm' && (
-          <div className="mb-6 p-4 bg-success/20 border border-success/50 rounded-lg">
+          <div className="mb-5 p-3 bg-success/10 border border-success/30 rounded-md">
             <p className="text-sm font-medium text-success mb-1">{t('auth.codeSent', 'Code generated')}</p>
             <p className="text-xs text-dark-400">
               {t('auth.enterCodeHint', 'Enter the code above and set a new password')}
@@ -211,9 +211,9 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
         {/* Форма запроса */}
         {step === 'request' && (
-          <form onSubmit={handleRequestReset} className="space-y-4">
+          <form onSubmit={handleRequestReset} className="space-y-3.5">
             <div>
-              <label htmlFor="reset-email" className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-email" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
                 {t('auth.email')}
               </label>
               <input
@@ -225,8 +225,8 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 onKeyDown={handleKeyDown}
                 placeholder="your@email.com"
                 required
-                className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
-                  emailError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+                className={`w-full bg-dark-900/50 border rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                  emailError ? 'border-error/50 focus:ring-error' : 'border-dark-600'
                 }`}
               />
               {emailError && (
@@ -242,11 +242,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
             <button
               type="submit"
               disabled={isLoading || !email || !!emailError}
-              className="w-full py-3 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-primary-600 hover:bg-primary-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
@@ -261,9 +261,9 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
         {/* Форма подтверждения */}
         {step === 'confirm' && (
-          <form onSubmit={handleConfirmReset} className="space-y-4">
+          <form onSubmit={handleConfirmReset} className="space-y-3.5">
             <div>
-              <label htmlFor="reset-token" className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-token" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
                 {t('auth.codeLabel', 'Code from email')}
               </label>
               <input
@@ -276,17 +276,17 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 placeholder="ABC123"
                 required
                 readOnly={!!lastResetToken?.token}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-center text-lg tracking-wider uppercase"
+                className="w-full bg-dark-900/50 border border-dark-600 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-center tracking-wider uppercase"
               />
               <div className="mt-2 flex items-center justify-center gap-2">
-                <span className={`text-sm font-mono ${timeLeft < 60 ? 'text-error animate-pulse' : 'text-dark-400'}`}>
-                  ⏳ {formatTime(timeLeft)}
+                <span className={`text-xs font-mono ${timeLeft < 60 ? 'text-error animate-pulse' : 'text-dark-400'}`}>
+                  {formatTime(timeLeft)}
                 </span>
               </div>
             </div>
 
             <div>
-              <label htmlFor="reset-new-password" className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-new-password" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
                 {t('auth.newPassword', 'New password')}
               </label>
               <input
@@ -298,8 +298,8 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 placeholder="••••••••"
                 required
                 minLength={8}
-                className={`w-full bg-dark-800 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
-                  passwordError ? 'border-error/50 focus:ring-error' : 'border-dark-700'
+                className={`w-full bg-dark-900/50 border rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                  passwordError ? 'border-error/50 focus:ring-error' : 'border-dark-600'
                 }`}
               />
               {passwordError && (
@@ -313,7 +313,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
             </div>
 
             <div>
-              <label htmlFor="reset-confirm-password" className="block text-sm font-medium text-dark-300 mb-2">
+              <label htmlFor="reset-confirm-password" className="block text-xs font-medium text-dark-400 mb-1.5 uppercase tracking-wider">
                 {t('auth.confirmPassword')}
               </label>
               <input
@@ -325,18 +325,18 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 placeholder="••••••••"
                 required
                 minLength={8}
-                className="w-full bg-dark-800 border border-dark-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                className="w-full bg-dark-900/50 border border-dark-600 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-success-600 hover:bg-success-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-success-600 hover:bg-success-500 disabled:bg-dark-700 disabled:cursor-not-allowed rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
@@ -350,12 +350,12 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         )}
 
         {/* Кнопка назад */}
-        <div className="mt-6">
+        <div className="mt-5 pt-4 border-t border-dark-700/50">
           <button
             onClick={onBack}
-            className="w-full py-3 bg-dark-800 hover:bg-dark-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-dark-900/50 hover:bg-dark-700 border border-dark-600 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             {t('action.back')}
@@ -364,9 +364,9 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
         {/* Подсказка */}
         {step === 'request' && (
-          <div className="mt-6 p-4 bg-dark-800/50 rounded-lg">
-            <p className="text-sm text-dark-400">
-              <strong>{t('auth.resetHintTitle', '💡 Tip:')}</strong> {t('auth.resetHintText', 'Enter the email address associated with your account.')}
+          <div className="mt-4 p-3 bg-dark-900/30 border border-dark-700/30 rounded-md">
+            <p className="text-xs text-dark-500">
+              {t('auth.resetHintText', 'Enter the email address associated with your account.')}
             </p>
           </div>
         )}

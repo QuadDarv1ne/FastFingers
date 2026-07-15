@@ -8,7 +8,7 @@ export const ToastContainer = memo(function ToastContainer() {
 
   return (
     <div
-      className="fixed top-4 right-4 left-4 sm:left-auto z-[100] flex flex-col gap-2 max-w-sm mx-auto sm:mx-0 pointer-events-none"
+      className="fixed top-16 right-4 left-4 sm:left-auto z-[100] flex flex-col gap-2 max-w-sm mx-auto sm:mx-0 pointer-events-none"
       aria-live="polite"
       aria-atomic="true"
     >

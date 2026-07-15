@@ -63,7 +63,7 @@ describe('ToastContainer', () => {
 
     const { container } = renderWithProvider(<TestComponent />)
     const toastContainer = container.querySelector('div[class*="fixed"]')
-    expect(toastContainer).toHaveClass('fixed', 'top-4', 'right-4')
+    expect(toastContainer).toHaveClass('fixed', 'top-16', 'right-4')
   })
 
   it('должен иметь z-index для отображения поверх других элементов', () => {
