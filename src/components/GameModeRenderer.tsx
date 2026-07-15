@@ -57,7 +57,7 @@ const LazyFallback = () => {
   return <div className="p-8 text-center">{t('action.loading')}</div>
 }
 
-const retryBtn = (onRetry?: () => void, retryLabel = 'Try again') =>
+const retryBtn = (onRetry?: () => void, retryLabel?: string) =>
   onRetry ? (
     <button onClick={onRetry} className="px-3 py-1.5 text-xs bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors">
       {retryLabel}

@@ -38,33 +38,38 @@ export class MongoDBAdapter implements IDatabaseAdapter {
       id: (doc._id as ObjectId)?.toString() ?? '',
       user_id: String(doc.user_id ?? ''),
       date: doc.date instanceof Date ? doc.date.toISOString() : String(doc.date ?? ''),
-      text: String(doc.text ?? ''),
       wpm: Number(doc.wpm ?? 0),
+      cpm: Number(doc.cpm ?? 0),
       accuracy: Number(doc.accuracy ?? 0),
-      time_elapsed: Number(doc.time_elapsed ?? 0),
-      correct_chars: Number(doc.correct_chars ?? 0),
+      errors: Number(doc.errors ?? 0),
       total_chars: Number(doc.total_chars ?? 0),
-      game_mode: String(doc.game_mode ?? ''),
+      duration: Number(doc.duration ?? 0),
+      xp: doc.xp != null ? Number(doc.xp) : undefined,
+      rhythm_score: doc.rhythm_score != null ? Number(doc.rhythm_score) : undefined,
+      finger_balance: doc.finger_balance != null ? Number(doc.finger_balance) : undefined,
+      error_recovery: doc.error_recovery != null ? Number(doc.error_recovery) : undefined,
+      session_efficiency: doc.session_efficiency != null ? Number(doc.session_efficiency) : undefined,
     } as unknown as TypingSessionRecord
   }
 
   private toUserStats(doc: Record<string, unknown>): UserStatsRecord {
     return {
       user_id: String(doc.user_id ?? ''),
+      total_xp: Number(doc.total_xp ?? 0),
+      level: Number(doc.level ?? 1),
       best_wpm: Number(doc.best_wpm ?? 0),
       best_accuracy: Number(doc.best_accuracy ?? 0),
       total_words_typed: Number(doc.total_words_typed ?? 0),
       total_practice_time: Number(doc.total_practice_time ?? 0),
+      current_streak: Number(doc.current_streak ?? 0),
       longest_streak: Number(doc.longest_streak ?? 0),
-      completed_challenges: Array.isArray(doc.completed_challenges) ? doc.completed_challenges : [],
-      created_at: doc.created_at instanceof Date ? doc.created_at.toISOString() : String(doc.created_at ?? ''),
+      completed_challenges: Array.isArray(doc.completed_challenges) ? doc.completed_challenges.map(String) : [],
       updated_at: doc.updated_at instanceof Date ? doc.updated_at.toISOString() : String(doc.updated_at ?? ''),
     } as unknown as UserStatsRecord
   }
 
   private toAchievement(doc: Record<string, unknown>): AchievementRecord {
     return {
-      id: (doc._id as ObjectId)?.toString() ?? '',
       user_id: String(doc.user_id ?? ''),
       achievement_id: String(doc.achievement_id ?? ''),
       unlocked_at: doc.unlocked_at instanceof Date ? doc.unlocked_at.toISOString() : String(doc.unlocked_at ?? ''),
@@ -77,15 +82,15 @@ export class MongoDBAdapter implements IDatabaseAdapter {
       id: (doc._id as ObjectId)?.toString() ?? '',
       user_id: String(doc.user_id ?? ''),
       game_mode: String(doc.game_mode ?? ''),
+      wpm: Number(doc.wpm ?? 0),
       score: Number(doc.score ?? 0),
-      season: String(doc.season ?? ''),
+      season: doc.season != null ? String(doc.season) : undefined,
       date: doc.date instanceof Date ? doc.date.toISOString() : String(doc.date ?? ''),
     } as unknown as LeaderboardEntry
   }
 
   private toHardcoreRecord(doc: Record<string, unknown>): HardcoreRecord {
     return {
-      id: (doc._id as ObjectId)?.toString() ?? '',
       user_id: String(doc.user_id ?? ''),
       streak: Number(doc.streak ?? 0),
       wpm: Number(doc.wpm ?? 0),
