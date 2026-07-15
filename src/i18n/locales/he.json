@@ -1384,5 +1384,7 @@
   "admin.studentAnalytics.perKeyTrendFootnote": "Showing 10 keys with the largest accuracy change (early vs last 15 sessions)",
   "admin.studentAnalytics.csvDate": "Date",
   "admin.studentAnalytics.csvAccuracy": "Accuracy (%)",
-  "admin.studentAnalytics.csvDuration": "Duration (s)"
+  "admin.studentAnalytics.csvDuration": "Duration (s)",
+  "nav.extra": "נוספים",
+  "nav.views": "תצוגות"
 }

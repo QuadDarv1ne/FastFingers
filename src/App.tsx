@@ -377,7 +377,7 @@ function AppContent() {
               </div>
 
               <div className="flex items-center gap-0.5 min-w-max">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">Extra</span>
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">{t('nav.extra')}</span>
                 {gameModeButtons.map(b => (
                   <ModeButton
                     key={b.mode}
@@ -391,7 +391,7 @@ function AppContent() {
               </div>
 
               <div className="flex items-center gap-0.5 min-w-max">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">Views</span>
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">{t('nav.views')}</span>
                 {viewButtons.map(b => (
                   <ModeButton
                     key={b.view}

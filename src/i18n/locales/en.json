@@ -1384,5 +1384,7 @@
   "skin.monokai": "Monokai",
   "skin.monokaiDesc": "Popular editor theme",
   "skin.galaxy": "Galaxy",
-  "skin.galaxyDesc": "Purple cosmic tones"
+  "skin.galaxyDesc": "Purple cosmic tones",
+  "nav.extra": "Extra",
+  "nav.views": "Views"
 }

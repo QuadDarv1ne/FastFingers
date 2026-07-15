@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { supabase } from './supabase'
 import type { User, UserStats } from '../types/auth'
 import type { TypingStats } from '../types'
@@ -51,7 +52,10 @@ export function isBackendAvailable(): boolean {
  * Получение статуса бэкенда с кэшированием
  */
 export function getBackendStatus(): BackendStatus {
-  const cached = localStorage.getItem(BACKEND_STATUS_KEY)
+  let cached: string | null = null
+  try {
+    cached = localStorage.getItem(BACKEND_STATUS_KEY)
+  } catch { /* storage unavailable */ }
   if (cached) {
     try {
       const parsed = JSON.parse(cached) as BackendStatus
@@ -386,7 +390,7 @@ export async function getDailyChallenge(date: string): Promise<{
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
     return {
       id: 'local-' + date,
-      text: 'Local challenge',
+      text: i18n.t('challenge.fallbackTitle'),
       targetWpm: 30 + (Math.abs(hash) % 40),
       targetAccuracy: 85 + (Math.abs(hash) % 10),
       xpReward: 100,
@@ -410,7 +414,7 @@ export async function getDailyChallenge(date: string): Promise<{
     const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
     return {
       id: 'local-' + date,
-      text: 'Local challenge',
+      text: i18n.t('challenge.fallbackTitle'),
       targetWpm: 30 + (Math.abs(hash) % 40),
       targetAccuracy: 85 + (Math.abs(hash) % 10),
       xpReward: 100,

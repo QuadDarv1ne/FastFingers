@@ -1132,7 +1132,7 @@ function NotificationSettingsSubPage() {
 
   const toggle = (key: string, value: boolean, setter: (v: boolean) => void) => {
     setter(value)
-    localStorage.setItem(key, JSON.stringify(value))
+    try { localStorage.setItem(key, JSON.stringify(value)) } catch { /* quota or restricted */ }
   }
 
   return (
@@ -1398,7 +1398,9 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
         if (!confirm(t('profile.importOverwriteConfirm'))) { setImporting(false); return }
         Object.entries(importData.data).forEach(([key, value]) => {
-          if (typeof value === 'string' && key.startsWith('fastfingers_')) localStorage.setItem(key, value)
+          if (typeof value === 'string' && key.startsWith('fastfingers_')) {
+            try { localStorage.setItem(key, value) } catch { /* quota — skip key */ }
+          }
         })
         window.location.reload()
       } catch {
