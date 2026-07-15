@@ -103,9 +103,13 @@ async function start() {
   }
 
   // Routes
-  app.use('/api/health', healthRouter(dbAdapter!))
-  app.use('/api/sessions', sessionsRouter(dbAdapter!))
-  app.use('/api/progress', progressRouter(dbAdapter!))
+  if (!dbAdapter) {
+    console.error('Database adapter not initialized')
+    process.exit(1)
+  }
+  app.use('/api/health', healthRouter(dbAdapter))
+  app.use('/api/sessions', sessionsRouter(dbAdapter))
+  app.use('/api/progress', progressRouter(dbAdapter))
 
   // Serve frontend static files (after API routes to avoid conflict)
   const distDir = path.join(__dirname, '..', '..', 'dist')
@@ -118,7 +122,7 @@ async function start() {
   const actualPort = await findAvailablePort(PORT)
   app.listen(actualPort, () => {
     console.log(`🚀 FastFingers server running on http://localhost:${actualPort}`)
-    console.log(`📁 Database: ${dbConfig!.type}`)
+    console.log(`📁 Database: ${dbConfig?.type ?? 'unknown'}`)
     console.log(`🔌 API: http://localhost:${actualPort}/api/health`)
   })
 }

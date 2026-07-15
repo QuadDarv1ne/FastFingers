@@ -214,8 +214,8 @@ export const DuelMode = memo(function DuelMode({ onExit, onComplete, sound }: Du
 
         setCurrentDuel({
           id: data.id,
-          challenger: { id: data.challenger_id, name: 'Opponent' },
-          opponent: { id: user.id, name: 'You' },
+          challenger: { id: data.challenger_id, name: t('duel.opponent', 'Opponent') },
+          opponent: { id: user.id, name: t('duel.you', 'You') },
           status: 'active',
           duration: duration,
           betAmount: betAmount,

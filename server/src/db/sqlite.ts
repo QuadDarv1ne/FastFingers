@@ -178,7 +178,7 @@ export class SQLiteAdapter implements IDatabaseAdapter {
   async getAchievements(userId: string): Promise<QueryResult<AchievementRecord[]>> {
     if (!this.db) throw new Error('Database not connected')
     const rows = this.db.prepare(
-      'SELECT *, json_each.value FROM achievements WHERE user_id = ?'
+      'SELECT * FROM achievements WHERE user_id = ?'
     ).all(userId) as AchievementRecord[]
     return { rows }
   }
