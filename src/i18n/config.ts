@@ -78,15 +78,18 @@ i18n
 
 // Загружаем язык по умолчанию сразу (блокирует рендеринг)
 // Английский загружается в фоне после первоначального рендеринга
-loadLanguageFile(savedLang).then((translations) => {
-  if (Object.keys(translations).length > 0) {
-    i18n.addResourceBundle(savedLang, 'translation', translations, true, true)
-  } else {
-    logger.error(`Default language (${savedLang}) bundle is empty — translations unavailable`)
+void (async () => {
+  try {
+    const translations = await loadLanguageFile(savedLang)
+    if (Object.keys(translations).length > 0) {
+      i18n.addResourceBundle(savedLang, 'translation', translations, true, true)
+    } else {
+      logger.error(`Default language (${savedLang}) bundle is empty — translations unavailable`)
+    }
+  } catch (err) {
+    logger.error(`Failed to load default language (${savedLang}):`, err)
   }
-}).catch((err) => {
-  logger.error(`Failed to load default language (${savedLang}):`, err)
-})
+})()
 
 // Фоновая загрузка английского (резервный язык) — не блокирует рендеринг
 const idleCallback = typeof requestIdleCallback === 'function'
@@ -94,11 +97,16 @@ const idleCallback = typeof requestIdleCallback === 'function'
   : (fn: () => void) => setTimeout(fn, 1000)
 idleCallback(() => {
   if (!loadedLanguages.has('en')) {
-    loadLanguageFile('en').then((translations) => {
-      if (Object.keys(translations).length > 0) {
-        i18n.addResourceBundle('en', 'translation', translations, true, true)
+    void (async () => {
+      try {
+        const translations = await loadLanguageFile('en')
+        if (Object.keys(translations).length > 0) {
+          i18n.addResourceBundle('en', 'translation', translations, true, true)
+        }
+      } catch (err) {
+        logger.warn('Failed to preload English fallback:', err)
       }
-    }).catch((err) => logger.warn('Failed to preload English fallback:', err))
+    })()
   }
 })
 
@@ -110,11 +118,16 @@ i18n.on('languageChanged', (lng) => {
 
   // Лениво загружаем переводы если ещё не загружены
   if (!loadedLanguages.has(lng)) {
-    loadLanguageFile(lng).then((translations) => {
-      if (Object.keys(translations).length > 0) {
-        i18n.addResourceBundle(lng, 'translation', translations, true, true)
+    void (async () => {
+      try {
+        const translations = await loadLanguageFile(lng)
+        if (Object.keys(translations).length > 0) {
+          i18n.addResourceBundle(lng, 'translation', translations, true, true)
+        }
+      } catch (err) {
+        logger.warn(`Failed to load language: ${lng}`, err)
       }
-    }).catch((err) => logger.warn(`Failed to load language: ${lng}`, err))
+    })()
   }
 })
 

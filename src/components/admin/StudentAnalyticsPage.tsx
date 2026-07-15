@@ -37,18 +37,18 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
     if (!userId) return
     setIsLoading(true)
     setError(null)
-    cloudSyncService
-      .getTypingSessions(userId, 200)
-      .then((result: FetchResult<TypingSessionRow>) => {
+    void (async () => {
+      try {
+        const result: FetchResult<TypingSessionRow> = await cloudSyncService.getTypingSessions(userId, 200)
         if (result.error) throw result.error
         setSessions(mapSupabaseSessions(result.data || []))
         setIsLoading(false)
-      })
-      .catch(err => {
+      } catch (err) {
         logger.error('Failed to load student sessions:', err)
-        setError(err.message || t('admin.studentAnalytics.loadError'))
+        setError((err as Error).message || t('admin.studentAnalytics.loadError'))
         setIsLoading(false)
-      })
+      }
+    })()
   }, [userId, t])
 
   const stats = useMemo(() => computeStudentStats(sessions, i18n.language), [sessions, i18n.language])
@@ -174,14 +174,18 @@ export const StudentAnalyticsPage = memo(function StudentAnalyticsPage({ onBack 
                 if (!userId) return
                 setIsLoading(true)
                 setError(null)
-                cloudSyncService
-                  .getTypingSessions(userId, 200)
-                  .then((result: FetchResult<TypingSessionRow>) => {
+                void (async () => {
+                  try {
+                    const result: FetchResult<TypingSessionRow> = await cloudSyncService.getTypingSessions(userId, 200)
                     if (result.error) throw result.error
                     setSessions(mapSupabaseSessions(result.data || []))
                     setIsLoading(false)
-                  })
-                  .catch(err => { logger.error('Failed to retry loading student sessions:', err); setError(err.message || t('admin.studentAnalytics.loadError')); setIsLoading(false) })
+                  } catch (err) {
+                    logger.error('Failed to retry loading student sessions:', err)
+                    setError((err as Error).message || t('admin.studentAnalytics.loadError'))
+                    setIsLoading(false)
+                  }
+                })()
               }}
               className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm"
             >
