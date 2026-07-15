@@ -225,7 +225,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gradient">{t('stats.title')}</h1>
-            <p className="text-dark-400 mt-1">{t('stats.subtitle', 'Детальный анализ вашего прогресса')}</p>
+            <p className="text-dark-400 mt-1">{t('stats.subtitle')}</p>
           </div>
           <button
             onClick={onBack}
@@ -238,26 +238,26 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Сводные карточки */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <StatCard
-            label={t('stats.totalSessionsLabel', 'Всего тренировок')}
+            label={t('stats.totalSessionsLabel')}
             value={history.totalSessions.toString()}
             icon="📊"
             trend={trends.sessions}
           />
           <StatCard
-            label={t('stats.practiceTime', 'Время практики')}
+            label={t('stats.practiceTime')}
             value={`${Math.round(history.totalTime / 60)}ч`}
             icon="⏱️"
             trend={trends.time}
           />
           <StatCard
-            label={t('stats.bestWpm', 'Лучший WPM')}
+            label={t('stats.bestWpm')}
             value={stats30d.bestWpm.toString()}
             icon="🚀"
-            trend={trends.bestWpm === 'record' ? t('stats.record', 'рекорд') : trends.bestWpm}
+            trend={trends.bestWpm === 'record' ? t('stats.record') : trends.bestWpm}
             highlight
           />
           <StatCard
-            label={t('stats.avgAccuracy', 'Средняя точность')}
+            label={t('stats.avgAccuracy')}
             value={`${stats30d.avgAccuracy}%`}
             icon="🎯"
             trend={trends.accuracy}
@@ -276,20 +276,20 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         </Suspense>
 
         {/* Графики */}
-        <h2 className="text-2xl font-bold mb-4 text-gradient">📊 {t('stats.advancedAnalytics', 'Расширенная аналитика')}</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📊 {t('stats.advancedAnalytics')}</h2>
 
         {/* Индикатор загрузки анализа */}
         {isAnalyzing && (
           <div className="glass rounded-xl p-6 mb-8 flex items-center gap-4">
             <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            <span>{t('stats.analyzing', 'Анализ данных через Web Worker...')}</span>
+            <span>{t('stats.analyzing')}</span>
           </div>
         )}
 
         {/* Анализ времени суток */}
         {timeAnalysis.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">🕐 {t('stats.performanceByTime', 'Производительность по времени суток')}</h3>
+            <h3 className="text-lg font-semibold mb-4">🕐 {t('stats.performanceByTime')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {timeAnalysis.map(slot => (
                 <div key={slot.timeOfDay} className="text-center p-4 bg-dark-800/50 rounded-lg">
@@ -297,8 +297,8 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
                     {t(TIME_OF_DAY_LABELS[slot.timeOfDay] || `stats.timeOfDay.${slot.timeOfDay}`)}
                   </div>
                   <div className="text-2xl font-bold text-primary-400">{slot.avgWpm} WPM</div>
-                  <div className="text-sm text-dark-500">{slot.avgAccuracy}% {t('stats.accuracy', 'точности')}</div>
-                  <div className="text-xs text-dark-600 mt-1">{slot.sessions} {t('stats.sessions', 'сессий')}</div>
+                  <div className="text-sm text-dark-500">{slot.avgAccuracy}% {t('stats.accuracy')}</div>
+                  <div className="text-xs text-dark-600 mt-1">{slot.sessions} {t('stats.sessions')}</div>
                 </div>
               ))}
             </div>
@@ -308,7 +308,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Воронка конверсии */}
         {funnelData && funnelData.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">📊 {t('stats.performanceFunnel', 'Воронка производительности')}</h3>
+            <h3 className="text-lg font-semibold mb-4">📊 {t('stats.performanceFunnel')}</h3>
             <div className="space-y-3">
               {funnelData.map((stage) => (
                 <div key={stage.name} className="flex items-center gap-4">
@@ -329,12 +329,12 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
         {/* Матрица корреляции */}
         {correlationMatrix.length > 0 && (
           <div className="glass rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">🔗 {t('stats.metricCorrelation', 'Корреляция метрик')}</h3>
+            <h3 className="text-lg font-semibold mb-4">🔗 {t('stats.metricCorrelation')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-dark-700">
-                    <th className="p-2 text-left text-dark-400">{t('stats.metric', 'Метрика')}</th>
+                    <th className="p-2 text-left text-dark-400">{t('stats.metric')}</th>
                     {CORRELATION_METRICS.map((key, i) => (
                       <th key={i} className="p-2 text-center text-dark-400">{t(key)}</th>
                     ))}
@@ -358,18 +358,18 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
               </table>
             </div>
             <p className="text-xs text-dark-500 mt-4">
-              {t('stats.correlationNote', '* Значения близкие к 1 — сильная положительная корреляция, к -1 — сильная отрицательная')}
+              {t('stats.correlationNote')}
             </p>
           </div>
         )}
 
         {/* Существующие графики */}
-        <h2 className="text-2xl font-bold mb-4 text-gradient">📈 {t('stats.detailedStats', 'Детальная статистика')}</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gradient">📈 {t('stats.detailedStats')}</h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* График WPM */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">{t('stats.speedProgress', 'Прогресс скорости (WPM)')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.speedProgress')}</h3>
             <div className="h-64">
               {wpmTrendData.length > 0 ? (
                 <SimpleAreaChart
@@ -381,7 +381,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
-                  {t('stats.noData', 'Нет данных для отображения')}
+                  {t('stats.noData')}
                 </div>
               )}
             </div>
@@ -389,13 +389,13 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График точности */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">{t('stats.accuracyDistribution', 'Распределение точности')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.accuracyDistribution')}</h3>
             <div className="h-64">
               {accuracyDistribution.length > 0 ? (
                 <SimplePieChart data={accuracyDistribution} />
               ) : (
                 <div className="h-full flex items-center justify-center text-dark-500">
-                  {t('stats.noData', 'Нет данных для отображения')}
+                  {t('stats.noData')}
                 </div>
               )}
             </div>
@@ -403,7 +403,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График активности по дням */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">{t('stats.activityByDay', 'Активность по дням недели')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.activityByDay')}</h3>
             <div className="h-64">
               <SimpleBarChart
                 data={activityByDay}
@@ -417,7 +417,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
           {/* График времени практики */}
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-4">{t('stats.practiceTime7days', 'Время практики (последние 7 дней)')}</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('stats.practiceTime7days')}</h3>
             <div className="h-64">
               <SimpleBarChart
                 data={practiceTimeData}
@@ -439,16 +439,16 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
 
         {/* Последние сессии */}
         <div className="glass rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-4">{t('stats.recentSessions', 'Последние сессии')}</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('stats.recentSessions')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-dark-700">
-                  <th className="text-left py-3 px-4 text-dark-400 font-medium">{t('stats.date', 'Дата')}</th>
+                  <th className="text-left py-3 px-4 text-dark-400 font-medium">{t('stats.date')}</th>
                   <th className="text-center py-3 px-4 text-dark-400 font-medium">WPM</th>
-                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.accuracy', 'Точность')}</th>
-                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.errors', 'Ошибки')}</th>
-                  <th className="text-right py-3 px-4 text-dark-400 font-medium">{t('stats.time', 'Время')}</th>
+                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.accuracy')}</th>
+                  <th className="text-center py-3 px-4 text-dark-400 font-medium">{t('stats.errors')}</th>
+                  <th className="text-right py-3 px-4 text-dark-400 font-medium">{t('stats.time')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -482,25 +482,25 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
   return prevProps.onBack === nextProps.onBack
 })
 
-function PeriodStats({ title, stats, t }: { title: string; stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number }; t: (key: string, fallback: string) => string }) {
+function PeriodStats({ title, stats, t }: { title: string; stats: { avgWpm: number; avgAccuracy: number; bestWpm: number; sessions: number }; t: (key: string) => string }) {
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       <div className="space-y-3">
         <div className="flex justify-between">
-          <span className="text-dark-400">{t('stats.sessions', 'Сессий')}</span>
+          <span className="text-dark-400">{t('stats.sessions')}</span>
           <span className="font-medium">{stats.sessions}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">{t('stats.avgWpm', 'Средний WPM')}</span>
+          <span className="text-dark-400">{t('stats.avgWpm')}</span>
           <span className="font-medium text-primary-400">{stats.avgWpm}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">{t('stats.avgAccuracyLabel', 'Средняя точность')}</span>
+          <span className="text-dark-400">{t('stats.avgAccuracyLabel')}</span>
           <span className="font-medium">{stats.avgAccuracy}%</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-dark-400">{t('stats.bestWpm', 'Лучший WPM')}</span>
+          <span className="text-dark-400">{t('stats.bestWpm')}</span>
           <span className="font-medium text-success">{stats.bestWpm}</span>
         </div>
       </div>

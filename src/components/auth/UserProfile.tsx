@@ -129,8 +129,8 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
   }, [user])
 
   const handleDeleteAccount = useCallback(() => {
-    if (!confirm(t('profile.deleteAccountWarning', 'Are you sure? This will delete ALL data and cannot be undone!'))) return
-    if (!confirm(t('profile.deleteAccountFinalWarning', 'Final warning! All achievements, stats and settings will be deleted.'))) return
+    if (!confirm(t('profile.deleteAccountWarning'))) return
+    if (!confirm(t('profile.deleteAccountFinalWarning'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -251,7 +251,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
   const tabs: { id: TabId; label: string; icon: ReactNode }[] = useMemo(() => [
     {
       id: 'overview',
-      label: t('profile.tab.overview', 'Обзор'),
+      label: t('profile.tab.overview'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -260,7 +260,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
     },
     {
       id: 'heatmap',
-      label: t('profile.tab.heatmap', 'Раскладка'),
+      label: t('profile.tab.heatmap'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -269,7 +269,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
     },
     {
       id: 'goals',
-      label: t('profile.tab.goals', 'Цели'),
+      label: t('profile.tab.goals'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -278,7 +278,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
     },
     {
       id: 'settings',
-      label: t('misc.settings', 'Настройки'),
+      label: t('misc.settings'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -335,7 +335,7 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
                       </div>
                     </div>
                     <div className={`absolute -bottom-1 -right-1 px-2 py-0.5 bg-gradient-to-r ${tier.color} rounded-lg text-xs font-bold text-white shadow-lg`}>
-                      {tier.icon} {t('profile.levelShort', 'Lv')}. {stats.level}
+                      {tier.icon} {t('profile.levelShort')}. {stats.level}
                     </div>
                   </div>
                   <div className="pb-2">
@@ -456,11 +456,11 @@ export const UserProfile = memo(function UserProfile({ onClose, onNavigate }: Us
                 <div className="flex flex-wrap gap-3 text-xs text-dark-400 mb-4">
                   <span>{t('auth.email')}: {user.email}</span>
                   <span>•</span>
-                  <span>{t('profile.registered', 'Зарегистрирован')}: {new Date(user.createdAt).toLocaleDateString(i18n.language)}</span>
+                  <span>{t('profile.registered')}: {new Date(user.createdAt).toLocaleDateString(i18n.language)}</span>
                   {user.lastLogin && (
                     <>
                       <span>•</span>
-                      <span>{t('profile.lastLogin', 'Последний вход')}: {new Date(user.lastLogin).toLocaleDateString(i18n.language)}</span>
+                      <span>{t('profile.lastLogin')}: {new Date(user.lastLogin).toLocaleDateString(i18n.language)}</span>
                     </>
                   )}
                 </div>
@@ -546,11 +546,11 @@ function OverviewTab({
           <div className="flex items-center gap-2">
             {learningVelocity !== 0 && (
               <span className={`text-xs font-medium ${learningVelocity > 0 ? 'text-success' : 'text-error'}`}>
-                {learningVelocity > 0 ? '↑' : '↓'} {Math.abs(learningVelocity)} WPM {t('profile.learningVelocity', 'скорость обучения')}
+                {learningVelocity > 0 ? '↑' : '↓'} {Math.abs(learningVelocity)} WPM {t('profile.learningVelocity')}
               </span>
             )}
           </div>
-          <span className="text-xs text-dark-500">{xpNeeded} XP {t('profile.toNextLevel', 'до следующего уровня')}</span>
+          <span className="text-xs text-dark-500">{xpNeeded} XP {t('profile.toNextLevel')}</span>
         </div>
       </div>
 
@@ -572,14 +572,14 @@ function OverviewTab({
         />
         <AnimatedStatCard
           icon="📚"
-          label={t('profile.totalWords', 'Всего слов')}
+          label={t('profile.totalWords')}
           value={stats.totalWordsTyped.toLocaleString()}
           color="text-blue-400"
           delay={0.1}
         />
         <AnimatedStatCard
           icon="⏱️"
-          label={t('profile.practiceTime', 'Время практики')}
+          label={t('profile.practiceTime')}
           value={formatPracticeTime(stats.totalPracticeTime)}
           color="text-cyan-400"
           delay={0.15}
@@ -616,29 +616,29 @@ function OverviewTab({
         <div className="bg-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
           <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
             <span>📈</span>
-            {t('profile.skillProfile', 'Профиль навыков')}
+            {t('profile.skillProfile')}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <SkillBar
-              label={t('profile.avgWpm', 'Средний WPM')}
+              label={t('profile.avgWpm')}
               value={skillProfile.avgWpm}
               max={100}
               color="from-primary-600 to-primary-400"
             />
             <SkillBar
-              label={t('profile.rhythm', 'Ритм')}
+              label={t('profile.rhythm')}
               value={skillProfile.rhythmScore}
               max={100}
               color="from-purple-600 to-purple-400"
             />
             <SkillBar
-              label={t('profile.errorRecovery', 'Реакция на ошибки')}
+              label={t('profile.errorRecovery')}
               value={skillProfile.errorRecoveryScore}
               max={100}
               color="from-green-600 to-green-400"
             />
             <SkillBar
-              label={t('profile.consistency', 'Стабильность')}
+              label={t('profile.consistency')}
               value={skillProfile.consistencyScore}
               max={100}
               color="from-yellow-600 to-yellow-400"
@@ -652,7 +652,7 @@ function OverviewTab({
         <div className="bg-dark-800/50 rounded-xl p-4 mb-4 border border-dark-700/30">
           <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
             <span>🚀</span>
-            {t('profile.quickNav', 'Быстрая навигация')}
+            {t('profile.quickNav')}
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <NavButton
@@ -672,7 +672,7 @@ function OverviewTab({
             />
             <NavButton
               icon="🎯"
-              label={t('profile.goals', 'Цели')}
+              label={t('profile.goals')}
               onClick={() => onNavigate('goals')}
             />
           </div>
@@ -685,7 +685,7 @@ function OverviewTab({
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm flex items-center gap-2">
               <span>🎯</span>
-              {t('profile.goals', 'Цели')}
+              {t('profile.goals')}
             </h3>
             <span className="text-xs text-dark-400">
               {goalsSummary.completed}/{goalsSummary.total}
@@ -707,7 +707,7 @@ function OverviewTab({
         <div className="bg-dark-800/50 rounded-xl p-4 border border-dark-700/30">
           <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
             <span>🕐</span>
-            {t('profile.recentActivity', 'Последние тренировки')}
+            {t('profile.recentActivity')}
           </h3>
           <div className="space-y-2">
             {recentSessions.map((session) => (
@@ -722,7 +722,7 @@ function OverviewTab({
                 <div className="flex items-center gap-4 text-xs">
                   <span className="text-success font-medium">{session.wpm} WPM</span>
                   <span className="text-purple-400">{session.accuracy}%</span>
-                  <span className="text-dark-500">{Math.round(session.duration / 60)}{t('profile.timeMinutes', 'min')}</span>
+                  <span className="text-dark-500">{Math.round(session.duration / 60)}{t('profile.timeMinutes')}</span>
                 </div>
               </div>
             ))}
@@ -744,7 +744,7 @@ function HeatmapTab({
     <>
       <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
         <span>⌨️</span>
-        {t('profile.heatmapTitle', 'Тепловая карта клавиш')}
+        {t('profile.heatmapTitle')}
       </h3>
       {Object.keys(heatmapData).length > 0 ? (
         <div className="mb-4">
@@ -774,7 +774,7 @@ function HeatmapTab({
           </div>
           {/* Legend */}
           <div className="flex items-center justify-between mt-3 text-xs text-dark-400">
-            <span>{t('profile.heatmapLegend', 'Точность')}</span>
+            <span>{t('profile.heatmapLegend')}</span>
             <div className="flex items-center gap-1">
               <span className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }} />
               <span className="w-4 h-4 rounded" style={{ backgroundColor: '#f97316' }} />
@@ -791,8 +791,8 @@ function HeatmapTab({
       ) : (
         <div className="text-center py-12 text-dark-400">
           <div className="text-5xl mb-3">⌨️</div>
-          <p className="text-lg mb-2">{t('profile.noHeatmapData', 'Нет данных для тепловой карты')}</p>
-          <p className="text-sm">{t('profile.completeSessions', 'Завершите несколько тренировок')}</p>
+          <p className="text-lg mb-2">{t('profile.noHeatmapData')}</p>
+          <p className="text-sm">{t('profile.completeSessions')}</p>
         </div>
       )}
     </>
@@ -813,24 +813,24 @@ function GoalsTab({
     <>
       <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
         <span>🎯</span>
-        {t('profile.goalsTitle', 'Цели и достижения')}
+        {t('profile.goalsTitle')}
       </h3>
 
       {/* Goals stats */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-primary-400">{activeGoals.length}</div>
-          <div className="text-xs text-dark-400 mt-1">{t('profile.goalActive', 'Active')}</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalActive')}</div>
         </div>
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-green-400">{completedGoals.length}</div>
-          <div className="text-xs text-dark-400 mt-1">{t('profile.goalCompleted', 'Completed')}</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalCompleted')}</div>
         </div>
         <div className="bg-dark-800/50 rounded-xl p-3 text-center border border-dark-700/30">
           <div className="text-2xl font-bold text-yellow-400">
             {goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0}%
           </div>
-          <div className="text-xs text-dark-400 mt-1">{t('profile.goalProgress', 'Progress')}</div>
+          <div className="text-xs text-dark-400 mt-1">{t('profile.goalProgress')}</div>
         </div>
       </div>
 
@@ -845,7 +845,7 @@ function GoalsTab({
           {completedGoals.length > 0 && (
             <>
               <div className="pt-2 border-t border-dark-700/30">
-                <p className="text-xs text-dark-500 mb-2">{t('profile.goalCompletedTitle', 'Completed goals')}</p>
+                <p className="text-xs text-dark-500 mb-2">{t('profile.goalCompletedTitle')}</p>
               </div>
               {completedGoals.map(goal => {
                 const progress = 100
@@ -859,8 +859,8 @@ function GoalsTab({
       ) : (
         <div className="text-center py-12 text-dark-400">
           <div className="text-5xl mb-3">🎯</div>
-          <p className="text-lg mb-2">{t('profile.noGoals', 'Нет целей')}</p>
-          <p className="text-sm">{t('profile.setGoals', 'Установите цели для отслеживания прогресса')}</p>
+          <p className="text-lg mb-2">{t('profile.noGoals')}</p>
+          <p className="text-sm">{t('profile.setGoals')}</p>
         </div>
       )}
     </>
@@ -888,7 +888,7 @@ function GoalItem({ goal, progress, completed, t }: { goal: Goal; progress: numb
             <h4 className="font-semibold text-sm truncate">{goal.title}</h4>
             {completed && (
               <span className="text-xs text-green-400 font-medium ml-2 flex-shrink-0">
-                ✓ {translate('profile.done', 'Выполнено')}
+                ✓ {translate('profile.done')}
               </span>
             )}
           </div>
@@ -939,7 +939,7 @@ function SettingsTab({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          {t('profile.back', 'Back')}
+          {t('profile.back')}
         </button>
         {subPage === 'profile' && <ProfileSettingsSubPage user={user} onUpdateName={onUpdateName} />}
         {subPage === 'notifications' && <NotificationSettingsSubPage />}
@@ -957,8 +957,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
-      label: t('profile.settingsProfile', 'Profile'),
-      description: t('profile.settingsProfileDesc', 'Name, email, avatar'),
+      label: t('profile.settingsProfile'),
+      description: t('profile.settingsProfileDesc'),
     },
     {
       id: 'notifications' as SettingsSubPage,
@@ -967,8 +967,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
       ),
-      label: t('profile.settingsNotifications', 'Notifications'),
-      description: t('profile.settingsNotifDesc', 'Alert settings'),
+      label: t('profile.settingsNotifications'),
+      description: t('profile.settingsNotifDesc'),
     },
     {
       id: 'security' as SettingsSubPage,
@@ -977,8 +977,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
-      label: t('profile.settingsSecurity', 'Security'),
-      description: t('profile.settingsSecurityDesc', 'Password, two-factor authentication'),
+      label: t('profile.settingsSecurity'),
+      description: t('profile.settingsSecurityDesc'),
     },
     {
       id: 'data' as SettingsSubPage,
@@ -987,8 +987,8 @@ function SettingsTab({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
       ),
-      label: t('profile.settingsData', 'Data'),
-      description: t('profile.settingsDataDesc', 'Export, import, delete data'),
+      label: t('profile.settingsData'),
+      description: t('profile.settingsDataDesc'),
     },
   ]
 
@@ -996,7 +996,7 @@ function SettingsTab({
     <div className="space-y-3">
       <h3 className="font-semibold mb-4 flex items-center gap-2 text-sm">
         <span>⚙️</span>
-        {t('misc.settings', 'Настройки')}
+        {t('misc.settings')}
       </h3>
 
       {settingsItems.map(item => (
@@ -1020,7 +1020,7 @@ function SettingsTab({
 
       {/* Danger zone */}
       <div className="mt-6 pt-6 border-t border-error/20">
-        <h4 className="text-sm font-medium text-error mb-3">{t('profile.dangerZone', 'Danger zone')}</h4>
+        <h4 className="text-sm font-medium text-error mb-3">{t('profile.dangerZone')}</h4>
         <button
           onClick={onDeleteAccount}
           className="w-full flex items-center gap-4 p-4 bg-error/5 hover:bg-error/10 rounded-xl border border-error/20 transition-all text-left text-error"
@@ -1029,8 +1029,8 @@ function SettingsTab({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
           <div>
-            <div className="font-medium text-sm">{t('profile.deleteAccountTitle', 'Delete account')}</div>
-            <div className="text-xs text-error/70">{t('profile.irreversible', 'This action cannot be undone')}</div>
+            <div className="font-medium text-sm">{t('profile.deleteAccountTitle')}</div>
+            <div className="text-xs text-error/70">{t('profile.irreversible')}</div>
           </div>
         </button>
       </div>
@@ -1059,12 +1059,12 @@ function ProfileSettingsSubPage({
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>👤</span> {t('profile.title', 'Профиль')}
+        <span>👤</span> {t('profile.title')}
       </h3>
 
       <div className="space-y-3">
         <div>
-          <label htmlFor="profile-name" className="text-xs text-dark-400 mb-1 block">{t('profile.name', 'Имя')}</label>
+          <label htmlFor="profile-name" className="text-xs text-dark-400 mb-1 block">{t('profile.name')}</label>
           {editing ? (
             <div className="flex gap-2">
               <input
@@ -1087,12 +1087,12 @@ function ProfileSettingsSubPage({
         </div>
 
         <div>
-          <span className="text-xs text-dark-400 mb-1 block">{t('auth.email', 'Email')}</span>
+          <span className="text-xs text-dark-400 mb-1 block">{t('auth.email')}</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">{user.email}</div>
         </div>
 
         <div>
-          <span className="text-xs text-dark-400 mb-1 block">{t('profile.registrationDate', 'Дата регистрации')}</span>
+          <span className="text-xs text-dark-400 mb-1 block">{t('profile.registrationDate')}</span>
           <div className="bg-dark-800/50 rounded-lg px-3 py-2 text-sm text-dark-300">
             {new Date(user.createdAt).toLocaleDateString(i18n.language)}
           </div>
@@ -1138,15 +1138,15 @@ function NotificationSettingsSubPage() {
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>🔔</span> {t('profile.notifications', 'Notifications')}
+        <span>🔔</span> {t('profile.notifications')}
       </h3>
 
       {/* Browser notifications */}
       <div className="bg-dark-800/50 rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-white">{t('profile.browserNotifs', 'Browser notifications')}</div>
-            <div className="text-xs text-dark-400">{t('profile.browserNotifsDesc', 'Show system notifications')}</div>
+            <div className="text-sm font-medium text-white">{t('profile.browserNotifs')}</div>
+            <div className="text-xs text-dark-400">{t('profile.browserNotifsDesc')}</div>
           </div>
           <button
             onClick={browserEnabled ? undefined : enableBrowserNotifs}
@@ -1154,7 +1154,7 @@ function NotificationSettingsSubPage() {
               browserEnabled ? 'bg-success/20 text-success' : 'bg-dark-700 text-dark-300 hover:text-white'
             }`}
           >
-            {browserEnabled ? t('profile.notifEnabled', 'Enabled') : t('profile.notifEnable', 'Enable')}
+            {browserEnabled ? t('profile.notifEnabled') : t('profile.notifEnable')}
           </button>
         </div>
       </div>
@@ -1162,20 +1162,20 @@ function NotificationSettingsSubPage() {
       {/* Notification types */}
       <div className="space-y-2">
         <ToggleRow
-          label={t('profile.soundNotifs', 'Sound notifications')}
-          description={t('profile.soundNotifsDesc', 'Sound on new notifications')}
+          label={t('profile.soundNotifs')}
+          description={t('profile.soundNotifsDesc')}
           checked={soundEnabled}
           onChange={v => toggle('fastfingers_notif_sound', v, setSoundEnabled)}
         />
         <ToggleRow
-          label={t('profile.levelUpNotif', 'Level up')}
-          description={t('profile.levelUpNotifDesc', 'Notify on level up')}
+          label={t('profile.levelUpNotif')}
+          description={t('profile.levelUpNotifDesc')}
           checked={levelUpEnabled}
           onChange={v => toggle('fastfingers_notif_levelup', v, setLevelUpEnabled)}
         />
         <ToggleRow
-          label={t('profile.achievementNotif', 'Achievements')}
-          description={t('profile.achievementNotifDesc', 'Notify on achievement unlock')}
+          label={t('profile.achievementNotif')}
+          description={t('profile.achievementNotifDesc')}
           checked={achievementEnabled}
           onChange={v => toggle('fastfingers_notif_achievement', v, setAchievementEnabled)}
         />
@@ -1185,8 +1185,8 @@ function NotificationSettingsSubPage() {
       {notifications.length > 0 && (
         <div className="bg-dark-800/50 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-white">{t('profile.recentNotifs', 'Recent')} ({unreadCount} {t('profile.unread', 'unread')})</h4>
-            <button onClick={() => clearAll()} className="text-xs text-dark-400 hover:text-white">{t('profile.clearAll', 'Clear all')}</button>
+            <h4 className="text-sm font-medium text-white">{t('profile.recentNotifs')} ({unreadCount} {t('profile.unread')})</h4>
+            <button onClick={() => clearAll()} className="text-xs text-dark-400 hover:text-white">{t('profile.clearAll')}</button>
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {notifications.slice(0, 10).map(n => (
@@ -1237,47 +1237,47 @@ function SecuritySettingsSubPage() {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setMessage({ type: 'error', text: t('profile.validation.fillAllFields', 'Fill in all fields') })
+      setMessage({ type: 'error', text: t('profile.validation.fillAllFields') })
       return
     }
     if (newPassword.length < 8) {
-      setMessage({ type: 'error', text: t('profile.validation.passwordMinLength', 'Password must be at least 8 characters') })
+      setMessage({ type: 'error', text: t('profile.validation.passwordMinLength') })
       return
     }
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: t('profile.validation.passwordsMismatch', 'Passwords do not match') })
+      setMessage({ type: 'error', text: t('profile.validation.passwordsMismatch') })
       return
     }
 
     try {
       const userRaw = localStorage.getItem(STORAGE_KEYS.USER)
       if (!userRaw) {
-        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound') })
         return
       }
       const currentUser = JSON.parse(userRaw)
       if (!currentUser || !currentUser.id || !currentUser.email) {
-        setMessage({ type: 'error', text: t('profile.validation.userNotFound', 'User not found') })
+        setMessage({ type: 'error', text: t('profile.validation.userNotFound') })
         return
       }
 
       await authService.changePassword(currentUser.id, currentPassword, newPassword)
 
-      setMessage({ type: 'success', text: t('profile.validation.passwordChanged', 'Password changed successfully') })
+      setMessage({ type: 'success', text: t('profile.validation.passwordChanged') })
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setShowChangePassword(false)
     } catch (err) {
       logger.error('[UserProfile] Password change failed', err)
-      setMessage({ type: 'error', text: t('profile.validation.invalidCurrentPassword', 'Invalid current password or error') })
+      setMessage({ type: 'error', text: t('profile.validation.invalidCurrentPassword') })
     }
   }
 
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>🔒</span> {t('profile.security', 'Security')}
+        <span>🔒</span> {t('profile.security')}
       </h3>
 
       {message && (
@@ -1290,21 +1290,21 @@ function SecuritySettingsSubPage() {
       <div className="bg-dark-800/50 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <div className="text-sm font-medium text-white">{t('profile.changePassword', 'Change password')}</div>
-            <div className="text-xs text-dark-400">{t('profile.changePasswordDesc', 'Change your login password')}</div>
+            <div className="text-sm font-medium text-white">{t('profile.changePassword')}</div>
+            <div className="text-xs text-dark-400">{t('profile.changePasswordDesc')}</div>
           </div>
           <button
             onClick={() => { setShowChangePassword(!showChangePassword); setMessage(null) }}
             className="text-xs text-primary-400 hover:text-primary-300"
           >
-            {showChangePassword ? t('profile.cancel', 'Cancel') : t('profile.change', 'Change')}
+            {showChangePassword ? t('profile.cancel') : t('profile.change')}
           </button>
         </div>
 
         {showChangePassword && (
           <div className="space-y-3 mt-3">
             <div>
-              <label htmlFor="pw-current" className="text-xs text-dark-400 mb-1 block">{t('profile.currentPassword', 'Current password')}</label>
+              <label htmlFor="pw-current" className="text-xs text-dark-400 mb-1 block">{t('profile.currentPassword')}</label>
               <input
                 id="pw-current"
                 type="password"
@@ -1314,7 +1314,7 @@ function SecuritySettingsSubPage() {
               />
             </div>
             <div>
-              <label htmlFor="pw-new" className="text-xs text-dark-400 mb-1 block">{t('profile.newPassword', 'New password')}</label>
+              <label htmlFor="pw-new" className="text-xs text-dark-400 mb-1 block">{t('profile.newPassword')}</label>
               <input
                 id="pw-new"
                 type="password"
@@ -1324,7 +1324,7 @@ function SecuritySettingsSubPage() {
               />
             </div>
             <div>
-              <label htmlFor="pw-confirm" className="text-xs text-dark-400 mb-1 block">{t('profile.confirmPassword', 'Confirm password')}</label>
+              <label htmlFor="pw-confirm" className="text-xs text-dark-400 mb-1 block">{t('profile.confirmPassword')}</label>
               <input
                 id="pw-confirm"
                 type="password"
@@ -1337,7 +1337,7 @@ function SecuritySettingsSubPage() {
               onClick={handleChangePassword}
               className="w-full py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              {t('profile.savePassword', 'Save password')}
+              {t('profile.savePassword')}
             </button>
           </div>
         )}
@@ -1345,17 +1345,17 @@ function SecuritySettingsSubPage() {
 
       {/* 2FA placeholder */}
       <div className="bg-dark-800/50 rounded-xl p-4 opacity-60">
-        <div className="text-sm font-medium text-white">{t('profile.twoFactor', 'Two-factor authentication')}</div>
-        <div className="text-xs text-dark-400 mt-1">{t('profile.twoFactorDesc', 'Two-factor authentication will be available in a future update')}</div>
+        <div className="text-sm font-medium text-white">{t('profile.twoFactor')}</div>
+        <div className="text-xs text-dark-400 mt-1">{t('profile.twoFactorDesc')}</div>
       </div>
 
       {/* Session info */}
       <div className="bg-dark-800/50 rounded-xl p-4">
-        <div className="text-sm font-medium text-white mb-2">{t('profile.activeSession', 'Active session')}</div>
+        <div className="text-sm font-medium text-white mb-2">{t('profile.activeSession')}</div>
         <div className="text-xs text-dark-400 space-y-1">
-          <div>{t('profile.platform', 'Platform')}: {navigator.platform}</div>
-          <div>{t('profile.browser', 'Browser')}: {navigator.userAgent.split(' ').pop() || navigator.userAgent}</div>
-          <div>{t('profile.language', 'Language')}: {navigator.language}</div>
+          <div>{t('profile.platform')}: {navigator.platform}</div>
+          <div>{t('profile.browser')}: {navigator.userAgent.split(' ').pop() || navigator.userAgent}</div>
+          <div>{t('profile.language')}: {navigator.language}</div>
         </div>
       </div>
     </div>
@@ -1382,7 +1382,7 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       downloadBlob(blob, `fastfingers-backup-${new Date().toISOString().split('T')[0]}.json`)
     } catch (err) {
       logger.error('[UserProfile] Failed to export data', err)
-      showToast(t('profile.exportError', 'Ошибка при экспорте данных'), 'error')
+      showToast(t('profile.exportError'), 'error')
     }
   }
 
@@ -1396,13 +1396,13 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         const content = e.target?.result as string
         const importData = JSON.parse(content)
         if (!importData.data || typeof importData.data !== 'object') throw new Error('Invalid format')
-        if (!confirm(t('profile.importOverwriteConfirm', 'This will overwrite all current data. Continue?'))) { setImporting(false); return }
+        if (!confirm(t('profile.importOverwriteConfirm'))) { setImporting(false); return }
         Object.entries(importData.data).forEach(([key, value]) => {
           if (typeof value === 'string' && key.startsWith('fastfingers_')) localStorage.setItem(key, value)
         })
         window.location.reload()
       } catch {
-        showToast(t('profile.importError', 'Ошибка при импорте данных'), 'error')
+        showToast(t('profile.importError'), 'error')
         setImporting(false)
       }
     }
@@ -1410,8 +1410,8 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
   }
 
   const handleClearData = () => {
-    if (!confirm(t('profile.clearDataConfirm', 'Are you sure? This will delete ALL data and cannot be undone!'))) return
-    if (!confirm(t('profile.clearDataFinalWarning', 'Final warning! All achievements, stats and settings will be deleted.'))) return
+    if (!confirm(t('profile.clearDataConfirm'))) return
+    if (!confirm(t('profile.clearDataFinalWarning'))) return
     try {
       const keysToRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
@@ -1422,14 +1422,14 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
       window.location.reload()
     } catch (err) {
       logger.error('[UserProfile] Failed to clear data', err)
-      showToast(t('profile.clearDataError', 'Ошибка при очистке данных'), 'error')
+      showToast(t('profile.clearDataError'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2 text-sm">
-        <span>💾</span> {t('profile.dataSettings', 'Данные')}
+        <span>💾</span> {t('profile.dataSettings')}
       </h3>
 
       {/* Export */}
@@ -1437,15 +1437,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">📤</span>
           <div>
-            <div className="text-sm font-medium text-white">{t('profile.exportData', 'Экспорт данных')}</div>
-            <div className="text-xs text-dark-400">{t('profile.exportDescription', 'Сохранить все данные в JSON файл')}</div>
+            <div className="text-sm font-medium text-white">{t('profile.exportData')}</div>
+            <div className="text-xs text-dark-400">{t('profile.exportDescription')}</div>
           </div>
         </div>
         <button
           onClick={handleExport}
           className="w-full py-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded-lg text-sm font-medium transition-colors"
         >
-          {t('profile.exportButton', 'Экспортировать')}
+          {t('profile.exportButton')}
         </button>
       </div>
 
@@ -1454,12 +1454,12 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">📥</span>
           <div>
-            <div className="text-sm font-medium text-white">{t('profile.importData', 'Импорт данных')}</div>
-            <div className="text-xs text-dark-400">{t('profile.importDescription', 'Восстановить из JSON файла')}</div>
+            <div className="text-sm font-medium text-white">{t('profile.importData')}</div>
+            <div className="text-xs text-dark-400">{t('profile.importDescription')}</div>
           </div>
         </div>
         <label className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center cursor-pointer">
-          {importing ? t('profile.importing', 'Импортирование...') : t('profile.importButton', 'Импортировать')}
+          {importing ? t('profile.importing') : t('profile.importButton')}
           <input type="file" accept=".json" onChange={handleImport} disabled={importing} className="hidden" />
         </label>
       </div>
@@ -1469,15 +1469,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">⚠️</span>
           <div>
-            <div className="text-sm font-medium text-error">{t('profile.clearAllData', 'Удалить все данные')}</div>
-            <div className="text-xs text-error/70">{t('profile.clearDataDescription', 'Сбросить прогресс и настройки')}</div>
+            <div className="text-sm font-medium text-error">{t('profile.clearAllData')}</div>
+            <div className="text-xs text-error/70">{t('profile.clearDataDescription')}</div>
           </div>
         </div>
         <button
           onClick={handleClearData}
           className="w-full py-2 bg-error/10 hover:bg-error/20 text-error rounded-lg text-sm font-medium transition-colors"
         >
-          {t('profile.clearAllData', 'Удалить все данные')}
+          {t('profile.clearAllData')}
         </button>
       </div>
 
@@ -1486,15 +1486,15 @@ function DataSettingsSubPage({ onDeleteAccount }: { onDeleteAccount: () => void 
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">🗑</span>
           <div>
-            <div className="text-sm font-medium text-error">{t('profile.deleteAccountTitle', 'Удалить аккаунт')}</div>
-            <div className="text-xs text-error/70">{t('profile.deleteAccountDescription', 'Полное удаление аккаунта и данных')}</div>
+            <div className="text-sm font-medium text-error">{t('profile.deleteAccountTitle')}</div>
+            <div className="text-xs text-error/70">{t('profile.deleteAccountDescription')}</div>
           </div>
         </div>
         <button
           onClick={onDeleteAccount}
           className="w-full py-2 bg-error hover:bg-error/80 text-white rounded-lg text-sm font-medium transition-colors"
         >
-          {t('profile.deleteAccountTitle', 'Удалить аккаунт')}
+          {t('profile.deleteAccountTitle')}
         </button>
       </div>
     </div>
@@ -1599,6 +1599,6 @@ function xpForLevel(level: number): number {
 function formatPracticeTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  if (hours > 0) return `${hours}${i18n.t('profile.hoursShort', 'h')} ${minutes}${i18n.t('profile.minutesShort', 'min')}`
-  return `${minutes}${i18n.t('profile.minutesShort', 'min')}`
+  if (hours > 0) return `${hours}${i18n.t('profile.hoursShort')} ${minutes}${i18n.t('profile.minutesShort')}`
+  return `${minutes}${i18n.t('profile.minutesShort')}`
 }

@@ -124,11 +124,11 @@ export function TextManager() {
 
   function handleExport() {
     if (texts.length === 0) {
-      showToast(t('admin.exportEmpty', 'Нет текстов для экспорта'), 'error')
+      showToast(t('admin.exportEmpty'), 'error')
       return
     }
     exportTexts(texts)
-    showToast(t('admin.exportSuccess', `Экспортировано ${texts.length} текстов`), 'success')
+    showToast(t('admin.exportSuccess'), 'success')
   }
 
   function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
@@ -141,20 +141,20 @@ export function TextManager() {
     reader.onload = () => {
       try {
         if (typeof reader.result !== 'string') {
-          showToast(t('admin.importInvalid', 'Неверный формат файла'), 'error')
+          showToast(t('admin.importInvalid'), 'error')
           setImporting(false)
           return
         }
         const parsed = JSON.parse(reader.result)
         if (!Array.isArray(parsed)) {
-          showToast(t('admin.importInvalid', 'Файл должен содержать массив текстов'), 'error')
+          showToast(t('admin.importInvalid'), 'error')
           setImporting(false)
           return
         }
 
         const valid = parsed.filter(validatePracticeText)
         if (valid.length === 0) {
-          showToast(t('admin.importNoValid', 'Не найдено валидных текстов'), 'error')
+          showToast(t('admin.importNoValid'), 'error')
           setImporting(false)
           return
         }
@@ -177,17 +177,17 @@ export function TextManager() {
         if (skipped > 0) {
           showToast(t('admin.importSuccessSkip', { count: newTexts.length, skipped }), 'success')
         } else {
-          showToast(t('admin.importSuccess', `Импортировано ${newTexts.length} текстов`), 'success')
+          showToast(t('admin.importSuccess'), 'success')
         }
       } catch (err) {
         logger.error('Failed to parse imported text file', err)
-        showToast(t('admin.importError', 'Ошибка при чтении файла'), 'error')
+        showToast(t('admin.importError'), 'error')
       }
       setImporting(false)
     }
 
     reader.onerror = () => {
-      showToast(t('admin.importError', 'Ошибка при чтении файла'), 'error')
+      showToast(t('admin.importError'), 'error')
       setImporting(false)
     }
 
@@ -212,11 +212,11 @@ export function TextManager() {
             </svg>
           </button>
           <label
-            aria-label={t('action.import', 'Импорт')}
+            aria-label={t('action.import')}
             className={`px-3 py-2 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-sm transition-colors cursor-pointer ${
               importing ? 'opacity-50 pointer-events-none' : ''
             }`}
-            title={t('action.import', 'Импорт')}
+            title={t('action.import')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l4 4m-4-4v12" />
@@ -239,34 +239,34 @@ export function TextManager() {
       {showForm && (
         <div className="glass rounded-xl p-4 space-y-3">
           <h3 className="text-lg font-semibold text-white">
-            {editing ? t('textManager.editText', 'Edit text') : t('textManager.newText', 'New text')}
+            {editing ? t('textManager.editText') : t('textManager.newText')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                {t('textManager.title', 'Title')}
+                {t('textManager.title')}
                 <input
                   value={formData.title || ''}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
-                  placeholder={t('textManager.titlePlaceholder', 'Text title')}
+                  placeholder={t('textManager.titlePlaceholder')}
                 />
               </label>
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                {t('textManager.source', 'Source')}
+                {t('textManager.source')}
                 <input
                   value={formData.source || ''}
                   onChange={e => setFormData({ ...formData, source: e.target.value })}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none mt-1"
-                  placeholder={t('textManager.sourcePlaceholder', 'Optional')}
+                  placeholder={t('textManager.sourcePlaceholder')}
                 />
               </label>
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                {t('textManager.category', 'Category')}
+                {t('textManager.category')}
                 <select
                   value={formData.category || 'literature'}
                   onChange={e => setFormData({ ...formData, category: e.target.value as TextCategory })}
@@ -280,7 +280,7 @@ export function TextManager() {
             </div>
             <div>
               <label className="block text-xs text-dark-400 mb-1">
-                {t('textManager.difficulty', 'Difficulty (1-9)')}
+                {t('textManager.difficulty')}
                 <input
                   type="number"
                   min={1}
@@ -294,13 +294,13 @@ export function TextManager() {
           </div>
           <div>
               <label className="block text-xs text-dark-400 mb-1">
-                {t('textManager.content', 'Content')}
+                {t('textManager.content')}
                 <textarea
                   value={formData.text || ''}
                   onChange={e => setFormData({ ...formData, text: e.target.value })}
                   rows={4}
                   className="w-full bg-dark-800 text-white rounded-lg px-3 py-2 text-sm border border-dark-600 focus:border-accent-500 outline-none resize-vertical mt-1"
-                  placeholder={t('textManager.contentPlaceholder', 'Text to type')}
+                  placeholder={t('textManager.contentPlaceholder')}
                 />
               </label>
           </div>
@@ -318,7 +318,7 @@ export function TextManager() {
       <div className="space-y-2">
         {texts.length === 0 && !showForm && (
           <p className="text-center text-dark-500 py-8 text-sm">
-            {t('textManager.emptyState', 'No custom texts. Click "+ Add text" to create one.')}
+            {t('textManager.emptyState')}
           </p>
         )}
         {texts.map(text => {
@@ -342,13 +342,13 @@ export function TextManager() {
               </div>
               <p className="text-sm text-dark-400 line-clamp-2">{text.text}</p>
               {text.source && (
-                <p className="text-xs text-dark-500 mt-1">{t('textManager.sourceLabel', 'Source:')} {text.source}</p>
+                <p className="text-xs text-dark-500 mt-1">{t('textManager.sourceLabel')} {text.source}</p>
               )}
               {usage && usage.count > 0 && (
                 <div className="flex gap-4 mt-2 text-xs text-dark-500">
-                  <span>{t('textManager.wpmLabel', 'WPM:')} <span className="text-primary-400 font-medium">{usage.avgWpm}</span></span>
-                  <span>{t('textManager.accuracyLabel', 'Accuracy:')} <span className="text-green-400 font-medium">{usage.avgAccuracy}%</span></span>
-                  <span>{t('textManager.lastUsedLabel', 'Last:')} <span className="text-dark-400">{new Date(usage.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</span></span>
+                  <span>{t('textManager.wpmLabel')} <span className="text-primary-400 font-medium">{usage.avgWpm}</span></span>
+                  <span>{t('textManager.accuracyLabel')} <span className="text-green-400 font-medium">{usage.avgAccuracy}%</span></span>
+                  <span>{t('textManager.lastUsedLabel')} <span className="text-dark-400">{new Date(usage.lastUsed).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</span></span>
                 </div>
               )}
             </div>
@@ -371,24 +371,24 @@ export function TextManager() {
           <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <span>📊</span>
-              {t('textManager.usageStats', 'Usage statistics')}
+              {t('textManager.usageStats')}
             </h3>
             <button
               onClick={clearUsageStats}
               className="px-3 py-1.5 bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white rounded-lg text-xs transition-colors"
             >
-              {t('textManager.resetStats', 'Reset statistics')}
+              {t('textManager.resetStats')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-dark-700">
-                  <th className="text-left py-2 px-3 text-dark-400 font-medium">{t('textManager.tableText', 'Text')}</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableUsageCount', 'Usage count')}</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgWpm', 'Avg WPM')}</th>
-                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgAccuracy', 'Avg accuracy')}</th>
-                  <th className="text-right py-2 px-3 text-dark-400 font-medium">{t('textManager.tableLastUsed', 'Last used')}</th>
+                  <th className="text-left py-2 px-3 text-dark-400 font-medium">{t('textManager.tableText')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableUsageCount')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgWpm')}</th>
+                  <th className="text-center py-2 px-3 text-dark-400 font-medium">{t('textManager.tableAvgAccuracy')}</th>
+                  <th className="text-right py-2 px-3 text-dark-400 font-medium">{t('textManager.tableLastUsed')}</th>
                 </tr>
               </thead>
               <tbody>
