@@ -124,7 +124,7 @@ export const StatisticsPage = memo<StatisticsPageProps>(function StatisticsPage(
       bestWpm: bestWpmChange,
       accuracy: accuracyChange,
     }
-  }, [history.totalTime, getStatsForPeriod])
+  }, [history.totalTime, getStatsForPeriod, t])
 
   // Данные для графика WPM по сессиям
   const wpmTrendData = useMemo(() => {
