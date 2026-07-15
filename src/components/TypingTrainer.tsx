@@ -487,7 +487,7 @@ export const TypingTrainer = memo<TypingTrainerProps>(function TypingTrainer({
             </motion.div>
           </div>
           <div className="flex justify-between text-[10px] text-dark-500">
-            <span className="font-medium">{currentIndex} / {text.length} chars</span>
+            <span className="font-medium">{currentIndex} / {text.length} {t('common.chars')}</span>
             <span className="font-mono font-medium text-dark-400">{wpm > 0 ? `${wpm} WPM` : '—'}</span>
           </div>
         </div>

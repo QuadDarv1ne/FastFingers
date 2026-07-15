@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 
@@ -6,7 +6,7 @@ interface WeeklyProgressProps {
   compact?: boolean
 }
 
-export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
+export const WeeklyProgress = memo(function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
   const { t } = useAppTranslation()
   const { history } = useTypingHistory()
 
@@ -235,4 +235,4 @@ export function WeeklyProgress({ compact = false }: WeeklyProgressProps) {
       </div>
     </div>
   )
-}
+})

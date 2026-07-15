@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect, memo } from 'react'
 import type { KeyboardSkin } from '../types'
 import { keyboardSkinPresets, getKeyboardSkin } from '../utils/keyboardSkins'
 import { useAppTranslation } from '../i18n/config'
@@ -9,7 +9,7 @@ interface KeyboardSkinSelectorProps {
   onSkinChange: (skin: KeyboardSkin) => void
 }
 
-export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelectorProps) {
+export const KeyboardSkinSelector = memo(function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelectorProps) {
   const { t } = useAppTranslation()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(0)
@@ -177,4 +177,4 @@ export function KeyboardSkinSelector({ skin, onSkinChange }: KeyboardSkinSelecto
       )}
     </div>
   )
-}
+})

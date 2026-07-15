@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useAppTranslation } from '../i18n/config'
 import { Quote, getRandomQuote, getCategoryLabel } from '../constants/quotes'
 
@@ -8,7 +8,7 @@ interface MotivationalQuoteProps {
   changeInterval?: number
 }
 
-export function MotivationalQuote({
+export const MotivationalQuote = memo(function MotivationalQuote({
   category,
   autoChange = false,
   changeInterval = 30000,
@@ -74,4 +74,4 @@ export function MotivationalQuote({
       </div>
     </div>
   )
-}
+})

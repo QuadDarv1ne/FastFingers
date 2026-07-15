@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
-import { ThemeColor } from '../utils/themes'
+import type { ThemeColor } from '../utils/themes'
 import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
 import { useToast } from '@contexts/ToastContext'

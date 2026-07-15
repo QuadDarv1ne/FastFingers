@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { useTypingHistory } from '../hooks/useTypingHistory'
 import { useAppTranslation } from '../i18n/config'
 import i18n from 'i18next'
@@ -27,7 +27,7 @@ const LEVEL_COLORS = [
 ]
 
 
-export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
+export const ActivityHeatmap = memo(function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
   const { t } = useAppTranslation()
   const { history } = useTypingHistory()
 
@@ -169,7 +169,7 @@ export function ActivityHeatmap({ months = 6 }: ActivityHeatmapProps) {
       </div>
     </div>
   )
-}
+})
 
 function Tooltip({ day, children }: { day: DayData; children: React.ReactNode }) {
   const { t } = useAppTranslation()
