@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface CountdownOverlayProps {
@@ -5,7 +6,7 @@ interface CountdownOverlayProps {
   colorClass?: string
 }
 
-export function CountdownOverlay({ countdown, colorClass = 'text-primary-400' }: CountdownOverlayProps) {
+export const CountdownOverlay = memo(function CountdownOverlay({ countdown, colorClass = 'text-primary-400' }: CountdownOverlayProps) {
   return (
     <AnimatePresence>
       {countdown !== null && (
@@ -31,4 +32,4 @@ export function CountdownOverlay({ countdown, colorClass = 'text-primary-400' }:
       )}
     </AnimatePresence>
   )
-}
+})

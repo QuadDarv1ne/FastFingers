@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
@@ -20,7 +20,7 @@ interface CustomExerciseEditorProps {
   onUseExercise?: (exercise: CustomExercise) => void
 }
 
-export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomExerciseEditorProps) {
+export const CustomExerciseEditor = memo(function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomExerciseEditorProps) {
   const { t } = useAppTranslation()
   const [exercises, setExercises] = useLocalStorageState<CustomExercise[]>(
     STORAGE_KEYS.CUSTOM_EXERCISES,
@@ -294,7 +294,7 @@ export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomE
       </div>
     </div>
   )
-}
+})
 
 function ExerciseCard({
   exercise,

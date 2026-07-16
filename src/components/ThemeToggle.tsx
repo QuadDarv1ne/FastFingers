@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import type { ThemeColor } from '../utils/themes'
 import { useAppTranslation } from '../i18n/config'
 import { useClickOutside } from '@hooks/useClickOutside'
@@ -13,7 +13,7 @@ interface ThemeToggleProps {
   onThemeOptionChange?: (option: ThemeOption) => void
 }
 
-export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOptionChange }: ThemeToggleProps) {
+export const ThemeToggle = memo(function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOptionChange }: ThemeToggleProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
   const [showMenu, setShowMenu] = useState(false)
@@ -218,4 +218,4 @@ export function ThemeToggle({ themeOption = 'dark', onThemeChange, onThemeOption
       )}
     </div>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, memo } from 'react'
 import { motion } from 'framer-motion'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useAppTranslation } from '../i18n/config'
@@ -43,7 +43,7 @@ const difficultyConfig = {
   hard: { bar: 'from-red-600 to-rose-500', label: 'challenge.hard', accent: 'border-red-500/20 bg-red-500/5' },
 }
 
-export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete }: DailyChallengeCardProps) {
+export const DailyChallengeCard = memo(function DailyChallengeCard({ challenge: challengeProp, streak, onComplete }: DailyChallengeCardProps) {
   const { t } = useAppTranslation()
   const [progress] = useLocalStorageState<ChallengeProgress>(
     STORAGE_KEYS.CHALLENGE_PROGRESS,
@@ -160,7 +160,7 @@ export function DailyChallengeCard({ challenge: challengeProp, streak, onComplet
       </div>
     </div>
   )
-}
+})
 
 function generateDailyChallenge(date: string, t: (key: string) => string): DailyChallenge {
   const seed = date.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)

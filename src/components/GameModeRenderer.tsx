@@ -5,7 +5,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { type ReactNode, lazy, Suspense, useCallback } from 'react'
+import { type ReactNode, lazy, Suspense, useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
 import { ErrorBoundary } from './ErrorBoundary'
 import { useTypingSound } from '../hooks/useTypingSound'
@@ -142,7 +142,7 @@ interface GameModeRendererProps {
   onSaveCustomExercise: (exercise: CustomExercise) => void
 }
 
-export function GameModeRenderer({
+export const GameModeRenderer = memo(function GameModeRenderer({
   gameMode,
   view,
   speedTestDuration,
@@ -339,4 +339,4 @@ export function GameModeRenderer({
       </GameMotion>
     </ErrorBoundary>
   )
-}
+})

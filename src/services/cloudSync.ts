@@ -377,6 +377,17 @@ export async function completeDailyChallenge(
   }
 }
 
+function generateLocalChallenge(date: string) {
+  const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
+  return {
+    id: 'local-' + date,
+    text: i18n.t('challenge.fallbackTitle'),
+    targetWpm: 30 + (Math.abs(hash) % 40),
+    targetAccuracy: 85 + (Math.abs(hash) % 10),
+    xpReward: 100,
+  }
+}
+
 export async function getDailyChallenge(date: string): Promise<{
   id: string
   text: string
@@ -385,15 +396,7 @@ export async function getDailyChallenge(date: string): Promise<{
   xpReward: number
 } | null> {
   if (!supabase) {
-    // Генерируем детерминированный локальный челлендж
-    const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
-    return {
-      id: 'local-' + date,
-      text: i18n.t('challenge.fallbackTitle'),
-      targetWpm: 30 + (Math.abs(hash) % 40),
-      targetAccuracy: 85 + (Math.abs(hash) % 10),
-      xpReward: 100,
-    }
+    return generateLocalChallenge(date)
   }
 
   try {
@@ -409,14 +412,6 @@ export async function getDailyChallenge(date: string): Promise<{
   } catch (error) {
     logger.warn('Failed to get daily challenge', error)
     updateBackendStatus({ challenges: false })
-    // Fallback на генерацию локального челленджа
-    const hash = date.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)
-    return {
-      id: 'local-' + date,
-      text: i18n.t('challenge.fallbackTitle'),
-      targetWpm: 30 + (Math.abs(hash) % 40),
-      targetAccuracy: 85 + (Math.abs(hash) % 10),
-      xpReward: 100,
-    }
+    return generateLocalChallenge(date)
   }
 }

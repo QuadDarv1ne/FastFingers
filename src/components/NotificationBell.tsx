@@ -55,7 +55,10 @@ function NotificationBell() {
       try {
         const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS)
         if (stored) {
-          setNotifications(JSON.parse(stored))
+          const parsed = JSON.parse(stored)
+          if (Array.isArray(parsed)) {
+            setNotifications(parsed)
+          }
         }
       } catch (err) {
         logger.warn('Failed to sync notifications from storage', err)

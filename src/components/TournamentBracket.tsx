@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 import { useAppTranslation } from '../i18n/config'
@@ -31,7 +31,7 @@ interface BracketMatch {
   round: number
 }
 
-export function TournamentBracket({ tournament, participants, onBack, onExit }: TournamentBracketProps) {
+export const TournamentBracket = memo(function TournamentBracket({ tournament, participants, onBack, onExit }: TournamentBracketProps) {
   const { t } = useAppTranslation()
 
   // Генерация сетки турнира
@@ -221,7 +221,7 @@ export function TournamentBracket({ tournament, participants, onBack, onExit }: 
       </div>
     </div>
   )
-}
+})
 
 interface BracketMatchCardProps {
   match: BracketMatch

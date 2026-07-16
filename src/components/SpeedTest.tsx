@@ -4,7 +4,7 @@
  * @copyright 2025-2026 Dupley Maxim Igorevich
  */
 
-import { useCallback } from 'react'
+import { useCallback, memo } from 'react'
 import { motion } from 'framer-motion'
 import { useAppTranslation } from '../i18n/config'
 import type { TypingStats } from '../types'
@@ -23,7 +23,7 @@ interface SpeedTestProps {
   sound?: ReturnType<typeof useTypingSound>
 }
 
-export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProps) {
+export const SpeedTest = memo(function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProps) {
   const { t } = useAppTranslation()
   const { showToast } = useToast()
 
@@ -243,4 +243,4 @@ export function SpeedTest({ duration, onExit, onComplete, sound }: SpeedTestProp
       )}
     </div>
   )
-}
+})
