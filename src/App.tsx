@@ -15,6 +15,9 @@ import { PWAInstallPrompt } from './components/PWAInstallPrompt'
 import CookieConsentBanner from './components/CookieConsentBanner'
 import { Footer } from './components/Footer'
 import { GameModeRenderer } from './components/GameModeRenderer'
+import { GameModeNavbar } from './components/GameModeNavbar'
+import { AppSidebar } from './components/AppSidebar'
+import { AppOverlays } from './components/AppOverlays'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from '@hooks/useAuth'
@@ -41,27 +44,8 @@ import { useModals } from '@hooks/useModals'
 import { useAppTranslation } from '@i18n/config'
 import { useAchievementStats } from '@hooks/useAchievementStats'
 import type { GameMode, View } from '@hooks/useGameMode'
-import { ModeButton } from './components/ui/ModeButton'
-import { SpeedTestDropdown } from './components/ui/SpeedTestDropdown'
-import { SettingsPanel } from './components/ui/SettingsPanel'
-import { SectionError } from './components/ui/SectionError'
 
-const ExportImport = lazy(() => import('./components/ExportImport'))
-const Onboarding = lazy(() => import('./components/Onboarding').then((module) => ({ default: module.Onboarding })))
-const AchievementsPanel = lazy(() => import('./components/AchievementsPanel').then((module) => ({ default: module.AchievementsPanel })))
-
-const StreakRewardsPanel = lazy(() => import('./components/StreakRewardsPanel').then((module) => ({ default: module.StreakRewardsPanel })))
-const SessionSummary = lazy(() => import('./components/SessionSummary').then((module) => ({ default: module.SessionSummary })))
 const AuthWrapper = lazy(() => import('./components/auth/AuthWrapper').then((module) => ({ default: module.AuthWrapper })))
-const UserProfile = lazy(() => import('./components/auth/UserProfile').then((module) => ({ default: module.UserProfile })))
-const GoalsPanel = lazy(() => import('./components/GoalsPanel').then((module) => ({ default: module.GoalsPanel })))
-const Stats = lazy(() => import('./components/Stats').then((module) => ({ default: module.Stats })))
-const ThemeToggle = lazy(() => import('./components/ThemeToggle').then((module) => ({ default: module.ThemeToggle })))
-const KeyboardSkinSelector = lazy(() => import('./components/KeyboardSkinSelector').then((module) => ({ default: module.KeyboardSkinSelector })))
-const MusicControls = lazy(() => import('./components/MusicControls').then((module) => ({ default: module.MusicControls })))
-const ClockWidget = lazy(() => import('./components/ClockWidget'))
-const MotivationalQuote = lazy(() => import('./components/MotivationalQuote').then((module) => ({ default: module.MotivationalQuote })))
-const OnlineStatus = lazy(() => import('./components/OnlineStatus'))
 
 function AppContent() {
   const { t } = useAppTranslation()
@@ -130,7 +114,6 @@ function AppContent() {
     onLevelUp: handleLevelUp,
   })
 
-  // Автосохранение прогресса при закрытии вкладки
   useAutoSave({
     progress,
     currentSession: currentStats,
@@ -223,22 +206,6 @@ function AppContent() {
     [addExercise, setView, setGameMode, t]
   )
 
-  const gameModeButtons = useMemo(() => [
-    { mode: 'reaction' as const, icon: '🎮', label: t('nav.reaction'), title: t('mode.game') },
-    { mode: 'marathon' as const, icon: '🏃', label: t('label.marathon'), title: t('tooltip.marathon') },
-    { mode: 'code' as const, icon: '💻', label: t('label.code'), title: t('tooltip.code') },
-    { mode: 'duel' as const, icon: '⚔️', label: t('label.duel'), title: t('tooltip.duel') },
-    { mode: 'tournament' as const, icon: '🏆', label: t('label.tournament'), title: t('tooltip.tournament') },
-  ], [t])
-
-  const viewButtons = useMemo(() => [
-    { view: 'custom-exercise' as const, icon: '✏️', label: t('nav.custom'), title: t('exercise.custom') },
-    { view: 'tips' as const, icon: '💡', label: t('nav.tips'), title: t('nav.tips') },
-    { view: 'weekly' as const, icon: '📈', label: t('nav.week'), title: t('stats.progress') },
-    { view: 'statistics' as const, icon: '📊', label: t('nav.statistics'), title: t('stats.title') },
-    { view: 'learning' as const, icon: '📚', label: t('nav.learning'), title: t('nav.learning') },
-  ], [t])
-
   const achievementStats = useAchievementStats(
     progress,
     history,
@@ -246,7 +213,6 @@ function AppContent() {
     gameMode,
   )
 
-  // Stable callbacks to prevent breaking memo on child components
   const handleProfileClick = useCallback(() => setShowProfile(true), [setShowProfile])
   const handlePracticeClick = useCallback(() => { setGameMode('practice'); setView('main') }, [setGameMode, setView])
   const handleSprintClick = useCallback(() => { setGameMode('sprint'); setView('main') }, [setGameMode, setView])
@@ -343,87 +309,25 @@ function AppContent() {
 
       <main id="main-content" className="container mx-auto px-4 py-6 max-w-6xl" role="main">
         <div className="flex flex-col gap-3 mb-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <nav className="glass rounded-xl overflow-x-auto scrollbar-none px-1.5 py-1 shadow-sm" aria-label={t('modes.select')}>
-              <div className="flex items-center gap-0.5 min-w-max">
-                <ModeButton
-                  isActive={gameMode === 'practice' && view === 'main'}
-                  onClick={handlePracticeClick}
-                  icon="📝"
-                  label={t('nav.practice')}
-                  title={t('mode.practice')}
-                />
-                <span className="w-px h-4 bg-dark-700/40 mx-0.5" aria-hidden="true" />
-                <ModeButton
-                  isActive={gameMode === 'sprint'}
-                  onClick={handleSprintClick}
-                  icon="⚡"
-                  label={t('nav.sprint')}
-                  title={t('tooltip.sprint')}
-                />
-                <ModeButton
-                  isActive={gameMode === 'hardcore'}
-                  onClick={handleHardcoreClick}
-                  icon="💀"
-                  label={t('mode.hardcore')}
-                  title={t('tooltip.hardcore')}
-                />
-                <SpeedTestDropdown
-                  isActive={gameMode === 'speedtest'}
-                  duration={speedTestDuration}
-                  onDurationChange={setSpeedTestDuration}
-                  onGameModeChange={setGameMode}
-                />
-              </div>
-
-              <div className="flex items-center gap-0.5 min-w-max">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">{t('nav.extra')}</span>
-                {gameModeButtons.map(b => (
-                  <ModeButton
-                    key={b.mode}
-                    isActive={gameMode === b.mode}
-                    onClick={() => handleGameModeClick(b.mode)}
-                    icon={b.icon}
-                    label={b.label}
-                    title={b.title}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-0.5 min-w-max">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-dark-500 px-1.5 select-none">{t('nav.views')}</span>
-                {viewButtons.map(b => (
-                  <ModeButton
-                    key={b.view}
-                    isActive={view === b.view}
-                    onClick={() => handleViewClick(b.view)}
-                    icon={b.icon}
-                    label={b.label}
-                    title={b.title}
-                  />
-                ))}
-                {user?.role === 'admin' && (
-                  <ModeButton
-                    isActive={view === 'admin'}
-                    onClick={() => handleViewClick('admin')}
-                    icon="⚙️"
-                    label={t('label.admin', 'Admin')}
-                    title={t('tooltip.admin')}
-                  />
-                )}
-              </div>
-            </nav>
-
-            <div className="flex items-center gap-1.5">
-              <Suspense fallback={<LoadingFallback />}>
-                <KeyboardSkinSelector
-                  skin={settings.keyboardSkin}
-                  onSkinChange={handleSkinChange}
-                />
-                <ThemeToggle theme={theme} themeOption={themeOption} onThemeChange={setTheme} onThemeOptionChange={setThemeOption} />
-              </Suspense>
-            </div>
-          </div>
+          <GameModeNavbar
+            gameMode={gameMode}
+            view={view}
+            speedTestDuration={speedTestDuration}
+            userRole={user?.role}
+            keyboardSkin={settings.keyboardSkin}
+            theme={theme}
+            themeOption={themeOption}
+            onPracticeClick={handlePracticeClick}
+            onSprintClick={handleSprintClick}
+            onHardcoreClick={handleHardcoreClick}
+            onGameModeClick={handleGameModeClick}
+            onViewClick={handleViewClick}
+            onSpeedTestDurationChange={setSpeedTestDuration}
+            onGameModeChange={setGameMode}
+            onSkinChange={handleSkinChange}
+            onThemeChange={setTheme}
+            onThemeOptionChange={setThemeOption}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -454,131 +358,45 @@ function AppContent() {
             </Suspense>
           </div>
 
-          <div className="space-y-4">
-            <ErrorBoundary key="widgets" fallback={<SectionError message={t('error.widgetsFailed', 'Failed to load widgets')} />}>
-              <Suspense fallback={<LoadingFallback />}>
-                <ClockWidget />
-                <MotivationalQuote />
-                <MusicControls />
-              </Suspense>
-            </ErrorBoundary>
-
-            {settings.showStats && (
-              <ErrorBoundary key="stats-panel" fallback={<SectionError message={t('error.statsFailed', 'Failed to load statistics')} />}>
-                <Suspense fallback={<LoadingFallback />}>
-                  <Stats
-                    progress={progress}
-                    currentStats={currentStats}
-                    onViewHistory={handleViewHistory}
-                    onViewAchievements={handleViewAchievements}
-                    challengeStats={challengeStats}
-                  />
-                </Suspense>
-              </ErrorBoundary>
-            )}
-
-            <ErrorBoundary key="settings-panel" fallback={<SectionError message={t('error.settingsFailed', 'Failed to load settings')} />}>
-              <SettingsPanel
-                settings={settings}
-                onSettingChange={updateSetting}
-                onShowStreakRewards={handleShowStreakRewards}
-                streak={streak.current}
-              />
-            </ErrorBoundary>
-
-            <ErrorBoundary key="export-import" fallback={<SectionError message={t('error.exportImportFailed', 'Failed to load export/import')} />}>
-              <div className="glass rounded-xl p-6">
-                <ExportImport />
-              </div>
-            </ErrorBoundary>
-          </div>
+          <AppSidebar
+            settings={settings}
+            currentStats={currentStats}
+            progress={progress}
+            challengeStats={challengeStats}
+            streak={streak.current}
+            onSettingChange={updateSetting}
+            onViewHistory={handleViewHistory}
+            onViewAchievements={handleViewAchievements}
+            onShowStreakRewards={handleShowStreakRewards}
+          />
         </div>
       </main>
 
-      <ErrorBoundary key="online-status" fallback={null}>
-        <Suspense fallback={<LoadingFallback />}>
-          <OnlineStatus />
-        </Suspense>
-      </ErrorBoundary>
+      <AppOverlays
+        showOnboarding={showOnboarding}
+        showAchievements={showAchievements}
+        showSessionSummary={showSessionSummary}
+        showStreakRewards={showStreakRewards}
+        showProfile={showProfile}
+        showGoals={showGoals}
+        achievementStats={achievementStats}
+        currentStats={currentStats}
+        lastSessionXp={lastSessionXp}
+        streakCurrent={streak.current}
+        totalSessions={history.totalSessions}
+        progress={progress}
+        onOnboardingComplete={handleOnboardingComplete}
+        onCloseAchievements={handleCloseAchievements}
+        onCloseSessionSummary={handleCloseSessionSummary}
+        onCloseStreakRewards={handleCloseStreakRewards}
+        onCloseProfile={handleCloseProfile}
+        onCloseGoals={handleCloseGoals}
+        onSessionRetry={handleSessionRetry}
+        onNavigate={handleNavigate}
+      />
 
-      {showOnboarding && (
-        <ErrorBoundary key="onboarding" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <Onboarding onComplete={handleOnboardingComplete} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {showAchievements && (
-        <ErrorBoundary key="achievements" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <AchievementsPanel
-              stats={achievementStats}
-              onClose={handleCloseAchievements}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {showSessionSummary && currentStats && (
-        <ErrorBoundary key="session-summary" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <SessionSummary
-              stats={currentStats}
-              xpEarned={lastSessionXp}
-              onClose={handleCloseSessionSummary}
-              onRetry={handleSessionRetry}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {showStreakRewards && (
-        <ErrorBoundary key="streak-rewards" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <StreakRewardsPanel
-              currentStreak={streak.current}
-              onClose={handleCloseStreakRewards}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {showProfile && (
-        <ErrorBoundary key="user-profile" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <UserProfile
-              onClose={handleCloseProfile}
-              onNavigate={handleNavigate}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {showGoals && (
-        <ErrorBoundary key="goals" fallback={null}>
-          <Suspense fallback={<LoadingFallback />}>
-            <GoalsPanel
-              onClose={handleCloseGoals}
-              currentProgress={{
-                wpm: progress.bestWpm,
-                accuracy: progress.bestAccuracy,
-                totalWords: progress.totalWordsTyped,
-                totalSessions: history.totalSessions,
-                streak: progress.streak,
-              }}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-
-      {/* PWA Install Prompt */}
       <PWAInstallPrompt />
-
-      {/* Cookie Consent Banner */}
       <CookieConsentBanner />
-
-      {/* Footer */}
       <Footer />
     </div>
   )

@@ -258,14 +258,14 @@ function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
 
 export async function flushPendingSessions(): Promise<void> {
   if (!supabase) return
+  const db = supabase
 
   const pending: PendingSession[] = getFromStorageAsArray<PendingSession>(PENDING_SESSIONS_KEY)
   if (pending.length === 0) return
 
   const results = await Promise.allSettled(
     pending.map(async (session) => {
-      if (!supabase) throw new Error('Supabase not available')
-      const { error } = await supabase.from('typing_sessions').insert({
+      const { error } = await db.from('typing_sessions').insert({
         user_id: session.userId,
         wpm: session.stats.wpm,
         cpm: session.stats.cpm,

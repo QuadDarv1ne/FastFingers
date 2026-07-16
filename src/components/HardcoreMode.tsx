@@ -188,7 +188,8 @@ export const HardcoreMode = memo<HardcoreModeProps>(function HardcoreMode({
         let retries = RETRY_ATTEMPTS
         let saved = false
         while (retries > 0 && mountedRef.current) {
-          const result = await supabase?.from('hardcore_records').insert({
+          if (!supabase) return
+          const result = await supabase.from('hardcore_records').insert({
             user_id: user.id,
             streak: currentStreak,
             wpm: stats.wpm,
