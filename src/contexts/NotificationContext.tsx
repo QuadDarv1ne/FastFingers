@@ -3,6 +3,7 @@ import { createContext, useState, useEffect, useRef, useCallback, useContext, us
 import type { ReactNode } from 'react'
 import { setToStorageWithQuotaHandling } from '@utils/storage'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface Notification {
   id: string
@@ -27,7 +28,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
-const NOTIFICATIONS_STORAGE_KEY = 'fastfingers_notifications'
+const NOTIFICATIONS_STORAGE_KEY = STORAGE_KEYS.NOTIFICATIONS
 const MAX_NOTIFICATIONS = 50
 
 // Используем единый ключ без userId для простоты

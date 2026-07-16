@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useAppTranslation } from '../i18n/config'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface DailyChallenge {
   id: string
@@ -45,7 +46,7 @@ const difficultyConfig = {
 export function DailyChallengeCard({ challenge: challengeProp, streak, onComplete }: DailyChallengeCardProps) {
   const { t } = useAppTranslation()
   const [progress] = useLocalStorageState<ChallengeProgress>(
-    'fastfingers_challenge_progress',
+    STORAGE_KEYS.CHALLENGE_PROGRESS,
     {}
   )
   const [localChallenge, setLocalChallenge] = useState<DailyChallenge | null>(null)

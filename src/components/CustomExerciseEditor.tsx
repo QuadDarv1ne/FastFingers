@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useToast } from '@contexts/ToastContext'
 import { useAppTranslation } from '../i18n/config'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface CustomExercise {
   id: string
@@ -22,7 +23,7 @@ interface CustomExerciseEditorProps {
 export function CustomExerciseEditor({ onClose, onSave, onUseExercise }: CustomExerciseEditorProps) {
   const { t } = useAppTranslation()
   const [exercises, setExercises] = useLocalStorageState<CustomExercise[]>(
-    'fastfingers_custom_exercises',
+    STORAGE_KEYS.CUSTOM_EXERCISES,
     []
   )
   const [isCreating, setIsCreating] = useState(false)

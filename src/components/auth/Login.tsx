@@ -3,15 +3,13 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useAppTranslation } from '../../i18n/config'
 import { logger } from '@utils/logger'
-import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
+import { MIN_PASSWORD_LENGTH, EMAIL_REGEX } from '../../services/authErrors'
 
 interface LoginProps {
   onSwitchToRegister: () => void
   onSwitchToReset: () => void
   onLoginSuccess: () => void
 }
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Login({ onSwitchToRegister, onSwitchToReset, onLoginSuccess }: LoginProps) {
   const { t } = useAppTranslation()

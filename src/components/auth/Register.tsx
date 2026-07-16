@@ -2,15 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { useAppTranslation } from '../../i18n/config'
-import { MIN_PASSWORD_LENGTH, checkPasswordStrength } from '../../services/authErrors'
+import { MIN_PASSWORD_LENGTH, checkPasswordStrength, EMAIL_REGEX } from '../../services/authErrors'
 import { logger } from '../../utils/logger'
 
 interface RegisterProps {
   onSwitchToLogin: () => void
   onRegisterSuccess: () => void
 }
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Register({ onSwitchToLogin, onRegisterSuccess }: RegisterProps) {
   const { register, isLoading, error, clearError } = useAuth()

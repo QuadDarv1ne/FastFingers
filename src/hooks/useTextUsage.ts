@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getFromStorageAsObject } from '../utils/storage'
 import { logger } from '../utils/logger'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 import i18n from 'i18next'
 
 export interface TextUsageStats {
@@ -17,15 +18,13 @@ export interface TextUsageStats {
   lastUsed: string
 }
 
-const USAGE_KEY = 'fastfingers_textUsage'
-
 function loadUsage(): Record<string, { count: number; totalWpm: number; totalAccuracy: number; lastUsed: string }> {
-  return getFromStorageAsObject(USAGE_KEY)
+  return getFromStorageAsObject(STORAGE_KEYS.TEXT_USAGE)
 }
 
 function saveUsage(usage: Record<string, { count: number; totalWpm: number; totalAccuracy: number; lastUsed: string }>) {
   try {
-    localStorage.setItem(USAGE_KEY, JSON.stringify(usage))
+    localStorage.setItem(STORAGE_KEYS.TEXT_USAGE, JSON.stringify(usage))
   } catch {
     logger.warn('Failed to save text usage data')
   }
@@ -67,7 +66,7 @@ export function useTextUsageStats() {
   const clearStats = useCallback(() => {
     if (!confirm(i18n.t('admin.clearStatsConfirm', 'Reset text usage statistics?'))) return
     try {
-      localStorage.removeItem(USAGE_KEY)
+      localStorage.removeItem(STORAGE_KEYS.TEXT_USAGE)
     } catch {
       logger.warn('Failed to clear text usage data')
     }

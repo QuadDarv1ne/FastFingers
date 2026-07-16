@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { logger } from '../utils/logger'
 import { getTodayDate } from '../utils/format'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 import i18n from 'i18next'
 
 interface DailyChallenge {
@@ -24,9 +25,6 @@ interface ChallengeWithProgress extends DailyChallenge {
   userWpm?: number
   userAccuracy?: number
 }
-
-const STORAGE_KEY_CHALLENGES = 'fastfingers_challenges'
-const STORAGE_KEY_STREAK = 'fastfingers_streak'
 
 // Генерация ежедневного челленджа
 function generateDailyChallenge(date: string): DailyChallenge {
@@ -78,8 +76,8 @@ export function useDailyChallenges() {
   // Загрузка данных при монтировании
   useEffect(() => {
     try {
-      const storedChallenges = localStorage.getItem(STORAGE_KEY_CHALLENGES)
-      const storedStreak = localStorage.getItem(STORAGE_KEY_STREAK)
+      const storedChallenges = localStorage.getItem(STORAGE_KEYS.CHALLENGES)
+      const storedStreak = localStorage.getItem(STORAGE_KEYS.STREAK)
 
       if (storedChallenges) {
         setChallenges(JSON.parse(storedChallenges))
@@ -133,7 +131,7 @@ export function useDailyChallenges() {
   // Persist streak to localStorage when it changes
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_STREAK, JSON.stringify(streak))
+      localStorage.setItem(STORAGE_KEYS.STREAK, JSON.stringify(streak))
     } catch (err) {
       logger.warn('Failed to save streak to localStorage', err)
     }
@@ -181,7 +179,7 @@ export function useDailyChallenges() {
   useEffect(() => {
     if (challenges.length > 0) {
       try {
-        localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges))
+        localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(challenges))
       } catch (err) {
         logger.warn('Failed to save challenges to localStorage', err)
       }

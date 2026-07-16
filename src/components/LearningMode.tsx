@@ -9,6 +9,7 @@ import { useState, useMemo, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import { useAppTranslation } from '../i18n/config'
 import { lessons, isLessonUnlocked } from '@utils/lessons'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 import type { Lesson, LessonLayout } from '@utils/lessons'
 
 interface LearningModeProps {
@@ -19,7 +20,7 @@ interface LearningModeProps {
 export const LearningMode = memo(function LearningMode({ onClose, onStartLesson }: LearningModeProps) {
   const { t } = useAppTranslation()
   const [progress, setProgress] = useLocalStorageState<Record<string, boolean>>(
-    'fastfingers_learning_progress',
+    STORAGE_KEYS.LEARNING_PROGRESS,
     {}
   )
   const [layout, setLayout] = useState<LessonLayout>('jcuken')

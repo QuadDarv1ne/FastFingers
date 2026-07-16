@@ -47,4 +47,5 @@ export const STORAGE_KEYS = {
   CUSTOM_EXERCISES: 'fastfingers_custom_exercises',
   COOKIE_CONSENT: 'fastfingers_cookie_consent',
   LANGUAGE: 'fastfingers_language',
+  LEARNING_PROGRESS: 'fastfingers_learning_progress',
 } as const

@@ -2,6 +2,7 @@ import { useMemo, useEffect, useRef, memo } from 'react'
 import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 import { useAppTranslation } from '../i18n/config'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface Achievement {
   id: string
@@ -75,7 +76,7 @@ export function AchievementsPanel({ onClose, stats }: AchievementsPanelProps) {
   ], [t])
 
   const [achievements, setAchievements] = useLocalStorageState<Achievement[]>(
-    'fastfingers_achievements',
+    STORAGE_KEYS.ACHIEVEMENTS,
     []
   )
 
@@ -293,89 +294,40 @@ const AchievementCard = memo(function AchievementCard({
   )
 })
 
+function getAchievementStatValue(
+  type: Achievement['requirement']['type'],
+  stats: AchievementsPanelProps['stats']
+): number {
+  switch (type) {
+    case 'wpm': return stats.maxWpm
+    case 'accuracy': return stats.maxAccuracy
+    case 'words': return stats.totalWords
+    case 'sessions': return stats.totalSessions
+    case 'streak': return stats.currentStreak
+    case 'perfect-session': return stats.perfectSessions
+    case 'duels': return stats.duelsPlayed || 0
+    case 'tournaments': return stats.tournamentsPlayed || 0
+    case 'custom-exercises': return stats.customExercisesCreated || 0
+    case 'daily-challenges': return stats.dailyChallengesCompleted || 0
+    case 'game-modes': return stats.gameModesUsed || 0
+    case 'level': return stats.level || 0
+    default: return 0
+  }
+}
+
 function checkAchievement(
   achievement: Achievement,
   stats: AchievementsPanelProps['stats']
 ): boolean {
-  const { type, value } = achievement.requirement
-
-  switch (type) {
-    case 'wpm':
-      return stats.maxWpm >= value
-    case 'accuracy':
-      return stats.maxAccuracy >= value
-    case 'words':
-      return stats.totalWords >= value
-    case 'sessions':
-      return stats.totalSessions >= value
-    case 'streak':
-      return stats.currentStreak >= value
-    case 'perfect-session':
-      return stats.perfectSessions >= value
-    case 'duels':
-      return (stats.duelsPlayed || 0) >= value
-    case 'tournaments':
-      return (stats.tournamentsPlayed || 0) >= value
-    case 'custom-exercises':
-      return (stats.customExercisesCreated || 0) >= value
-    case 'daily-challenges':
-      return (stats.dailyChallengesCompleted || 0) >= value
-    case 'game-modes':
-      return (stats.gameModesUsed || 0) >= value
-    case 'level':
-      return (stats.level || 0) >= value
-    default:
-      return false
-  }
+  return getAchievementStatValue(achievement.requirement.type, stats) >= achievement.requirement.value
 }
 
 function getAchievementProgress(
   achievement: Achievement,
   stats: AchievementsPanelProps['stats']
 ): number {
-  const { type, value } = achievement.requirement
-  let current = 0
-
-  switch (type) {
-    case 'wpm':
-      current = stats.maxWpm
-      break
-    case 'accuracy':
-      current = stats.maxAccuracy
-      break
-    case 'words':
-      current = stats.totalWords
-      break
-    case 'sessions':
-      current = stats.totalSessions
-      break
-    case 'streak':
-      current = stats.currentStreak
-      break
-    case 'perfect-session':
-      current = stats.perfectSessions
-      break
-    case 'duels':
-      current = stats.duelsPlayed || 0
-      break
-    case 'tournaments':
-      current = stats.tournamentsPlayed || 0
-      break
-    case 'custom-exercises':
-      current = stats.customExercisesCreated || 0
-      break
-    case 'daily-challenges':
-      current = stats.dailyChallengesCompleted || 0
-      break
-    case 'game-modes':
-      current = stats.gameModesUsed || 0
-      break
-    case 'level':
-      current = stats.level || 0
-      break
-  }
-
-  return (current / value) * 100
+  const current = getAchievementStatValue(achievement.requirement.type, stats)
+  return (current / achievement.requirement.value) * 100
 }
 
 function getCategoryIcon(category: Achievement['category']): string {

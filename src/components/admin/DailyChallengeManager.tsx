@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAppTranslation } from '../../i18n/config'
 import { logger } from '../../utils/logger'
 import { getTodayDate } from '../../utils/format'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
+import i18n from 'i18next'
 
 interface DailyChallenge {
   id: string
@@ -22,19 +24,8 @@ interface StreakData {
   practiceDates: string[]
 }
 
-const CHALLENGES_KEY = 'fastfingers_challenges'
-const STREAK_KEY = 'fastfingers_streak'
-const COMPLETIONS_KEY = 'fastfingers_dailyChallengesCompleted'
-
 function generateChallenge(date: string, text?: string, wpm?: number, acc?: number): DailyChallenge {
   const seed = date.split('-').reduce((a, b) => a + parseInt(b), 0)
-  const texts = [
-    'Съешь ещё этих мягких французских булок да выпей чаю',
-    'В чащах юга жил бы цитрус да но фальшивый экземпляр',
-    'Широкая электрификация южных губерний даст мощный толчок подъёму сельского хозяйства',
-    'Быстрая коричневая лиса перепрыгивает через ленивую собаку',
-    'Каждый охотник желает знать где сидит фазан',
-  ]
   const difficulties = [
     { wpm: 20, acc: 90 },
     { wpm: 30, acc: 92 },
@@ -46,7 +37,7 @@ function generateChallenge(date: string, text?: string, wpm?: number, acc?: numb
   return {
     id: `challenge-${date}`,
     date,
-    text: text || texts[seed % texts.length] || texts[0] || '',
+    text: text || i18n.t(`challenge.text.${seed % 5}`),
     targetWpm: wpm ?? difficulties[seed % difficulties.length]?.wpm ?? 40,
     targetAccuracy: acc ?? difficulties[seed % difficulties.length]?.acc ?? 94,
     completed: false,
@@ -66,9 +57,9 @@ export function DailyChallengeManager() {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(CHALLENGES_KEY)
+      const stored = localStorage.getItem(STORAGE_KEYS.CHALLENGES)
       if (stored) setChallenges(JSON.parse(stored))
-      const storedStreak = localStorage.getItem(STREAK_KEY)
+      const storedStreak = localStorage.getItem(STORAGE_KEYS.STREAK)
       if (storedStreak) setStreak(JSON.parse(storedStreak))
     } catch (err) {
       logger.warn('[DailyChallengeManager] Failed to load challenges from localStorage', err)
@@ -78,7 +69,7 @@ export function DailyChallengeManager() {
   useEffect(() => {
     if (challenges.length > 0) {
       try {
-        localStorage.setItem(CHALLENGES_KEY, JSON.stringify(challenges))
+        localStorage.setItem(STORAGE_KEYS.CHALLENGES, JSON.stringify(challenges))
       } catch (error) {
         logger.warn('Failed to save challenges to localStorage', error)
       }
@@ -91,7 +82,7 @@ export function DailyChallengeManager() {
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
     const totalCompletions = (() => {
       try {
-        return parseInt(localStorage.getItem(COMPLETIONS_KEY) || '0')
+        return parseInt(localStorage.getItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED) || '0')
       } catch {
         logger.warn('Failed to load challenge completions count')
         return 0
@@ -129,7 +120,7 @@ export function DailyChallengeManager() {
   const handleResetCompletions = useCallback(() => {
     if (!confirm(t('challenge.resetCompletionsConfirm'))) return
     try {
-      localStorage.setItem(COMPLETIONS_KEY, '0')
+      localStorage.setItem(STORAGE_KEYS.DAILY_CHALLENGES_COMPLETED, '0')
     } catch {
       logger.warn('Failed to reset challenge completions in localStorage')
     }

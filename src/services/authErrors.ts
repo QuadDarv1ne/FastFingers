@@ -49,10 +49,15 @@ export class AuthError extends Error {
 }
 
 /**
+ * Email validation regex
+ */
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/**
  * Email validation utility
  */
 export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  return EMAIL_REGEX.test(email)
 }
 
 /**

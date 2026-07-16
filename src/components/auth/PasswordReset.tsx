@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@hooks/useAuth'
 import { logger } from '@utils/logger'
-import { MIN_PASSWORD_LENGTH } from '../../services/authErrors'
+import { MIN_PASSWORD_LENGTH, EMAIL_REGEX } from '../../services/authErrors'
 import { useAppTranslation } from '../../i18n/config'
 import { formatTime } from '../../utils/format'
 
@@ -11,7 +11,6 @@ interface PasswordResetProps {
 }
 
 const TOKEN_EXPIRY_SECONDS = 3600 // 1 hour — matches authService RESET_TOKEN_EXPIRY_MS
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function PasswordReset({ onBack }: PasswordResetProps) {
   const { resetPassword, confirmPasswordReset, isLoading, error, clearError, lastResetToken } = useAuth()

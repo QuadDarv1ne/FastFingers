@@ -6,8 +6,7 @@ import { useTextUsageStats } from '@hooks/useTextUsage'
 import { getFromStorageAsArray } from '../../utils/storage'
 import { logger } from '../../utils/logger'
 import { downloadBlob } from '../../utils/export'
-
-const STORAGE_KEY = 'fastfingers_admin_texts'
+import { STORAGE_KEYS } from '../../constants/storageKeys'
 
 const CATEGORIES: TextCategory[] = [
   'literature', 'code', 'quotes', 'proverbs', 'science', 'technology',
@@ -24,12 +23,12 @@ const CATEGORY_LABELS: Record<TextCategory, string> = {
 }
 
 function loadTexts(): PracticeText[] {
-  return getFromStorageAsArray(STORAGE_KEY)
+  return getFromStorageAsArray(STORAGE_KEYS.ADMIN_TEXTS)
 }
 
 function saveTexts(texts: PracticeText[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(texts))
+    localStorage.setItem(STORAGE_KEYS.ADMIN_TEXTS, JSON.stringify(texts))
   } catch {
     logger.warn('Failed to save practice texts to localStorage')
   }

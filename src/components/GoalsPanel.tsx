@@ -3,6 +3,7 @@ import { useLocalStorageState } from '@hooks/useLocalStorageState'
 import i18n from 'i18next'
 import { useAppTranslation } from '../i18n/config'
 import { StatCard } from './ui/StatCard'
+import { STORAGE_KEYS } from '../constants/storageKeys'
 
 export interface Goal {
   id: string
@@ -96,7 +97,7 @@ function resolveUnitLabel(unit: Goal['unit']): string {
 
 export const GoalsPanel = memo(function GoalsPanel({ onClose, currentProgress }: GoalsPanelProps) {
   const { t } = useAppTranslation()
-  const [goals, setGoals] = useLocalStorageState<Goal[]>('fastfingers_goals', [])
+  const [goals, setGoals] = useLocalStorageState<Goal[]>(STORAGE_KEYS.GOALS, [])
   const [showAddGoal, setShowAddGoal] = useState(false)
   const [showEditGoal, setShowEditGoal] = useState<Goal | null>(null)
 
