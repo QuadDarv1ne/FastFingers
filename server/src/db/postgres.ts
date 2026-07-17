@@ -204,33 +204,38 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
 
   async getLeaderboard(gameMode: string, season?: string, limit = 100): Promise<QueryResult<LeaderboardEntry[]>> {
     if (!this.pool) throw new Error('Database not connected')
+    const params: unknown[] = [gameMode]
     let query = 'SELECT * FROM leaderboards WHERE game_mode = $1'
-    const params: unknown[] = [gameMode, limit]
     if (season) {
-      query += ' AND season = $2'
-      params.splice(1, 0, season)
+      params.push(season)
+      query += ` AND season = $${params.length}`
     }
-    query += ' ORDER BY score DESC LIMIT $' + params.length
+    params.push(limit)
+    query += ` ORDER BY score DESC LIMIT $${params.length}`
     const result = await this.pool.query(query, params)
     return { rows: result.rows as LeaderboardEntry[] }
   }
 
   async getUserRank(userId: string, gameMode: string, season?: string): Promise<QueryResult> {
     if (!this.pool) throw new Error('Database not connected')
-    let whereClause = 'game_mode = $1'
     const params: unknown[] = [gameMode]
+    let whereClause = 'game_mode = $1'
     if (season) {
-      whereClause += ' AND season = $2'
       params.push(season)
+      whereClause += ` AND season = $${params.length}`
     }
+    params.push(userId)
+    const userIdParam = `$${params.length}`
+    params.push(1)
+    const limitParam = `$${params.length}`
     const result = await this.pool.query(
       `SELECT user_id, score,
         (SELECT COUNT(*) + 1 FROM leaderboards l2
-         WHERE l2.${whereClause} AND l2.score > l1.score) as rank
+         WHERE l2.game_mode = l1.game_mode${season ? ' AND l2.season = l1.season' : ''} AND l2.score > l1.score) as rank
        FROM leaderboards l1
-       WHERE user_id = $${params.length + 1} AND ${whereClause}
-       ORDER BY score DESC LIMIT 1`,
-      [...params, userId]
+       WHERE user_id = ${userIdParam} AND ${whereClause}
+       ORDER BY score DESC LIMIT ${limitParam}`,
+      params
     )
     return { rows: result.rows }
   }
