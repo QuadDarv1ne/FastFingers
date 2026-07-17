@@ -5,10 +5,19 @@ import type { TypingStats } from '../types'
 import { logger } from '../utils/logger'
 import { getFromStorageAsArray } from '../utils/storage'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { generateId } from '../utils/id'
 
 const LOCAL_STORAGE_KEY = STORAGE_KEYS.CLOUD_SYNC
 const PENDING_SESSIONS_KEY = STORAGE_KEYS.PENDING_SESSIONS
 const BACKEND_STATUS_KEY = STORAGE_KEYS.BACKEND_STATUS
+
+const BACKEND_STATUS_CACHE_TTL_MS = 5 * 60 * 1000
+const MAX_STORED_SESSIONS = 100
+const MAX_PENDING_SESSIONS = 50
+const LOCAL_CHALLENGE_WPM_MIN = 30
+const LOCAL_CHALLENGE_WPM_RANGE = 40
+const LOCAL_CHALLENGE_ACCURACY_MIN = 85
+const LOCAL_CHALLENGE_ACCURACY_RANGE = 10
 
 interface CloudSession {
   id?: string
@@ -60,7 +69,7 @@ export function getBackendStatus(): BackendStatus {
     try {
       const parsed = JSON.parse(cached) as BackendStatus
       // Кэш действителен 5 минут
-      if (Date.now() - parsed.lastChecked < 5 * 60 * 1000) {
+      if (Date.now() - parsed.lastChecked < BACKEND_STATUS_CACHE_TTL_MS) {
         return parsed
       }
     } catch (error) {
@@ -221,7 +230,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
     }
 
     sessions.unshift({
-      id: Date.now().toString(),
+      id: generateId(),
       date: new Date().toISOString(),
       wpm: stats.wpm,
       cpm: stats.cpm,
@@ -234,7 +243,7 @@ function _saveSessionToLocal(stats: TypingStats, xp: number) {
     })
 
     const historyData = {
-      sessions: sessions.slice(0, 100),
+      sessions: sessions.slice(0, MAX_STORED_SESSIONS),
       heatmap,
       totalSessions: totalSessions + 1,
       totalTime: totalTime + Math.floor(stats.timeElapsed / 60),
@@ -250,7 +259,7 @@ function _queuePendingSession(userId: string, stats: TypingStats, xp: number) {
   const pending = getFromStorageAsArray<PendingSession>(PENDING_SESSIONS_KEY)
   pending.push({ userId, stats, xp, timestamp: Date.now() })
   try {
-    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-50)))
+    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(pending.slice(-MAX_PENDING_SESSIONS)))
   } catch {
     logger.warn('Failed to queue pending session in localStorage')
   }
@@ -382,8 +391,8 @@ function generateLocalChallenge(date: string) {
   return {
     id: 'local-' + date,
     text: i18n.t('challenge.fallbackTitle'),
-    targetWpm: 30 + (Math.abs(hash) % 40),
-    targetAccuracy: 85 + (Math.abs(hash) % 10),
+    targetWpm: LOCAL_CHALLENGE_WPM_MIN + (Math.abs(hash) % LOCAL_CHALLENGE_WPM_RANGE),
+    targetAccuracy: LOCAL_CHALLENGE_ACCURACY_MIN + (Math.abs(hash) % LOCAL_CHALLENGE_ACCURACY_RANGE),
     xpReward: 100,
   }
 }

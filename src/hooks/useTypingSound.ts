@@ -284,23 +284,21 @@ export function useTypingSound(initialOptions: SoundOptions): UseTypingSoundRetu
     }
   }, [initAudio])
 
-  // Update reverb routing when theme changes - properly re-route entire audio graph
+  // Update reverb routing when theme changes - only re-route the tail of the chain
+  // to avoid disconnecting oscillators currently playing through gainNode
   useEffect(() => {
-    const gainNode = gainNodeRef.current
     const compressor = compressorRef.current
     const reverbNode = reverbNodeRef.current
     const audioContext = audioContextRef.current
-    if (!gainNode || !compressor || !reverbNode || !audioContext) return
+    if (!compressor || !reverbNode || !audioContext) return
 
     const themeConfig = THEME_CONFIGS[optionsRef.current.theme]
 
-    // Disconnect all nodes
-    gainNode.disconnect()
+    // Disconnect only the tail nodes (gainNode -> compressor stays intact)
     compressor.disconnect()
     reverbNode.disconnect()
 
-    // Rebuild chain: gain -> compressor -> (reverb -> destination) or (destination)
-    gainNode.connect(compressor)
+    // Rebuild tail: compressor -> (reverb -> destination) or (destination)
     if (themeConfig.reverb > 0.2) {
       compressor.connect(reverbNode)
       reverbNode.connect(audioContext.destination)

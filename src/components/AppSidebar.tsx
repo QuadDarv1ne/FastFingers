@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, memo } from 'react'
 import { ErrorBoundary } from './ErrorBoundary'
 import LoadingFallback from './LoadingFallback'
 import { SectionError } from './ui/SectionError'
@@ -28,7 +28,7 @@ interface AppSidebarProps {
   onShowStreakRewards: () => void
 }
 
-export function AppSidebar({
+export const AppSidebar = memo(function AppSidebar({
   settings,
   currentStats,
   progress,
@@ -81,4 +81,4 @@ export function AppSidebar({
       </ErrorBoundary>
     </div>
   )
-}
+})
