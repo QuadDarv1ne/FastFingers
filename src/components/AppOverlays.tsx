@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useMemo } from 'react'
 import { ErrorBoundary } from './ErrorBoundary'
 import LoadingFallback from './LoadingFallback'
 import type { TypingStats, UserProgress } from '../types'
@@ -71,6 +71,14 @@ export function AppOverlays({
   onSessionRetry,
   onNavigate,
 }: AppOverlaysProps) {
+  const goalsProgress = useMemo(() => ({
+    wpm: progress.bestWpm,
+    accuracy: progress.bestAccuracy,
+    totalWords: progress.totalWordsTyped,
+    totalSessions,
+    streak: progress.streak,
+  }), [progress.bestWpm, progress.bestAccuracy, progress.totalWordsTyped, totalSessions, progress.streak])
+
   return (
     <>
       <ErrorBoundary key="online-status" fallback={null}>
@@ -138,13 +146,7 @@ export function AppOverlays({
           <Suspense fallback={<LoadingFallback />}>
             <GoalsPanel
               onClose={onCloseGoals}
-              currentProgress={{
-                wpm: progress.bestWpm,
-                accuracy: progress.bestAccuracy,
-                totalWords: progress.totalWordsTyped,
-                totalSessions,
-                streak: progress.streak,
-              }}
+              currentProgress={goalsProgress}
             />
           </Suspense>
         </ErrorBoundary>

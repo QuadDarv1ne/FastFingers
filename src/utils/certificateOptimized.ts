@@ -63,7 +63,7 @@ export async function generateCertificate(
   options: CertificateOptions = {}
 ): Promise<Blob> {
   const { language = 'ru', download = true, theme = 'classic' } = options
-  const t = translations[language]
+  const t = translations[language] ?? translations['ru']
   const rankColor = rankColors[data.rank as keyof typeof rankColors] || rankColors.Bronze
 
   const width = 1200

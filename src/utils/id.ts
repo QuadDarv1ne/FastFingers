@@ -30,6 +30,15 @@ export function generateId(): string {
   })
 }
 
+function secureRandom(): number {
+  if (cryptoObj) {
+    const arr = new Uint32Array(1)
+    cryptoObj.getRandomValues(arr)
+    return arr[0] ?? 0
+  }
+  return Math.floor(Math.random() * 0x100000000)
+}
+
 /**
  * Сгенерировать короткий ID (для ссылок, кодов)
  */
@@ -38,8 +47,7 @@ export function generateShortId(length = 8): string {
   let result = ''
 
   for (let i = 0; i < length; i++) {
-    const randomValue = cryptoObj?.getRandomValues(new Uint32Array(1))[0] ?? 0
-    result += chars.charAt(randomValue % chars.length)
+    result += chars.charAt(secureRandom() % chars.length)
   }
 
   return result
@@ -52,8 +60,7 @@ export function generateNumericId(length = 6): string {
   let result = ''
 
   for (let i = 0; i < length; i++) {
-    const randomValue = cryptoObj?.getRandomValues(new Uint32Array(1))[0] ?? 0
-    result += (randomValue % 10).toString()
+    result += (secureRandom() % 10).toString()
   }
 
   return result

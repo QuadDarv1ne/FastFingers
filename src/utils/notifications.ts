@@ -1,6 +1,6 @@
 import i18n from 'i18next'
 import { getFromStorageAsArray, setToStorage } from './storage'
-import { STORAGE_KEYS } from '../constants/storageKeys'
+import { STORAGE_KEYS, MAX_NOTIFICATIONS } from '../constants/storageKeys'
 import type { Notification } from '../contexts/NotificationContext'
 
 interface StoredNotification {
@@ -81,7 +81,7 @@ export function addNotification(
   notifications.unshift(newNotification)
 
   // Keep only last 50 notifications
-  const trimmed = notifications.slice(0, 50)
+  const trimmed = notifications.slice(0, MAX_NOTIFICATIONS)
 
   setToStorage(STORAGE_KEYS.NOTIFICATIONS, trimmed)
 
@@ -91,6 +91,7 @@ export function addNotification(
 
 export function formatNotificationTimestamp(timestamp: string): string {
   const date = new Date(timestamp)
+  if (isNaN(date.getTime())) return t('time.justNow')
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)

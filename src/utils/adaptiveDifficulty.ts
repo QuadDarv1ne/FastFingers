@@ -223,7 +223,7 @@ function calculateTargetDifficulty(level: number): number {
  * Получает множитель сложности для текста
  */
 export function getDifficultyMultiplier(level: number): number {
-  // Уровень 1 = 0.5x, Уровень 5 = 1.0x, Уровень 10 = 2.0x
+  // Уровень 1 = 0.5x, Уровень 5 = 1.1x, Уровень 10 = 1.85x
   return 0.5 + (level - 1) * 0.15
 }
 
@@ -288,8 +288,12 @@ export function analyzeDifficultyHistory(
   // Определяем направление тренда
   const firstHalf = levels.slice(0, Math.floor(levels.length / 2))
   const secondHalf = levels.slice(Math.floor(levels.length / 2))
-  const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length
-  const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length
+  const firstAvg = firstHalf.length > 0
+    ? firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length
+    : 0
+  const secondAvg = secondHalf.length > 0
+    ? secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length
+    : 0
 
   let direction: 'up' | 'down' | 'stable' = 'stable'
   if (secondAvg > firstAvg + 0.5) direction = 'up'

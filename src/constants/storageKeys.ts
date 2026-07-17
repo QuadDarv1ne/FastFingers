@@ -1,4 +1,9 @@
 /**
+ * Общие константы приложения
+ */
+export const MAX_NOTIFICATIONS = 50
+
+/**
  * Единый источник всех ключей localStorage
  */
 export const STORAGE_KEYS = {

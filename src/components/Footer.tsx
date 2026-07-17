@@ -13,17 +13,17 @@ export const Footer = memo(function Footer() {
             &copy; {year} FastFingers
           </div>
           <div className="flex items-center gap-3 text-[11px]">
-            <button className="text-dark-500 hover:text-dark-300 transition-colors cursor-pointer font-medium">
+            <span className="text-dark-500 font-medium" role="link" aria-disabled="true">
               {t('misc.privacy')}
-            </button>
+            </span>
             <span className="text-dark-600/50" aria-hidden="true">·</span>
-            <button className="text-dark-500 hover:text-dark-300 transition-colors cursor-pointer font-medium">
+            <span className="text-dark-500 font-medium" role="link" aria-disabled="true">
               {t('misc.terms')}
-            </button>
+            </span>
             <span className="text-dark-600/50" aria-hidden="true">·</span>
-            <button className="text-dark-500 hover:text-dark-300 transition-colors cursor-pointer font-medium">
+            <span className="text-dark-500 font-medium" role="link" aria-disabled="true">
               {t('cookie.title')}
-            </button>
+            </span>
           </div>
         </div>
       </div>
