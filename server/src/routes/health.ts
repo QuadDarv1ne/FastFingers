@@ -16,17 +16,26 @@ export function healthRouter(db: IDatabaseAdapter): Router {
   const startTime = Date.now()
 
   router.get('/', async (_req: Request, res: Response<HealthResponse>) => {
-    const connected = db.isConnected()
+    try {
+      const connected = db.isConnected()
 
-    res.json({
-      status: connected ? 'healthy' : 'unhealthy',
-      database: {
-        type: db.getType(),
-        connected,
-      },
-      uptime: Math.round((Date.now() - startTime) / 1000),
-      timestamp: new Date().toISOString(),
-    })
+      res.json({
+        status: connected ? 'healthy' : 'unhealthy',
+        database: {
+          type: db.getType(),
+          connected,
+        },
+        uptime: Math.round((Date.now() - startTime) / 1000),
+        timestamp: new Date().toISOString(),
+      })
+    } catch {
+      res.status(503).json({
+        status: 'unhealthy',
+        database: { type: 'sqlite' as DatabaseType, connected: false },
+        uptime: 0,
+        timestamp: new Date().toISOString(),
+      })
+    }
   })
 
   router.get('/databases', (_req: Request, res: Response) => {

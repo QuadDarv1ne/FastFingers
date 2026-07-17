@@ -1,10 +1,9 @@
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import path from 'path'
 import { autoDetectDatabase, getOptimalConfig } from './db/autoDetect'
 import { DatabaseConfig, DatabaseType } from './db/types'
 
-// Routes will be added
 import { healthRouter } from './routes/health'
 import { sessionsRouter } from './routes/sessions'
 import { progressRouter } from './routes/progress'
@@ -13,8 +12,13 @@ const app = express()
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001
 
 // Middleware
-app.use(cors())
-app.use(express.json())
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(s => s.trim()) || []
+app.use(cors({
+  origin: allowedOrigins.length > 0 ? allowedOrigins : undefined,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
+app.use(express.json({ limit: '10kb' }))
 
 // State
 let dbConfig: DatabaseConfig | null = null
@@ -53,15 +57,15 @@ async function initDatabase(config: DatabaseConfig) {
     }
     case 'postgresql': {
       const { PostgreSQLAdapter } = await import('./db/postgres')
-      const connectionString =
-        process.env.DATABASE_URL || `postgresql://postgres:postgres@localhost:5432/fastfingers`
+      const connectionString = process.env.DATABASE_URL
+      if (!connectionString) throw new Error('DATABASE_URL environment variable is required for PostgreSQL')
       dbAdapter = new PostgreSQLAdapter(connectionString, optimalConfig)
       break
     }
     case 'mongodb': {
       const { MongoDBAdapter } = await import('./db/mongodb')
-      const connectionString =
-        process.env.MONGO_URL || `mongodb://localhost:27017/fastfingers`
+      const connectionString = process.env.MONGO_URL
+      if (!connectionString) throw new Error('MONGO_URL environment variable is required for MongoDB')
       dbAdapter = new MongoDBAdapter(connectionString, optimalConfig)
       break
     }
@@ -117,6 +121,23 @@ async function start() {
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distDir, 'index.html'))
   })
+
+  // Global error handler
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('Unhandled error:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  })
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    console.log('\n🛑 Shutting down...')
+    if (dbAdapter) {
+      try { await dbAdapter.disconnect() } catch { /* ignore */ }
+    }
+    process.exit(0)
+  }
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
 
   // Start server
   const actualPort = await findAvailablePort(PORT)

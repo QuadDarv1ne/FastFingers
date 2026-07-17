@@ -72,6 +72,7 @@ export function useDailyChallenges() {
     lastPracticeDate: null,
     practiceDates: [],
   })
+  const [today, setToday] = useState(() => getTodayDate())
 
   // Загрузка данных при монтировании
   useEffect(() => {
@@ -137,10 +138,19 @@ export function useDailyChallenges() {
     }
   }, [streak])
 
+  // Update today date on visibility change (handles midnight crossing)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        setToday(getTodayDate())
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
   // Проверка и создание челленджа на сегодня
   useEffect(() => {
-    const today = getTodayDate()
-
     setChallenges(prev => {
       const todayChallenge = prev.find(c => c.date === today)
 
@@ -151,7 +161,7 @@ export function useDailyChallenges() {
       const newChallenge = generateDailyChallenge(today)
       return [...prev, newChallenge].slice(-30)
     })
-  }, [])
+  }, [today])
 
   // Завершение челленджа
   const completeChallenge = useCallback((challengeId: string, wpm: number, accuracy: number) => {
@@ -188,8 +198,8 @@ export function useDailyChallenges() {
 
   // Получение текущего челленджа
   const todayChallenge = useMemo(
-    () => challenges.find(c => c.date === getTodayDate()),
-    [challenges]
+    () => challenges.find(c => c.date === today),
+    [challenges, today]
   )
 
   // Статистика челленджей

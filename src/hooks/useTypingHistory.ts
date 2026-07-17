@@ -5,6 +5,7 @@ import { saveTypingSession, flushPendingSessions, isBackendAvailable } from '../
 import { useAuth } from './useAuth'
 import { logger } from '../utils/logger'
 import { STORAGE_KEYS } from '../constants/storageKeys'
+import { generateId } from '../utils/id'
 
 interface SessionData {
   id: string
@@ -97,7 +98,7 @@ export function useTypingHistory(): UseTypingHistoryReturn {
 
   const addSession = useCallback((stats: TypingStats, xp: number) => {
     const session: SessionData = {
-      id: Date.now().toString(),
+      id: generateId(),
       date: new Date().toISOString(),
       wpm: stats.wpm,
       accuracy: stats.accuracy,
@@ -107,19 +108,16 @@ export function useTypingHistory(): UseTypingHistoryReturn {
       xp,
     }
 
-    let newHistoryForSave: HistoryData | null = null
-
     setHistory(prev => {
-      newHistoryForSave = {
+      const newHistory: HistoryData = {
         ...prev,
         sessions: [session, ...prev.sessions].slice(0, MAX_SESSIONS),
         totalSessions: prev.totalSessions + 1,
         totalTime: prev.totalTime + Math.floor(stats.timeElapsed / 60),
       }
-      return newHistoryForSave
+      debouncedSave(newHistory)
+      return newHistory
     })
-
-    if (newHistoryForSave) debouncedSave(newHistoryForSave)
 
     // Сохранение в облако с fallback
     if (userRef.current) {
@@ -140,15 +138,12 @@ export function useTypingHistory(): UseTypingHistoryReturn {
   }, [debouncedSave])
 
   const updateHeatmap = useCallback((key: string, isCorrect: boolean) => {
-    let newHistoryForSave: HistoryData | null = null
-
     setHistory(prev => {
       const newHeatmap = updateKeyHeatmap(prev.heatmap, key, isCorrect)
-      newHistoryForSave = { ...prev, heatmap: newHeatmap }
-      return newHistoryForSave
+      const newHistory: HistoryData = { ...prev, heatmap: newHeatmap }
+      debouncedSave(newHistory)
+      return newHistory
     })
-
-    if (newHistoryForSave) debouncedSave(newHistoryForSave)
   }, [debouncedSave])
 
   const clearHistory = useCallback(() => {

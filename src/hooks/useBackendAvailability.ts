@@ -42,13 +42,19 @@ export function useBackendAvailability(options: {
       return
     }
 
+    let shouldSkip = false
     setStatus(prev => {
       if (prev.retryCount >= MAX_RETRY_COUNT && !prev.isAvailable) {
-        checkingRef.current = false
+        shouldSkip = true
         return prev
       }
       return { ...prev, isChecking: true }
     })
+
+    if (shouldSkip) {
+      checkingRef.current = false
+      return
+    }
 
     try {
       const available = isBackendAvailable()

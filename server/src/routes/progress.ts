@@ -3,6 +3,14 @@ import { IDatabaseAdapter, UserStatsRecord, HardcoreRecord } from '../db/types'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v)
+}
+
+function isNonNegative(v: unknown): v is number {
+  return isFiniteNumber(v) && v >= 0
+}
+
 export function progressRouter(db: IDatabaseAdapter): Router {
   const router = Router()
 
@@ -15,8 +23,8 @@ export function progressRouter(db: IDatabaseAdapter): Router {
       }
       const result = await db.getUserStats(userId)
       res.json(result.rows[0] ?? null)
-    } catch (err) {
-      res.status(500).json({ error: (err as Error).message })
+    } catch {
+      res.status(500).json({ error: 'Internal server error' })
     }
   })
 
@@ -27,14 +35,22 @@ export function progressRouter(db: IDatabaseAdapter): Router {
         res.status(400).json({ error: 'Invalid user_id' })
         return
       }
-      if (typeof stats.total_xp !== 'number' || stats.total_xp < 0) {
-        res.status(400).json({ error: 'Invalid total_xp' })
+      if (!isNonNegative(stats.total_xp)) {
+        res.status(400).json({ error: 'Invalid total_xp: must be a non-negative number' })
+        return
+      }
+      if (!isNonNegative(stats.total_words_typed)) {
+        res.status(400).json({ error: 'Invalid total_words_typed: must be a non-negative number' })
+        return
+      }
+      if (!isNonNegative(stats.total_practice_time)) {
+        res.status(400).json({ error: 'Invalid total_practice_time: must be a non-negative number' })
         return
       }
       const result = await db.upsertUserStats(stats)
       res.json({ success: true, affected: result.affectedRows })
-    } catch (err) {
-      res.status(500).json({ error: (err as Error).message })
+    } catch {
+      res.status(500).json({ error: 'Internal server error' })
     }
   })
 
@@ -47,8 +63,8 @@ export function progressRouter(db: IDatabaseAdapter): Router {
       }
       const result = await db.getHardcoreRecords(userId)
       res.json(result.rows)
-    } catch (err) {
-      res.status(500).json({ error: (err as Error).message })
+    } catch {
+      res.status(500).json({ error: 'Internal server error' })
     }
   })
 
@@ -59,14 +75,26 @@ export function progressRouter(db: IDatabaseAdapter): Router {
         res.status(400).json({ error: 'Invalid user_id' })
         return
       }
-      if (typeof record.streak !== 'number' || record.streak < 0) {
-        res.status(400).json({ error: 'Invalid streak' })
+      if (!isNonNegative(record.streak)) {
+        res.status(400).json({ error: 'Invalid streak: must be a non-negative number' })
+        return
+      }
+      if (!isFiniteNumber(record.wpm) || record.wpm < 0) {
+        res.status(400).json({ error: 'Invalid wpm: must be a non-negative number' })
+        return
+      }
+      if (!isFiniteNumber(record.accuracy) || record.accuracy < 0 || record.accuracy > 100) {
+        res.status(400).json({ error: 'Invalid accuracy: must be between 0 and 100' })
+        return
+      }
+      if (typeof record.date !== 'string' || record.date.length === 0) {
+        res.status(400).json({ error: 'Invalid date' })
         return
       }
       const result = await db.upsertHardcoreRecord(record)
       res.json({ success: true, affected: result.affectedRows })
-    } catch (err) {
-      res.status(500).json({ error: (err as Error).message })
+    } catch {
+      res.status(500).json({ error: 'Internal server error' })
     }
   })
 
