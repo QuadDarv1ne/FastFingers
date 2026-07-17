@@ -248,14 +248,18 @@ export class MongoDBAdapter implements IDatabaseAdapter {
 
   async getUserRank(userId: string, gameMode: string, season?: string): Promise<QueryResult> {
     if (!this.db) throw new Error('Database not connected')
-    const query: Record<string, unknown> = { game_mode: gameMode }
-    if (season) query.season = season
+    const matchStage: Record<string, unknown> = { game_mode: gameMode }
+    if (season) matchStage.season = season
+
+    const userEntry = await this.db.collection('leaderboards').findOne({ user_id: userId, ...matchStage })
+    if (!userEntry) return { rows: [] }
+
     const betterCount = await this.db.collection('leaderboards').countDocuments({
-      ...query,
-      score: { $gt: (await this.db.collection('leaderboards').findOne({ user_id: userId, ...query }))?.score ?? 0 },
+      ...matchStage,
+      score: { $gt: userEntry.score },
     })
-    const userEntry = await this.db.collection('leaderboards').findOne({ user_id: userId, ...query })
-    return { rows: userEntry ? [{ user_id: userId, score: userEntry.score, rank: betterCount + 1 }] : [] }
+
+    return { rows: [{ user_id: userId, score: userEntry.score, rank: betterCount + 1 }] }
   }
 
   async upsertHardcoreRecord(record: HardcoreRecord): Promise<QueryResult> {
