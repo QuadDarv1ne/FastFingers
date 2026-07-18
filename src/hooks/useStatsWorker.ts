@@ -113,7 +113,7 @@ export function useStatsWorker(): UseStatsWorkerReturn {
         const abortError = new DOMException('Worker terminated', 'AbortError')
         pendingMap.forEach(({ reject }) => reject(abortError))
         pendingMap.clear()
-        timeoutsMap.forEach((_, id) => clearTimeout(id))
+        timeoutsMap.forEach((timeoutId) => clearTimeout(timeoutId))
         timeoutsMap.clear()
       }
     } catch (err) {

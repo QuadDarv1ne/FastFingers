@@ -31,6 +31,7 @@ export interface DuelsData {
   opponent_accuracy?: number
   created_at: string
   updated_at: string
+  completed_at?: string
   challenger: {
     id: string
     name: string
