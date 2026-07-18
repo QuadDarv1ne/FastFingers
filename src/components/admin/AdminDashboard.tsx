@@ -19,7 +19,10 @@ function safeParseLength(key: string): number {
     const raw = localStorage.getItem(key)
     if (!raw) return 0
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.length : 0
+    if (Array.isArray(parsed)) return parsed.length
+    // Handle HistoryData format { sessions: [...], totalSessions: N }
+    if (parsed && typeof parsed === 'object' && Array.isArray(parsed.sessions)) return parsed.sessions.length
+    return 0
   } catch {
     logger.warn(`Failed to parse stored data for key: ${key}`)
     return 0

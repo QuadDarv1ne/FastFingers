@@ -28,8 +28,23 @@ function stripPasswords(users: StoredUser[]): DisplayUser[] {
   return users.map(({ password: _, ...rest }) => rest)
 }
 
-function loadHistory(): Array<{ userId: string; date: string; wpm: number; accuracy: number; duration: number; errors: number; wordsTyped: number }> {
-  return getFromStorageAsArray(STORAGE_KEYS.HISTORY)
+type HistoryEntry = { userId?: string; date: string; wpm: number; accuracy: number; duration: number; errors: number; wordsTyped?: number }
+
+function loadHistory(): HistoryEntry[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.HISTORY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    // HistoryData format: { sessions: SessionData[], ... }
+    if (parsed && typeof parsed === 'object' && Array.isArray(parsed.sessions)) {
+      return parsed.sessions
+    }
+    // Legacy flat array format
+    if (Array.isArray(parsed)) return parsed
+    return []
+  } catch {
+    return []
+  }
 }
 
 type SortField = 'name' | 'level' | 'xp' | 'wpm' | 'lastLogin' | 'createdAt'
@@ -58,6 +73,7 @@ export function UserAdmin({ onViewStudent }: UserAdminProps) {
   const userSessionCounts = useMemo(() => {
     const counts: Record<string, { sessions: number; totalWords: number; totalTime: number }> = {}
     for (const h of history) {
+      if (!h.userId) continue
       const entry = counts[h.userId] || { sessions: 0, totalWords: 0, totalTime: 0 }
       entry.sessions++
       entry.totalWords += h.wordsTyped || 0
